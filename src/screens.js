@@ -186,18 +186,34 @@ export function Postpartum({state,update,open}) {
 }
 
 const babyActions=[
-  {type:'Emzirme',key:'btn_nursing',icon:'nursing',color:'#EB88AF',light:'#F8AFCA'},
-  {type:'Biberon',key:'btn_bottle',icon:'bottle',color:'#AF9BDB',light:'#C8B6EA'},
-  {type:'Uyku',key:'btn_sleep',icon:'moon',color:'#8999DB',light:'#AAB8EF'},
-  {type:'Bez',key:'btn_diaper',icon:'diaper',color:'#77A68D',light:'#A6C5AD'}
+  {type:'Emzirme',key:'btn_nursing',icon:'nursing',bg:'#FCF4F7',border:'#F5E1EC',titleColor:'#6E3958',sub:'Sağ meme • 15 dk'},
+  {type:'Biberon',key:'btn_bottle',icon:'bottle',bg:'#F7F4FB',border:'#EBE1F8',titleColor:'#523977',sub:'120 ml'},
+  {type:'Uyku',key:'btn_sleep',icon:'moon',bg:'#F2F5FB',border:'#DFE8F8',titleColor:'#38517B',sub:'1 sa 20 dk'},
+  {type:'Bez',key:'btn_diaper',icon:'diaper',bg:'#F2F7F4',border:'#DDEEE4',titleColor:'#305D44',sub:'Temiz'}
 ];
 export const sampleRecords=[{id:'s1',type:'Emzirme',value:'Sağ meme • 15 dk',time:'19:20'},{id:'s2',type:'Bez',value:'Temiz',time:'17:10'},{id:'s3',type:'Uyku',value:'1 sa 20 dk',time:'15:30'},{id:'s4',type:'Biberon',value:'120 ml',time:'13:10'}];
-export function RecordList({records}) {return <View>{records.map(r=>{const a=babyActions.find(a=>a.type===r.type)||{icon:'heart',color:colors.purple};return <View key={r.id} style={s.record}><T style={s.recordTime}>{r.time}</T><View style={[s.recordIcon,{backgroundColor:a.color+'35'}]}>{generatedAssets[a.key] ? <Image source={generatedAssets[a.key]} style={{width:24,height:24}} resizeMode="contain"/> : <Icon name={a.icon} size={23} color={a.color}/>}</View><View style={{flex:1}}><T bold style={{fontSize:14}}>{r.type}</T><T style={s.recordValue}>{r.value}</T></View></View>})}</View>}
+export function RecordList({records}) {return <View>{records.map(r=>{const a=babyActions.find(a=>a.type===r.type)||{icon:'heart',color:colors.purple};return <View key={r.id} style={s.record}><T style={s.recordTime}>{r.time}</T><View style={[s.recordIcon,{backgroundColor:a.titleColor+'22'}]}>{generatedAssets[a.key] ? <Image source={generatedAssets[a.key]} style={{width:24,height:24}} resizeMode="contain"/> : <Icon name={a.icon} size={23} color={a.titleColor}/>}</View><View style={{flex:1}}><T bold style={{fontSize:14}}>{r.type}</T><T style={s.recordValue}>{r.value}</T></View></View>})}</View>}
 export function Baby({state,open}) {
   const records=[...state.records,...sampleRecords].slice(0,4);
   return <Page>
     <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage}/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName} · 6 haftalık</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>Minik mutluluğumuz 💛</T></View></View><RoundButton icon="down" label="Yolculuğunu değiştir" onPress={()=>open('journey')}/></View>
-    <View style={s.babyGrid}>{babyActions.map(a=><Tap key={a.type} onPress={()=>open('log',{type:a.type})} label={a.type+' kaydı ekle'} style={s.babyAction}><LinearGradient colors={[a.light,a.color]} start={{x:0,y:0}} end={{x:0.9,y:1}} style={s.babyCircle}>{generatedAssets[a.key] ? <Image source={generatedAssets[a.key]} style={{width:46,height:46}} resizeMode="contain"/> : <Icon name={a.icon} color="white" size={44} strokeWidth={1.4}/>}<T bold style={s.babyActionLabel}>{a.type}</T></LinearGradient></Tap>)}</View>
+    <View style={s.babyGrid}>
+      {babyActions.map(a=>(
+        <Tap key={a.type} onPress={()=>open('log',{type:a.type})} label={a.type+' kaydı ekle'} style={s.babyAction}>
+          <View style={[s.babyCard, { backgroundColor: a.bg, borderColor: a.border }]}>
+            <View style={s.babyHeroBox}>
+              {generatedAssets[a.key] ? (
+                <Image source={generatedAssets[a.key]} style={s.babyHeroImg} resizeMode="contain"/>
+              ) : (
+                <Icon name={a.icon} color={a.titleColor} size={50} strokeWidth={1.4}/>
+              )}
+            </View>
+            <T bold style={[s.babyCardTitle, { color: a.titleColor }]}>{a.type}</T>
+            <T style={s.babyCardSub}>{a.sub}</T>
+          </View>
+        </Tap>
+      ))}
+    </View>
     <Section title="Bugünkü kayıtlar" action="Tümünü gör" onPress={()=>open('records')}/><RecordList records={records}/>
     <Tap onPress={()=>open('log',{type:'Uyku'})} style={s.nextSleep}><View style={s.sleepIcon}>{generatedAssets['banner_next_sleep'] ? <Image source={generatedAssets['banner_next_sleep']} style={{width:54,height:54}} resizeMode="contain"/> : <Icon name="moon" size={42} color="white" fill="#AE98D4"/>}</View><View style={{flex:1}}><T style={{fontSize:13}}>Bir sonraki uyku zamanı</T><T bold style={{fontSize:22,marginTop:5}}>1 sa 15 dk</T><T style={{fontSize:11,marginTop:6}}>{state.babyName} genellikle 21:00 civarı uyuyor.</T></View></Tap>
   </Page>;
@@ -265,7 +281,14 @@ const s=StyleSheet.create({
   appointment:{backgroundColor:'#F2EBF4',borderRadius:19,padding:15,flexDirection:'row',alignItems:'center'},appointmentIcon:{height:49,width:49,borderRadius:25,borderWidth:1.5,borderColor:'#CEC0E2',alignItems:'center',justifyContent:'center',backgroundColor:'#F7F2FA'},
   reminder:{minHeight:90,borderRadius:18,padding:10,flexDirection:'row',alignItems:'center',gap:8},reminderTitle:{fontSize:12},reminderSub:{fontSize:11,lineHeight:16,marginTop:7},
   taskMeta:{fontSize:12,color:colors.muted,marginTop:6,marginBottom:8},task:{flexDirection:'row',alignItems:'center',gap:11,paddingVertical:12,borderTopWidth:1,borderColor:'#F1EAE6'},checkbox:{width:22,height:22,borderRadius:12,borderWidth:1,borderColor:'#9B9CA0',alignItems:'center',justifyContent:'center'},taskText:{flex:1,fontSize:14,color:'#555460'},primary:{backgroundColor:colors.purple,borderRadius:18,padding:16,alignItems:'center',marginTop:20},
-  avatar:{width:65,height:65,borderRadius:34,overflow:'hidden',borderWidth:2,borderColor:'#E6DACE',backgroundColor:'#EAE8E0'},avatarImage:{width:122,height:81,position:'absolute',left:-8,top:-2},babyGrid:{flexDirection:'row',flexWrap:'wrap',justifyContent:'space-between',rowGap:13,paddingHorizontal:12,marginTop:5},babyAction:{width:'44%',aspectRatio:1},babyCircle:{width:'100%',height:'100%',borderRadius:100,alignItems:'center',justifyContent:'center',gap:9,borderWidth:1,borderColor:'#FFFFFF55',...shadow},babyActionLabel:{color:'white',fontSize:16},
+  avatar:{width:65,height:65,borderRadius:34,overflow:'hidden',borderWidth:2,borderColor:'#E6DACE',backgroundColor:'#EAE8E0'},avatarImage:{width:122,height:81,position:'absolute',left:-8,top:-2},
+  babyGrid:{flexDirection:'row',flexWrap:'wrap',justifyContent:'space-between',rowGap:12,marginTop:6,marginBottom:4},
+  babyAction:{width:'48%'},
+  babyCard:{borderRadius:24,borderWidth:1.5,paddingVertical:18,paddingHorizontal:10,alignItems:'center',justifyContent:'center',...shadow},
+  babyHeroBox:{width:84,height:84,alignItems:'center',justifyContent:'center',marginBottom:6},
+  babyHeroImg:{width:84,height:84},
+  babyCardTitle:{fontSize:16,letterSpacing:-0.3},
+  babyCardSub:{fontSize:11,color:colors.muted,marginTop:3},
   record:{flexDirection:'row',alignItems:'center',gap:11,paddingVertical:10,borderTopWidth:1,borderColor:colors.line},recordTime:{fontSize:13,width:44},recordIcon:{width:38,height:38,borderRadius:19,alignItems:'center',justifyContent:'center'},recordValue:{fontSize:12,color:'#666175',marginTop:4},nextSleep:{backgroundColor:'#EEE5F5',borderRadius:19,padding:15,flexDirection:'row',alignItems:'center',gap:16,marginTop:4},sleepIcon:{height:50,width:50,borderRadius:25,backgroundColor:'#B9A2D9',alignItems:'center',justifyContent:'center'},
   search:{flexDirection:'row',alignItems:'center',gap:9,backgroundColor:'#EFEAE6',borderRadius:24,paddingHorizontal:14,minHeight:44},searchInput:{flex:1,fontFamily:fonts.regular,color:colors.ink,fontSize:13,paddingVertical:10,outlineStyle:'none'},article:{height:184,borderRadius:20,overflow:'hidden',backgroundColor:'#ECDED3'},articleImage:{position:'absolute',width:370,height:247,right:-170,top:-20,transform:[{scaleX:-1}]},articleTag:{position:'absolute',top:16,left:15,fontSize:11,color:'#686266',backgroundColor:'#FFFCF9EE',borderRadius:15,paddingHorizontal:12,paddingVertical:6},articleCopy:{position:'absolute',left:15,bottom:17},articleArrow:{position:'absolute',right:12,bottom:13,width:30,height:30,borderRadius:15,backgroundColor:'#FFFCF9',alignItems:'center',justifyContent:'center'},
   categories:{flexDirection:'row',flexWrap:'wrap',gap:10},category:{width:'48%',flexGrow:1,alignItems:'center',paddingVertical:6,borderRadius:14,borderWidth:1.5},product:{flex:1,borderWidth:1,borderColor:colors.line,borderRadius:16,padding:11,backgroundColor:'#FFFCF8',...shadow},productPlus:{position:'absolute',right:10,top:22,width:28,height:28,borderRadius:14,backgroundColor:'white',alignItems:'center',justifyContent:'center',...shadow},
