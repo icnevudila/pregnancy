@@ -5,15 +5,14 @@
       "filename": "onboarding_hero_pregnancy.png",
       "prompt": "Award-winning artistic 3D illustration of a glowing, radiant expectant mother gently cradling her pregnant belly with deep maternal tenderness, surrounded by delicate floating warm golden light particles and soft pastel watercolor floral accents, ethereal serene atmosphere, warm cream and dusty rose tones, cinematic lighting, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": false,
-      "status": "error",
+      "status": "done",
       "attempts": 6,
       "createdAt": 1789249250053,
       "updatedAt": 1789250267746,
       "platform": "unknown",
       "preferredPlatform": "chatgpt",
       "thumb": "/assets/onboarding_hero_pregnancy.png",
-      "startedAt": 1789250232740,
-      "error": "Capture timeout"
+      "startedAt": 1789250232740
     },
     {
       "id": "job_1789249250053_ejijl",
@@ -50,13 +49,14 @@
       "filename": "onboarding_daily_guidance.png",
       "prompt": "High-end 3D modern isometric aesthetic concept of daily maternal health guidance, featuring an elegant glowing celestial calendar, a soft pastel stethoscope entwined with blooming jasmine flowers, and an open golden advice scroll, soft sage green, lilac and warm ivory colors, 8k render, clean studio lighting, no text, no watermarks.",
       "transparent": false,
-      "status": "processing",
+      "status": "done",
       "attempts": 4,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249831771,
+      "updatedAt": 1789250432578,
       "platform": "unknown",
       "preferredPlatform": "chatgpt",
-      "startedAt": 1789250308880
+      "startedAt": 1789250308880,
+      "thumb": "/assets/onboarding_daily_guidance.png"
     },
     {
       "id": "job_1789249250053_t575l",
@@ -91,12 +91,14 @@
       "filename": "infographic_labor_stages.png",
       "prompt": "Serene artistic medical visual representation of the journey of childbirth: three harmonious elegant phases showing early labor serenity in a birthing tub with gentle warm water ripples, active labor breathing with partner support, and the triumphant golden hour of mother holding newborn skin-to-skin against her heart, warm amber and soft mauve palette, tasteful fine art aesthetic, 8k resolution, no graphic medical gore, dignified and uplifting, no text, no logos.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 2,
+      "status": "done",
+      "attempts": 3,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249727893,
+      "updatedAt": 1789250491107,
       "platform": "unknown",
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "chatgpt",
+      "startedAt": 1789250432828,
+      "thumb": "/assets/infographic_labor_stages.png"
     },
     {
       "id": "job_1789249250053_ypzo2",
@@ -739,6 +741,506 @@
       "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any"
+    },
+    {
+      "id": "job_1789250674098_nxqq4",
+      "filename": "animal_caterpillar.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby caterpillar sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674099
+    },
+    {
+      "id": "job_1789250674100_udr27",
+      "filename": "animal_dragonfly.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby dragonfly sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_3tw5u",
+      "filename": "animal_grasshopper.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby grasshopper sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_pin8i",
+      "filename": "animal_fish.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby fish sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_2dlwa",
+      "filename": "animal_treefrog.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby treefrog sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_q9n2a",
+      "filename": "animal_sparrow.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby sparrow sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_k8dsq",
+      "filename": "animal_squirrel.png",
+      "prompt": "High-end 3D claymorphic cute bushy-tailed baby squirrel holding a smooth acorn, warm terracotta and cream porcelain, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_mau0n",
+      "filename": "animal_chameleon.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby chameleon sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_sig35",
+      "filename": "animal_parakeet.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby parakeet sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_umpud",
+      "filename": "animal_chinchilla.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby chinchilla sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_2zqb2",
+      "filename": "animal_ferret.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby ferret sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_mfegg",
+      "filename": "animal_duckling.png",
+      "prompt": "High-end 3D claymorphic adorable baby yellow duckling waddling cheerfully, smooth pastel porcelain clay, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_q7cjk",
+      "filename": "animal_puppy.png",
+      "prompt": "High-end 3D claymorphic cute golden retriever puppy sitting attentively with floppy ears, soft caramel porcelain clay, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_y6sf8",
+      "filename": "animal_raccoon.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby raccoon sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_furex",
+      "filename": "animal_sloth.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby sloth sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_w26ey",
+      "filename": "animal_badger.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby badger sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_a0lxa",
+      "filename": "animal_fennec.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby fennec sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_lfre5",
+      "filename": "animal_kangaroo.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby kangaroo sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_4nwyg",
+      "filename": "animal_penguin.png",
+      "prompt": "High-end 3D claymorphic cute emperor penguin chick with soft gray downy feathers and sweet baby eyes, smooth porcelain, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_hs0eo",
+      "filename": "animal_beaver.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby beaver sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_l6rdp",
+      "filename": "animal_skunk.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby skunk sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_y18ve",
+      "filename": "animal_panda.png",
+      "prompt": "High-end 3D claymorphic cute chubby giant panda cub chewing gently on a bamboo shoot, soft matte porcelain clay, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_bfdg5",
+      "filename": "animal_lamb.png",
+      "prompt": "High-end 3D claymorphic cute woolly baby lamb with curly clay fleece and gentle peaceful expression, soft ivory white, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674100_gr8s5",
+      "filename": "animal_seal.png",
+      "prompt": "High-end 3D claymorphic cute white baby harp seal pup lying on soft ice belly down, big shiny black eyes, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674100
+    },
+    {
+      "id": "job_1789250674101_nzwg3",
+      "filename": "animal_bear_cub.png",
+      "prompt": "High-end 3D claymorphic cute adorable baby bear cub sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674101
+    },
+    {
+      "id": "job_1789250674101_c512j",
+      "filename": "sweet_chocolate.png",
+      "prompt": "High-end 3D claymorphic glossy milk chocolate bonbon with delicate golden caramel drizzle and hazelnut topping, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674101
+    },
+    {
+      "id": "job_1789250674101_bcjap",
+      "filename": "sweet_blueberry_bonbon.png",
+      "prompt": "High-end 3D claymorphic delicious cute blueberry bonbon pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674101
+    },
+    {
+      "id": "job_1789250674101_60vog",
+      "filename": "sweet_caramel.png",
+      "prompt": "High-end 3D claymorphic delicious cute caramel pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674101
+    },
+    {
+      "id": "job_1789250674101_y0epv",
+      "filename": "sweet_almond_candy.png",
+      "prompt": "High-end 3D claymorphic delicious cute almond candy pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674101
+    },
+    {
+      "id": "job_1789250674101_q9p78",
+      "filename": "sweet_turkish_delight.png",
+      "prompt": "High-end 3D claymorphic delicious cute turkish delight pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674101
+    },
+    {
+      "id": "job_1789250674101_w8xea",
+      "filename": "sweet_pretzel.png",
+      "prompt": "High-end 3D claymorphic delicious cute pretzel pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674101
+    },
+    {
+      "id": "job_1789250674101_09335",
+      "filename": "sweet_pancake.png",
+      "prompt": "High-end 3D claymorphic delicious cute pancake pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674101
+    },
+    {
+      "id": "job_1789250674101_9ubfn",
+      "filename": "sweet_icecream.png",
+      "prompt": "High-end 3D claymorphic delicious cute icecream pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674101
+    },
+    {
+      "id": "job_1789250674101_overm",
+      "filename": "sweet_honeyjar.png",
+      "prompt": "High-end 3D claymorphic delicious cute honeyjar pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674101
+    },
+    {
+      "id": "job_1789250674104_ha6kz",
+      "filename": "sweet_cheesecake.png",
+      "prompt": "High-end 3D claymorphic delicious cute cheesecake pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674104
+    },
+    {
+      "id": "job_1789250674104_iwmaq",
+      "filename": "sweet_pie.png",
+      "prompt": "High-end 3D claymorphic delicious cute pie pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674104
+    },
+    {
+      "id": "job_1789250674104_glz3l",
+      "filename": "sweet_parfait.png",
+      "prompt": "High-end 3D claymorphic delicious cute parfait pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674104
+    },
+    {
+      "id": "job_1789250674104_fcxn5",
+      "filename": "sweet_chocobox.png",
+      "prompt": "High-end 3D claymorphic delicious cute chocobox pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674104
+    },
+    {
+      "id": "job_1789250674104_umtdr",
+      "filename": "sweet_sundae.png",
+      "prompt": "High-end 3D claymorphic delicious cute sundae pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674104
+    },
+    {
+      "id": "job_1789250674104_twrof",
+      "filename": "sweet_basket.png",
+      "prompt": "High-end 3D claymorphic delicious cute basket pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674104
+    },
+    {
+      "id": "job_1789250674104_k10fm",
+      "filename": "sweet_pecan_pie.png",
+      "prompt": "High-end 3D claymorphic delicious cute pecan pie pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674104
+    },
+    {
+      "id": "job_1789250674104_16uz4",
+      "filename": "sweet_giant_croissant.png",
+      "prompt": "High-end 3D claymorphic delicious cute giant croissant pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674104
+    },
+    {
+      "id": "job_1789250674104_yefj5",
+      "filename": "sweet_teapot.png",
+      "prompt": "High-end 3D claymorphic delicious cute teapot pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674104
+    },
+    {
+      "id": "job_1789250674104_38ypy",
+      "filename": "sweet_cotton_candy.png",
+      "prompt": "High-end 3D claymorphic delicious cute cotton candy pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674104
+    },
+    {
+      "id": "job_1789250674104_acci7",
+      "filename": "sweet_strawberry_cake.png",
+      "prompt": "High-end 3D claymorphic delicious cute strawberry cake pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674104
+    },
+    {
+      "id": "job_1789250674104_xgwjd",
+      "filename": "sweet_tier_cake.png",
+      "prompt": "High-end 3D claymorphic delicious cute tier cake pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674104
+    },
+    {
+      "id": "job_1789250674104_kabsl",
+      "filename": "sweet_mega_donut.png",
+      "prompt": "High-end 3D claymorphic delicious cute mega donut pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674104
+    },
+    {
+      "id": "job_1789250674104_mpvo3",
+      "filename": "sweet_picnic_hamper.png",
+      "prompt": "High-end 3D claymorphic delicious cute picnic hamper pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674104
+    },
+    {
+      "id": "job_1789250674104_7er1i",
+      "filename": "sweet_balloon_bouquet.png",
+      "prompt": "High-end 3D claymorphic delicious cute balloon bouquet pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674104
+    },
+    {
+      "id": "job_1789250674104_faslp",
+      "filename": "sweet_gift_box.png",
+      "prompt": "High-end 3D claymorphic delicious cute gift box pastry sweet with glossy icing, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "preferredPlatform": "any",
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789250674104
     }
   ]
 }

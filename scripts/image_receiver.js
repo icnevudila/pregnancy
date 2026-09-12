@@ -16,6 +16,13 @@ const DOWNLOADS_DIR = 'C:\\Users\\TP2\\Downloads';
 const QUEUE_FILE = path.join(__dirname, 'generation_queue.json');
 const GENERATED_ASSETS_FILE = path.join(__dirname, '..', 'src', 'generatedAssets.js');
 
+let projectScanner = null;
+try {
+  projectScanner = require('./project_scanner');
+} catch (e) {
+  console.warn('[MOMORA] project_scanner modulu yuklenemedi:', e.message);
+}
+
 // --- GLOBAL MUTEX LOCK (Çakışma Önleyici Tekil Kilit) ---
 // ChatGPT ve Gemini'nin aynı anda üretmesini kesin olarak engeller
 let activeLock = null; // { platform, filename, jobId, startedAt }
@@ -403,6 +410,40 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // F. Otomatik Proje Kod Taraması (Eksikleri Listele)
+  if (req.method === 'GET' && req.url === '/project/scan') {
+    if (!projectScanner) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'projectScanner not loaded' }));
+    }
+    try {
+      const scanResult = projectScanner.scanProjectForMissingAssets();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(scanResult));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
+  // G. Eksikleri Otomatik Olarak Üretim Sırasına Ekle (Sync to Queue)
+  if (req.method === 'POST' && (req.url === '/project/scan-and-queue' || req.url === '/project/sync')) {
+    if (!projectScanner) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'projectScanner not loaded' }));
+    }
+    try {
+      const result = projectScanner.syncMissingToQueue();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, ...result }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
   // 1. Mevcut Dosya Listesi Endpointi
   if (req.method === 'GET' && (req.url === '/list' || req.url.startsWith('/list?'))) {
     try {
@@ -480,4 +521,16 @@ server.listen(PORT, () => {
   updateGeneratedAssetsFile();
   setInterval(updateGeneratedAssetsFile, 3000);
   setInterval(harvestDownloadsFolder, 2500);
+
+  // Otomatik Proje Kod Taraması (Her 45 saniyede bir eksikleri tara ve kuyruğa ekle)
+  if (projectScanner) {
+    try {
+      projectScanner.syncMissingToQueue();
+    } catch (e) {}
+    setInterval(() => {
+      try {
+        projectScanner.syncMissingToQueue();
+      } catch (e) {}
+    }, 45000);
+  }
 });

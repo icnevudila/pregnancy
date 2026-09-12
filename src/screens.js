@@ -846,8 +846,12 @@ export function Pregnancy({ state, update, open }) {
     <Card style={{ padding: 16, backgroundColor: '#FFFDF9', borderColor: '#EFE0D8' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#FCEEF2', alignItems: 'center', justifyContent: 'center' }}>
-            <T style={{ fontSize: 18 }}>💌</T>
+          <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FCEEF2', alignItems: 'center', justifyContent: 'center' }}>
+            {generatedAssets['ui_baby_letter_envelope'] ? (
+              <Image source={generatedAssets['ui_baby_letter_envelope']} style={{ width: 24, height: 24 }} resizeMode="contain" />
+            ) : (
+              <Icon name="mail" size={20} color={colors.purple} />
+            )}
           </View>
           <View>
             <T bold style={{ fontSize: 14, color: colors.purple }}>Bebeğinden Günün Mektubu</T>
@@ -906,24 +910,36 @@ export function Pregnancy({ state, update, open }) {
       </View>
 
       <View style={{ gap: 8 }}>
-        <View style={{ flexDirection: 'row', gap: 10, backgroundColor: '#FAF6FA', padding: 10, borderRadius: 12 }}>
-          <T style={{ fontSize: 18 }}>🍼</T>
+        <View style={{ flexDirection: 'row', gap: 10, backgroundColor: '#FAF6FA', padding: 10, borderRadius: 12, alignItems: 'center' }}>
+          {generatedAssets['ui_fetal_brain_3d'] ? (
+            <Image source={generatedAssets['ui_fetal_brain_3d']} style={{ width: 28, height: 28 }} resizeMode="contain" />
+          ) : (
+            <Icon name="baby" size={24} color={colors.purple} />
+          )}
           <View style={{ flex: 1 }}>
             <T bold style={{ fontSize: 12, color: colors.purple }}>Bebeğin</T>
             <T style={{ fontSize: 12.5, color: '#4E4252', marginTop: 1, lineHeight: 17 }}>{tc.baby}</T>
           </View>
         </View>
 
-        <View style={{ flexDirection: 'row', gap: 10, backgroundColor: '#FDF3F5', padding: 10, borderRadius: 12 }}>
-          <T style={{ fontSize: 18 }}>💜</T>
+        <View style={{ flexDirection: 'row', gap: 10, backgroundColor: '#FDF3F5', padding: 10, borderRadius: 12, alignItems: 'center' }}>
+          {generatedAssets['ui_fetal_heart_3d'] ? (
+            <Image source={generatedAssets['ui_fetal_heart_3d']} style={{ width: 28, height: 28 }} resizeMode="contain" />
+          ) : (
+            <Icon name="heart" size={24} color="#A03B64" />
+          )}
           <View style={{ flex: 1 }}>
             <T bold style={{ fontSize: 12, color: '#A03B64' }}>Bedenin</T>
             <T style={{ fontSize: 12.5, color: '#563D4A', marginTop: 1, lineHeight: 17 }}>{tc.mom}</T>
           </View>
         </View>
 
-        <View style={{ flexDirection: 'row', gap: 10, backgroundColor: '#F3F8F4', padding: 10, borderRadius: 12 }}>
-          <T style={{ fontSize: 18 }}>🌿</T>
+        <View style={{ flexDirection: 'row', gap: 10, backgroundColor: '#F3F8F4', padding: 10, borderRadius: 12, alignItems: 'center' }}>
+          {generatedAssets['ui_timeline_sun_moon'] ? (
+            <Image source={generatedAssets['ui_timeline_sun_moon']} style={{ width: 28, height: 28 }} resizeMode="contain" />
+          ) : (
+            <Icon name="leaf" size={24} color="#38734A" />
+          )}
           <View style={{ flex: 1 }}>
             <T bold style={{ fontSize: 12, color: '#38734A' }}>Günün Tavsiyesi</T>
             <T style={{ fontSize: 12.5, color: '#3A5442', marginTop: 1, lineHeight: 17 }}>{tc.tip}</T>
@@ -935,8 +951,12 @@ export function Pregnancy({ state, update, open }) {
     {/* ─── 6. BUGÜNÜN CANLI TAKİP GÜNLÜĞÜ (CHECKLIST & KAYIT LİSTESİ) ─── */}
     <Card style={{ padding: 16 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <T style={{ fontSize: 16 }}>📋</T>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          {generatedAssets['ui_doctor_prep_notebook'] ? (
+            <Image source={generatedAssets['ui_doctor_prep_notebook']} style={{ width: 24, height: 24 }} resizeMode="contain" />
+          ) : (
+            <Icon name="book" size={20} color={colors.purple} />
+          )}
           <T bold style={{ fontSize: 15, color: colors.ink }}>Bugünün Takip Günlüğü</T>
         </View>
         <Tap onPress={() => open('toolsHub')} style={{ padding: 4 }}>
@@ -947,11 +967,15 @@ export function Pregnancy({ state, update, open }) {
       <View style={{ gap: 8 }}>
         {/* 1. Su Takibi */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderColor: '#F2EAF3' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <T style={{ fontSize: 16 }}>💧</T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            {generatedAssets['card_water'] ? (
+              <Image source={generatedAssets['card_water']} style={{ width: 34, height: 34 }} resizeMode="contain" />
+            ) : (
+              <Icon name="drop" size={26} color="#367B9E" />
+            )}
             <View>
               <T bold style={{ fontSize: 13 }}>Su Takibi · {state.water || 4}/8 Bardak</T>
-              <T style={{ fontSize: 11, color: colors.muted }}>{(state.water * 0.25).toFixed(1)} / 2.0 Litre tamamlandı</T>
+              <T style={{ fontSize: 11, color: colors.muted }}>{((state.water || 4) * 0.25).toFixed(1)} / 2.0 Litre tamamlandı</T>
             </View>
           </View>
           <Tap onPress={() => update(old => ({ water: Math.min(12, (old.water || 0) + 1) }))} style={{ backgroundColor: '#EDF5F8', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
@@ -961,8 +985,12 @@ export function Pregnancy({ state, update, open }) {
 
         {/* 2. Vitamin Takibi */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderColor: '#F2EAF3' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <T style={{ fontSize: 16 }}>💊</T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            {generatedAssets['card_vitamin'] ? (
+              <Image source={generatedAssets['card_vitamin']} style={{ width: 34, height: 34 }} resizeMode="contain" />
+            ) : (
+              <Icon name="heart" size={26} color="#A8453E" />
+            )}
             <View>
               <T bold style={{ fontSize: 13 }}>Vitamin Notu</T>
               <T style={{ fontSize: 11, color: state.vitamin ? '#3A8253' : colors.muted }}>
@@ -979,8 +1007,12 @@ export function Pregnancy({ state, update, open }) {
 
         {/* 3. Tekme Takibi */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderColor: '#F2EAF3' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <T style={{ fontSize: 16 }}>🦶</T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            {generatedAssets['card_kick_counter'] ? (
+              <Image source={generatedAssets['card_kick_counter']} style={{ width: 34, height: 34 }} resizeMode="contain" />
+            ) : (
+              <Icon name="footprint" size={26} color="#A03B64" />
+            )}
             <View>
               <T bold style={{ fontSize: 13 }}>Hareket Seansı</T>
               <T style={{ fontSize: 11, color: colors.muted }}>
@@ -995,8 +1027,12 @@ export function Pregnancy({ state, update, open }) {
 
         {/* 4. Kilo Takibi */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderColor: '#F2EAF3' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <T style={{ fontSize: 16 }}>⚖️</T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            {generatedAssets['card_scale'] ? (
+              <Image source={generatedAssets['card_scale']} style={{ width: 34, height: 34 }} resizeMode="contain" />
+            ) : (
+              <Icon name="scale" size={26} color="#34754B" />
+            )}
             <View>
               <T bold style={{ fontSize: 13 }}>Kilo Takibi · {state.weights?.[0]?.value || state.startWeight || 60} kg</T>
               <T style={{ fontSize: 11, color: '#3A8253' }}>Haftalık eğilimi güncelle</T>
@@ -1009,8 +1045,12 @@ export function Pregnancy({ state, update, open }) {
 
         {/* 5. Ruh Hali */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <T style={{ fontSize: 16 }}>🌸</T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            {generatedAssets['ui_postpartum_lotus'] ? (
+              <Image source={generatedAssets['ui_postpartum_lotus']} style={{ width: 34, height: 34 }} resizeMode="contain" />
+            ) : (
+              <Icon name="heart" size={26} color={colors.purple} />
+            )}
             <View>
               <T bold style={{ fontSize: 13 }}>Günün Ruh Hali: {moodLabels[state.mood ?? 0]}</T>
               <T style={{ fontSize: 11, color: colors.muted }}>Bugünkü hissini kısa notla takip et</T>
@@ -1030,24 +1070,36 @@ export function Pregnancy({ state, update, open }) {
         label="Ultrason atlasını aç"
         style={{flex:1,padding:10,borderRadius:16,backgroundColor:'#F3EEF5',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#E6DCea'}}
       >
-        <T style={{fontSize:16}}>🩺</T>
-        <T bold style={{fontSize:11,color:colors.ink,marginTop:3}}>Ultrason Atlası</T>
+        {generatedAssets['ui_ultrasound_hdlive_20w'] ? (
+          <Image source={generatedAssets['ui_ultrasound_hdlive_20w']} style={{ width: 28, height: 28 }} resizeMode="contain" />
+        ) : (
+          <Icon name="camera" size={22} color={colors.purple} />
+        )}
+        <T bold style={{fontSize:11,color:colors.ink,marginTop:4}}>Ultrason Atlası</T>
       </Tap>
       <Tap
         onPress={() => open('organDevelopment')}
         label="Organ gelişimini aç"
         style={{flex:1,padding:10,borderRadius:16,backgroundColor:'#FDF2F4',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#EED9DF'}}
       >
-        <T style={{fontSize:16}}>💓</T>
-        <T bold style={{fontSize:11,color:colors.ink,marginTop:3}}>Organ & Kalp</T>
+        {generatedAssets['ui_fetal_heart_3d'] ? (
+          <Image source={generatedAssets['ui_fetal_heart_3d']} style={{ width: 28, height: 28 }} resizeMode="contain" />
+        ) : (
+          <Icon name="heart" size={22} color="#A03B64" />
+        )}
+        <T bold style={{fontSize:11,color:colors.ink,marginTop:4}}>Organ & Kalp</T>
       </Tap>
       <Tap
         onPress={() => open('medicalTimeline')}
         label="Tıbbi takvimi aç"
         style={{flex:1,padding:10,borderRadius:16,backgroundColor:'#EEF5F2',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#D8E8E0'}}
       >
-        <T style={{fontSize:16}}>📅</T>
-        <T bold style={{fontSize:11,color:colors.ink,marginTop:3}}>Kontrol Takvimi</T>
+        {generatedAssets['ui_timeline_sun_moon'] ? (
+          <Image source={generatedAssets['ui_timeline_sun_moon']} style={{ width: 28, height: 28 }} resizeMode="contain" />
+        ) : (
+          <Icon name="calendar" size={22} color="#34754B" />
+        )}
+        <T bold style={{fontSize:11,color:colors.ink,marginTop:4}}>Kontrol Takvimi</T>
       </Tap>
     </View>
 
@@ -1187,6 +1239,7 @@ export function Postpartum({state,update,open}) {
   const [tab,setTab]=useState('Bugün');
   const tasks=['Bol sıvı tüket','Hafif yürüyüş yap','Pelvik taban egzersizlerini yap','Kendine zaman ayır','Destek al, yalnız değilsin 💜'];
   return <Page>
+    <ScreenHero kicker="LOHUSALIK AKIŞI" title="12. gün toparlanma" body="Ruh hali, iyileşme adımları ve günlük notlar aynı bakım ritminde kalsın." icon="leaf" asset="ui_postpartum_lotus" stat={`${state.tasks.filter(Boolean).length}/5 adım`} tint="#86518A" />
     <View style={s.topline}><View><T bold style={s.pageTitle}>Lohusalık · 12. gün</T><T style={s.subtitle}>Bugünü küçük adımlarla toparlayalım 🌸</T></View><RoundButton icon="down" label="Yolculuğunu değiştir" onPress={()=>open('journey')}/></View>
     <Tabs items={['Bugün','İyileşme','Ruh Halim','Notlar']} active={tab} onChange={setTab}/>
     {tab==='Bugün'||tab==='Ruh Halim'?<Card style={{padding:13}}><MoodPicker postpartum value={state.postpartumMood} onChange={postpartumMood=>update({postpartumMood})}/>{tab==='Bugün'&&<View style={[s.row,{gap:10,marginTop:16,paddingTop:12,borderTopWidth:1,borderColor:colors.line}]}><SmallStat title="Uyku" value="6 sa 20 dk" icon="moon" tint="#F0EAF5" onPress={()=>open('log',{type:'Uyku'})}/><SmallStat title="Su" value={`${state.water}/8 bardak`} icon="drop" tint="#E6F0F4" onPress={()=>update(old=>({water:Math.min(8,old.water+1)}))}/></View>}</Card>:null}
@@ -1206,7 +1259,8 @@ export function RecordList({records}) {return <View>{records.map(r=>{const a=bab
 export function Baby({state,open}) {
   const records=[...state.records,...sampleRecords].slice(0,4);
   return <Page>
-    <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage} resizeMode="cover"/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName} · 6 haftalık</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>Bugünün bakım ritmi</T></View></View><RoundButton icon="down" label="Yolculuğunu değiştir" onPress={()=>open('journey')}/></View>
+    <ScreenHero kicker="BEBEK BAKIMI" title={`${state.babyName || 'Bebeğin'} · 6 haftalık`} body="Beslenme, uyku, bez kayıtları ve bakım rehberleri tek günlük panelde birleşir." icon="baby" asset="baby" stat={`${records.length} kayıt`} tint="#6E5A96" />
+    <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage} resizeMode="cover"/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName || 'Bebeğin'} · 6 haftalık</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>Bugünün bakım ritmi</T></View></View><RoundButton icon="down" label="Yolculuğunu değiştir" onPress={()=>open('journey')}/></View>
     <View style={s.babyGrid}>
       {babyActions.map(a=>(
         <Tap
