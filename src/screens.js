@@ -3,7 +3,7 @@ import { View, Image, StyleSheet, TextInput, Keyboard, ScrollView, Animated } fr
 import { LinearGradient } from 'expo-linear-gradient';
 import { assets, colors, fonts, shadow } from './theme';
 import { Icon, BrandMark, ProductArt, FruitArt, ComparisonArt } from './Icons';
-import { generatedAssets } from './generatedAssets';
+import { generatedAssets, getAsset } from './generatedAssets';
 import { T, Tap, Card, RoundButton, Section, Tabs, MoodPicker, Progress, SmallStat, Page, ScreenHero } from './ui';
 import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel, pregnancyProgress, TOTAL_WEEKS } from './weekData';
 import { usePulse, useCrossFade } from './anim';
@@ -646,14 +646,17 @@ export function Pregnancy({ state, update, open }) {
             label={art.title}
             style={{width:220,borderRadius:18,backgroundColor:'#FFFFFF',overflow:'hidden',borderWidth:1,borderColor:'#EBE2EB',...shadow}}
           >
-            {generatedAssets[art.image] && (
-              <View style={{height:110,backgroundColor:'#F2EBF4'}}>
-                <Image source={generatedAssets[art.image]} style={StyleSheet.absoluteFill} resizeMode="cover"/>
-                <View style={{position:'absolute',top:8,right:8,backgroundColor:'#00000077',paddingHorizontal:7,paddingVertical:2,borderRadius:8}}>
-                  <T style={{fontSize:10,color:'white'}}>⏱️ {art.minutes} dk</T>
+            {(() => {
+              const coverImg = generatedAssets[art.image] || getAsset(art.image);
+              return coverImg ? (
+                <View style={{height:110,backgroundColor:'#F2EBF4'}}>
+                  <Image source={coverImg} style={StyleSheet.absoluteFill} resizeMode="cover"/>
+                  <View style={{position:'absolute',top:8,right:8,backgroundColor:'#00000077',paddingHorizontal:7,paddingVertical:2,borderRadius:8}}>
+                    <T style={{fontSize:10,color:'white'}}>⏱️ {art.minutes} dk</T>
+                  </View>
                 </View>
-              </View>
-            )}
+              ) : null;
+            })()}
             <View style={{padding:12}}>
               <T bold numberOfLines={2} style={{fontSize:13,color:colors.ink,lineHeight:18}}>{art.title}</T>
               <T numberOfLines={1} style={{fontSize:11,color:colors.muted,marginTop:4}}>{art.subtitle}</T>
@@ -730,14 +733,17 @@ export function Baby({state,open}) {
             label={art.title}
             style={{width:220,borderRadius:18,backgroundColor:'#FFFFFF',overflow:'hidden',borderWidth:1,borderColor:'#EBE2EB',...shadow}}
           >
-            {generatedAssets[art.image] && (
-              <View style={{height:110,backgroundColor:'#EEF4F7'}}>
-                <Image source={generatedAssets[art.image]} style={StyleSheet.absoluteFill} resizeMode="cover"/>
-                <View style={{position:'absolute',top:8,right:8,backgroundColor:'#00000077',paddingHorizontal:7,paddingVertical:2,borderRadius:8}}>
-                  <T style={{fontSize:10,color:'white'}}>⏱️ {art.minutes} dk</T>
+            {(() => {
+              const coverImg = generatedAssets[art.image] || getAsset(art.image);
+              return coverImg ? (
+                <View style={{height:110,backgroundColor:'#EEF4F7'}}>
+                  <Image source={coverImg} style={StyleSheet.absoluteFill} resizeMode="cover"/>
+                  <View style={{position:'absolute',top:8,right:8,backgroundColor:'#00000077',paddingHorizontal:7,paddingVertical:2,borderRadius:8}}>
+                    <T style={{fontSize:10,color:'white'}}>⏱️ {art.minutes} dk</T>
+                  </View>
                 </View>
-              </View>
-            )}
+              ) : null;
+            })()}
             <View style={{padding:12}}>
               <T bold numberOfLines={2} style={{fontSize:13,color:colors.ink,lineHeight:18}}>{art.title}</T>
               <T numberOfLines={1} style={{fontSize:11,color:colors.muted,marginTop:4}}>{art.subtitle}</T>

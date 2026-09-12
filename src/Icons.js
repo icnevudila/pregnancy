@@ -43,6 +43,9 @@ const paths = {
   contraction: 'M2 12H6L9 4L13 20L16 10L18 14H22',
   footprint: 'M11 9C9 9 7 11 7 14C7 17 9 21 12 21C15 21 17 17 17 14C17 11 15 9 13 9M9 5A1.5 1.5 0 1 0 9 2A1.5 1.5 0 0 0 9 5M12 4.5A1.3 1.3 0 1 0 12 2A1.3 1.3 0 0 0 12 4.5M15 5A1.2 1.2 0 1 0 15 2.5A1.2 1.2 0 0 0 15 5M17.5 6.5A1 1 0 1 0 17.5 4.5A1 1 0 0 0 17.5 6.5',
   refresh: 'M20 11A8.1 8.1 0 0 0 4.5 9M4 5V9H8M4 13A8.1 8.1 0 0 0 19.5 15M20 19V15H16',
+  clock: 'M12 2A10 10 0 1 0 22 12 10 10 0 0 0 12 2ZM12 6V12L16 14',
+  sparkle: 'M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z',
+  folder: 'M22 19A2 2 0 0 1 20 21H4A2 2 0 0 1 2 19V5A2 2 0 0 1 4 3H9L11 6H20A2 2 0 0 1 22 8Z',
 };
 
 export function Icon({ name, size = 24, color = colors.ink, fill = 'none', strokeWidth = 1.55, ...props }) {
@@ -71,15 +74,6 @@ export function BrandMark({ size = 45, outline = false }) {
 }
 
 export function MoodFace({ index, size = 43 }) {
-  const moodKeys = ['mood_great', 'mood_good', 'mood_neutral', 'mood_tired', 'mood_difficult'];
-  const img = generatedAssets[moodKeys[index]];
-  if (img) {
-    return (
-      <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
-        <Image source={img} style={{ width: size, height: size }} resizeMode="contain" />
-      </View>
-    );
-  }
 
   const tone = ['#D9E6B5', '#FFE3A0', '#DCE0FB', '#FFD3B6', '#FAC9CA'][index];
   const mouth = ['M13 25Q22 38 31 25Z', 'M15 27Q22 33 29 27', 'M16 29H28', 'M16 31Q22 25 28 31', 'M15 32Q22 23 29 32'][index];

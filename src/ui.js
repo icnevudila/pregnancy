@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Text, View, Pressable, StyleSheet, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
@@ -13,22 +13,24 @@ export function Tap({ children, style, label, onPress, ...props }) {
 }
 export function Card({ children, style, ...props }) { return <View style={[s.card, style]} {...props}>{children}</View>; }
 export function ScreenHero({ kicker, title, body, stat, icon = 'heart', asset, tint = colors.purple, style }) {
+  const [imgError, setImgError] = useState(false);
   const art = asset ? (generatedAssets[asset] || getAsset(asset)) : null;
   const isPhoto = typeof asset === 'string' && (asset.startsWith('blog_') || asset === 'pregnancy' || asset === 'baby' || asset === 'mother');
   return (
     <Card style={[s.screenHero, style]}>
       <View style={{ flex: 1 }}>
-        <T style={[s.heroKicker, { color: tint }]}>{kicker}</T>
+        {kicker ? <T style={[s.heroKicker, { color: tint }]}>{kicker}</T> : null}
         <T bold style={s.heroTitle}>{title}</T>
         <T style={s.heroBody}>{body}</T>
         {stat ? <View style={[s.heroStat, { backgroundColor: tint + '18' }]}><T bold style={{ fontSize: 12, color: tint }}>{stat}</T></View> : null}
       </View>
       <View style={[s.heroArt, { backgroundColor: tint + '14', overflow: 'hidden' }]}>
-        {art ? (
+        {art && !imgError ? (
           <Image
             source={art}
             style={isPhoto ? { width: '100%', height: '100%', borderRadius: 24 } : { width: 72, height: 72 }}
             resizeMode={isPhoto ? 'cover' : 'contain'}
+            onError={() => setImgError(true)}
           />
         ) : (
           <Icon name={icon} size={36} color={tint} />

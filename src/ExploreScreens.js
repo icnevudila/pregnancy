@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
 import { T, Tap, Card, Section, ScreenHero } from './ui';
-import { generatedAssets } from './generatedAssets';
+import { generatedAssets, getAsset } from './generatedAssets';
 import { articles, pregnancyFaqs, faqCategories, searchFaqs, getFaqsByCategory, searchArticles } from './content';
 import { playSound, stopSound } from './soundEngine';
 
@@ -177,36 +177,44 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
 
   return (
     <View style={es.container}>
-      <ScreenHero kicker="EDİTORYAL MERKEZ" title="Rehberler ve dosyalar" body="Haftalık yazılar, besin güvenliği ve konu koleksiyonları tek okuma düzeninde." icon="book" asset="blog_pregnant_morning" stat={`${articles.length} rehber`} tint={colors.purple} />
-
+      
       {/* Hub Üst Sekmeleri (Luxury Editorial Navigation - 3 Ana Alan) */}
       <View style={es.hubTabRow}>
         <Tap
           onPress={() => setHubTab('articles')}
-          label="Yazılar & Magazin"
+          label="Yazılar ve Magazin"
           style={[es.hubTabBtn, hubTab === 'articles' && es.hubTabBtnActive]}
         >
-          <T bold={hubTab === 'articles'} style={[es.hubTabText, hubTab === 'articles' && { color: 'white' }]}>
-            📖 Magazin
-          </T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Icon name="book" size={14} color={hubTab === 'articles' ? 'white' : colors.purple} />
+            <T bold={hubTab === 'articles'} style={[es.hubTabText, hubTab === 'articles' && { color: 'white' }]}>
+              Magazin
+            </T>
+          </View>
         </Tap>
         <Tap
           onPress={() => setHubTab('food')}
           label="Besin Güvenliği"
           style={[es.hubTabBtn, hubTab === 'food' && es.hubTabBtnActive]}
         >
-          <T bold={hubTab === 'food'} style={[es.hubTabText, hubTab === 'food' && { color: 'white' }]}>
-            🥗 Yenebilir mi?
-          </T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Icon name="leaf" size={14} color={hubTab === 'food' ? 'white' : colors.purple} />
+            <T bold={hubTab === 'food'} style={[es.hubTabText, hubTab === 'food' && { color: 'white' }]}>
+              Besin Güvenliği
+            </T>
+          </View>
         </Tap>
         <Tap
           onPress={() => setHubTab('topics')}
           label="Koleksiyonlar"
           style={[es.hubTabBtn, hubTab === 'topics' && es.hubTabBtnActive]}
         >
-          <T bold={hubTab === 'topics'} style={[es.hubTabText, hubTab === 'topics' && { color: 'white' }]}>
-            📚 Dosyalar & Koleksiyonlar
-          </T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Icon name="folder" size={14} color={hubTab === 'topics' ? 'white' : colors.purple} />
+            <T bold={hubTab === 'topics'} style={[es.hubTabText, hubTab === 'topics' && { color: 'white' }]}>
+              Koleksiyonlar
+            </T>
+          </View>
         </Tap>
       </View>
 
@@ -253,22 +261,31 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
               label="Öne Çıkan Başyazı"
               style={es.featuredHeroCard}
             >
-              {generatedAssets[featuredArticle.image] && (
-                <Image source={generatedAssets[featuredArticle.image]} style={StyleSheet.absoluteFill} resizeMode="cover" />
-              )}
+              {(() => {
+                const featImg = generatedAssets[featuredArticle.image] || getAsset(featuredArticle.image) || generatedAssets['blog_pregnant_morning'];
+                return featImg ? (
+                  <Image source={featImg} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} resizeMode="cover" />
+                ) : null;
+              })()}
               <LinearGradient
-                colors={['rgba(35,22,40,0.15)', 'rgba(25,16,30,0.92)']}
+                colors={['rgba(20,10,25,0.05)', 'rgba(20,10,25,0.78)']}
                 style={StyleSheet.absoluteFill}
               />
               <View style={es.featuredHeroBadge}>
-                <T bold style={{ fontSize: 10, color: 'white', letterSpacing: 1 }}>🌟 GÜNÜN BAŞYAZISI</T>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                  <Icon name="sparkle" size={11} color="white" />
+                  <T bold style={{ fontSize: 10, color: 'white', letterSpacing: 0.8 }}>GÜNÜN BAŞYAZISI</T>
+                </View>
               </View>
               <View style={es.featuredHeroContent}>
                 <T bold style={es.featuredHeroTitle}>{featuredArticle.title}</T>
                 <T numberOfLines={2} style={es.featuredHeroSub}>{featuredArticle.subtitle}</T>
                 <View style={es.featuredHeroMeta}>
-                  <T style={{ fontSize: 11, color: '#E4D6E6' }}>⏱️ {featuredArticle.minutes} dk okuma</T>
-                  <T style={{ fontSize: 11, color: '#E4D6E6' }}>• {featuredArticle.doctor.split('·')[0]}</T>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <Icon name="clock" size={12} color="#E4D6E6" />
+                    <T style={{ fontSize: 11, color: '#E4D6E6' }}>{featuredArticle.minutes} dk okuma</T>
+                  </View>
+                  <T style={{ fontSize: 11, color: '#E4D6E6' }}>• {featuredArticle.doctor ? featuredArticle.doctor.split('·')[0] : 'Klinik Ekip'}</T>
                 </View>
               </View>
             </Tap>
@@ -289,7 +306,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
           {/* Makale Kartları Listesi (Vogue / Flo Kalitesinde Görsel Kartlar) */}
           <View style={{ gap: 14 }}>
             {filteredArticles.map(a => {
-              const imgAsset = generatedAssets[a.image] || generatedAssets['blog_pregnant_morning'];
+              const imgAsset = generatedAssets[a.image] || getAsset(a.image) || generatedAssets['blog_pregnant_morning'];
               return (
                 <Tap
                   key={a.id}
@@ -298,9 +315,16 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                   style={es.blogPostCard}
                 >
                   <View style={es.blogPostImgBox}>
-                    <Image source={imgAsset} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                    <Image
+                      source={imgAsset}
+                      style={{ width: '100%', height: '100%' }}
+                      resizeMode="cover"
+                    />
                     <View style={es.blogPostTimeTag}>
-                      <T style={{ fontSize: 10, color: 'white', fontWeight: 'bold' }}>⏱️ {a.minutes} dk</T>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                        <Icon name="clock" size={11} color="white" />
+                        <T style={{ fontSize: 10, color: 'white', fontWeight: 'bold' }}>{a.minutes} dk</T>
+                      </View>
                     </View>
                   </View>
                   <View style={{ padding: 16 }}>
@@ -318,8 +342,8 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
 
                     {a.doctor && (
                       <View style={es.blogPostDocRow}>
-                        <T style={{ fontSize: 14 }}>📚</T>
-                        <T numberOfLines={1} style={{ fontSize: 11, color: colors.purple, flex: 1, fontWeight: '500' }}>
+                        <Icon name="check" size={13} color={colors.purple} />
+                        <T numberOfLines={1} style={{ fontSize: 11, color: colors.purple, flex: 1, fontWeight: '600' }}>
                           {`Kaynak: ${a.doctor}`}
                         </T>
                         <Icon name="chevron" size={16} color={colors.purple} />
@@ -391,7 +415,7 @@ export function EditorialArticleScreen({ article, toast }) {
   };
 
   const a = article || defaultArticle;
-  const coverAsset = (a.image && generatedAssets[a.image]) || generatedAssets['blog_sleeping_crib'];
+  const coverAsset = (a.image && (generatedAssets[a.image] || getAsset(a.image))) || generatedAssets['blog_sleeping_crib'];
   const readingTime = a.time || (a.minutes ? `${a.minutes} dk okuma` : '4 dk okuma');
   const doctorName = a.doctor ? `Kaynak: ${a.doctor}` : 'Momora editoryal dosyası · kaynak kontrolü';
   const relatedArticles = articles.filter(other => other.id !== a.id && other.topic === a.topic).slice(0, 3);
@@ -401,7 +425,7 @@ export function EditorialArticleScreen({ article, toast }) {
       {/* 1. Büyük Editoryal Kapak (16:9 Hero Image with Vignette Gradient) */}
       <View style={es.articleCoverBox}>
         {coverAsset ? (
-          <Image source={coverAsset} style={StyleSheet.absoluteFill} resizeMode="cover" />
+          <Image source={coverAsset} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} resizeMode="cover" />
         ) : (
           <LinearGradient colors={['#9A779A', '#664566']} style={StyleSheet.absoluteFill} />
         )}
@@ -417,7 +441,7 @@ export function EditorialArticleScreen({ article, toast }) {
               </T>
             </View>
             <View style={es.readingTimePill}>
-              <T style={{ fontSize: 11, color: 'white' }}>⏱️ {readingTime}</T>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Icon name="clock" size={11} color="white" /><T style={{ fontSize: 11, color: 'white' }}>{readingTime}</T></View>
             </View>
           </View>
           <T bold style={es.articleTitle}>{a.title}</T>
@@ -428,7 +452,7 @@ export function EditorialArticleScreen({ article, toast }) {
       {/* 2. Kaynak Notu & Yer İmleri Butonu */}
       <Card style={es.doctorCard}>
         <View style={es.docAvatar}>
-          <T style={{ fontSize: 22 }}>📚</T>
+          <Icon name="book" size={20} color={colors.purple} />
         </View>
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
@@ -500,7 +524,7 @@ export function EditorialArticleScreen({ article, toast }) {
       {a.keyPoints && a.keyPoints.length > 0 && (
         <Card style={es.keyPointsCard}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 }}>
-            <T style={{ fontSize: 17 }}>✨</T>
+            <Icon name="sparkle" size={16} color={colors.purple} />
             <T bold style={{ fontSize: 13.5, color: colors.purple, letterSpacing: 0.5 }}>
               ÖZETLE: ÖNE ÇIKAN NOKTALAR
             </T>
@@ -535,10 +559,10 @@ export function EditorialArticleScreen({ article, toast }) {
                 {inlineAsset && (
                   <View style={es.inlineFigureBox}>
                     <View style={es.inlineImgFrame}>
-                      <Image source={inlineAsset} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                      <Image source={inlineAsset} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
                     </View>
                     <View style={es.inlineCaptionRow}>
-                      <T style={{ fontSize: 12, marginRight: 5 }}>📷</T>
+                      <Icon name="search" size={12} color="#7E6D82" style={{ marginRight: 5 }} />
                       <T style={es.inlineCaptionText}>
                         {sec.caption || `${sec.title} görsel rehberi`}
                       </T>
@@ -634,7 +658,7 @@ const es = StyleSheet.create({
   featuredHeroMeta: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 },
   // Blog Post Card styles
   blogPostCard: { backgroundColor: '#FFFFFF', borderRadius: 20, overflow: 'hidden', borderWidth: 1, borderColor: '#ECE2EC', ...shadow },
-  blogPostImgBox: { height: 165, backgroundColor: '#F0EAF1', position: 'relative' },
+  blogPostImgBox: { height: 180, width: '100%', backgroundColor: '#F0EAF1', position: 'relative', overflow: 'hidden' },
   blogPostTimeTag: { position: 'absolute', top: 12, right: 12, backgroundColor: '#00000077', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 10 },
   blogPostCategoryTag: { backgroundColor: '#F4EDF6', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
   blogPostTitle: { fontSize: 16, color: colors.ink, lineHeight: 22 },
