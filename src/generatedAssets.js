@@ -144,6 +144,7 @@ export const generatedAssets = {
   'mood_tired': require('../assets/mood_tired.png'),
   'mother-baby': require('../assets/mother-baby.png'),
   'nursing': require('../assets/nursing.png'),
+  'onboarding_hero_pregnancy': require('../assets/onboarding_hero_pregnancy.png'),
   'pregnancy': require('../assets/pregnancy.png'),
   'prod_baby_food': require('../assets/prod_baby_food.png'),
   'sleep': require('../assets/sleep.png'),

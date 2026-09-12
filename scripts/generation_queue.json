@@ -6,37 +6,39 @@
       "prompt": "Award-winning artistic 3D illustration of a glowing, radiant expectant mother gently cradling her pregnant belly with deep maternal tenderness, surrounded by delicate floating warm golden light particles and soft pastel watercolor floral accents, ethereal serene atmosphere, warm cream and dusty rose tones, cinematic lighting, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": false,
       "status": "processing",
-      "attempts": 5,
+      "attempts": 6,
       "createdAt": 1789249250053,
-      "updatedAt": 1789250119740,
+      "updatedAt": 1789250190886,
       "platform": "unknown",
       "preferredPlatform": "chatgpt",
-      "startedAt": 1789250158751
+      "thumb": "/assets/onboarding_hero_pregnancy.png",
+      "startedAt": 1789250232740
     },
     {
       "id": "job_1789249250053_ejijl",
       "filename": "onboarding_fetal_journey.png",
       "prompt": "Hyperrealistic HD-Live medical 3D visualization of a serene human fetus floating peacefully in the amniotic sac, glowing translucent skin, warm golden amber illumination, gentle umbilical cord, tender baby features resting in peaceful sleep, macro medical cinematography, National Geographic quality, emotional miracle of life, 8k render, no logos, no text.",
       "transparent": false,
-      "status": "error",
+      "status": "pending",
       "attempts": 4,
       "createdAt": 1789249250053,
       "updatedAt": 1789250155277,
       "platform": "unknown",
-      "preferredPlatform": "chatgpt",
-      "error": "Capture timeout"
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249250053_e5tdw",
       "filename": "onboarding_partner_together.png",
       "prompt": "Emotional heartwarming fine art illustration of an expectant father and mother sitting closely on a warm sunlit daybed, father's hands gently resting on mother's pregnant belly with profound love, joyful anticipatory smile, soft organic linen textures, warm golden hour sunbeams streaming through curtains, luxury editorial style, 8k render, no watermarks, no text.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 3,
+      "status": "error",
+      "attempts": 4,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249799757,
+      "updatedAt": 1789250230039,
       "platform": "unknown",
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "chatgpt",
+      "startedAt": 1789250193745,
+      "error": "Capture timeout"
     },
     {
       "id": "job_1789249250053_fbzwy",
