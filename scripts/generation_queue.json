@@ -105,24 +105,27 @@
       "filename": "infographic_kick_counter_guide.png",
       "prompt": "Beautiful warm conceptual illustration of fetal movement awareness: an expectant mother reclining peacefully with closed eyes and smiling softly, her hands resting on her bump where a stylized glowing gentle baby footprint radiates soft golden ripples of life, serene cozy bedroom setting, warm dusk lighting, 8k resolution, no text, no watermarks.",
       "transparent": false,
-      "status": "pending",
+      "status": "done",
       "attempts": 2,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249867061,
+      "updatedAt": 1789250970009,
       "platform": "unknown",
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "chatgpt",
+      "thumb": "/assets/infographic_kick_counter_guide.png"
     },
     {
       "id": "job_1789249250053_upb7o",
       "filename": "infographic_baby_crying_cues.png",
       "prompt": "Aesthetic pediatric infographic guide of newborn hunger and sleep cues: an adorable realistic baby shown in four stages from early hunger cue (rooting and bringing hands to mouth), active cue (stretching and fussing), to crying and peaceful post-feed milk drunkenness, clean warm pastel nursery backdrop, soft studio lighting, high resolution photography, no text, no watermarks.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 2,
+      "status": "done",
+      "attempts": 3,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249869203,
+      "updatedAt": 1789251064330,
       "platform": "unknown",
-      "preferredPlatform": "any"
+      "preferredPlatform": "any",
+      "startedAt": 1789251013670,
+      "thumb": "blob:https://gemini.google.com/3870bfd7-6f86-43d6-9a6d-05123775b5da"
     },
     {
       "id": "job_1789249250053_tdst0",
@@ -143,11 +146,13 @@
       "filename": "ui_badge_certified_obgyn.png",
       "prompt": "High-end 3D claymorphic medical certification seal badge in lustrous rose gold and soft sage porcelain, featuring an embossed heart and medical caduceus with delicate olive branch wreath, isolated on pure solid white background, cut out style, 8k render, no text.",
       "transparent": true,
-      "status": "pending",
-      "attempts": 1,
+      "status": "processing",
+      "attempts": 2,
       "createdAt": 1789249250053,
       "updatedAt": 1789249512166,
-      "preferredPlatform": "any"
+      "preferredPlatform": "any",
+      "startedAt": 1789251066036,
+      "platform": "unknown"
     },
     {
       "id": "job_1789249250053_gsvfu",

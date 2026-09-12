@@ -5,6 +5,7 @@ import { loadCloudState, saveCloudState, saveTrackingEvent, cloudStatusLabel } f
 
 const KEY = 'momora.local.v1';
 export const initialState = {
+  lang: 'tr',
   mode: 'pregnancy', name: 'Zeynep', partnerName: 'Mehmet', role: 'mother', partnerRole: 'father',
   babyName: 'Ada', babyGender: 'Kız', week: 24, day: 5, water: 4, vitamin: true,
   mood: 0, postpartumMood: null, lastMoodDate: new Date().toISOString().slice(0,10), tasks: [true, true, false, false, false],

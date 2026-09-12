@@ -118,13 +118,13 @@ export function FoodSafetyChecker({ toast }) {
 
 // ─── EKRAN 14: KONU KOLEKSİYONLARI, BLOG MAGAZİN & SSS KÜTÜPHANESİ ─────────
 export const topicCollections = [
-  { id: 'pregnancy', title: 'Gebelikte Hafta Hafta Gelişim & Testler', count: 4, art: 'blog_ultrasound_memory', color: '#F4EEF6' },
-  { id: 'nutrition', title: 'Gebelikte Beslenme & Güvenli Gıdalar', count: 3, art: 'blog_healthy_breakfast', color: '#F4F7F2' },
-  { id: 'wellbeing', title: 'Trimester Egzersizleri & Doğum Yogası', count: 2, art: 'blog_yoga_stretch', color: '#FAF1F5' },
-  { id: 'birth', title: 'Doğum Planı, Çanta & Hastane Rehberi', count: 3, art: 'blog_hospital_bag_pack', color: '#FAF4EF' },
-  { id: 'baby', title: 'Yenidoğan Bakımı, Masaj & İlk Günler', count: 8, art: 'blog_newborn_hand', color: '#EEF4F7' },
-  { id: 'postpartum', title: 'Lohusalık, İyileşme & Kendine Şefkat', count: 2, art: 'blog_postpartum_selfcare', color: '#F7EFF7' },
-  { id: 'partner', title: 'Eş & Baba Olmak: İlk Günlerde Destek', count: 2, art: 'blog_father_baby_bond', color: '#F0F5FA' },
+  { id: 'pregnancy', title: 'Gebelikte Hafta Hafta Gelişim & Testler', count: 4, art: 'blog_ultrasound_memory', image: 'blog_ultrasound_memory', color: '#F4EEF6' },
+  { id: 'nutrition', title: 'Gebelikte Beslenme & Güvenli Gıdalar', count: 3, art: 'blog_healthy_breakfast', image: 'blog_healthy_breakfast', color: '#F4F7F2' },
+  { id: 'wellbeing', title: 'Trimester Egzersizleri & Doğum Yogası', count: 2, art: 'blog_yoga_stretch', image: 'blog_yoga_stretch', color: '#FAF1F5' },
+  { id: 'birth', title: 'Doğum Planı, Çanta & Hastane Rehberi', count: 3, art: 'blog_hospital_bag_pack', image: 'blog_hospital_bag_pack', color: '#FAF4EF' },
+  { id: 'baby', title: 'Yenidoğan Bakımı, Masaj & İlk Günler', count: 8, art: 'blog_newborn_hand', image: 'blog_newborn_hand', color: '#EEF4F7' },
+  { id: 'postpartum', title: 'Lohusalık, İyileşme & Kendine Şefkat', count: 2, art: 'blog_postpartum_selfcare', image: 'blog_postpartum_selfcare', color: '#F7EFF7' },
+  { id: 'partner', title: 'Eş & Baba Olmak: İlk Günlerde Destek', count: 2, art: 'blog_father_baby_bond', image: 'blog_father_baby_bond', color: '#F0F5FA' },
 ];
 
 export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'articles' }) {
@@ -181,6 +181,8 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
   });
 
   const featuredArticle = articles[0];
+  const isShowingLeadHero = !articleQuery && articleFilter === 'Tümü' && featuredArticle;
+  const listArticles = isShowingLeadHero ? filteredArticles.filter(a => a.id !== featuredArticle.id) : filteredArticles;
 
   return (
     <View style={es.container}>
@@ -324,7 +326,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
 
           {/* Makale Kartları Listesi (Vogue / Flo Kalitesinde Görsel Kartlar) */}
           <View style={{ gap: 14 }}>
-            {filteredArticles.map(a => {
+            {listArticles.map(a => {
               const imgAsset = generatedAssets[a.image] || getAsset(a.image) || generatedAssets['blog_pregnant_morning'];
               return (
                 <Tap
@@ -490,26 +492,31 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
         /* 3. TEMATİK DOSYALAR & KOLEKSİYONLAR */
         <View style={{ gap: 12 }}>
           <Section title="Tematik Koleksiyon Dosyaları" />
-          {topicCollections.map(col => (
-            <Tap
-              key={col.id}
-              onPress={() => {
-                const match = articles.find(a => a.topic === col.id) || articles[0];
-                openArticle && openArticle(match);
-              }}
-              label={col.title}
-              style={[es.collectionCard, { backgroundColor: col.color }]}
-            >
-              {generatedAssets[col.art] && (
-                <Image source={generatedAssets[col.art]} style={es.colImg} resizeMode="cover" />
-              )}
-              <View style={es.colInfo}>
-                <T bold style={{ fontSize: 15, color: colors.ink, lineHeight: 21 }}>{col.title}</T>
-                <T style={{ fontSize: 12, color: colors.muted, marginTop: 5 }}>{col.count} derlenmiş rehber</T>
-              </View>
-              <Icon name="chevron" size={18} color={colors.purple} />
-            </Tap>
-          ))}
+          {topicCollections.map(col => {
+            const colImg = (col.art && (generatedAssets[col.art] || getAsset(col.art))) ||
+                           (col.image && (generatedAssets[col.image] || getAsset(col.image))) ||
+                           generatedAssets['blog_pregnant_morning'];
+            return (
+              <Tap
+                key={col.id}
+                onPress={() => {
+                  const match = articles.find(a => a.topic === col.id) || articles[0];
+                  openArticle && openArticle(match);
+                }}
+                label={col.title}
+                style={[es.collectionCard, { backgroundColor: col.color }]}
+              >
+                {colImg && (
+                  <Image source={colImg} style={es.colImg} resizeMode="cover" />
+                )}
+                <View style={es.colInfo}>
+                  <T bold style={{ fontSize: 15, color: colors.ink, lineHeight: 21 }}>{col.title}</T>
+                  <T style={{ fontSize: 12, color: colors.muted, marginTop: 5 }}>{col.count} derlenmiş rehber</T>
+                </View>
+                <Icon name="chevron" size={18} color={colors.purple} />
+              </Tap>
+            );
+          })}
         </View>
       )}
     </View>
@@ -558,7 +565,7 @@ export function EditorialArticleScreen({ article, toast }) {
           <LinearGradient colors={['#9A779A', '#664566']} style={StyleSheet.absoluteFill} />
         )}
         <LinearGradient
-          colors={['rgba(35,22,40,0.2)', 'rgba(25,16,30,0.94)']}
+          colors={['rgba(35,22,40,0.05)', 'rgba(25,16,30,0.78)']}
           style={StyleSheet.absoluteFill}
         />
         <View style={es.coverMeta}>
@@ -670,7 +677,7 @@ export function EditorialArticleScreen({ article, toast }) {
       <View style={{ gap: 16 }}>
         {a.sections ? (
           a.sections.map((sec, idx) => {
-            const inlineAsset = sec.image && generatedAssets[sec.image];
+            const inlineAsset = sec.image && (generatedAssets[sec.image] || getAsset(sec.image));
             return (
               <Card key={idx} style={{ padding: 18 }}>
                 {/* Bölüm Başlığı & Numara Rozeti */}
