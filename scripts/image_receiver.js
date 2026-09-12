@@ -166,21 +166,24 @@ const server = http.createServer((req, res) => {
   if (req.method === 'POST' && req.url.startsWith('/upload')) {
     const urlObj = new URL(req.url, `http://localhost:${PORT}`);
     const filename = urlObj.searchParams.get('filename') || `image_${Date.now()}.png`;
+    const shouldMakeTransparent = urlObj.searchParams.get('transparent') !== 'false';
     const dest = path.join(ASSETS_DIR, filename);
 
     const writeStream = fs.createWriteStream(dest);
     req.pipe(writeStream);
 
     req.on('end', async () => {
-      console.log(`[MOMORA] Alındı: ${filename}. Saydam PNG'ye dönüştürülüyor...`);
-      await makeTransparentPNG(dest);
+      console.log(`[ASSET-RECEIVER] 📥 Alındı: ${filename} (Şeffaflaştırma: ${shouldMakeTransparent ? 'AÇIK' : 'KAPALI'})`);
+      if (shouldMakeTransparent) {
+        await makeTransparentPNG(dest);
+      }
       updateGeneratedAssetsFile();
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ status: 'ok', filename, transparent: true }));
+      res.end(JSON.stringify({ status: 'ok', filename, transparent: shouldMakeTransparent }));
     });
 
     req.on('error', (err) => {
-      console.error('[MOMORA] Hata:', err);
+      console.error('[ASSET-RECEIVER] Hata:', err);
       res.writeHead(500);
       res.end(JSON.stringify({ error: err.message }));
     });
