@@ -129,7 +129,7 @@ export function Onboarding({ choose, update, toast }) {
 
     {/* YOLCULUK KARTLARI */}
     <View style={{ gap: 16 }}>{currentJourneys.map(j => <Tap key={j.key} label={j.title.replace('\n',' ')} onPress={() => selectJourney(j.key)} style={[s.journey, { backgroundColor: j.tint }]}>
-      <View style={s.journeyPhoto}><Image source={j.image} style={s.journeyImage}/><LinearGradient colors={['transparent', j.tint]} start={{x:0.72,y:0}} end={{x:1,y:0}} style={StyleSheet.absoluteFill}/></View>
+      <View style={s.journeyPhoto}><Image source={j.image} style={s.journeyImage} resizeMode="cover"/><LinearGradient colors={['transparent', j.tint]} start={{x:0.72,y:0}} end={{x:1,y:0}} style={StyleSheet.absoluteFill}/></View>
       <View style={s.journeyCopy}><T bold style={s.journeyTitle}>{j.title}</T><T style={s.journeySub}>{j.sub}</T></View><Icon name="chevron" size={22}/>
     </Tap>)}</View>
 
@@ -286,8 +286,6 @@ export function Pregnancy({ state, update, open }) {
   const tc = timelineContent[timelineDay];
 
   return <Page>
-    <ScreenHero kicker="BUGÜNÜN YOLCULUĞU" title={`${week}. hafta · ${state.babyName || 'Bebeğin'}`} body="Haftalık gelişim, günlük bakım ve hazırlık araçları aynı sakin akışta toplandı." icon="heart" asset="pregnancy" stat={`${Math.max(0, (40 - week) * 7)} gün kaldı`} tint={colors.purple} />
-
     {/* ─── 1. ÜST BAŞLIK & GERİ SAYIM ─── */}
     <View style={s.topline}>
       <View>
@@ -671,8 +669,7 @@ export function Postpartum({state,update,open}) {
   const [tab,setTab]=useState('Bugün');
   const tasks=['Bol sıvı tüket','Hafif yürüyüş yap','Pelvik taban egzersizlerini yap','Kendine zaman ayır','Destek al, yalnız değilsin 💜'];
   return <Page>
-    <ScreenHero kicker="LOHUSALIK AKIŞI" title="12. gün toparlanma" body="Ruh hali, iyileşme adımları ve günlük notlar aynı bakım ritminde kalsın." icon="leaf" asset="ui_postpartum_lotus" stat={`${state.tasks.filter(Boolean).length}/5 adım`} tint="#86518A" />
-    <View style={s.topline}><View><T bold style={s.pageTitle}>Lohusalık · 12. gün</T><T style={s.subtitle}>Bugünü küçük adımlarla toparlayalım.</T></View><RoundButton icon="down" label="Yolculuğunu değiştir" onPress={()=>open('journey')}/></View>
+    <View style={s.topline}><View><T bold style={s.pageTitle}>Lohusalık · 12. gün</T><T style={s.subtitle}>Bugünü küçük adımlarla toparlayalım 🌸</T></View><RoundButton icon="down" label="Yolculuğunu değiştir" onPress={()=>open('journey')}/></View>
     <Tabs items={['Bugün','İyileşme','Ruh Halim','Notlar']} active={tab} onChange={setTab}/>
     {tab==='Bugün'||tab==='Ruh Halim'?<Card style={{padding:13}}><MoodPicker postpartum value={state.postpartumMood} onChange={postpartumMood=>update({postpartumMood})}/>{tab==='Bugün'&&<View style={[s.row,{gap:10,marginTop:16,paddingTop:12,borderTopWidth:1,borderColor:colors.line}]}><SmallStat title="Uyku" value="6 sa 20 dk" icon="moon" tint="#F0EAF5" onPress={()=>open('log',{type:'Uyku'})}/><SmallStat title="Su" value={`${state.water}/8 bardak`} icon="drop" tint="#E6F0F4" onPress={()=>update(old=>({water:Math.min(8,old.water+1)}))}/></View>}</Card>:null}
     {(tab==='Bugün'||tab==='İyileşme')&&<><Card style={{padding:13}}><T bold style={{fontSize:16}}>Bugün yapabileceklerin</T><T style={s.taskMeta}>{state.tasks.filter(Boolean).length}/5 tamamlandı</T>{tasks.map((task,i)=><Tap key={task} label={task} accessibilityRole="checkbox" accessibilityState={{checked:state.tasks[i]}} onPress={()=>update(old=>({tasks:old.tasks.map((v,n)=>n===i?!v:v)}))} style={s.task}><View style={[s.checkbox,state.tasks[i]&&{backgroundColor:colors.sage,borderColor:colors.sage}]}>{state.tasks[i]&&<Icon name="check" color="white" size={16}/>}</View><T style={s.taskText}>{task}</T><Icon name="chevron" size={18} color={colors.muted}/></Tap>)}</Card><Card style={{padding:14}}><View style={s.topline}><T bold>İyileşme yolculuğun</T><Icon name="leaf" color={colors.sage} fill="#9FB7A4" size={28}/></View><View style={[s.row,{gap:12,marginTop:10}]}><Progress value={state.tasks.filter(Boolean).length*20} style={{flex:1}}/><T style={{fontSize:13}}>%{state.tasks.filter(Boolean).length*20}</T></View><T style={{fontSize:12,color:colors.muted,marginTop:9}}>Her gün biraz daha güçleniyorsun.</T></Card></>}
@@ -691,8 +688,7 @@ export function RecordList({records}) {return <View>{records.map(r=>{const a=bab
 export function Baby({state,open}) {
   const records=[...state.records,...sampleRecords].slice(0,4);
   return <Page>
-    <ScreenHero kicker="BEBEK BAKIMI" title={`${state.babyName} · 6 haftalık`} body="Beslenme, uyku, bez kayıtları ve bakım rehberleri tek günlük panelde birleşir." icon="baby" asset="baby" stat={`${records.length} kayıt`} tint="#6E5A96" />
-    <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage}/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName} · 6 haftalık</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>Bugünün bakım ritmi</T></View></View><RoundButton icon="down" label="Yolculuğunu değiştir" onPress={()=>open('journey')}/></View>
+    <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage} resizeMode="cover"/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName} · 6 haftalık</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>Bugünün bakım ritmi</T></View></View><RoundButton icon="down" label="Yolculuğunu değiştir" onPress={()=>open('journey')}/></View>
     <View style={s.babyGrid}>
       {babyActions.map(a=>(
         <Tap
@@ -755,8 +751,6 @@ export function Baby({state,open}) {
 
 export function Discover({state,update,open}) {
   return <Page contentStyle={{gap:12}}>
-    <ScreenHero kicker="MOMORA KÜTÜPHANE" title="Seçilmiş rehberler" body="Haftalık içerik, besin güvenliği ve konu dosyaları aynı editoryal düzende toplandı." icon="book" asset="blog_pregnant_morning" stat="65 rehber" tint={colors.purple} />
-
     <TopicHubScreen
       openArticle={(article) => open('editorialArticle', { article })}
       openFoodChecker={() => open('foodSafety')}

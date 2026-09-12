@@ -3,7 +3,7 @@ import { Text, View, Pressable, StyleSheet, ScrollView, Image } from 'react-nati
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon, MoodFace } from './Icons';
-import { generatedAssets } from './generatedAssets';
+import { generatedAssets, getAsset } from './generatedAssets';
 
 export function T({ children, style, bold, ...props }) {
   return <Text {...props} style={[s.text, bold && { fontFamily: fonts.bold }, style]}>{children}</Text>;
@@ -13,7 +13,8 @@ export function Tap({ children, style, label, onPress, ...props }) {
 }
 export function Card({ children, style, ...props }) { return <View style={[s.card, style]} {...props}>{children}</View>; }
 export function ScreenHero({ kicker, title, body, stat, icon = 'heart', asset, tint = colors.purple, style }) {
-  const art = asset ? generatedAssets[asset] : null;
+  const art = asset ? (generatedAssets[asset] || getAsset(asset)) : null;
+  const isPhoto = typeof asset === 'string' && (asset.startsWith('blog_') || asset === 'pregnancy' || asset === 'baby' || asset === 'mother');
   return (
     <Card style={[s.screenHero, style]}>
       <View style={{ flex: 1 }}>
@@ -22,8 +23,16 @@ export function ScreenHero({ kicker, title, body, stat, icon = 'heart', asset, t
         <T style={s.heroBody}>{body}</T>
         {stat ? <View style={[s.heroStat, { backgroundColor: tint + '18' }]}><T bold style={{ fontSize: 12, color: tint }}>{stat}</T></View> : null}
       </View>
-      <View style={[s.heroArt, { backgroundColor: tint + '14' }]}>
-        {art ? <Image source={art} style={{ width: 74, height: 74 }} resizeMode="contain" /> : <Icon name={icon} size={36} color={tint} />}
+      <View style={[s.heroArt, { backgroundColor: tint + '14', overflow: 'hidden' }]}>
+        {art ? (
+          <Image
+            source={art}
+            style={isPhoto ? { width: '100%', height: '100%', borderRadius: 24 } : { width: 72, height: 72 }}
+            resizeMode={isPhoto ? 'cover' : 'contain'}
+          />
+        ) : (
+          <Icon name={icon} size={36} color={tint} />
+        )}
       </View>
     </Card>
   );

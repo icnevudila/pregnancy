@@ -30,22 +30,33 @@ export function useMomoraStore() {
   const [storageError, setStorageError] = useState(null);
   const [cloudStatus, setCloudStatus] = useState(cloudStatusLabel());
   useEffect(() => {
-    AsyncStorage.getItem(KEY).then(async raw => {
+    AsyncStorage.getItem(KEY).then(raw => {
       let nextState = initialState;
       if (raw) {
-        const saved = JSON.parse(raw);
-        if (saved && typeof saved === 'object') {
-          nextState = migrateState(saved, initialState);
-        }
-      }
-      const cloud = await loadCloudState();
-      if (cloud.error) setCloudStatus('Bulut kaydı okunamadı; yerel kayıtla devam ediliyor.');
-      if (cloud.state) {
-        nextState = migrateState(cloud.state, initialState);
-        setCloudStatus('Bulut kaydı bu cihaza indirildi.');
+        try {
+          const saved = JSON.parse(raw);
+          if (saved && typeof saved === 'object') {
+            nextState = migrateState(saved, initialState);
+          }
+        } catch (e) {}
       }
       setState(nextState);
-    }).catch(() => setStorageError('Önceki kayıtlar okunamadı. Bu oturumda devam edebilirsin.')).finally(() => setReady(true));
+      setReady(true);
+
+      // Arka planda gecikmesiz bulut kontrolü (açılışı asla bekletmez)
+      loadCloudState().then(cloud => {
+        if (cloud?.error) {
+          setCloudStatus('Bulut kaydı okunamadı; yerel kayıtla devam ediliyor.');
+        } else if (cloud?.state) {
+          const merged = migrateState(cloud.state, initialState);
+          setState(merged);
+          setCloudStatus('Bulut kaydı bu cihaza indirildi.');
+        }
+      }).catch(() => {});
+    }).catch(() => {
+      setStorageError('Önceki kayıtlar okunamadı. Bu oturumda devam edebilirsin.');
+      setReady(true);
+    });
   }, []);
   useEffect(() => {
     if (ready) AsyncStorage.setItem(KEY, JSON.stringify(state)).catch(() => setStorageError('Cihazına kaydedilemedi. Kayıtlar yalnızca bu oturumda tutuluyor.'));

@@ -398,8 +398,6 @@ export function EditorialArticleScreen({ article, toast }) {
 
   return (
     <View style={es.container}>
-      <ScreenHero kicker="OKUMA MODU" title={a.title} body={a.subtitle || 'Momora editoryal rehberi'} icon="book" asset={a.image || 'blog_pregnant_morning'} stat={readingTime} tint={colors.purple} />
-
       {/* 1. Büyük Editoryal Kapak (16:9 Hero Image with Vignette Gradient) */}
       <View style={es.articleCoverBox}>
         {coverAsset ? (
