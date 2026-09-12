@@ -19,122 +19,637 @@ export const journeys = [
 ];
 
 export function Onboarding({ choose, update, toast }) {
+  // 5 Aşamalı İnteraktif Onboarding (Flo / Apple Health Stili)
+  const [step, setStep] = useState(1);
+
+  // Kullanıcı Seçimleri
   const [role, setRole] = useState('mother'); // 'mother' | 'father'
+  const [stage, setStage] = useState('pregnancy'); // 'pregnancy' | 'postpartum' | 'baby'
+  const [week, setWeek] = useState(24);
+  const [gender, setGender] = useState('surprise'); // 'girl' | 'boy' | 'surprise'
+  const [firstBaby, setFirstBaby] = useState(true);
+  const [babyAge, setBabyAge] = useState('newborn');
+  const [babyName, setBabyName] = useState('Ada');
+  const [selectedInterests, setSelectedInterests] = useState([
+    'fetal3d', 'foodSafety', 'hospitalBag', 'counters'
+  ]);
   const [showSyncInput, setShowSyncInput] = useState(false);
   const [partnerCode, setPartnerCode] = useState('');
 
-  const fatherJourneys = [
-    { key: 'pregnancy', title: 'Bebeğimizi Bekliyoruz', sub: 'Eşimin yanında, bebeğimizle\ntanışmaya hazırlanıyorum', image: assets.pregnancy, tint: '#EBF2F7' },
-    { key: 'postpartum', title: 'Lohusalık Desteği', sub: 'Eşime ve bebeğime lohusalıkta\nen iyi desteği veriyorum', image: assets.mother, tint: '#EAF0F6' },
-    { key: 'baby', title: 'Bebeğimizi Büyütüyoruz', sub: 'Gelişimini her gün\nbirlikte takip ediyoruz', image: assets.baby, tint: '#ECEEE7' },
-  ];
+  // 5. Adım: Analiz ve Hazırlanıyor Animasyonu
+  const [prepProgress, setPrepProgress] = useState(0);
+  const [prepComplete, setPrepComplete] = useState(false);
 
-  const currentJourneys = role === 'father' ? fatherJourneys : journeys;
+  React.useEffect(() => {
+    if (step === 5) {
+      let current = 0;
+      const interval = setInterval(() => {
+        current += 10;
+        if (current >= 100) {
+          current = 100;
+          clearInterval(interval);
+          setPrepProgress(100);
+          setPrepComplete(true);
+        } else {
+          setPrepProgress(current);
+        }
+      }, 140);
+      return () => clearInterval(interval);
+    }
+  }, [step]);
 
-  function selectJourney(key) {
+  function handleComplete() {
     if (update) {
       update({
         role,
+        mode: stage,
+        week: stage === 'pregnancy' ? week : 24,
+        babyGender: gender === 'girl' ? 'Kız' : gender === 'boy' ? 'Erkek' : 'Henüz Sürpriz',
+        babyName: babyName.trim() || 'Ada',
         name: role === 'father' ? 'Mehmet' : 'Zeynep',
         partnerName: role === 'father' ? 'Zeynep' : 'Mehmet',
         partnerRole: role === 'father' ? 'mother' : 'father',
         partnerConnected: true,
+        firstBaby,
+        interests: selectedInterests,
       });
     }
-    toast && toast(role === 'father' ? 'Hoş geldin Baba! 👨‍🍼 Ortak yolculuğunuz başladı.' : 'Hoş geldin Anne! 🌸 Mucizeniz başladı.');
-    choose(key);
+    toast && toast(role === 'father' ? 'Hoş geldin Baba! Aile yolculuğunuz başladı.' : 'Hoş geldin Anne! Kişisel yolculuğun hazır.');
+    choose(stage);
   }
 
   function handleSyncSubmit() {
     if (!partnerCode.trim()) return;
-    toast && toast('Eşinin aile hesabına başarıyla bağlandın! 💚');
-    selectJourney('pregnancy');
+    toast && toast('Eşinin aile hesabına başarıyla bağlandın!');
+    if (update) {
+      update({
+        role,
+        partnerConnected: true,
+        partnerSyncCode: partnerCode.trim(),
+      });
+    }
+    setStep(3);
   }
 
-  return <Page contentStyle={s.onboarding}>
-    <View style={s.brand}><BrandMark size={38}/><T style={s.wordmark}>MOMORA</T></View>
-    
-    <View style={s.welcome}>
-      <T bold style={s.welcomeTitle}>Yolculuğun Nerede?</T>
-      <T style={s.welcomeText}>Anne ve baba aynı hesaptan birlikte takip edebilir.{ '\n' }Sana en uygun deneyimi sunalım.</T>
-    </View>
+  function toggleInterest(id) {
+    if (selectedInterests.includes(id)) {
+      setSelectedInterests(selectedInterests.filter(i => i !== id));
+    } else {
+      setSelectedInterests([...selectedInterests, id]);
+    }
+  }
 
-    {/* ─── ANNE / BABA ROL SEÇİCİ ─── */}
-    <View style={{ marginBottom: 20 }}>
-      <T bold style={{ fontSize: 13, color: colors.purple, marginBottom: 8, textAlign: 'center' }}>BEN KİMİM?</T>
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <Tap
-          onPress={() => setRole('mother')}
-          label="Anne Adayıyım"
-          style={[
-            { flex: 1, paddingVertical: 14, paddingHorizontal: 10, borderRadius: 18, alignItems: 'center', backgroundColor: '#FAF6FA', borderWidth: 2, borderColor: '#ECE0EE' },
-            role === 'mother' && { backgroundColor: '#F7EDF5', borderColor: colors.purple, ...shadow },
-          ]}
-        >
-          <T style={{ fontSize: 26 }}>🤰</T>
-          <T bold style={{ fontSize: 13, color: role === 'mother' ? colors.purple : colors.ink, marginTop: 4 }}>
-            Ben Anneyim
+  // ─── ADIM 1: ROL SEÇİMİ ───
+  function renderStep1() {
+    return (
+      <View style={{ gap: 16 }}>
+        <View style={s.obHeading}>
+          <T bold style={s.obStepKicker}>ADIM 1 · ROLÜNÜ SEÇ</T>
+          <T bold style={s.obTitle}>Momora'ya Hoş Geldin</T>
+          <T style={s.obSubtitle}>
+            Sana ve ailene en doğru rehberliği sunabilmemiz için önce seni tanıyalım.
           </T>
-          <T style={{ fontSize: 10, color: colors.muted, marginTop: 2, textAlign: 'center' }}>
-            Hamilelik & Beden Takibi
-          </T>
-        </Tap>
+        </View>
 
-        <Tap
-          onPress={() => setRole('father')}
-          label="Baba Adayıyım"
-          style={[
-            { flex: 1, paddingVertical: 14, paddingHorizontal: 10, borderRadius: 18, alignItems: 'center', backgroundColor: '#F6F9FB', borderWidth: 2, borderColor: '#DCE8F2' },
-            role === 'father' && { backgroundColor: '#EBF3F9', borderColor: '#3E76A8', ...shadow },
-          ]}
-        >
-          <T style={{ fontSize: 26 }}>👨‍🍼</T>
-          <T bold style={{ fontSize: 13, color: role === 'father' ? '#3E76A8' : colors.ink, marginTop: 4 }}>
-            Ben Babayım
-          </T>
-          <T style={{ fontSize: 10, color: colors.muted, marginTop: 2, textAlign: 'center' }}>
-            Eş Desteği & Ortak Takip
-          </T>
-        </Tap>
-      </View>
-    </View>
+        {/* 2 Büyük Fotoğraflı Rol Kartı (No cheap emojis) */}
+        <View style={{ gap: 14 }}>
+          {/* Ben Anneyim */}
+          <Tap
+            onPress={() => setRole('mother')}
+            label="Ben Anneyim"
+            style={[s.obRoleCard, role === 'mother' && s.obRoleCardActive]}
+          >
+            <View style={s.obRolePhotoBox}>
+              <Image
+                source={generatedAssets['blog_pregnant_morning'] || generatedAssets['pregnancy']}
+                style={StyleSheet.absoluteFill}
+                resizeMode="cover"
+              />
+              <LinearGradient
+                colors={['rgba(25,12,30,0.05)', 'rgba(30,15,35,0.72)']}
+                style={StyleSheet.absoluteFill}
+              />
+              <View style={s.obRoleBadge}>
+                <T bold style={{ fontSize: 10.5, color: 'white', letterSpacing: 0.8 }}>ANNE PROFİLİ</T>
+              </View>
+            </View>
+            <View style={s.obRoleContent}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <T bold style={s.obRoleTitle}>Ben Anneyim</T>
+                <View style={[s.obCheckCircle, role === 'mother' && s.obCheckCircleActive]}>
+                  {role === 'mother' && <Icon name="check" size={13} color="white" />}
+                </View>
+              </View>
+              <T style={s.obRoleDesc}>
+                Hamilelik takibi, beden sağlığı, fetal hareketler ve doğum sonrası iyileşme rehberi.
+              </T>
+            </View>
+          </Tap>
 
-    {/* EŞİNİN AİLE KODU İLE BAĞLAN BUTONU */}
-    <View style={{ marginBottom: 18, alignItems: 'center' }}>
-      <Tap
-        onPress={() => setShowSyncInput(!showSyncInput)}
-        label="Eşimin aile kodu var"
-        style={{ paddingVertical: 6, paddingHorizontal: 12, borderRadius: 12, backgroundColor: '#F0EAF2' }}
-      >
-        <T bold style={{ fontSize: 11, color: colors.purple }}>
-          {showSyncInput ? '✕ Kapat' : '📲 Eşimin Aile Kodu Var · Ortak Hesaba Bağlan'}
-        </T>
-      </Tap>
-
-      {showSyncInput && (
-        <View style={{ width: '100%', marginTop: 10, flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-          <TextInput
-            value={partnerCode}
-            onChangeText={setPartnerCode}
-            placeholder="Örn: MOM-7829-TR"
-            placeholderTextColor={colors.muted}
-            style={{ flex: 1, height: 42, borderRadius: 12, borderWidth: 1, borderColor: colors.purple, paddingHorizontal: 12, backgroundColor: '#FFFFFF', fontSize: 13 }}
-          />
-          <Tap onPress={handleSyncSubmit} label="Bağlan" style={{ height: 42, paddingHorizontal: 14, borderRadius: 12, backgroundColor: colors.purple, alignItems: 'center', justifyContent: 'center' }}>
-            <T bold style={{ color: 'white', fontSize: 12 }}>Eşime Bağlan</T>
+          {/* Ben Babayım */}
+          <Tap
+            onPress={() => setRole('father')}
+            label="Ben Babayım"
+            style={[s.obRoleCard, role === 'father' && s.obRoleCardActive]}
+          >
+            <View style={s.obRolePhotoBox}>
+              <Image
+                source={generatedAssets['blog_father_baby_bond'] || generatedAssets['blog_couple_bump']}
+                style={StyleSheet.absoluteFill}
+                resizeMode="cover"
+              />
+              <LinearGradient
+                colors={['rgba(15,22,35,0.05)', 'rgba(18,28,45,0.72)']}
+                style={StyleSheet.absoluteFill}
+              />
+              <View style={[s.obRoleBadge, { backgroundColor: '#3A5A78' }]}>
+                <T bold style={{ fontSize: 10.5, color: 'white', letterSpacing: 0.8 }}>BABA PROFİLİ</T>
+              </View>
+            </View>
+            <View style={s.obRoleContent}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <T bold style={s.obRoleTitle}>Ben Babayım</T>
+                <View style={[s.obCheckCircle, role === 'father' && s.obCheckCircleActive]}>
+                  {role === 'father' && <Icon name="check" size={13} color="white" />}
+                </View>
+              </View>
+              <T style={s.obRoleDesc}>
+                Eş desteği, ortak gelişim takibi, bebek bakımı hazırlığı ve aile senkronizasyonu.
+              </T>
+            </View>
           </Tap>
         </View>
+
+        {/* Eşimin Aile Kodu Var Bağlantısı */}
+        <View style={s.obSyncSection}>
+          <Tap
+            onPress={() => setShowSyncInput(!showSyncInput)}
+            label="Eşimin aile kodu var"
+            style={s.obSyncToggleBtn}
+          >
+            <Icon name="community" size={16} color={colors.purple} />
+            <T bold style={{ fontSize: 12.5, color: colors.purple }}>
+              {showSyncInput ? 'Girişi Kapat' : 'Eşimin Aile Kodu Var · Ortak Hesaba Bağlan'}
+            </T>
+          </Tap>
+
+          {showSyncInput && (
+            <View style={s.obSyncInputRow}>
+              <TextInput
+                value={partnerCode}
+                onChangeText={setPartnerCode}
+                placeholder="Örn: MOM-7829-TR"
+                placeholderTextColor={colors.muted}
+                style={s.obSyncInput}
+              />
+              <Tap onPress={handleSyncSubmit} label="Bağlan" style={s.obSyncSubmitBtn}>
+                <T bold style={{ color: 'white', fontSize: 12 }}>Bağlan</T>
+              </Tap>
+            </View>
+          )}
+        </View>
+
+        {/* Devam Butonu */}
+        <Tap onPress={() => setStep(2)} label="Devam Et" style={s.obPrimaryBtn}>
+          <T bold style={s.obPrimaryBtnText}>Devam Et</T>
+          <Icon name="chevron" size={16} color="white" />
+        </Tap>
+      </View>
+    );
+  }
+
+  // ─── ADIM 2: YOLCULUK AŞAMASI ───
+  function renderStep2() {
+    const stages = [
+      {
+        id: 'pregnancy',
+        title: role === 'father' ? 'Bebeğimizi Bekliyoruz' : 'Hamileyim',
+        desc: 'Haftalık 3D fetal gelişim, hareketler, beden değişimleri ve doğuma hazırlık.',
+        photo: generatedAssets['pregnancy'] || generatedAssets['blog_pregnant_morning'],
+      },
+      {
+        id: 'postpartum',
+        title: role === 'father' ? 'Lohusalık Dönemindeyiz' : 'Yeni Doğum Yaptım',
+        desc: 'Fiziksel toparlanma, lohusa desteği, emzirme ve ilk haftaların bakımı.',
+        photo: generatedAssets['mother-baby'] || generatedAssets['blog_skin_to_skin'],
+      },
+      {
+        id: 'baby',
+        title: role === 'father' ? 'Bebeğimizi Büyütüyoruz' : 'Bebeğimi Büyütüyorum',
+        desc: 'Beslenme saatleri, uyku ritmi, aşı takvimi ve büyüme atakları takibi.',
+        photo: generatedAssets['baby'] || generatedAssets['blog_baby_massage'],
+      },
+    ];
+
+    return (
+      <View style={{ gap: 16 }}>
+        <View style={s.obHeading}>
+          <T bold style={s.obStepKicker}>ADIM 2 · AŞAMA SEÇİMİ</T>
+          <T bold style={s.obTitle}>Yolculuğun Hangi Aşamada?</T>
+          <T style={s.obSubtitle}>
+            Sana ve ailene özel takvimi hazırlayabilmemiz için mevcut döneminizi seçin.
+          </T>
+        </View>
+
+        <View style={{ gap: 12 }}>
+          {stages.map(st => {
+            const isSelected = stage === st.id;
+            return (
+              <Tap
+                key={st.id}
+                onPress={() => setStage(st.id)}
+                label={st.title}
+                style={[s.obStageCard, isSelected && s.obStageCardActive]}
+              >
+                <View style={s.obStagePhotoBox}>
+                  <Image source={st.photo} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                </View>
+                <View style={s.obStageContent}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <T bold style={s.obStageTitle}>{st.title}</T>
+                    <View style={[s.obCheckCircle, isSelected && s.obCheckCircleActive]}>
+                      {isSelected && <Icon name="check" size={13} color="white" />}
+                    </View>
+                  </View>
+                  <T style={s.obStageDesc}>{st.desc}</T>
+                </View>
+              </Tap>
+            );
+          })}
+        </View>
+
+        {/* Butonlar */}
+        <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
+          <Tap onPress={() => setStep(1)} label="Geri" style={s.obSecondaryBtn}>
+            <T bold style={s.obSecondaryBtnText}>← Geri</T>
+          </Tap>
+          <Tap onPress={() => setStep(3)} label="Devam Et" style={[s.obPrimaryBtn, { flex: 2 }]}>
+            <T bold style={s.obPrimaryBtnText}>Devam Et</T>
+            <Icon name="chevron" size={16} color="white" />
+          </Tap>
+        </View>
+      </View>
+    );
+  }
+
+  // ─── ADIM 3: ZAMANLAMA & KİŞİSELLEŞTİRME ───
+  function renderStep3() {
+    const weeksList = [
+      4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40
+    ];
+
+    const trimester = week <= 12 ? '1. Trimester' : week <= 27 ? '2. Trimester' : '3. Trimester';
+
+    return (
+      <View style={{ gap: 16 }}>
+        <View style={s.obHeading}>
+          <T bold style={s.obStepKicker}>ADIM 3 · DETAYLAR VE ZAMANLAMA</T>
+          <T bold style={s.obTitle}>
+            {stage === 'pregnancy' ? 'Kaçıncı Haftadasın?' : 'Bebeğinin Detayları'}
+          </T>
+          <T style={s.obSubtitle}>
+            İçerikleri ve sayaçları sana tam zamanında sunabilmemiz için detayları belirleyelim.
+          </T>
+        </View>
+
+        {stage === 'pregnancy' ? (
+          <>
+            {/* Seçili Hafta Göstergesi */}
+            <Card style={s.obWeekHeroCard}>
+              <T style={{ fontSize: 11, color: colors.purple, letterSpacing: 1, fontWeight: '700' }}>
+                SEÇİLEN HAMİLELİK DÖNEMİ
+              </T>
+              <T bold style={{ fontSize: 32, color: colors.ink, marginTop: 2 }}>{week}. Hafta</T>
+              <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 2 }}>
+                {trimester} · Doğuma yaklaşık {(40 - week) * 7} gün kaldı
+              </T>
+            </Card>
+
+            {/* Yatay Hafta Şeridi */}
+            <View>
+              <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
+                Hamilelik Haftanı Seç:
+              </T>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
+                {weeksList.map(w => (
+                  <Tap
+                    key={w}
+                    onPress={() => setWeek(w)}
+                    label={`${w}. hafta`}
+                    style={[s.obWeekPill, week === w && s.obWeekPillActive]}
+                  >
+                    <T bold={week === w} style={{ fontSize: 14, color: week === w ? 'white' : colors.ink }}>
+                      {w}
+                    </T>
+                    <T style={{ fontSize: 9.5, color: week === w ? '#E8DAEE' : colors.muted, marginTop: 1 }}>
+                      Hafta
+                    </T>
+                  </Tap>
+                ))}
+              </ScrollView>
+            </View>
+
+            {/* Cinsiyet Seçimi (Temiz Butonlar, No Emojis) */}
+            <View>
+              <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
+                Bebeğin Cinsiyeti:
+              </T>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                {[
+                  { id: 'girl', label: 'Kız' },
+                  { id: 'boy', label: 'Erkek' },
+                  { id: 'surprise', label: 'Henüz Öğrenmedik' },
+                ].map(g => (
+                  <Tap
+                    key={g.id}
+                    onPress={() => setGender(g.id)}
+                    label={g.label}
+                    style={[s.obOptionPill, gender === g.id && s.obOptionPillActive]}
+                  >
+                    <T bold={gender === g.id} style={{ fontSize: 12.5, color: gender === g.id ? 'white' : colors.ink }}>
+                      {g.label}
+                    </T>
+                  </Tap>
+                ))}
+              </View>
+            </View>
+
+            {/* İlk Bebek mi? */}
+            <View>
+              <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
+                Doğum Deneyimi:
+              </T>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <Tap
+                  onPress={() => setFirstBaby(true)}
+                  label="İlk Bebeğim"
+                  style={[s.obOptionPill, firstBaby && s.obOptionPillActive]}
+                >
+                  <T bold={firstBaby} style={{ fontSize: 12.5, color: firstBaby ? 'white' : colors.ink }}>
+                    İlk Bebeğim
+                  </T>
+                </Tap>
+                <Tap
+                  onPress={() => setFirstBaby(false)}
+                  label="Daha Önce Doğum Yaptım"
+                  style={[s.obOptionPill, !firstBaby && s.obOptionPillActive]}
+                >
+                  <T bold={!firstBaby} style={{ fontSize: 12.5, color: !firstBaby ? 'white' : colors.ink }}>
+                    Daha Önce Doğum Yaptım
+                  </T>
+                </Tap>
+              </View>
+            </View>
+          </>
+        ) : (
+          /* Postpartum veya Bebek Detayları */
+          <>
+            <View>
+              <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
+                Bebeğinin Adı veya Lakabı:
+              </T>
+              <TextInput
+                value={babyName}
+                onChangeText={setBabyName}
+                placeholder="Örn: Ada"
+                placeholderTextColor={colors.muted}
+                style={s.obTextInput}
+              />
+            </View>
+
+            <View>
+              <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
+                Bebeğin Cinsiyeti:
+              </T>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                {[
+                  { id: 'girl', label: 'Kız' },
+                  { id: 'boy', label: 'Erkek' },
+                  { id: 'surprise', label: 'Belirtmek İstemiyorum' },
+                ].map(g => (
+                  <Tap
+                    key={g.id}
+                    onPress={() => setGender(g.id)}
+                    label={g.label}
+                    style={[s.obOptionPill, gender === g.id && s.obOptionPillActive]}
+                  >
+                    <T bold={gender === g.id} style={{ fontSize: 12.5, color: gender === g.id ? 'white' : colors.ink }}>
+                      {g.label}
+                    </T>
+                  </Tap>
+                ))}
+              </View>
+            </View>
+
+            <View>
+              <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
+                Bebeğin Dönemi:
+              </T>
+              <View style={{ gap: 8 }}>
+                {[
+                  { id: 'newborn', label: 'Yenidoğan · İlk 40 Gün' },
+                  { id: 'month1_3', label: '1 - 3 Aylık' },
+                  { id: 'month3_6', label: '3 - 6 Aylık' },
+                  { id: 'month6_plus', label: '6 Ay ve Üzeri' },
+                ].map(a => (
+                  <Tap
+                    key={a.id}
+                    onPress={() => setBabyAge(a.id)}
+                    label={a.label}
+                    style={[s.obOptionRow, babyAge === a.id && s.obOptionRowActive]}
+                  >
+                    <T bold={babyAge === a.id} style={{ fontSize: 13, color: babyAge === a.id ? colors.purple : colors.ink }}>
+                      {a.label}
+                    </T>
+                    <View style={[s.obCheckCircle, babyAge === a.id && s.obCheckCircleActive]}>
+                      {babyAge === a.id && <Icon name="check" size={13} color="white" />}
+                    </View>
+                  </Tap>
+                ))}
+              </View>
+            </View>
+          </>
+        )}
+
+        {/* Butonlar */}
+        <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
+          <Tap onPress={() => setStep(2)} label="Geri" style={s.obSecondaryBtn}>
+            <T bold style={s.obSecondaryBtnText}>← Geri</T>
+          </Tap>
+          <Tap onPress={() => setStep(4)} label="Devam Et" style={[s.obPrimaryBtn, { flex: 2 }]}>
+            <T bold style={s.obPrimaryBtnText}>Devam Et</T>
+            <Icon name="chevron" size={16} color="white" />
+          </Tap>
+        </View>
+      </View>
+    );
+  }
+
+  // ─── ADIM 4: ÖNCELİKLİ İLGİ ALANLARI ───
+  function renderStep4() {
+    const interestOptions = [
+      { id: 'fetal3d', label: '3D Fetal Gelişim & Kıyaslama', icon: 'heart', sub: 'Haftalık organ ve boyut atlası' },
+      { id: 'foodSafety', label: 'Besin Güvenliği Kılavuzu', icon: 'leaf', sub: 'Yenebilir mi / Güvenli mi?' },
+      { id: 'hospitalBag', label: 'Hastane Çantası & Doğum Planı', icon: 'bag', sub: 'Anne, bebek ve doğum tercihi listeleri' },
+      { id: 'counters', label: 'Tekme & Kasılma Sayaçları', icon: 'footprint', sub: 'Fetal hareket ve 5-1-1 kuralı alarmları' },
+      { id: 'partnerSync', label: 'Eş Senkronizasyonu & Ortak Notlar', icon: 'community', sub: 'Eşler arası mesajlaşma ve ortak takip' },
+      { id: 'babyNames', label: 'Geniş Bebek İsimleri Keşfi', icon: 'book', sub: '65+ anlamlı Türkçe ve evrensel isim' },
+      { id: 'whiteNoise', label: 'Beyaz Gürültü & Uyku Sesleri', icon: 'moon', sub: 'Rahim içi, fön ve sakinleştirici sesler' },
+      { id: 'library', label: 'Uzman Onaylı Editoryal Kütüphane', icon: 'search', sub: '65 klinik rehber ve hekim tavsiyesi' },
+    ];
+
+    return (
+      <View style={{ gap: 16 }}>
+        <View style={s.obHeading}>
+          <T bold style={s.obStepKicker}>ADIM 4 · İLGİ ALANLARI</T>
+          <T bold style={s.obTitle}>Öncelikli Konuların</T>
+          <T style={s.obSubtitle}>
+            Momora sana en çok hangi konularda eşlik etsin? İstediklerini seçebilirsin.
+          </T>
+        </View>
+
+        <View style={{ gap: 9 }}>
+          {interestOptions.map(item => {
+            const active = selectedInterests.includes(item.id);
+            return (
+              <Tap
+                key={item.id}
+                onPress={() => toggleInterest(item.id)}
+                label={item.label}
+                style={[s.obInterestCard, active && s.obInterestCardActive]}
+              >
+                <View style={[s.obInterestIconBox, active && { backgroundColor: colors.purple + '18' }]}>
+                  <Icon name={item.icon} size={18} color={active ? colors.purple : colors.muted} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <T bold style={[s.obInterestTitle, active && { color: colors.purple }]}>{item.label}</T>
+                  <T style={s.obInterestSub}>{item.sub}</T>
+                </View>
+                <View style={[s.obCheckCircle, active && s.obCheckCircleActive]}>
+                  {active && <Icon name="check" size={13} color="white" />}
+                </View>
+              </Tap>
+            );
+          })}
+        </View>
+
+        {/* Butonlar */}
+        <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
+          <Tap onPress={() => setStep(3)} label="Geri" style={s.obSecondaryBtn}>
+            <T bold style={s.obSecondaryBtnText}>← Geri</T>
+          </Tap>
+          <Tap onPress={() => setStep(5)} label="Planımı Oluştur" style={[s.obPrimaryBtn, { flex: 2 }]}>
+            <T bold style={s.obPrimaryBtnText}>Planımı Oluştur</T>
+            <Icon name="chevron" size={16} color="white" />
+          </Tap>
+        </View>
+      </View>
+    );
+  }
+
+  // ─── ADIM 5: HAZIRLANIYOR ───
+  function renderStep5() {
+    return (
+      <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 24, gap: 20 }}>
+        <View style={s.obPrepLogoBox}>
+          <BrandMark size={64} />
+        </View>
+
+        <View style={{ alignItems: 'center', gap: 6 }}>
+          <T bold style={{ fontSize: 24, letterSpacing: -0.5, color: colors.ink, textAlign: 'center' }}>
+            {prepComplete ? 'Momora Deneyimin Hazır' : 'Kişisel Deneyimin Hazırlanıyor'}
+          </T>
+          <T style={{ fontSize: 13, color: colors.muted, textAlign: 'center', maxWidth: 300 }}>
+            {prepComplete
+              ? 'Tüm sağlık araçları ve haftalık gelişim planın senin için yapılandırıldı.'
+              : 'Verilerin analiz ediliyor, haftalık biyolojik akışın yapılandırılıyor...'}
+          </T>
+        </View>
+
+        {/* Progress Bar */}
+        <View style={s.obProgressTrack}>
+          <View style={[s.obProgressFill, { width: `${prepProgress}%` }]} />
+        </View>
+        <T bold style={{ fontSize: 13, color: colors.purple }}>%{prepProgress}</T>
+
+        {/* Onay Adımları Listesi */}
+        <View style={s.obChecklist}>
+          <View style={s.obCheckItem}>
+            <View style={[s.obMiniCheck, prepProgress >= 25 && s.obMiniCheckDone]}>
+              {prepProgress >= 25 ? <Icon name="check" size={11} color="white" /> : <View style={s.obMiniDot} />}
+            </View>
+            <T style={[s.obCheckLabel, prepProgress >= 25 && s.obCheckLabelDone]}>
+              {week}. hafta biyolojik gelişim takvimi yüklendi
+            </T>
+          </View>
+
+          <View style={s.obCheckItem}>
+            <View style={[s.obMiniCheck, prepProgress >= 50 && s.obMiniCheckDone]}>
+              {prepProgress >= 50 ? <Icon name="check" size={11} color="white" /> : <View style={s.obMiniDot} />}
+            </View>
+            <T style={[s.obCheckLabel, prepProgress >= 50 && s.obCheckLabelDone]}>
+              Trimester ve besin güvenliği kılavuzları entegre edildi
+            </T>
+          </View>
+
+          <View style={s.obCheckItem}>
+            <View style={[s.obMiniCheck, prepProgress >= 75 && s.obMiniCheckDone]}>
+              {prepProgress >= 75 ? <Icon name="check" size={11} color="white" /> : <View style={s.obMiniDot} />}
+            </View>
+            <T style={[s.obCheckLabel, prepProgress >= 75 && s.obCheckLabelDone]}>
+              Eş senkronizasyon kodu MOM-7829-TR tanımlandı
+            </T>
+          </View>
+
+          <View style={s.obCheckItem}>
+            <View style={[s.obMiniCheck, prepProgress >= 100 && s.obMiniCheckDone]}>
+              {prepProgress >= 100 ? <Icon name="check" size={11} color="white" /> : <View style={s.obMiniDot} />}
+            </View>
+            <T style={[s.obCheckLabel, prepProgress >= 100 && s.obCheckLabelDone]}>
+              15 akıllı sayaç ve bebeğin günlük mektubu hazır
+            </T>
+          </View>
+        </View>
+
+        {/* Başlama Butonu */}
+        {prepComplete && (
+          <Tap onPress={handleComplete} label="Momora'yı Keşfetmeye Başla" style={[s.obPrimaryBtn, { width: '100%', marginTop: 10 }]}>
+            <T bold style={s.obPrimaryBtnText}>Momora'yı Keşfetmeye Başla</T>
+            <Icon name="chevron" size={16} color="white" />
+          </Tap>
+        )}
+      </View>
+    );
+  }
+
+  return (
+    <Page contentStyle={s.obContainer}>
+      {/* Üst Logo ve İlerleme Çubuğu */}
+      {step < 5 && (
+        <View style={s.obNavHeader}>
+          <View style={s.obBrandRow}>
+            <BrandMark size={32} />
+            <T style={s.obWordmark}>MOMORA</T>
+          </View>
+
+          {/* İlerleme Çubuğu */}
+          <View style={s.obStepTracker}>
+            <View style={s.obStepBarTrack}>
+              <View style={[s.obStepBarFill, { width: `${(step / 4) * 100}%` }]} />
+            </View>
+            <T style={s.obStepCountText}>{step} / 4</T>
+          </View>
+        </View>
       )}
-    </View>
 
-    {/* YOLCULUK KARTLARI */}
-    <View style={{ gap: 16 }}>{currentJourneys.map(j => <Tap key={j.key} label={j.title.replace('\n',' ')} onPress={() => selectJourney(j.key)} style={[s.journey, { backgroundColor: j.tint }]}>
-      <View style={s.journeyPhoto}><Image source={j.image} style={s.journeyImage} resizeMode="cover"/><LinearGradient colors={['transparent', j.tint]} start={{x:0.72,y:0}} end={{x:1,y:0}} style={StyleSheet.absoluteFill}/></View>
-      <View style={s.journeyCopy}><T bold style={s.journeyTitle}>{j.title}</T><T style={s.journeySub}>{j.sub}</T></View><Icon name="chevron" size={22}/>
-    </Tap>)}</View>
-
-    <View style={s.motto}><Icon name="heart" color="#A68A9C" size={29}/><T style={s.handwritten}>Anne ve Baba el ele,{ '\n' }huzurlu bir yolculuk için</T></View>
-  </Page>;
+      {/* Dinamik Adım */}
+      {step === 1 && renderStep1()}
+      {step === 2 && renderStep2()}
+      {step === 3 && renderStep3()}
+      {step === 4 && renderStep4()}
+      {step === 5 && renderStep5()}
+    </Page>
+  );
 }
 
 // ─── 3'lü Kıyaslama & Ultrason Hero (Pregnancy+ Stili) ─────────────────────────
@@ -820,4 +1335,72 @@ const s=StyleSheet.create({
   search:{flexDirection:'row',alignItems:'center',gap:9,backgroundColor:'#EFEAE6',borderRadius:24,paddingHorizontal:14,minHeight:44},searchInput:{flex:1,fontFamily:fonts.regular,color:colors.ink,fontSize:13,paddingVertical:10,outlineStyle:'none'},article:{height:184,borderRadius:20,overflow:'hidden',backgroundColor:'#ECDED3'},articleImage:{position:'absolute',width:370,height:247,right:-170,top:-20,transform:[{scaleX:-1}]},articleTag:{position:'absolute',top:16,left:15,fontSize:11,color:'#686266',backgroundColor:'#FFFCF9EE',borderRadius:15,paddingHorizontal:12,paddingVertical:6},articleCopy:{position:'absolute',left:15,bottom:17},articleArrow:{position:'absolute',right:12,bottom:13,width:30,height:30,borderRadius:15,backgroundColor:'#FFFCF9',alignItems:'center',justifyContent:'center'},
   categories:{flexDirection:'row',flexWrap:'wrap',gap:10},category:{width:'48%',flexGrow:1,alignItems:'center',paddingVertical:6,borderRadius:14,borderWidth:1.5},product:{flex:1,borderWidth:1,borderColor:colors.line,borderRadius:16,padding:11,backgroundColor:'#FFFCF8',...shadow},productPlus:{position:'absolute',right:10,top:22,width:28,height:28,borderRadius:14,backgroundColor:'white',alignItems:'center',justifyContent:'center',...shadow},
   assistantHeader:{alignItems:'center',paddingTop:0,paddingBottom:7},assistantTitle:{fontSize:23,color:'#77518F',marginTop:5},bubble:{borderRadius:24,padding:17,backgroundColor:'#FEFBF8'},prompt:{borderWidth:1,borderColor:'#DED4D8',borderRadius:24,paddingVertical:12,paddingHorizontal:17,flexDirection:'row',alignItems:'center',backgroundColor:'#FCF9F5'},messageInput:{borderRadius:28,borderWidth:1,borderColor:'#DED5D5',flexDirection:'row',alignItems:'center',paddingLeft:17,paddingRight:6,minHeight:49,marginTop:11,backgroundColor:'#FFFCF9',...shadow},send:{height:33,width:33,borderRadius:20,backgroundColor:'#A0839E',alignItems:'center',justifyContent:'center'},sentMessage:{borderRadius:15,backgroundColor:'#F0E8F3',padding:12},smallAvatar:{width:32,height:32,borderRadius:16,overflow:'hidden'},postPhoto:{width:81,height:77,borderRadius:12,overflow:'hidden'},
+  // Onboarding modern styles (Flo / Apple Health)
+  obContainer: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 },
+  obNavHeader: { marginBottom: 20 },
+  obBrandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, marginBottom: 14 },
+  obWordmark: { fontSize: 24, fontWeight: '300', letterSpacing: -0.5, color: colors.ink },
+  obStepTracker: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  obStepBarTrack: { flex: 1, height: 5, backgroundColor: '#EFE7F0', borderRadius: 3, overflow: 'hidden' },
+  obStepBarFill: { height: '100%', backgroundColor: colors.purple, borderRadius: 3 },
+  obStepCountText: { fontSize: 11.5, color: colors.muted, fontWeight: 'bold' },
+
+  obHeading: { marginBottom: 16 },
+  obStepKicker: { fontSize: 10.5, letterSpacing: 1.2, color: colors.purple, marginBottom: 4 },
+  obTitle: { fontSize: 25, letterSpacing: -0.5, color: colors.ink },
+  obSubtitle: { fontSize: 13, color: colors.muted, marginTop: 4, lineHeight: 18 },
+
+  obRoleCard: { borderRadius: 22, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#EFE6EE', overflow: 'hidden', ...shadow },
+  obRoleCardActive: { borderColor: colors.purple, backgroundColor: '#FAF5FB' },
+  obRolePhotoBox: { height: 124, width: '100%', backgroundColor: '#EADCE8', overflow: 'hidden' },
+  obRoleBadge: { position: 'absolute', top: 10, left: 12, backgroundColor: colors.purple, paddingHorizontal: 9, paddingVertical: 3.5, borderRadius: 8 },
+  obRoleContent: { padding: 14 },
+  obRoleTitle: { fontSize: 17, letterSpacing: -0.3, color: colors.ink },
+  obRoleDesc: { fontSize: 12, color: colors.muted, marginTop: 4, lineHeight: 17 },
+  obCheckCircle: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: '#D4C4D4', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF' },
+  obCheckCircleActive: { backgroundColor: colors.purple, borderColor: colors.purple },
+
+  obSyncSection: { paddingVertical: 4, alignItems: 'center' },
+  obSyncToggleBtn: { flexDirection: 'row', alignItems: 'center', gap: 7, paddingVertical: 8, paddingHorizontal: 14, borderRadius: 12, backgroundColor: '#F3ECF6' },
+  obSyncInputRow: { width: '100%', marginTop: 10, flexDirection: 'row', gap: 8, alignItems: 'center' },
+  obSyncInput: { flex: 1, height: 42, borderRadius: 12, borderWidth: 1.2, borderColor: colors.purple, paddingHorizontal: 12, backgroundColor: '#FFFFFF', fontSize: 13 },
+  obSyncSubmitBtn: { height: 42, paddingHorizontal: 16, borderRadius: 12, backgroundColor: colors.purple, alignItems: 'center', justifyContent: 'center' },
+
+  obStageCard: { flexDirection: 'row', alignItems: 'center', borderRadius: 20, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#EFE6EE', padding: 10, ...shadow },
+  obStageCardActive: { borderColor: colors.purple, backgroundColor: '#FAF5FB' },
+  obStagePhotoBox: { width: 82, height: 82, borderRadius: 16, overflow: 'hidden', backgroundColor: '#EAE0E9' },
+  obStageContent: { flex: 1, marginLeft: 12, paddingRight: 4 },
+  obStageTitle: { fontSize: 15.5, letterSpacing: -0.2, color: colors.ink },
+  obStageDesc: { fontSize: 11.5, color: colors.muted, marginTop: 4, lineHeight: 16 },
+
+  obWeekHeroCard: { padding: 16, alignItems: 'center', backgroundColor: '#F9F4FA', borderColor: '#EBDDEB' },
+  obWeekPill: { width: 54, paddingVertical: 10, borderRadius: 16, backgroundColor: '#F0EAF0', alignItems: 'center', justifyContent: 'center' },
+  obWeekPillActive: { backgroundColor: colors.purple },
+  obOptionPill: { flex: 1, paddingVertical: 11, paddingHorizontal: 8, borderRadius: 14, borderWidth: 1.2, borderColor: '#E6DCE6', backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
+  obOptionPillActive: { backgroundColor: colors.purple, borderColor: colors.purple },
+  obOptionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 13, borderRadius: 14, backgroundColor: '#FFFFFF', borderWidth: 1.2, borderColor: '#E6DCE6' },
+  obOptionRowActive: { borderColor: colors.purple, backgroundColor: '#FAF5FB' },
+  obTextInput: { height: 44, borderRadius: 14, borderWidth: 1.2, borderColor: '#E6DCE6', backgroundColor: '#FFFFFF', paddingHorizontal: 14, fontSize: 13.5 },
+
+  obInterestCard: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 16, backgroundColor: '#FFFFFF', borderWidth: 1.2, borderColor: '#ECE4EC', gap: 12 },
+  obInterestCardActive: { borderColor: colors.purple, backgroundColor: '#FAF5FB' },
+  obInterestIconBox: { width: 38, height: 38, borderRadius: 12, backgroundColor: '#F4EFF4', alignItems: 'center', justifyContent: 'center' },
+  obInterestTitle: { fontSize: 13.5, color: colors.ink },
+  obInterestSub: { fontSize: 11, color: colors.muted, marginTop: 1 },
+
+  obPrepLogoBox: { width: 90, height: 90, borderRadius: 45, backgroundColor: '#F7EFF7', alignItems: 'center', justifyContent: 'center', ...shadow },
+  obProgressTrack: { width: '100%', height: 8, borderRadius: 4, backgroundColor: '#EDE4EF', overflow: 'hidden' },
+  obProgressFill: { height: '100%', backgroundColor: colors.purple, borderRadius: 4 },
+  obChecklist: { width: '100%', backgroundColor: '#FAF6FA', padding: 16, borderRadius: 18, gap: 12, borderWidth: 1, borderColor: '#ECE0EB' },
+  obCheckItem: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  obMiniCheck: { width: 18, height: 18, borderRadius: 9, backgroundColor: '#E2D4E2', alignItems: 'center', justifyContent: 'center' },
+  obMiniCheckDone: { backgroundColor: '#388E5A' },
+  obMiniDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#8E7B8E' },
+  obCheckLabel: { fontSize: 12.5, color: colors.muted },
+  obCheckLabelDone: { color: colors.ink, fontFamily: fonts.bold },
+
+  obPrimaryBtn: { flexDirection: 'row', backgroundColor: colors.purple, borderRadius: 16, paddingVertical: 14, paddingHorizontal: 20, alignItems: 'center', justifyContent: 'center', gap: 8, ...shadow },
+  obPrimaryBtnText: { color: 'white', fontSize: 14.5 },
+  obSecondaryBtn: { paddingVertical: 14, paddingHorizontal: 16, borderRadius: 16, backgroundColor: '#EFE7EE', alignItems: 'center', justifyContent: 'center' },
+  obSecondaryBtnText: { color: colors.ink, fontSize: 13.5 },
 });

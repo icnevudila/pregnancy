@@ -72,7 +72,8 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
     {kind==='appointment'&&<>{input('Randevu adı',text,setText)}{input('Tarih',secondary,setSecondary,{placeholder:'16 Mayıs Cuma'})}{input('Saat',time,setTime,{placeholder:'10:00',maxLength:5})}{button('Randevuyu kaydet',save)}<T style={s.helper}>Randevu günlüğüne kaydedilir; bildirim ayarı bağlandığında hatırlatma olarak kullanılabilir.</T></>}
     {kind==='log'&&<><T style={s.body}>{data.type==='Bez'?'Alt değiştirme kaydını ekle.':'Küçük bir kayıt, günün akışını hatırlamana yardımcı olur.'}</T>{data.type==='Emzirme'&&<View style={s.chips}>{['Sağ meme','Sol meme'].map(v=><Tap key={v} onPress={()=>setSide(v)} style={[s.chip,side===v&&s.chipSelected]}><T>{v}</T></Tap>)}</View>}{data.type==='Bez'?<View style={s.chips}>{['Temiz','Islak','Kirli'].map(v=><Tap key={v} onPress={()=>setSide(v)} style={[s.chip,(side===v||v==='Temiz'&&side==='Sağ meme')&&s.chipSelected]}><T>{v}</T></Tap>)}</View>:input(data.type==='Biberon'?'Miktar (ml)':'Süre (dakika)',text,setText,{keyboardType:'decimal-pad',placeholder:data.type==='Biberon'?'120':'15'})}{button('Kaydet',save)}</>}
     {kind==='records'&&<><T style={s.helper}>Yeni kayıtların en üstte görünür. Bulut hesabı bağlandığında cihazlar arasında eşitlenir.</T><RecordList records={[...state.records,...sampleRecords]}/></>}
-    {(kind==='note'||kind==='week')&&<>{kind==='week'&&(()=>{
+    {kind==='note'&&<>{input('Bugüne ait bir not bırak ✍️',text,setText,{multiline:true,placeholder:'İçinden geçen bir his ya da an...'})}{button('Notumu sakla',save)}</>}
+    {kind==='week'&&(()=>{
       const wi=getWeekInfo(data.week||24);
       return <>
         {/* Büyük meyve görseli */}
@@ -133,7 +134,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
         {input('Bu haftana bir not bırak ✍️',text,setText,{multiline:true,placeholder:'Bugün ilk kez hissettim…'})}
         {button('Notumu sakla',save)}
       </>;
-    })()}</>}}
+    })()}
     {kind==='notes'&&<>{state.notes.length?state.notes.map(n=><Card key={n.id} style={{marginTop:12}}><T style={{lineHeight:23}}>{n.text}</T><Tap label="Notu sil" onPress={()=>update(old=>({notes:old.notes.filter(x=>x.id!==n.id)}))} style={{alignSelf:'flex-end',paddingTop:12}}><T style={{fontSize:12,color:colors.muted}}>Sil</T></Tap></Card>):<T style={s.body}>Henüz not eklemedin. İlk küçük anını saklayabilirsin.</T>}{button('Yeni not ekle',()=>open('note'))}</>}
     {kind==='assistantAnswer'&&<View style={{marginTop:8}}>
       <T bold style={{fontSize:18,lineHeight:25,color:colors.ink}}>{data.question}</T>
