@@ -5,22 +5,26 @@
       "filename": "onboarding_hero_pregnancy.png",
       "prompt": "Award-winning artistic 3D illustration of a glowing, radiant expectant mother gently cradling her pregnant belly with deep maternal tenderness, surrounded by delicate floating warm golden light particles and soft pastel watercolor floral accents, ethereal serene atmosphere, warm cream and dusty rose tones, cinematic lighting, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 3,
+      "status": "processing",
+      "attempts": 5,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249762780,
-      "platform": "unknown"
+      "updatedAt": 1789250119740,
+      "platform": "unknown",
+      "preferredPlatform": "chatgpt",
+      "startedAt": 1789250158751
     },
     {
       "id": "job_1789249250053_ejijl",
       "filename": "onboarding_fetal_journey.png",
       "prompt": "Hyperrealistic HD-Live medical 3D visualization of a serene human fetus floating peacefully in the amniotic sac, glowing translucent skin, warm golden amber illumination, gentle umbilical cord, tender baby features resting in peaceful sleep, macro medical cinematography, National Geographic quality, emotional miracle of life, 8k render, no logos, no text.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 3,
+      "status": "error",
+      "attempts": 4,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249764026,
-      "platform": "unknown"
+      "updatedAt": 1789250155277,
+      "platform": "unknown",
+      "preferredPlatform": "chatgpt",
+      "error": "Capture timeout"
     },
     {
       "id": "job_1789249250053_e5tdw",
@@ -31,7 +35,8 @@
       "attempts": 3,
       "createdAt": 1789249250053,
       "updatedAt": 1789249799757,
-      "platform": "unknown"
+      "platform": "unknown",
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249250053_fbzwy",
@@ -42,7 +47,8 @@
       "attempts": 3,
       "createdAt": 1789249250053,
       "updatedAt": 1789249831771,
-      "platform": "unknown"
+      "platform": "unknown",
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249250053_t575l",
@@ -55,7 +61,8 @@
       "updatedAt": 1789249661951,
       "startedAt": 1789249609854,
       "platform": "unknown",
-      "thumb": "blob:https://gemini.google.com/4f361333-c8f2-4ce5-a601-7df81e983ea3"
+      "thumb": "blob:https://gemini.google.com/4f361333-c8f2-4ce5-a601-7df81e983ea3",
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249250053_fmrx6",
@@ -68,7 +75,8 @@
       "updatedAt": 1789249723445,
       "startedAt": 1789249665741,
       "platform": "unknown",
-      "thumb": "blob:https://gemini.google.com/b582d62e-ccb2-4f91-9585-4825348b1ca1"
+      "thumb": "blob:https://gemini.google.com/b582d62e-ccb2-4f91-9585-4825348b1ca1",
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249250053_824ds",
@@ -79,7 +87,8 @@
       "attempts": 2,
       "createdAt": 1789249250053,
       "updatedAt": 1789249727893,
-      "platform": "unknown"
+      "platform": "unknown",
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249250053_ypzo2",
@@ -90,7 +99,8 @@
       "attempts": 2,
       "createdAt": 1789249250053,
       "updatedAt": 1789249867061,
-      "platform": "unknown"
+      "platform": "unknown",
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249250053_upb7o",
@@ -101,19 +111,22 @@
       "attempts": 2,
       "createdAt": 1789249250053,
       "updatedAt": 1789249869203,
-      "platform": "unknown"
+      "platform": "unknown",
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249250053_tdst0",
       "filename": "infographic_hospital_checklist.png",
       "prompt": "Luxury top-down flatlay visual of the ultimate maternity hospital bag essentials: a premium beige canvas weekender bag unpacked neatly on white linen sheets showing rolled organic cotton baby onesies, wooden hairbrush, nursing balm, fuzzy warm socks, maternity gown, and baby swaddle, warm sunlight, editorial Kinfolk layout, 8k resolution, no logos, no text.",
       "transparent": false,
-      "status": "processing",
+      "status": "done",
       "attempts": 2,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249504807,
+      "updatedAt": 1789250088495,
       "startedAt": 1789249869761,
-      "platform": "unknown"
+      "platform": "unknown",
+      "thumb": "blob:https://gemini.google.com/cf6778da-303d-4b0c-95b5-7bdcaa4daf9a",
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249250053_vcnij",
@@ -123,7 +136,8 @@
       "status": "pending",
       "attempts": 1,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249512166
+      "updatedAt": 1789249512166,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249250053_gsvfu",
@@ -133,7 +147,8 @@
       "status": "pending",
       "attempts": 1,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249572082
+      "updatedAt": 1789249572082,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249250053_qnv2o",
@@ -144,7 +159,8 @@
       "attempts": 1,
       "createdAt": 1789249250053,
       "updatedAt": 1789249696588,
-      "thumb": "/assets/ui_card_kick_velocity.png"
+      "thumb": "/assets/ui_card_kick_velocity.png",
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249250053_ya2nx",
@@ -153,7 +169,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249250053
+      "createdAt": 1789249250053,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_81c28",
@@ -162,7 +179,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249938707_a3bnq",
@@ -171,7 +189,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249938707_9nynv",
@@ -180,7 +199,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249938707_nvq07",
@@ -189,7 +209,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249938707_ue4ey",
@@ -198,7 +219,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249938707_9v2m2",
@@ -207,7 +229,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249938707_10xqp",
@@ -216,7 +239,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_1vsaj",
@@ -225,7 +249,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_xai5g",
@@ -234,7 +259,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_h0ww8",
@@ -243,7 +269,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_s0f73",
@@ -252,7 +279,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_ylthw",
@@ -261,7 +289,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_t4yko",
@@ -270,7 +299,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_awv5y",
@@ -279,7 +309,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_ltg3x",
@@ -288,7 +319,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249938707_2yfqq",
@@ -297,7 +329,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_5m83x",
@@ -306,7 +339,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249938707_dbm75",
@@ -315,7 +349,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_jxrgd",
@@ -324,7 +359,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_d0dmj",
@@ -333,7 +369,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249938707_zf4mq",
@@ -342,7 +379,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_liv8h",
@@ -351,7 +389,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_eml2q",
@@ -360,7 +399,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249938707_kxydc",
@@ -369,7 +409,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249938707_ekhc6",
@@ -378,7 +419,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_7a8xa",
@@ -387,7 +429,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_751jl",
@@ -396,7 +439,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_eg0qt",
@@ -405,7 +449,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_ur8qs",
@@ -414,7 +459,8 @@
       "transparent": false,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_09e22",
@@ -423,7 +469,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_clv1b",
@@ -432,7 +479,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "chatgpt"
     },
     {
       "id": "job_1789249938707_6gb99",
@@ -441,7 +489,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_91g0j",
@@ -450,7 +499,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_1sjxm",
@@ -459,7 +509,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_jhzko",
@@ -468,7 +519,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_ejv04",
@@ -477,7 +529,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_sidpi",
@@ -486,7 +539,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_sk1tt",
@@ -495,7 +549,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_myvhe",
@@ -504,7 +559,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_ejx98",
@@ -513,7 +569,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_bpfuc",
@@ -522,7 +579,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_jkcfi",
@@ -531,7 +589,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_g8769",
@@ -540,7 +599,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_8cv2b",
@@ -549,7 +609,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_386mi",
@@ -558,7 +619,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_u2kwm",
@@ -567,7 +629,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_khj7j",
@@ -576,7 +639,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_30oyc",
@@ -585,7 +649,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_h0wj3",
@@ -594,7 +659,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_hb0qw",
@@ -603,7 +669,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_smcff",
@@ -612,7 +679,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_inuop",
@@ -621,7 +689,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_yx1hl",
@@ -630,7 +699,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_5065m",
@@ -639,7 +709,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_xfacb",
@@ -648,7 +719,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     },
     {
       "id": "job_1789249938707_808pq",
@@ -657,7 +729,8 @@
       "transparent": true,
       "status": "pending",
       "attempts": 0,
-      "createdAt": 1789249938707
+      "createdAt": 1789249938707,
+      "preferredPlatform": "any"
     }
   ]
 }

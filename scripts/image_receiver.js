@@ -44,8 +44,8 @@ function getNextJob(clientPlatform = 'unknown') {
   const queueData = loadQueue();
   const now = Date.now();
 
-  // 1. Kilit zaman aşımı kontrolü (4 dakika işlem olmazsa kilidi otomatik kaldır)
-  if (activeLock && (now - activeLock.startedAt > 240000)) {
+  // 1. Kilit zaman aşımı kontrolü (3.5 dakika işlem olmazsa kilidi otomatik kaldır)
+  if (activeLock && (now - activeLock.startedAt > 210000)) {
     console.log('[MUTEX] ⚠️ Zaman asimina ugrayan kilit serbest birakildi:', activeLock.filename);
     const stuckJob = queueData.jobs.find(j => j.id === activeLock.jobId);
     if (stuckJob && stuckJob.status === 'processing') {
@@ -61,12 +61,28 @@ function getNextJob(clientPlatform = 'unknown') {
       status: 'busy',
       activePlatform: activeLock.platform,
       activeFilename: activeLock.filename,
-      message: 'Aktif uretim suren: ' + activeLock.platform.toUpperCase() + ' (' + activeLock.filename + '). Cakismayi onlemek icin bekleniyor.'
+      message: 'Aktif uretim: ' + activeLock.platform.toUpperCase() + ' (' + activeLock.filename + '). Cakismayi onlemek icin bekleniyor.'
     };
   }
 
-  // 3. Sıradaki pending işi bul
-  const pendingJob = queueData.jobs.find(j => j.status === 'pending');
+  // 3. Platform Uyumluluğuna Göre Sıradaki İşi Seç (AKILLI YÖNLENDİRME)
+  let pendingJob = null;
+
+  if (clientPlatform === 'gemini') {
+    // Gemini'ye insan / hamilelik kuralına takılmayan 3D ikon, obje, hayvan, tatlı veya infografik ver
+    pendingJob = queueData.jobs.find(j => j.status === 'pending' && j.preferredPlatform !== 'chatgpt');
+    if (!pendingJob) {
+      console.log('[ROUTER] Gemini icin uygun obje/ikon kalmadi. Insan/maternal gorseller ChatGPT bekleniyor.');
+      return { status: 'idle', reason: 'Kalan isler ChatGPT oncelikli (insan/gebelik politikasi)' };
+    }
+  } else if (clientPlatform === 'chatgpt') {
+    // ChatGPT her şeyi üretebilir; insan/gebelik işlerine öncelik ver
+    pendingJob = queueData.jobs.find(j => j.status === 'pending' && j.preferredPlatform === 'chatgpt') ||
+                 queueData.jobs.find(j => j.status === 'pending');
+  } else {
+    pendingJob = queueData.jobs.find(j => j.status === 'pending');
+  }
+
   if (pendingJob) {
     pendingJob.status = 'processing';
     pendingJob.startedAt = now;

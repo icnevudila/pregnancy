@@ -134,6 +134,7 @@ export const generatedAssets = {
   'fruit_sweetpotato': require('../assets/fruit_sweetpotato.png'),
   'fruit_watermelon': require('../assets/fruit_watermelon.png'),
   'fruit_zucchini': require('../assets/fruit_zucchini.png'),
+  'infographic_hospital_checklist': require('../assets/infographic_hospital_checklist.png'),
   'infographic_safe_sleep_abc': require('../assets/infographic_safe_sleep_abc.png'),
   'infographic_trimester_nutrition': require('../assets/infographic_trimester_nutrition.png'),
   'mood_difficult': require('../assets/mood_difficult.png'),
