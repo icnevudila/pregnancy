@@ -169,3 +169,15 @@ export async function signOutUser() {
     return { error: err };
   }
 }
+
+if (Platform.OS === 'web' && typeof window !== 'undefined') {
+  setTimeout(() => {
+    if (supabase) {
+      supabase.auth.onAuthStateChange((event, session) => {
+        if (session && (window.location.hash.includes('access_token') || window.location.search.includes('code='))) {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+      });
+    }
+  }, 100);
+}

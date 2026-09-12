@@ -12,6 +12,7 @@ import DetailSheet from './src/DetailSheet';
 import { ProfileScreen } from './src/ProfileScreen';
 import { AuthModal } from './src/AuthScreens';
 import { useMomoraStore } from './src/store';
+import { supabase } from './src/supabaseClient';
 
 const previewScreens=[
   ['onboarding','Başlangıç'],
@@ -43,6 +44,27 @@ function Momora() {
       return()=>clearTimeout(timer);
     }
   },[ready,state.mode,state.lastMoodDate]);
+
+  useEffect(() => {
+    if (!supabase) return undefined;
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        update(old => ({
+          user: session.user,
+          name: session.user.user_metadata?.full_name || old.name,
+        }));
+        if (page === 'auth') {
+          setPage(state.mode || 'pregnancy');
+        }
+        if (sheet?.kind === 'auth') {
+          setSheet(null);
+        }
+        setNotice('Giriş yapıldı 🌸');
+      }
+    });
+    return () => listener?.subscription?.unsubscribe();
+  }, [page, sheet, state.mode]);
+
   const props={state,update,addRecord,open,cloudStatus,refreshFromCloud};
   const renderPage=()=>{switch(active){case'pregnancy':return <Pregnancy {...props}/>;case'tools':return <ToolsHub {...props} toast={setNotice}/>;case'postpartum':return <Postpartum {...props}/>;case'baby':return <Baby {...props}/>;case'discover':return <Discover {...props}/>;case'assistant':return <Assistant {...props} toast={setNotice}/>;case'profile':return <ProfileScreen {...props} toast={setNotice} choose={choose}/>;case'auth':return <AuthModal close={()=>setPage(state.mode||'pregnancy')} toast={setNotice} onAuthSuccess={u=>{update({user:u});if(u?.user_metadata?.full_name)update({name:u.user_metadata.full_name});setPage(state.mode||'pregnancy');}}/>;default:return <Onboarding choose={choose} update={update} toast={setNotice}/>}};
   return <View style={[s.root,desktop&&s.desktop]}>
