@@ -4,6 +4,8 @@
 export const generatedAssets = {
   'baby': require('../assets/baby.png'),
   'banner_next_sleep': require('../assets/banner_next_sleep.png'),
+  'blog_breastfeeding_cozy': require('../assets/blog_breastfeeding_cozy.png'),
+  'blog_couple_bump': require('../assets/blog_couple_bump.png'),
   'blog_healthy_breakfast': require('../assets/blog_healthy_breakfast.png'),
   'blog_newborn_hand': require('../assets/blog_newborn_hand.png'),
   'blog_nursery_aesthetic': require('../assets/blog_nursery_aesthetic.png'),
