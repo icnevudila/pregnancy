@@ -262,7 +262,8 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
               style={es.featuredHeroCard}
             >
               {(() => {
-                const featImg = generatedAssets[featuredArticle.image] || getAsset(featuredArticle.image) || generatedAssets['blog_pregnant_morning'];
+                const featImg = generatedAssets[featuredArticle?.image] || getAsset(featuredArticle?.image) || generatedAssets['blog_pregnant_morning'];
+                console.log('EXPLORE_DEBUG featuredArticle.image:', featuredArticle?.image, 'featImg:', featImg);
                 return featImg ? (
                   <Image source={featImg} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} resizeMode="cover" />
                 ) : null;

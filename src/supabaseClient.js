@@ -6,7 +6,7 @@ import { Platform } from 'react-native';
 // Momora Supabase Project Ref: fpcovwexojrauddbszab
 export const DEFAULT_SUPABASE_URL = 'https://fpcovwexojrauddbszab.supabase.co';
 
-let currentAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
+let currentAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZwY292d2V4b2pyYXVkZGJzemFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxNDk3NDAsImV4cCI6MjEwNDcyNTc0MH0.NvZyNWsHPTygwPzqAIkxTd5WHv5SppIvEezQdyuk4qA';
 
 // Create or re-create client
 export let supabase = null;
