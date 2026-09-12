@@ -1,9 +1,11 @@
 import React from 'react';
+import { View, Image } from 'react-native';
 import Svg, {
   Path, Circle, Ellipse, Rect, Defs, LinearGradient, RadialGradient,
   Stop, G, Line,
 } from 'react-native-svg';
 import { colors } from './theme';
+import { generatedAssets } from './generatedAssets';
 
 // ─── Genel ikon yolları ───────────────────────────────────────────────────────
 const paths = {
@@ -65,6 +67,16 @@ export function BrandMark({ size = 45, outline = false }) {
 }
 
 export function MoodFace({ index, size = 43 }) {
+  const moodKeys = ['mood_great', 'mood_good', 'mood_neutral', 'mood_tired', 'mood_difficult'];
+  const img = generatedAssets[moodKeys[index]];
+  if (img) {
+    return (
+      <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+        <Image source={img} style={{ width: size, height: size }} resizeMode="contain" />
+      </View>
+    );
+  }
+
   const tone = ['#D9E6B5', '#FFE3A0', '#DCE0FB', '#FFD3B6', '#FAC9CA'][index];
   const mouth = ['M13 25Q22 38 31 25Z', 'M15 27Q22 33 29 27', 'M16 29H28', 'M16 31Q22 25 28 31', 'M15 32Q22 23 29 32'][index];
   return (
@@ -86,6 +98,15 @@ export function MoodFace({ index, size = 43 }) {
 }
 
 export function ProductArt({ type, size = 56 }) {
+  const img = generatedAssets['cat_' + type] || generatedAssets['prod_' + type] || (type === 'jar' ? generatedAssets['prod_baby_food'] : null);
+  if (img) {
+    return (
+      <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+        <Image source={img} style={{ width: size, height: size }} resizeMode="contain" />
+      </View>
+    );
+  }
+
   const tone = { diaper: '#92CBE1', wipes: '#8BAB79', bowl: '#DC956F', soap: '#86BDB3', jar: '#B29A65' }[type];
   return (
     <Svg width={size} height={size} viewBox="0 0 70 70">
@@ -781,7 +802,18 @@ const fruitDefs = {
  * @param {string} type — weekData'daki fruit anahtarı
  * @param {number} size — piksel cinsinden kare boyut
  */
-export function FruitArt({ type, size = 80 }) {
+export function FruitArt({ type, size = 80, useReal = false }) {
+  const assetKey = useReal ? `real_fruit_${type}` : `fruit_${type}`;
+  const img = generatedAssets[assetKey] || generatedAssets[`fruit_${type}`] || (useReal ? generatedAssets[`real_fruit_${type}`] : null);
+
+  if (img) {
+    return (
+      <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+        <Image source={img} style={{ width: size, height: size }} resizeMode="contain" />
+      </View>
+    );
+  }
+
   const def = fruitDefs[type] || fruitDefs.melon;
   const id = `fg_${type}_${size}`;
   return (

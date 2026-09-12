@@ -3,6 +3,7 @@ import { View, Image, StyleSheet, TextInput, Keyboard, ScrollView, Animated } fr
 import { LinearGradient } from 'expo-linear-gradient';
 import { assets, colors, fonts, shadow } from './theme';
 import { Icon, BrandMark, ProductArt, FruitArt } from './Icons';
+import { generatedAssets } from './generatedAssets';
 import { T, Tap, Card, RoundButton, Section, Tabs, MoodPicker, Progress, SmallStat, Page } from './ui';
 import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel, pregnancyProgress, TOTAL_WEEKS } from './weekData';
 import { usePulse, useCrossFade } from './anim';
@@ -142,7 +143,11 @@ export function Pregnancy({ state, update, open }) {
     <View style={[s.row,{gap:9}]}>
       <Tap onPress={() => update(old=>({water:Math.min(8,old.water+1)}))} label="Bir bardak su ekle" style={{flex:1}}>
         <LinearGradient colors={['#E8EEEA','#F5F7F2']} style={s.reminder}>
-          <Icon name="cup" size={30} color="#72BDDE"/>
+          {generatedAssets['card_water'] ? (
+            <Image source={generatedAssets['card_water']} style={{width:38,height:38}} resizeMode="contain"/>
+          ) : (
+            <Icon name="cup" size={30} color="#72BDDE"/>
+          )}
           <View style={{flex:1}}>
             <T bold style={s.reminderTitle}>Su hatırlatıcı</T>
             <T style={s.reminderSub}>{state.water}/8 bardak</T>
@@ -152,7 +157,11 @@ export function Pregnancy({ state, update, open }) {
       </Tap>
       <Tap onPress={() => update(old=>({vitamin:!old.vitamin}))} label="Vitamin alındı durumunu değiştir" style={{flex:1}}>
         <LinearGradient colors={['#F8E5DE','#FCF5EF']} style={s.reminder}>
-          <Icon name={state.vitamin?'check':'pill'} size={29} color="#E99986"/>
+          {generatedAssets['card_vitamin'] ? (
+            <Image source={generatedAssets['card_vitamin']} style={{width:38,height:38}} resizeMode="contain"/>
+          ) : (
+            <Icon name={state.vitamin?'check':'pill'} size={29} color="#E99986"/>
+          )}
           <View style={{flex:1}}>
             <T bold style={s.reminderTitle}>Vitamin zamanı</T>
             <T style={s.reminderSub}>{state.vitamin ? 'Bugün aldın ✓' : 'Günlük dozunu\nunutma'}</T>
@@ -176,16 +185,21 @@ export function Postpartum({state,update,open}) {
   </Page>;
 }
 
-const babyActions=[{type:'Emzirme',icon:'nursing',color:'#EB88AF',light:'#F8AFCA'},{type:'Biberon',icon:'bottle',color:'#AF9BDB',light:'#C8B6EA'},{type:'Uyku',icon:'moon',color:'#8999DB',light:'#AAB8EF'},{type:'Bez',icon:'diaper',color:'#77A68D',light:'#A6C5AD'}];
+const babyActions=[
+  {type:'Emzirme',key:'btn_nursing',icon:'nursing',color:'#EB88AF',light:'#F8AFCA'},
+  {type:'Biberon',key:'btn_bottle',icon:'bottle',color:'#AF9BDB',light:'#C8B6EA'},
+  {type:'Uyku',key:'btn_sleep',icon:'moon',color:'#8999DB',light:'#AAB8EF'},
+  {type:'Bez',key:'btn_diaper',icon:'diaper',color:'#77A68D',light:'#A6C5AD'}
+];
 export const sampleRecords=[{id:'s1',type:'Emzirme',value:'Sağ meme • 15 dk',time:'19:20'},{id:'s2',type:'Bez',value:'Temiz',time:'17:10'},{id:'s3',type:'Uyku',value:'1 sa 20 dk',time:'15:30'},{id:'s4',type:'Biberon',value:'120 ml',time:'13:10'}];
-export function RecordList({records}) {return <View>{records.map(r=>{const a=babyActions.find(a=>a.type===r.type)||{icon:'heart',color:colors.purple};return <View key={r.id} style={s.record}><T style={s.recordTime}>{r.time}</T><View style={[s.recordIcon,{backgroundColor:a.color+'35'}]}><Icon name={a.icon} size={23} color={a.color}/></View><View style={{flex:1}}><T bold style={{fontSize:14}}>{r.type}</T><T style={s.recordValue}>{r.value}</T></View></View>})}</View>}
+export function RecordList({records}) {return <View>{records.map(r=>{const a=babyActions.find(a=>a.type===r.type)||{icon:'heart',color:colors.purple};return <View key={r.id} style={s.record}><T style={s.recordTime}>{r.time}</T><View style={[s.recordIcon,{backgroundColor:a.color+'35'}]}>{generatedAssets[a.key] ? <Image source={generatedAssets[a.key]} style={{width:24,height:24}} resizeMode="contain"/> : <Icon name={a.icon} size={23} color={a.color}/>}</View><View style={{flex:1}}><T bold style={{fontSize:14}}>{r.type}</T><T style={s.recordValue}>{r.value}</T></View></View>})}</View>}
 export function Baby({state,open}) {
   const records=[...state.records,...sampleRecords].slice(0,4);
   return <Page>
     <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage}/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName} · 6 haftalık</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>Minik mutluluğumuz 💛</T></View></View><RoundButton icon="down" label="Yolculuğunu değiştir" onPress={()=>open('journey')}/></View>
-    <View style={s.babyGrid}>{babyActions.map(a=><Tap key={a.type} onPress={()=>open('log',{type:a.type})} label={a.type+' kaydı ekle'} style={s.babyAction}><LinearGradient colors={[a.light,a.color]} start={{x:0,y:0}} end={{x:0.9,y:1}} style={s.babyCircle}><Icon name={a.icon} color="white" size={44} strokeWidth={1.4}/><T bold style={s.babyActionLabel}>{a.type}</T></LinearGradient></Tap>)}</View>
+    <View style={s.babyGrid}>{babyActions.map(a=><Tap key={a.type} onPress={()=>open('log',{type:a.type})} label={a.type+' kaydı ekle'} style={s.babyAction}><LinearGradient colors={[a.light,a.color]} start={{x:0,y:0}} end={{x:0.9,y:1}} style={s.babyCircle}>{generatedAssets[a.key] ? <Image source={generatedAssets[a.key]} style={{width:46,height:46}} resizeMode="contain"/> : <Icon name={a.icon} color="white" size={44} strokeWidth={1.4}/>}<T bold style={s.babyActionLabel}>{a.type}</T></LinearGradient></Tap>)}</View>
     <Section title="Bugünkü kayıtlar" action="Tümünü gör" onPress={()=>open('records')}/><RecordList records={records}/>
-    <Tap onPress={()=>open('log',{type:'Uyku'})} style={s.nextSleep}><View style={s.sleepIcon}><Icon name="moon" size={42} color="white" fill="#AE98D4"/></View><View style={{flex:1}}><T style={{fontSize:13}}>Bir sonraki uyku zamanı</T><T bold style={{fontSize:22,marginTop:5}}>1 sa 15 dk</T><T style={{fontSize:11,marginTop:6}}>{state.babyName} genellikle 21:00 civarı uyuyor.</T></View></Tap>
+    <Tap onPress={()=>open('log',{type:'Uyku'})} style={s.nextSleep}><View style={s.sleepIcon}>{generatedAssets['banner_next_sleep'] ? <Image source={generatedAssets['banner_next_sleep']} style={{width:54,height:54}} resizeMode="contain"/> : <Icon name="moon" size={42} color="white" fill="#AE98D4"/>}</View><View style={{flex:1}}><T style={{fontSize:13}}>Bir sonraki uyku zamanı</T><T bold style={{fontSize:22,marginTop:5}}>1 sa 15 dk</T><T style={{fontSize:11,marginTop:6}}>{state.babyName} genellikle 21:00 civarı uyuyor.</T></View></Tap>
   </Page>;
 }
 
