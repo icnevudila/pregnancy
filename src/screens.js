@@ -11,14 +11,17 @@ import { articles, searchArticles, searchFaqs } from './content';
 import { TopicHubScreen } from './ExploreScreens';
 import { CommunityHub } from './CommunityScreens';
 import { getBabyLetterForWeek } from './babyLettersData';
+import { t } from './i18n/index.js';
 
-export const journeys = [
-  { key: 'pregnancy', title: 'Hamileyim', sub: 'Bebeğimle tanışmaya\nhazırlanıyorum', image: assets.pregnancy, tint: '#F5E7E8' },
-  { key: 'postpartum', title: 'Yeni doğum yaptım', sub: 'Lohusalık sürecimde\nyanımda ol', image: assets.mother, tint: '#F5E5E7' },
-  { key: 'baby', title: 'Bebeğimi\nbüyütüyorum', sub: 'Her gününde birlikte', image: assets.baby, tint: '#EAEAE3' },
+export const getJourneys = (lang = 'tr') => [
+  { key: 'pregnancy', title: lang === 'en' ? "I'm Pregnant" : 'Hamileyim', sub: lang === 'en' ? 'Preparing to meet\nmy baby' : 'Bebeğimle tanışmaya\nhazırlanıyorum', image: assets.pregnancy, tint: '#F5E7E8' },
+  { key: 'postpartum', title: lang === 'en' ? 'Recently Delivered' : 'Yeni doğum yaptım', sub: lang === 'en' ? 'Be by my side in\npostpartum recovery' : 'Lohusalık sürecimde\nyanımda ol', image: assets.mother, tint: '#F5E5E7' },
+  { key: 'baby', title: lang === 'en' ? 'Raising My Baby' : 'Bebeğimi\nbüyütüyorum', sub: lang === 'en' ? 'Together every single day' : 'Her gününde birlikte', image: assets.baby, tint: '#EAEAE3' },
 ];
+export const journeys = getJourneys('tr');
 
-export function Onboarding({ choose, update, toast }) {
+export function Onboarding({ choose, update, toast, lang = 'tr' }) {
+  const isEn = lang === 'en';
   // 5 Aşamalı İnteraktif Onboarding (Flo / Apple Health Stili)
   const [step, setStep] = useState(1);
 
@@ -74,13 +77,15 @@ export function Onboarding({ choose, update, toast }) {
         interests: selectedInterests,
       });
     }
-    toast && toast(role === 'father' ? 'Hoş geldin Baba! Aile yolculuğunuz başladı.' : 'Hoş geldin Anne! Kişisel yolculuğun hazır.');
+    toast && toast(role === 'father'
+      ? (isEn ? 'Welcome Father! Your family journey has begun.' : 'Hoş geldin Baba! Aile yolculuğunuz başladı.')
+      : (isEn ? 'Welcome Mother! Your personalized journey is ready.' : 'Hoş geldin Anne! Kişisel yolculuğun hazır.'));
     choose(stage);
   }
 
   function handleSyncSubmit() {
     if (!partnerCode.trim()) return;
-    toast && toast('Eşinin aile hesabına başarıyla bağlandın!');
+    toast && toast(isEn ? 'Successfully connected to partner account!' : 'Eşinin aile hesabına başarıyla bağlandın!');
     if (update) {
       update({
         role,
@@ -104,10 +109,10 @@ export function Onboarding({ choose, update, toast }) {
     return (
       <View style={{ gap: 16 }}>
         <View style={s.obHeading}>
-          <T bold style={s.obStepKicker}>ADIM 1 · ROLÜNÜ SEÇ</T>
-          <T bold style={s.obTitle}>Momora'ya Hoş Geldin</T>
+          <T bold style={s.obStepKicker}>{isEn ? 'STEP 1 · CHOOSE YOUR ROLE' : 'ADIM 1 · ROLÜNÜ SEÇ'}</T>
+          <T bold style={s.obTitle}>{isEn ? 'Welcome to Momora' : "Momora'ya Hoş Geldin"}</T>
           <T style={s.obSubtitle}>
-            Sana ve ailene en doğru rehberliği sunabilmemiz için önce seni tanıyalım.
+            {isEn ? 'Let us get to know you first so we can offer the right guidance for you and your family.' : 'Sana ve ailene en doğru rehberliği sunabilmemiz için önce seni tanıyalım.'}
           </T>
         </View>
 
@@ -116,7 +121,7 @@ export function Onboarding({ choose, update, toast }) {
           {/* Ben Anneyim */}
           <Tap
             onPress={() => setRole('mother')}
-            label="Ben Anneyim"
+            label={isEn ? "I'm the Mother" : 'Ben Anneyim'}
             style={[s.obRoleCard, role === 'mother' && s.obRoleCardActive]}
           >
             <View style={s.obRolePhotoBox}>
@@ -130,18 +135,18 @@ export function Onboarding({ choose, update, toast }) {
                 style={StyleSheet.absoluteFill}
               />
               <View style={s.obRoleBadge}>
-                <T bold style={{ fontSize: 10.5, color: 'white', letterSpacing: 0.8 }}>ANNE PROFİLİ</T>
+                <T bold style={{ fontSize: 10.5, color: 'white', letterSpacing: 0.8 }}>{isEn ? "MOTHER'S PROFILE" : 'ANNE PROFİLİ'}</T>
               </View>
             </View>
             <View style={s.obRoleContent}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <T bold style={s.obRoleTitle}>Ben Anneyim</T>
+                <T bold style={s.obRoleTitle}>{isEn ? "I'm the Mother" : 'Ben Anneyim'}</T>
                 <View style={[s.obCheckCircle, role === 'mother' && s.obCheckCircleActive]}>
                   {role === 'mother' && <Icon name="check" size={13} color="white" />}
                 </View>
               </View>
               <T style={s.obRoleDesc}>
-                Hamilelik takibi, beden sağlığı, fetal hareketler ve doğum sonrası iyileşme rehberi.
+                {isEn ? 'Pregnancy tracking, bodily wellness, fetal movements, and postpartum recovery guide.' : 'Hamilelik takibi, beden sağlığı, fetal hareketler ve doğum sonrası iyileşme rehberi.'}
               </T>
             </View>
           </Tap>
@@ -149,7 +154,7 @@ export function Onboarding({ choose, update, toast }) {
           {/* Ben Babayım */}
           <Tap
             onPress={() => setRole('father')}
-            label="Ben Babayım"
+            label={isEn ? "I'm the Father" : 'Ben Babayım'}
             style={[s.obRoleCard, role === 'father' && s.obRoleCardActive]}
           >
             <View style={s.obRolePhotoBox}>
@@ -163,18 +168,18 @@ export function Onboarding({ choose, update, toast }) {
                 style={StyleSheet.absoluteFill}
               />
               <View style={[s.obRoleBadge, { backgroundColor: '#3A5A78' }]}>
-                <T bold style={{ fontSize: 10.5, color: 'white', letterSpacing: 0.8 }}>BABA PROFİLİ</T>
+                <T bold style={{ fontSize: 10.5, color: 'white', letterSpacing: 0.8 }}>{isEn ? "FATHER'S PROFILE" : 'BABA PROFİLİ'}</T>
               </View>
             </View>
             <View style={s.obRoleContent}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <T bold style={s.obRoleTitle}>Ben Babayım</T>
+                <T bold style={s.obRoleTitle}>{isEn ? "I'm the Father" : 'Ben Babayım'}</T>
                 <View style={[s.obCheckCircle, role === 'father' && s.obCheckCircleActive]}>
                   {role === 'father' && <Icon name="check" size={13} color="white" />}
                 </View>
               </View>
               <T style={s.obRoleDesc}>
-                Eş desteği, ortak gelişim takibi, bebek bakımı hazırlığı ve aile senkronizasyonu.
+                {isEn ? 'Partner support, mutual growth tracking, baby care preparation, and family synchronization.' : 'Eş desteği, ortak gelişim takibi, bebek bakımı hazırlığı ve aile senkronizasyonu.'}
               </T>
             </View>
           </Tap>
@@ -189,7 +194,7 @@ export function Onboarding({ choose, update, toast }) {
           >
             <Icon name="community" size={16} color={colors.purple} />
             <T bold style={{ fontSize: 12.5, color: colors.purple }}>
-              {showSyncInput ? 'Girişi Kapat' : 'Eşimin Aile Kodu Var · Ortak Hesaba Bağlan'}
+              {showSyncInput ? (isEn ? 'Close Input' : 'Girişi Kapat') : (isEn ? "I Have Partner's Code · Link Account" : 'Eşimin Aile Kodu Var · Ortak Hesaba Bağlan')}
             </T>
           </Tap>
 
@@ -198,20 +203,20 @@ export function Onboarding({ choose, update, toast }) {
               <TextInput
                 value={partnerCode}
                 onChangeText={setPartnerCode}
-                placeholder="Örn: MOM-7829-TR"
+                placeholder="MOM-7829-TR"
                 placeholderTextColor={colors.muted}
                 style={s.obSyncInput}
               />
               <Tap onPress={handleSyncSubmit} label="Bağlan" style={s.obSyncSubmitBtn}>
-                <T bold style={{ color: 'white', fontSize: 12 }}>Bağlan</T>
+                <T bold style={{ color: 'white', fontSize: 12 }}>{isEn ? 'Link' : 'Bağlan'}</T>
               </Tap>
             </View>
           )}
         </View>
 
         {/* Devam Butonu */}
-        <Tap onPress={() => setStep(2)} label="Devam Et" style={s.obPrimaryBtn}>
-          <T bold style={s.obPrimaryBtnText}>Devam Et</T>
+        <Tap onPress={() => setStep(2)} label={isEn ? 'Continue' : 'Devam Et'} style={s.obPrimaryBtn}>
+          <T bold style={s.obPrimaryBtnText}>{isEn ? 'Continue' : 'Devam Et'}</T>
           <Icon name="chevron" size={16} color="white" />
         </Tap>
       </View>
@@ -223,20 +228,26 @@ export function Onboarding({ choose, update, toast }) {
     const stages = [
       {
         id: 'pregnancy',
-        title: role === 'father' ? 'Bebeğimizi Bekliyoruz' : 'Hamileyim',
-        desc: 'Haftalık 3D fetal gelişim, hareketler, beden değişimleri ve doğuma hazırlık.',
+        title: role === 'father'
+          ? (isEn ? 'Expecting Our Baby' : 'Bebeğimizi Bekliyoruz')
+          : (isEn ? "I'm Pregnant" : 'Hamileyim'),
+        desc: isEn ? 'Weekly 3D fetal growth, movements, body changes, and birth preparation.' : 'Haftalık 3D fetal gelişim, hareketler, beden değişimleri ve doğuma hazırlık.',
         photo: generatedAssets['pregnancy'] || generatedAssets['blog_pregnant_morning'],
       },
       {
         id: 'postpartum',
-        title: role === 'father' ? 'Lohusalık Dönemindeyiz' : 'Yeni Doğum Yaptım',
-        desc: 'Fiziksel toparlanma, lohusa desteği, emzirme ve ilk haftaların bakımı.',
+        title: role === 'father'
+          ? (isEn ? 'In Postpartum Period' : 'Lohusalık Dönemindeyiz')
+          : (isEn ? 'Recently Delivered' : 'Yeni Doğum Yaptım'),
+        desc: isEn ? 'Physical recovery, postpartum support, nursing, and first weeks care.' : 'Fiziksel toparlanma, lohusa desteği, emzirme ve ilk haftaların bakımı.',
         photo: generatedAssets['mother-baby'] || generatedAssets['blog_skin_to_skin'],
       },
       {
         id: 'baby',
-        title: role === 'father' ? 'Bebeğimizi Büyütüyoruz' : 'Bebeğimi Büyütüyorum',
-        desc: 'Beslenme saatleri, uyku ritmi, aşı takvimi ve büyüme atakları takibi.',
+        title: role === 'father'
+          ? (isEn ? 'Raising Our Baby' : 'Bebeğimizi Büyütüyoruz')
+          : (isEn ? 'Raising My Baby' : 'Bebeğimi Büyütüyorum'),
+        desc: isEn ? 'Feeding schedule, sleep rhythm, vaccine schedule, and growth leaps.' : 'Beslenme saatleri, uyku ritmi, aşı takvimi ve büyüme atakları takibi.',
         photo: generatedAssets['baby'] || generatedAssets['blog_baby_massage'],
       },
     ];
@@ -244,10 +255,10 @@ export function Onboarding({ choose, update, toast }) {
     return (
       <View style={{ gap: 16 }}>
         <View style={s.obHeading}>
-          <T bold style={s.obStepKicker}>ADIM 2 · AŞAMA SEÇİMİ</T>
-          <T bold style={s.obTitle}>Yolculuğun Hangi Aşamada?</T>
+          <T bold style={s.obStepKicker}>{isEn ? 'STEP 2 · CHOOSE STAGE' : 'ADIM 2 · AŞAMA SEÇİMİ'}</T>
+          <T bold style={s.obTitle}>{isEn ? 'Where Are You on Your Journey?' : 'Yolculuğun Hangi Aşamada?'}</T>
           <T style={s.obSubtitle}>
-            Sana ve ailene özel takvimi hazırlayabilmemiz için mevcut döneminizi seçin.
+            {isEn ? 'Select your current stage so we can curate a custom timeline for you and your family.' : 'Sana ve ailene özel takvimi hazırlayabilmemiz için mevcut döneminizi seçin.'}
           </T>
         </View>
 
@@ -280,11 +291,11 @@ export function Onboarding({ choose, update, toast }) {
 
         {/* Butonlar */}
         <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
-          <Tap onPress={() => setStep(1)} label="Geri" style={s.obSecondaryBtn}>
-            <T bold style={s.obSecondaryBtnText}>← Geri</T>
+          <Tap onPress={() => setStep(1)} label={isEn ? 'Back' : 'Geri'} style={s.obSecondaryBtn}>
+            <T bold style={s.obSecondaryBtnText}>{isEn ? '← Back' : '← Geri'}</T>
           </Tap>
-          <Tap onPress={() => setStep(3)} label="Devam Et" style={[s.obPrimaryBtn, { flex: 2 }]}>
-            <T bold style={s.obPrimaryBtnText}>Devam Et</T>
+          <Tap onPress={() => setStep(3)} label={isEn ? 'Continue' : 'Devam Et'} style={[s.obPrimaryBtn, { flex: 2 }]}>
+            <T bold style={s.obPrimaryBtnText}>{isEn ? 'Continue' : 'Devam Et'}</T>
             <Icon name="chevron" size={16} color="white" />
           </Tap>
         </View>
@@ -298,17 +309,23 @@ export function Onboarding({ choose, update, toast }) {
       4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40
     ];
 
-    const trimester = week <= 12 ? '1. Trimester' : week <= 27 ? '2. Trimester' : '3. Trimester';
+    const trimester = week <= 12
+      ? (isEn ? '1st Trimester' : '1. Trimester')
+      : week <= 27
+        ? (isEn ? '2nd Trimester' : '2. Trimester')
+        : (isEn ? '3rd Trimester' : '3. Trimester');
 
     return (
       <View style={{ gap: 16 }}>
         <View style={s.obHeading}>
-          <T bold style={s.obStepKicker}>ADIM 3 · DETAYLAR VE ZAMANLAMA</T>
+          <T bold style={s.obStepKicker}>{isEn ? 'STEP 3 · DETAILS & TIMING' : 'ADIM 3 · DETAYLAR VE ZAMANLAMA'}</T>
           <T bold style={s.obTitle}>
-            {stage === 'pregnancy' ? 'Kaçıncı Haftadasın?' : 'Bebeğinin Detayları'}
+            {stage === 'pregnancy'
+              ? (isEn ? 'Which Week Are You In?' : 'Kaçıncı Haftadasın?')
+              : (isEn ? "Baby's Details" : 'Bebeğinin Detayları')}
           </T>
           <T style={s.obSubtitle}>
-            İçerikleri ve sayaçları sana tam zamanında sunabilmemiz için detayları belirleyelim.
+            {isEn ? 'Let’s pinpoint the details so we can deliver timely guidance and trackers.' : 'İçerikleri ve sayaçları sana tam zamanında sunabilmemiz için detayları belirleyelim.'}
           </T>
         </View>
 
@@ -317,18 +334,18 @@ export function Onboarding({ choose, update, toast }) {
             {/* Seçili Hafta Göstergesi */}
             <Card style={s.obWeekHeroCard}>
               <T style={{ fontSize: 11, color: colors.purple, letterSpacing: 1, fontWeight: '700' }}>
-                SEÇİLEN HAMİLELİK DÖNEMİ
+                {isEn ? 'SELECTED PREGNANCY PERIOD' : 'SEÇİLEN HAMİLELİK DÖNEMİ'}
               </T>
-              <T bold style={{ fontSize: 32, color: colors.ink, marginTop: 2 }}>{week}. Hafta</T>
+              <T bold style={{ fontSize: 32, color: colors.ink, marginTop: 2 }}>{isEn ? `Week ${week}` : `${week}. Hafta`}</T>
               <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 2 }}>
-                {trimester} · Doğuma yaklaşık {(40 - week) * 7} gün kaldı
+                {trimester} · {isEn ? `Approx. ${(40 - week) * 7} days until arrival` : `Doğuma yaklaşık ${(40 - week) * 7} gün kaldı`}
               </T>
             </Card>
 
             {/* Yatay Hafta Şeridi */}
             <View>
               <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
-                Hamilelik Haftanı Seç:
+                {isEn ? 'Select Pregnancy Week:' : 'Hamilelik Haftanı Seç:'}
               </T>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
                 {weeksList.map(w => (
@@ -342,23 +359,23 @@ export function Onboarding({ choose, update, toast }) {
                       {w}
                     </T>
                     <T style={{ fontSize: 9.5, color: week === w ? '#E8DAEE' : colors.muted, marginTop: 1 }}>
-                      Hafta
+                      {isEn ? 'Wk' : 'Hafta'}
                     </T>
                   </Tap>
                 ))}
               </ScrollView>
             </View>
 
-            {/* Cinsiyet Seçimi (Temiz Butonlar, No Emojis) */}
+            {/* Cinsiyet Seçimi */}
             <View>
               <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
-                Bebeğin Cinsiyeti:
+                {isEn ? "Baby's Gender:" : 'Bebeğin Cinsiyeti:'}
               </T>
               <View style={{ flexDirection: 'row', gap: 8 }}>
                 {[
-                  { id: 'girl', label: 'Kız' },
-                  { id: 'boy', label: 'Erkek' },
-                  { id: 'surprise', label: 'Henüz Öğrenmedik' },
+                  { id: 'girl', label: isEn ? 'Girl' : 'Kız' },
+                  { id: 'boy', label: isEn ? 'Boy' : 'Erkek' },
+                  { id: 'surprise', label: isEn ? 'Surprise / Not Yet' : 'Henüz Öğrenmedik' },
                 ].map(g => (
                   <Tap
                     key={g.id}
@@ -377,7 +394,7 @@ export function Onboarding({ choose, update, toast }) {
             {/* İlk Bebek mi? */}
             <View>
               <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
-                Doğum Deneyimi:
+                {isEn ? 'Birth Experience:' : 'Doğum Deneyimi:'}
               </T>
               <View style={{ flexDirection: 'row', gap: 8 }}>
                 <Tap
@@ -386,7 +403,7 @@ export function Onboarding({ choose, update, toast }) {
                   style={[s.obOptionPill, firstBaby && s.obOptionPillActive]}
                 >
                   <T bold={firstBaby} style={{ fontSize: 12.5, color: firstBaby ? 'white' : colors.ink }}>
-                    İlk Bebeğim
+                    {isEn ? 'First Baby' : 'İlk Bebeğim'}
                   </T>
                 </Tap>
                 <Tap
@@ -395,7 +412,7 @@ export function Onboarding({ choose, update, toast }) {
                   style={[s.obOptionPill, !firstBaby && s.obOptionPillActive]}
                 >
                   <T bold={!firstBaby} style={{ fontSize: 12.5, color: !firstBaby ? 'white' : colors.ink }}>
-                    Daha Önce Doğum Yaptım
+                    {isEn ? 'Experienced Parent' : 'Daha Önce Doğum Yaptım'}
                   </T>
                 </Tap>
               </View>
@@ -406,12 +423,12 @@ export function Onboarding({ choose, update, toast }) {
           <>
             <View>
               <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
-                Bebeğinin Adı veya Lakabı:
+                {isEn ? "Baby's Name / Nickname:" : 'Bebeğinin Adı veya Lakabı:'}
               </T>
               <TextInput
                 value={babyName}
                 onChangeText={setBabyName}
-                placeholder="Örn: Ada"
+                placeholder={isEn ? 'e.g. Maya' : 'Örn: Ada'}
                 placeholderTextColor={colors.muted}
                 style={s.obTextInput}
               />
@@ -419,13 +436,13 @@ export function Onboarding({ choose, update, toast }) {
 
             <View>
               <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
-                Bebeğin Cinsiyeti:
+                {isEn ? "Baby's Gender:" : 'Bebeğin Cinsiyeti:'}
               </T>
               <View style={{ flexDirection: 'row', gap: 8 }}>
                 {[
-                  { id: 'girl', label: 'Kız' },
-                  { id: 'boy', label: 'Erkek' },
-                  { id: 'surprise', label: 'Belirtmek İstemiyorum' },
+                  { id: 'girl', label: isEn ? 'Girl' : 'Kız' },
+                  { id: 'boy', label: isEn ? 'Boy' : 'Erkek' },
+                  { id: 'surprise', label: isEn ? 'Prefer not to say' : 'Belirtmek İstemiyorum' },
                 ].map(g => (
                   <Tap
                     key={g.id}
@@ -443,14 +460,14 @@ export function Onboarding({ choose, update, toast }) {
 
             <View>
               <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
-                Bebeğin Dönemi:
+                {isEn ? "Baby's Age:" : 'Bebeğin Dönemi:'}
               </T>
               <View style={{ gap: 8 }}>
                 {[
-                  { id: 'newborn', label: 'Yenidoğan · İlk 40 Gün' },
-                  { id: 'month1_3', label: '1 - 3 Aylık' },
-                  { id: 'month3_6', label: '3 - 6 Aylık' },
-                  { id: 'month6_plus', label: '6 Ay ve Üzeri' },
+                  { id: 'newborn', label: isEn ? 'Newborn · First 40 Days' : 'Yenidoğan · İlk 40 Gün' },
+                  { id: 'month1_3', label: isEn ? '1 - 3 Months' : '1 - 3 Aylık' },
+                  { id: 'month3_6', label: isEn ? '3 - 6 Months' : '3 - 6 Aylık' },
+                  { id: 'month6_plus', label: isEn ? '6 Months & Above' : '6 Ay ve Üzeri' },
                 ].map(a => (
                   <Tap
                     key={a.id}
@@ -473,11 +490,11 @@ export function Onboarding({ choose, update, toast }) {
 
         {/* Butonlar */}
         <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
-          <Tap onPress={() => setStep(2)} label="Geri" style={s.obSecondaryBtn}>
-            <T bold style={s.obSecondaryBtnText}>← Geri</T>
+          <Tap onPress={() => setStep(2)} label={isEn ? 'Back' : 'Geri'} style={s.obSecondaryBtn}>
+            <T bold style={s.obSecondaryBtnText}>{isEn ? '← Back' : '← Geri'}</T>
           </Tap>
-          <Tap onPress={() => setStep(4)} label="Devam Et" style={[s.obPrimaryBtn, { flex: 2 }]}>
-            <T bold style={s.obPrimaryBtnText}>Devam Et</T>
+          <Tap onPress={() => setStep(4)} label={isEn ? 'Continue' : 'Devam Et'} style={[s.obPrimaryBtn, { flex: 2 }]}>
+            <T bold style={s.obPrimaryBtnText}>{isEn ? 'Continue' : 'Devam Et'}</T>
             <Icon name="chevron" size={16} color="white" />
           </Tap>
         </View>
@@ -488,23 +505,23 @@ export function Onboarding({ choose, update, toast }) {
   // ─── ADIM 4: ÖNCELİKLİ İLGİ ALANLARI ───
   function renderStep4() {
     const interestOptions = [
-      { id: 'fetal3d', label: '3D Fetal Gelişim & Kıyaslama', icon: 'heart', sub: 'Haftalık organ ve boyut atlası' },
-      { id: 'foodSafety', label: 'Besin Güvenliği Kılavuzu', icon: 'leaf', sub: 'Yenebilir mi / Güvenli mi?' },
-      { id: 'hospitalBag', label: 'Hastane Çantası & Doğum Planı', icon: 'bag', sub: 'Anne, bebek ve doğum tercihi listeleri' },
-      { id: 'counters', label: 'Tekme & Kasılma Sayaçları', icon: 'footprint', sub: 'Fetal hareket ve 5-1-1 kuralı alarmları' },
-      { id: 'partnerSync', label: 'Eş Senkronizasyonu & Ortak Notlar', icon: 'community', sub: 'Eşler arası mesajlaşma ve ortak takip' },
-      { id: 'babyNames', label: 'Geniş Bebek İsimleri Keşfi', icon: 'book', sub: '65+ anlamlı Türkçe ve evrensel isim' },
-      { id: 'whiteNoise', label: 'Beyaz Gürültü & Uyku Sesleri', icon: 'moon', sub: 'Rahim içi, fön ve sakinleştirici sesler' },
-      { id: 'library', label: 'Uzman Onaylı Editoryal Kütüphane', icon: 'search', sub: '65 klinik rehber ve hekim tavsiyesi' },
+      { id: 'fetal3d', label: isEn ? '3D Fetal Growth & Comparison' : '3D Fetal Gelişim & Kıyaslama', icon: 'heart', sub: isEn ? 'Weekly organ and size atlas' : 'Haftalık organ ve boyut atlası' },
+      { id: 'foodSafety', label: isEn ? 'Food Safety Guide' : 'Besin Güvenliği Kılavuzu', icon: 'leaf', sub: isEn ? 'Can I eat this? / Is it safe?' : 'Yenebilir mi / Güvenli mi?' },
+      { id: 'hospitalBag', label: isEn ? 'Hospital Bag & Birth Plan' : 'Hastane Çantası & Doğum Planı', icon: 'bag', sub: isEn ? 'Mom, baby, and birth preference lists' : 'Anne, bebek ve doğum tercihi listeleri' },
+      { id: 'counters', label: isEn ? 'Kick & Contraction Timers' : 'Tekme & Kasılma Sayaçları', icon: 'footprint', sub: isEn ? 'Fetal movements and 5-1-1 alarms' : 'Fetal hareket ve 5-1-1 kuralı alarmları' },
+      { id: 'partnerSync', label: isEn ? 'Partner Sync & Notes' : 'Eş Senkronizasyonu & Ortak Notlar', icon: 'community', sub: isEn ? 'Messaging and shared milestones' : 'Eşler arası mesajlaşma ve ortak takip' },
+      { id: 'babyNames', label: isEn ? 'Baby Names Directory' : 'Geniş Bebek İsimleri Keşfi', icon: 'book', sub: isEn ? 'Meaningful names with origins' : '65+ anlamlı Türkçe ve evrensel isim' },
+      { id: 'whiteNoise', label: isEn ? 'White Noise & Soothing Sounds' : 'Beyaz Gürültü & Uyku Sesleri', icon: 'moon', sub: isEn ? 'Womb, rain, and calming sounds' : 'Rahim içi, fön ve sakinleştirici sesler' },
+      { id: 'library', label: isEn ? 'Curated Medical Library' : 'Uzman Onaylı Editoryal Kütüphane', icon: 'search', sub: isEn ? 'Expert-reviewed clinical guides' : '65 klinik rehber ve hekim tavsiyesi' },
     ];
 
     return (
       <View style={{ gap: 16 }}>
         <View style={s.obHeading}>
-          <T bold style={s.obStepKicker}>ADIM 4 · İLGİ ALANLARI</T>
-          <T bold style={s.obTitle}>Öncelikli Konuların</T>
+          <T bold style={s.obStepKicker}>{isEn ? 'STEP 4 · INTERESTS' : 'ADIM 4 · İLGİ ALANLARI'}</T>
+          <T bold style={s.obTitle}>{isEn ? 'Your Priority Topics' : 'Öncelikli Konuların'}</T>
           <T style={s.obSubtitle}>
-            Momora sana en çok hangi konularda eşlik etsin? İstediklerini seçebilirsin.
+            {isEn ? 'Which topics would you like Momora to focus on? Select as many as you like.' : 'Momora sana en çok hangi konularda eşlik etsin? İstediklerini seçebilirsin.'}
           </T>
         </View>
 
@@ -535,11 +552,11 @@ export function Onboarding({ choose, update, toast }) {
 
         {/* Butonlar */}
         <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
-          <Tap onPress={() => setStep(3)} label="Geri" style={s.obSecondaryBtn}>
-            <T bold style={s.obSecondaryBtnText}>← Geri</T>
+          <Tap onPress={() => setStep(3)} label={isEn ? 'Back' : 'Geri'} style={s.obSecondaryBtn}>
+            <T bold style={s.obSecondaryBtnText}>{isEn ? '← Back' : '← Geri'}</T>
           </Tap>
-          <Tap onPress={() => setStep(5)} label="Planımı Oluştur" style={[s.obPrimaryBtn, { flex: 2 }]}>
-            <T bold style={s.obPrimaryBtnText}>Planımı Oluştur</T>
+          <Tap onPress={() => setStep(5)} label={isEn ? 'Create My Plan' : 'Planımı Oluştur'} style={[s.obPrimaryBtn, { flex: 2 }]}>
+            <T bold style={s.obPrimaryBtnText}>{isEn ? 'Create My Plan' : 'Planımı Oluştur'}</T>
             <Icon name="chevron" size={16} color="white" />
           </Tap>
         </View>
@@ -557,12 +574,14 @@ export function Onboarding({ choose, update, toast }) {
 
         <View style={{ alignItems: 'center', gap: 6 }}>
           <T bold style={{ fontSize: 24, letterSpacing: -0.5, color: colors.ink, textAlign: 'center' }}>
-            {prepComplete ? 'Momora Deneyimin Hazır' : 'Kişisel Deneyimin Hazırlanıyor'}
+            {prepComplete
+              ? (isEn ? 'Your Momora Experience is Ready' : 'Momora Deneyimin Hazır')
+              : (isEn ? 'Curating Your Personal Experience...' : 'Kişisel Deneyimin Hazırlanıyor')}
           </T>
           <T style={{ fontSize: 13, color: colors.muted, textAlign: 'center', maxWidth: 300 }}>
             {prepComplete
-              ? 'Tüm sağlık araçları ve haftalık gelişim planın senin için yapılandırıldı.'
-              : 'Verilerin analiz ediliyor, haftalık biyolojik akışın yapılandırılıyor...'}
+              ? (isEn ? 'All health trackers and your weekly development plan have been configured for you.' : 'Tüm sağlık araçları ve haftalık gelişim planın senin için yapılandırıldı.')
+              : (isEn ? 'Analyzing preferences, personalizing weekly biological timeline...' : 'Verilerin analiz ediliyor, haftalık biyolojik akışın yapılandırılıyor...')}
           </T>
         </View>
 
@@ -579,7 +598,7 @@ export function Onboarding({ choose, update, toast }) {
               {prepProgress >= 25 ? <Icon name="check" size={11} color="white" /> : <View style={s.obMiniDot} />}
             </View>
             <T style={[s.obCheckLabel, prepProgress >= 25 && s.obCheckLabelDone]}>
-              {week}. hafta biyolojik gelişim takvimi yüklendi
+              {isEn ? `Week ${week} biological growth timeline loaded` : `${week}. hafta biyolojik gelişim takvimi yüklendi`}
             </T>
           </View>
 
@@ -588,7 +607,7 @@ export function Onboarding({ choose, update, toast }) {
               {prepProgress >= 50 ? <Icon name="check" size={11} color="white" /> : <View style={s.obMiniDot} />}
             </View>
             <T style={[s.obCheckLabel, prepProgress >= 50 && s.obCheckLabelDone]}>
-              Trimester ve besin güvenliği kılavuzları entegre edildi
+              {isEn ? 'Trimester and food safety guides integrated' : 'Trimester ve besin güvenliği kılavuzları entegre edildi'}
             </T>
           </View>
 
@@ -597,7 +616,7 @@ export function Onboarding({ choose, update, toast }) {
               {prepProgress >= 75 ? <Icon name="check" size={11} color="white" /> : <View style={s.obMiniDot} />}
             </View>
             <T style={[s.obCheckLabel, prepProgress >= 75 && s.obCheckLabelDone]}>
-              Eş senkronizasyon kodu MOM-7829-TR tanımlandı
+              {isEn ? 'Partner sync code MOM-7829-TR configured' : 'Eş senkronizasyon kodu MOM-7829-TR tanımlandı'}
             </T>
           </View>
 
@@ -606,15 +625,15 @@ export function Onboarding({ choose, update, toast }) {
               {prepProgress >= 100 ? <Icon name="check" size={11} color="white" /> : <View style={s.obMiniDot} />}
             </View>
             <T style={[s.obCheckLabel, prepProgress >= 100 && s.obCheckLabelDone]}>
-              15 akıllı sayaç ve bebeğin günlük mektubu hazır
+              {isEn ? '15 smart trackers and daily baby letter ready' : '15 akıllı sayaç ve bebeğin günlük mektubu hazır'}
             </T>
           </View>
         </View>
 
         {/* Başlama Butonu */}
         {prepComplete && (
-          <Tap onPress={handleComplete} label="Momora'yı Keşfetmeye Başla" style={[s.obPrimaryBtn, { width: '100%', marginTop: 10 }]}>
-            <T bold style={s.obPrimaryBtnText}>Momora'yı Keşfetmeye Başla</T>
+          <Tap onPress={handleComplete} label={isEn ? 'Start Exploring Momora' : "Momora'yı Keşfetmeye Başla"} style={[s.obPrimaryBtn, { width: '100%', marginTop: 10 }]}>
+            <T bold style={s.obPrimaryBtnText}>{isEn ? 'Start Exploring Momora' : "Momora'yı Keşfetmeye Başla"}</T>
             <Icon name="chevron" size={16} color="white" />
           </Tap>
         )}
@@ -653,29 +672,30 @@ export function Onboarding({ choose, update, toast }) {
 }
 
 // ─── 3'lü Kıyaslama & Ultrason Hero (Pregnancy+ Stili) ─────────────────────────
-function ComparisonHero({ week, info, onPress }) {
+function ComparisonHero({ week, info, onPress, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [mode, setMode] = useState('fruit'); // 'fruit' | 'animal' | 'sweet' | 'ultrasound'
   const scale = usePulse(0.94, 1.06, 1800);
   const fade  = useCrossFade(week + mode, 260);
   const progress = pregnancyProgress(week);
 
   let compName = info.fruitName;
-  let compSub = 'büyüklüğünde';
+  let compSub = isEn ? 'in size' : 'büyüklüğünde';
   let compType = info.fruit;
   let compEmoji = '🍑';
 
   if (mode === 'animal') {
-    compName = info.animalName || 'Sevimli Yavru';
-    compSub = 'kadar sevimli';
+    compName = isEn ? 'Cute Baby Animal' : (info.animalName || 'Sevimli Yavru');
+    compSub = isEn ? 'as cute as' : 'kadar sevimli';
     compType = info.animal || 'hamster';
     compEmoji = info.animalEmoji || '🐾';
   } else if (mode === 'sweet') {
-    compName = info.sweetName || 'Tatlı Nesne';
-    compSub = 'ağırlığında';
+    compName = isEn ? 'Sweet Object' : (info.sweetName || 'Tatlı Nesne');
+    compSub = isEn ? 'in weight' : 'ağırlığında';
     compType = info.sweet || 'macaron';
     compEmoji = info.sweetEmoji || '🧁';
   } else if (mode === 'ultrasound') {
-    compName = info.ultrasound?.scan || 'Ultrason';
+    compName = info.ultrasound?.scan || (isEn ? 'Ultrasound' : 'Ultrason');
     compSub = info.ultrasound?.badge || '2D / 4D Doppler';
     compType = 'ultrasound';
     compEmoji = '🩺';
@@ -686,10 +706,10 @@ function ComparisonHero({ week, info, onPress }) {
       {/* 3'lü Kıyaslama Switcher (Pregnancy+ Stili) */}
       <View style={s.compTabs}>
         {[
-          { key: 'fruit', label: '🍏 Meyve' },
-          { key: 'animal', label: '🧸 Hayvan' },
-          { key: 'sweet', label: '🧁 Tatlı' },
-          { key: 'ultrasound', label: '🩺 Ultrason' },
+          { key: 'fruit', label: isEn ? '🍏 Fruit' : '🍏 Meyve' },
+          { key: 'animal', label: isEn ? '🧸 Animal' : '🧸 Hayvan' },
+          { key: 'sweet', label: isEn ? '🧁 Sweet' : '🧁 Tatlı' },
+          { key: 'ultrasound', label: isEn ? '🩺 Ultrasound' : '🩺 Ultrason' },
         ].map(t => (
           <Tap
             key={t.key}
@@ -703,15 +723,15 @@ function ComparisonHero({ week, info, onPress }) {
         ))}
       </View>
 
-      <Tap onPress={onPress} label="Bu haftaki gelişimi gör" style={s.fruitHero}>
+      <Tap onPress={onPress} label={isEn ? 'See week development' : 'Bu haftaki gelişimi gör'} style={s.fruitHero}>
         <LinearGradient colors={['#6A4F7A22', 'transparent']} start={{x:0,y:0}} end={{x:1,y:0}} style={StyleSheet.absoluteFill} />
         {/* Sol — sayısal bilgi */}
         <View style={s.fruitHeroLeft}>
           <View style={s.row}>
-            <T bold style={s.fruitWeekNum}>{week}. Hafta</T>
+            <T bold style={s.fruitWeekNum}>{isEn ? `Week ${week}` : `${week}. Hafta`}</T>
             {mode === 'ultrasound' && (
               <View style={s.usBadge}>
-                <T style={s.usBadgeText}>{info.ultrasound?.badge || 'Ultrason'}</T>
+                <T style={s.usBadgeText}>{info.ultrasound?.badge || (isEn ? 'Ultrasound' : 'Ultrason')}</T>
               </View>
             )}
           </View>
@@ -720,7 +740,7 @@ function ComparisonHero({ week, info, onPress }) {
           {mode === 'ultrasound' ? (
             <View style={{ marginTop: 8, paddingRight: 4 }}>
               <T style={{ fontSize: 11, color: '#6A4878', lineHeight: 15 }}>
-                {info.ultrasound?.milestone || 'Bebeğin organları ve yüz hatları inceleniyor.'}
+                {info.ultrasound?.milestone || (isEn ? 'Baby organs and facial features are monitored.' : 'Bebeğin organları ve yüz hatları inceleniyor.')}
               </T>
             </View>
           ) : (
@@ -738,13 +758,13 @@ function ComparisonHero({ week, info, onPress }) {
 
           {/* İlerleme çubuğu */}
           <View style={{marginTop:10}}>
-            <T style={{fontSize:10,color:'#B89DC0',marginBottom:4}}>{progress}% tamamlandı</T>
+            <T style={{fontSize:10,color:'#B89DC0',marginBottom:4}}>{progress}% {isEn ? 'completed' : 'tamamlandı'}</T>
             <View style={s.progressTrack}>
               <View style={[s.progressFill, {width: `${progress}%`}]} />
             </View>
           </View>
           <View style={s.fruitHeroBtn}>
-            <T style={{fontSize:12,color:'#9A779A'}}>Detayları gör</T>
+            <T style={{fontSize:12,color:'#9A779A'}}>{isEn ? 'See details' : 'Detayları gör'}</T>
             <Icon name="arrow" size={15} color="#9A779A"/>
           </View>
         </View>
@@ -768,7 +788,8 @@ function ComparisonHero({ week, info, onPress }) {
 }
 
 // ─── Hamilelik Ekranı ─────────────────────────────────────────────────────────
-export function Pregnancy({ state, update, open }) {
+export function Pregnancy({ state, update, open, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [timelineDay, setTimelineDay] = useState('bugun'); // 'dun' | 'bugun' | 'yarin'
   const week = state.week ?? 24;
   const info = getWeekInfo(week);
@@ -778,9 +799,27 @@ export function Pregnancy({ state, update, open }) {
   const strip = [];
   for (let w = Math.max(4, week - 4); w <= Math.min(TOTAL_WEEKS, week + 5); w++) strip.push(w);
 
-  const moodLabels = ['Harika ✨', 'İyi 💛', 'Normal 🌿', 'Yorgun 🛌', 'Zor 💜'];
+  const moodLabels = isEn
+    ? ['Great ✨', 'Good 💛', 'Normal 🌿', 'Tired 🛌', 'Hard 💜']
+    : ['Harika ✨', 'İyi 💛', 'Normal 🌿', 'Yorgun 🛌', 'Zor 💜'];
 
-  const timelineContent = {
+  const timelineContent = isEn ? {
+    dun: {
+      baby: 'Tiny touch receptors have activated on your baby’s fingertips.',
+      mom: 'You might feel a sweet, mild weight in your lower back.',
+      tip: 'A 20-minute gentle evening walk improves your sleep quality noticeably.',
+    },
+    bugun: {
+      baby: 'First hiccup reflexes may begin today, preparing diaphragmatic muscles for birth!',
+      mom: 'Blood volume is up 40%; mild nasal congestion is very common right now.',
+      tip: 'Jotting down calcium & magnesium rich meals makes your doctor visits more productive.',
+    },
+    yarin: {
+      baby: 'Facial muscles continue practicing smiles, frowns, and grimaces.',
+      mom: 'Energy levels may stay pleasantly high; great day for nursery planning.',
+      tip: 'Elevate your feet with a pillow at the end of the day for restorative rest.',
+    },
+  } : {
     dun: {
       baby: 'Bebeğinizin parmak uçlarında minik dokunma reseptörleri aktifleşti.',
       mom: 'Bel bölgenizde hafif tatlı bir ağırlık hissi oluşmuş olabilir.',
@@ -805,12 +844,12 @@ export function Pregnancy({ state, update, open }) {
     <View style={s.topline}>
       <View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <T bold style={{ color: '#684574', fontSize: 18 }}>Merhaba, {state.name}</T>
+          <T bold style={{ color: '#684574', fontSize: 18 }}>{isEn ? `Hello, ${state.name}` : `Merhaba, ${state.name}`}</T>
           <T style={{ fontSize: 18 }}>🌸</T>
         </View>
-        <T style={s.subtitle}>Bugün: 12 Eylül Cumartesi · {week}. Hafta 5. Gün</T>
+        <T style={s.subtitle}>{isEn ? `Today · Week ${week} Day 5` : `Bugün: 12 Eylül Cumartesi · ${week}. Hafta 5. Gün`}</T>
       </View>
-      <Tap onPress={() => open('appointment')} label="Randevularım" style={s.iconHit}>
+      <Tap onPress={() => open('appointment')} label={isEn ? 'Appointments' : 'Randevularım'} style={s.iconHit}>
         <Icon name="bell" size={26}/>
       </Tap>
     </View>
@@ -818,17 +857,17 @@ export function Pregnancy({ state, update, open }) {
     {/* Geri Sayım Rozet Şeridi */}
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F6EFF7', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 14 }}>
       <T bold style={{ fontSize: 12, color: colors.purple }}>
-        ⏳ Doğuma {(40 - week) * 7} Gün Kaldı
+        ⏳ {isEn ? `${(40 - week) * 7} Days Until Due Date` : `Doğuma ${(40 - week) * 7} Gün Kaldı`}
       </T>
       <T style={{ fontSize: 11, color: '#7E6184' }}>
-        Bebeğin: {state.babyName || 'Ada'} · {state.babyGender || 'Kız'}
+        {isEn ? `Baby: ${state.babyName || 'Ada'}` : `Bebeğin: ${state.babyName || 'Ada'}`} · {state.babyGender === 'Kız' || state.babyGender === 'girl' ? (isEn ? 'Girl' : 'Kız') : (isEn ? 'Boy' : 'Erkek')}
       </T>
     </View>
 
     {/* ─── 2. HAFTA ŞERİDİ ─── */}
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.weekStrip}>
       {strip.map(n => (
-        <Tap key={n} label={n + '. hafta'} onPress={() => update({week:n})}
+        <Tap key={n} label={n + (isEn ? ' week' : '. hafta')} onPress={() => update({week:n})}
           accessibilityState={{selected: week === n}}
           style={[s.weekPill, week === n && s.weekActive]}>
           <T style={[{fontSize:13}, week === n && {color:'white',fontFamily:fonts.bold}]}>{n}</T>
@@ -840,9 +879,9 @@ export function Pregnancy({ state, update, open }) {
     </ScrollView>
 
     {/* ─── 3. 3'LÜ KIYASLAMA & ULTRASON HERO ─── */}
-    <ComparisonHero week={week} info={info} onPress={() => open('week', {week})} />
+    <ComparisonHero week={week} info={info} onPress={() => open('week', {week})} lang={lang} />
 
-    {/* ─── 4. BEBEĞİN GÜNLÜK MEKTUBU (DOĞRUDAN SAYFADA AÇIK PARŞÖMEN) ─── */}
+    {/* ─── 4. BEBEĞİN GÜNLÜK MEKTUBU ─── */}
     <Card style={{ padding: 16, backgroundColor: '#FFFDF9', borderColor: '#EFE0D8' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -854,12 +893,12 @@ export function Pregnancy({ state, update, open }) {
             )}
           </View>
           <View>
-            <T bold style={{ fontSize: 14, color: colors.purple }}>Bebeğinden Günün Mektubu</T>
-            <T style={{ fontSize: 10, color: colors.muted }}>{letter.dayText || (week + '. Hafta Mektubu')}</T>
+            <T bold style={{ fontSize: 14, color: colors.purple }}>{isEn ? "Daily Letter from Your Baby" : "Bebeğinden Günün Mektubu"}</T>
+            <T style={{ fontSize: 10, color: colors.muted }}>{letter.dayText || (isEn ? `Week ${week} Letter` : `${week}. Hafta Mektubu`)}</T>
           </View>
         </View>
         <Tap onPress={() => open('babyLetter')} style={{ padding: 4 }}>
-          <T bold style={{ fontSize: 11, color: colors.purple }}>Tüm Mektuplar →</T>
+          <T bold style={{ fontSize: 11, color: colors.purple }}>{isEn ? 'All Letters →' : 'Tüm Mektuplar →'}</T>
         </Tap>
       </View>
 
@@ -869,14 +908,14 @@ export function Pregnancy({ state, update, open }) {
 
       {letter.milestone ? (
         <View style={{ marginTop: 10, backgroundColor: '#FAF3EF', padding: 8, borderRadius: 10 }}>
-          <T style={{ fontSize: 11, color: '#885842' }}>🌱 Gelişim Notu: {letter.milestone}</T>
+          <T style={{ fontSize: 11, color: '#885842' }}>🌱 {isEn ? 'Milestone:' : 'Gelişim Notu:'} {letter.milestone}</T>
         </View>
       ) : null}
 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, paddingTop: 8, borderTopWidth: 1, borderColor: '#F5ECE5' }}>
-        <T style={{ fontSize: 11, color: colors.muted }}>Seni çok seven bebeğin 💛</T>
+        <T style={{ fontSize: 11, color: colors.muted }}>{isEn ? 'Your loving baby 💛' : 'Seni çok seven bebeğin 💛'}</T>
         <Tap onPress={() => open('babyLetter')} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          <T bold style={{ fontSize: 11, color: colors.purple }}>Eşime Gönder</T>
+          <T bold style={{ fontSize: 11, color: colors.purple }}>{isEn ? 'Send to Partner' : 'Eşime Gönder'}</T>
           <Icon name="chevron" size={12} color={colors.purple}/>
         </Tap>
       </View>
@@ -885,13 +924,16 @@ export function Pregnancy({ state, update, open }) {
     {/* ─── 5. GÜNLÜK AKIŞ & ZAMAN TÜNELİ (DÜN - BUGÜN - YARIN) ─── */}
     <Card style={{ padding: 15 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <T bold style={{ fontSize: 15, color: colors.ink }}>⏱️ Günlük Gelişim Akışı</T>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Icon name="clock" size={16} color={colors.purple} />
+          <T bold style={{ fontSize: 15, color: colors.ink }}>{isEn ? 'Daily Growth Feed' : 'Günlük Gelişim Akışı'}</T>
+        </View>
         {/* Dün - Bugün - Yarın Sekmeleri */}
         <View style={{ flexDirection: 'row', backgroundColor: '#EFE7F0', borderRadius: 12, padding: 2 }}>
           {[
-            { id: 'dun', label: 'Dün' },
-            { id: 'bugun', label: 'Bugün ✨' },
-            { id: 'yarin', label: 'Yarın' },
+            { id: 'dun', label: isEn ? 'Yesterday' : 'Dün' },
+            { id: 'bugun', label: isEn ? 'Today ✨' : 'Bugün ✨' },
+            { id: 'yarin', label: isEn ? 'Tomorrow' : 'Yarın' },
           ].map(d => (
             <Tap
               key={d.id}
@@ -917,7 +959,7 @@ export function Pregnancy({ state, update, open }) {
             <Icon name="baby" size={24} color={colors.purple} />
           )}
           <View style={{ flex: 1 }}>
-            <T bold style={{ fontSize: 12, color: colors.purple }}>Bebeğin</T>
+            <T bold style={{ fontSize: 12, color: colors.purple }}>{isEn ? 'Baby' : 'Bebeğin'}</T>
             <T style={{ fontSize: 12.5, color: '#4E4252', marginTop: 1, lineHeight: 17 }}>{tc.baby}</T>
           </View>
         </View>
@@ -929,7 +971,7 @@ export function Pregnancy({ state, update, open }) {
             <Icon name="heart" size={24} color="#A03B64" />
           )}
           <View style={{ flex: 1 }}>
-            <T bold style={{ fontSize: 12, color: '#A03B64' }}>Bedenin</T>
+            <T bold style={{ fontSize: 12, color: '#A03B64' }}>{isEn ? 'Your Body' : 'Bedenin'}</T>
             <T style={{ fontSize: 12.5, color: '#563D4A', marginTop: 1, lineHeight: 17 }}>{tc.mom}</T>
           </View>
         </View>
@@ -941,7 +983,7 @@ export function Pregnancy({ state, update, open }) {
             <Icon name="leaf" size={24} color="#38734A" />
           )}
           <View style={{ flex: 1 }}>
-            <T bold style={{ fontSize: 12, color: '#38734A' }}>Günün Tavsiyesi</T>
+            <T bold style={{ fontSize: 12, color: '#38734A' }}>{isEn ? "Today's Tip" : 'Günün Tavsiyesi'}</T>
             <T style={{ fontSize: 12.5, color: '#3A5442', marginTop: 1, lineHeight: 17 }}>{tc.tip}</T>
           </View>
         </View>
@@ -957,10 +999,10 @@ export function Pregnancy({ state, update, open }) {
           ) : (
             <Icon name="book" size={20} color={colors.purple} />
           )}
-          <T bold style={{ fontSize: 15, color: colors.ink }}>Bugünün Takip Günlüğü</T>
+          <T bold style={{ fontSize: 15, color: colors.ink }}>{isEn ? "Today's Tracker Log" : 'Bugünün Takip Günlüğü'}</T>
         </View>
         <Tap onPress={() => open('toolsHub')} style={{ padding: 4 }}>
-          <T bold style={{ fontSize: 11, color: colors.purple }}>Takip merkezi →</T>
+          <T bold style={{ fontSize: 11, color: colors.purple }}>{isEn ? 'Trackers hub →' : 'Takip merkezi →'}</T>
         </Tap>
       </View>
 
@@ -974,12 +1016,12 @@ export function Pregnancy({ state, update, open }) {
               <Icon name="drop" size={26} color="#367B9E" />
             )}
             <View>
-              <T bold style={{ fontSize: 13 }}>Su Takibi · {state.water || 4}/8 Bardak</T>
-              <T style={{ fontSize: 11, color: colors.muted }}>{((state.water || 4) * 0.25).toFixed(1)} / 2.0 Litre tamamlandı</T>
+              <T bold style={{ fontSize: 13 }}>{isEn ? 'Water Tracker' : 'Su Takibi'} · {state.water || 4}/8 {isEn ? 'Glasses' : 'Bardak'}</T>
+              <T style={{ fontSize: 11, color: colors.muted }}>{((state.water || 4) * 0.25).toFixed(1)} / 2.0 {isEn ? 'Liters completed' : 'Litre tamamlandı'}</T>
             </View>
           </View>
           <Tap onPress={() => update(old => ({ water: Math.min(12, (old.water || 0) + 1) }))} style={{ backgroundColor: '#EDF5F8', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
-            <T bold style={{ fontSize: 11, color: '#367B9E' }}>+1 Bardak</T>
+            <T bold style={{ fontSize: 11, color: '#367B9E' }}>{isEn ? '+1 Glass' : '+1 Bardak'}</T>
           </Tap>
         </View>
 
@@ -992,15 +1034,15 @@ export function Pregnancy({ state, update, open }) {
               <Icon name="heart" size={26} color="#A8453E" />
             )}
             <View>
-              <T bold style={{ fontSize: 13 }}>Vitamin Notu</T>
+              <T bold style={{ fontSize: 13 }}>{isEn ? 'Prenatal Vitamin' : 'Vitamin Notu'}</T>
               <T style={{ fontSize: 11, color: state.vitamin ? '#3A8253' : colors.muted }}>
-                {state.vitamin ? 'Bugün alındı ✓' : 'Günlük doz bekleniyor'}
+                {state.vitamin ? (isEn ? 'Taken today ✓' : 'Bugün alındı ✓') : (isEn ? 'Pending daily dose' : 'Günlük doz bekleniyor')}
               </T>
             </View>
           </View>
           <Tap onPress={() => update(old => ({ vitamin: !old.vitamin }))} style={{ backgroundColor: state.vitamin ? '#EBF5ED' : '#F7ECEB', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
             <T bold style={{ fontSize: 11, color: state.vitamin ? '#2E6E43' : '#A8453E' }}>
-              {state.vitamin ? 'Alındı ✓' : 'Alındı İşaretle'}
+              {state.vitamin ? (isEn ? 'Taken ✓' : 'Alındı ✓') : (isEn ? 'Mark Taken' : 'Alındı İşaretle')}
             </T>
           </Tap>
         </View>
@@ -1014,14 +1056,14 @@ export function Pregnancy({ state, update, open }) {
               <Icon name="footprint" size={26} color="#A03B64" />
             )}
             <View>
-              <T bold style={{ fontSize: 13 }}>Hareket Seansı</T>
+              <T bold style={{ fontSize: 13 }}>{isEn ? 'Kick Session' : 'Hareket Seansı'}</T>
               <T style={{ fontSize: 11, color: colors.muted }}>
-                {state.kickSessions?.[0] ? `Son: ${state.kickSessions[0].kicks ?? state.kickSessions[0].count} hareket` : 'İlk seansı başlat'}
+                {state.kickSessions?.[0] ? `${isEn ? 'Latest: ' : 'Son: '}${state.kickSessions[0].kicks ?? state.kickSessions[0].count} ${isEn ? 'kicks' : 'hareket'}` : (isEn ? 'Start first session' : 'İlk seansı başlat')}
               </T>
             </View>
           </View>
           <Tap onPress={() => open('kickCounter')} style={{ backgroundColor: '#FAF1F5', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
-            <T bold style={{ fontSize: 11, color: '#A03B64' }}>Seans Başlat</T>
+            <T bold style={{ fontSize: 11, color: '#A03B64' }}>{isEn ? 'Start Session' : 'Seans Başlat'}</T>
           </Tap>
         </View>
 
@@ -1034,12 +1076,12 @@ export function Pregnancy({ state, update, open }) {
               <Icon name="scale" size={26} color="#34754B" />
             )}
             <View>
-              <T bold style={{ fontSize: 13 }}>Kilo Takibi · {state.weights?.[0]?.value || state.startWeight || 60} kg</T>
-              <T style={{ fontSize: 11, color: '#3A8253' }}>Haftalık eğilimi güncelle</T>
+              <T bold style={{ fontSize: 13 }}>{isEn ? 'Weight Tracker' : 'Kilo Takibi'} · {state.weights?.[0]?.value || state.startWeight || 60} kg</T>
+              <T style={{ fontSize: 11, color: '#3A8253' }}>{isEn ? 'Update weekly trend' : 'Haftalık eğilimi güncelle'}</T>
             </View>
           </View>
           <Tap onPress={() => open('weight')} style={{ backgroundColor: '#EEF5F1', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
-            <T bold style={{ fontSize: 11, color: '#34754B' }}>Kilo Kaydet</T>
+            <T bold style={{ fontSize: 11, color: '#34754B' }}>{isEn ? 'Log Weight' : 'Kilo Kaydet'}</T>
           </Tap>
         </View>
 
@@ -1052,12 +1094,12 @@ export function Pregnancy({ state, update, open }) {
               <Icon name="heart" size={26} color={colors.purple} />
             )}
             <View>
-              <T bold style={{ fontSize: 13 }}>Günün Ruh Hali: {moodLabels[state.mood ?? 0]}</T>
-              <T style={{ fontSize: 11, color: colors.muted }}>Bugünkü hissini kısa notla takip et</T>
+              <T bold style={{ fontSize: 13 }}>{isEn ? "Today's Mood: " : 'Günün Ruh Hali: '}{moodLabels[state.mood ?? 0]}</T>
+              <T style={{ fontSize: 11, color: colors.muted }}>{isEn ? 'Track your feeling with a small note' : 'Bugünkü hissini kısa notla takip et'}</T>
             </View>
           </View>
           <Tap onPress={() => open('dailyMood')} style={{ backgroundColor: '#F3ECF5', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
-            <T bold style={{ fontSize: 11, color: colors.purple }}>Değiştir</T>
+            <T bold style={{ fontSize: 11, color: colors.purple }}>{isEn ? 'Change' : 'Değiştir'}</T>
           </Tap>
         </View>
       </View>
@@ -1067,46 +1109,49 @@ export function Pregnancy({ state, update, open }) {
     <View style={[s.row,{gap:8}]}>
       <Tap
         onPress={() => open('ultrasoundAtlas')}
-        label="Ultrason atlasını aç"
+        label={isEn ? 'Open ultrasound atlas' : 'Ultrason atlasını aç'}
         style={{flex:1,padding:10,borderRadius:16,backgroundColor:'#F3EEF5',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#E6DCea'}}
       >
-        {generatedAssets['ui_ultrasound_hdlive_20w'] ? (
-          <Image source={generatedAssets['ui_ultrasound_hdlive_20w']} style={{ width: 28, height: 28 }} resizeMode="contain" />
+        {generatedAssets['card_appointment'] ? (
+          <Image source={generatedAssets['card_appointment']} style={{ width: 28, height: 28 }} resizeMode="contain" />
         ) : (
           <Icon name="camera" size={22} color={colors.purple} />
         )}
-        <T bold style={{fontSize:11,color:colors.ink,marginTop:4}}>Ultrason Atlası</T>
+        <T bold style={{fontSize:11,color:colors.ink,marginTop:4}}>{isEn ? 'Ultrasound' : 'Ultrason Atlası'}</T>
       </Tap>
       <Tap
         onPress={() => open('organDevelopment')}
-        label="Organ gelişimini aç"
+        label={isEn ? 'Open organ development' : 'Organ gelişimini aç'}
         style={{flex:1,padding:10,borderRadius:16,backgroundColor:'#FDF2F4',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#EED9DF'}}
       >
-        {generatedAssets['ui_fetal_heart_3d'] ? (
-          <Image source={generatedAssets['ui_fetal_heart_3d']} style={{ width: 28, height: 28 }} resizeMode="contain" />
+        {generatedAssets['card_blood_pressure'] ? (
+          <Image source={generatedAssets['card_blood_pressure']} style={{ width: 28, height: 28 }} resizeMode="contain" />
         ) : (
           <Icon name="heart" size={22} color="#A03B64" />
         )}
-        <T bold style={{fontSize:11,color:colors.ink,marginTop:4}}>Organ & Kalp</T>
+        <T bold style={{fontSize:11,color:colors.ink,marginTop:4}}>{isEn ? 'Organ & Heart' : 'Organ & Kalp'}</T>
       </Tap>
       <Tap
         onPress={() => open('medicalTimeline')}
-        label="Tıbbi takvimi aç"
+        label={isEn ? 'Open medical timeline' : 'Tıbbi takvimi aç'}
         style={{flex:1,padding:10,borderRadius:16,backgroundColor:'#EEF5F2',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#D8E8E0'}}
       >
-        {generatedAssets['ui_timeline_sun_moon'] ? (
-          <Image source={generatedAssets['ui_timeline_sun_moon']} style={{ width: 28, height: 28 }} resizeMode="contain" />
+        {generatedAssets['card_health_report'] || generatedAssets['ui_timeline_sun_moon'] ? (
+          <Image source={generatedAssets['card_health_report'] || generatedAssets['ui_timeline_sun_moon']} style={{ width: 28, height: 28 }} resizeMode="contain" />
         ) : (
           <Icon name="calendar" size={22} color="#34754B" />
         )}
-        <T bold style={{fontSize:11,color:colors.ink,marginTop:4}}>Kontrol Takvimi</T>
+        <T bold style={{fontSize:11,color:colors.ink,marginTop:4}}>{isEn ? 'Timeline' : 'Kontrol Takvimi'}</T>
       </Tap>
     </View>
 
     {/* ─── 8. BEBEK BU HAFTA ─── */}
     <Card style={{padding:14}}>
       <View style={[s.row,{gap:8,marginBottom:10}]}>
-        <T bold style={{fontSize:15}}>🍼 Bebeğinde bu hafta ({week}. Hafta)</T>
+        {generatedAssets['ui_fetal_brain_3d'] ? (
+          <Image source={generatedAssets['ui_fetal_brain_3d']} style={{width:20,height:20}} resizeMode="contain"/>
+        ) : null}
+        <T bold style={{fontSize:15}}>{isEn ? `Your baby this week (Week ${week})` : `Bebeğinde bu hafta (${week}. Hafta)`}</T>
       </View>
       {info.baby.map((b,i) => (
         <View key={i} style={[s.row,{gap:8,marginBottom:i<info.baby.length-1?8:0}]}>
@@ -1115,7 +1160,7 @@ export function Pregnancy({ state, update, open }) {
         </View>
       ))}
       <Tap onPress={() => open('week',{week})} style={s.seeMore}>
-        <T style={{fontSize:13,color:colors.purple}}>Annenin bu haftasını ve not almayı gör</T>
+        <T style={{fontSize:13,color:colors.purple}}>{isEn ? "View mother's week and leave a note" : 'Annenin bu haftasını ve not almayı gör'}</T>
         <Icon name="chevron" size={16} color={colors.purple}/>
       </Tap>
     </Card>
@@ -1134,7 +1179,7 @@ export function Pregnancy({ state, update, open }) {
 
     {/* ─── 10. GEBELİK SAYAÇLARI & ARAÇLAR ─── */}
     <View style={{marginTop:6}}>
-      <Section title="Sık kullanılan araçlar" action="Koleksiyonu aç" onPress={()=>open('toolsHub')}/>
+      <Section title={isEn ? 'Quick smart tools' : 'Sık kullanılan araçlar'} action={isEn ? 'Open hub' : 'Koleksiyonu aç'} onPress={()=>open('toolsHub')}/>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:10,paddingBottom:4}}>
         <Tap
           onPress={()=>open('kickCounter')}
@@ -1148,8 +1193,8 @@ export function Pregnancy({ state, update, open }) {
               <Icon name="footprint" size={20} color="#9A5B80"/>
             )}
           </View>
-          <T bold style={{fontSize:13,color:'#632D4C'}}>Tekme Sayacı</T>
-          <T style={{fontSize:10,color:'#91637F',marginTop:2}}>10 tekme seansı</T>
+          <T bold style={{fontSize:13,color:'#632D4C'}}>{isEn ? 'Kick Counter' : 'Tekme Sayacı'}</T>
+          <T style={{fontSize:10,color:'#91637F',marginTop:2}}>{isEn ? '10-movement session' : '10 tekme seansı'}</T>
         </Tap>
 
         <Tap
@@ -1164,8 +1209,8 @@ export function Pregnancy({ state, update, open }) {
               <Icon name="contraction" size={20} color="#4F79A1"/>
             )}
           </View>
-          <T bold style={{fontSize:13,color:'#274969'}}>Kasılma Sayacı</T>
-          <T style={{fontSize:10,color:'#567594',marginTop:2}}>Süre & aralık</T>
+          <T bold style={{fontSize:13,color:'#274969'}}>{isEn ? 'Contraction Timer' : 'Kasılma Sayacı'}</T>
+          <T style={{fontSize:10,color:'#567594',marginTop:2}}>{isEn ? 'Duration & interval' : 'Süre & aralık'}</T>
         </Tap>
 
         <Tap
@@ -1180,8 +1225,8 @@ export function Pregnancy({ state, update, open }) {
               <Icon name="bag" size={20} color="#7C5292"/>
             )}
           </View>
-          <T bold style={{fontSize:13,color:'#452A56'}}>Doğum Çantası</T>
-          <T style={{fontSize:10,color:'#7A6588',marginTop:2}}>Anne, bebek & refakatçi</T>
+          <T bold style={{fontSize:13,color:'#452A56'}}>{isEn ? 'Hospital Bag' : 'Doğum Çantası'}</T>
+          <T style={{fontSize:10,color:'#7A6588',marginTop:2}}>{isEn ? 'Mom, baby & partner' : 'Anne, bebek & refakatçi'}</T>
         </Tap>
 
         <Tap
@@ -1196,15 +1241,15 @@ export function Pregnancy({ state, update, open }) {
               <Icon name="scale" size={20} color="#4F8464"/>
             )}
           </View>
-          <T bold style={{fontSize:13,color:'#284F38'}}>Kilo Takibi</T>
-          <T style={{fontSize:10,color:'#567E67',marginTop:2}}>Haftalık eğilim</T>
+          <T bold style={{fontSize:13,color:'#284F38'}}>{isEn ? 'Weight Tracker' : 'Kilo Takibi'}</T>
+          <T style={{fontSize:10,color:'#567E67',marginTop:2}}>{isEn ? 'Weekly trend' : 'Haftalık eğilim'}</T>
         </Tap>
       </ScrollView>
     </View>
 
     {/* ─── 11. HAFTANIN UZMAN REHBERLERİ ─── */}
     <View style={{marginTop:8}}>
-      <Section title="Haftanın Seçilmiş Rehberleri" action="Tümünü gör" onPress={()=>open('topicHub')}/>
+      <Section title={isEn ? 'Weekly Curated Guides' : 'Haftanın Seçilmiş Rehberleri'} action={isEn ? 'See all' : 'Tümünü gör'} onPress={()=>open('topicHub')}/>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:12,paddingBottom:4}}>
         {articles.filter(a=>a.topic==='pregnancy'||a.topic==='nutrition'||a.topic==='wellbeing').slice(0,4).map(art=>(
           <Tap
@@ -1235,32 +1280,49 @@ export function Pregnancy({ state, update, open }) {
   </Page>;
 }
 
-export function Postpartum({state,update,open}) {
-  const [tab,setTab]=useState('Bugün');
-  const tasks=['Bol sıvı tüket','Hafif yürüyüş yap','Pelvik taban egzersizlerini yap','Kendine zaman ayır','Destek al, yalnız değilsin 💜'];
+export function Postpartum({state,update,open,lang='tr'}) {
+  const isEn = lang === 'en';
+  const [tab,setTab]=useState(isEn ? 'Today' : 'Bugün');
+  const tasks=isEn
+    ? ['Drink plenty of fluids', 'Take a gentle walk', 'Do pelvic floor exercises', 'Make time for yourself', 'Ask for support, you are not alone 💜']
+    : ['Bol sıvı tüket','Hafif yürüyüş yap','Pelvik taban egzersizlerini yap','Kendine zaman ayır','Destek al, yalnız değilsin 💜'];
+  const tabItems=isEn ? ['Today','Recovery','My Mood','Notes'] : ['Bugün','İyileşme','Ruh Halim','Notlar'];
   return <Page>
-    <ScreenHero kicker="LOHUSALIK AKIŞI" title="12. gün toparlanma" body="Ruh hali, iyileşme adımları ve günlük notlar aynı bakım ritminde kalsın." icon="leaf" asset="ui_postpartum_lotus" stat={`${state.tasks.filter(Boolean).length}/5 adım`} tint="#86518A" />
-    <View style={s.topline}><View><T bold style={s.pageTitle}>Lohusalık · 12. gün</T><T style={s.subtitle}>Bugünü küçük adımlarla toparlayalım 🌸</T></View><RoundButton icon="down" label="Yolculuğunu değiştir" onPress={()=>open('journey')}/></View>
-    <Tabs items={['Bugün','İyileşme','Ruh Halim','Notlar']} active={tab} onChange={setTab}/>
-    {tab==='Bugün'||tab==='Ruh Halim'?<Card style={{padding:13}}><MoodPicker postpartum value={state.postpartumMood} onChange={postpartumMood=>update({postpartumMood})}/>{tab==='Bugün'&&<View style={[s.row,{gap:10,marginTop:16,paddingTop:12,borderTopWidth:1,borderColor:colors.line}]}><SmallStat title="Uyku" value="6 sa 20 dk" icon="moon" tint="#F0EAF5" onPress={()=>open('log',{type:'Uyku'})}/><SmallStat title="Su" value={`${state.water}/8 bardak`} icon="drop" tint="#E6F0F4" onPress={()=>update(old=>({water:Math.min(8,old.water+1)}))}/></View>}</Card>:null}
-    {(tab==='Bugün'||tab==='İyileşme')&&<><Card style={{padding:13}}><T bold style={{fontSize:16}}>Bugün yapabileceklerin</T><T style={s.taskMeta}>{state.tasks.filter(Boolean).length}/5 tamamlandı</T>{tasks.map((task,i)=><Tap key={task} label={task} accessibilityRole="checkbox" accessibilityState={{checked:state.tasks[i]}} onPress={()=>update(old=>({tasks:old.tasks.map((v,n)=>n===i?!v:v)}))} style={s.task}><View style={[s.checkbox,state.tasks[i]&&{backgroundColor:colors.sage,borderColor:colors.sage}]}>{state.tasks[i]&&<Icon name="check" color="white" size={16}/>}</View><T style={s.taskText}>{task}</T><Icon name="chevron" size={18} color={colors.muted}/></Tap>)}</Card><Card style={{padding:14}}><View style={s.topline}><T bold>İyileşme yolculuğun</T><Icon name="leaf" color={colors.sage} fill="#9FB7A4" size={28}/></View><View style={[s.row,{gap:12,marginTop:10}]}><Progress value={state.tasks.filter(Boolean).length*20} style={{flex:1}}/><T style={{fontSize:13}}>%{state.tasks.filter(Boolean).length*20}</T></View><T style={{fontSize:12,color:colors.muted,marginTop:9}}>Her gün biraz daha güçleniyorsun.</T></Card></>}
-    {tab==='Notlar'&&<><Section title="Sana ait küçük notlar" action="Not ekle" onPress={()=>open('note')}/>{state.notes.length?state.notes.map(n=><Card key={n.id}><T style={{lineHeight:23}}>{n.text}</T></Card>):<Card><T style={{lineHeight:23}}>Bir his, küçük bir an, doktoruna sormak istediğin bir soru… Hepsine burada yer var.</T><Tap onPress={()=>open('note')} style={s.primary}><T style={{color:'white'}}>İlk notunu ekle</T></Tap></Card>}</>}
+    <ScreenHero
+      kicker={isEn ? 'POSTPARTUM FEED' : 'LOHUSALIK AKIŞI'}
+      title={isEn ? 'Day 12 recovery' : '12. gün toparlanma'}
+      body={isEn ? 'Keep mood, recovery steps, and daily notes in the same gentle rhythm.' : 'Ruh hali, iyileşme adımları ve günlük notlar aynı bakım ritminde kalsın.'}
+      icon="leaf"
+      asset="ui_postpartum_lotus"
+      stat={`${state.tasks.filter(Boolean).length}/5 ${isEn ? 'steps' : 'adım'}`}
+      tint="#86518A"
+    />
+    <View style={s.topline}>
+      <View>
+        <T bold style={s.pageTitle}>{isEn ? 'Postpartum · Day 12' : 'Lohusalık · 12. gün'}</T>
+        <T style={s.subtitle}>{isEn ? 'Taking small steps together today 🌸' : 'Bugünü küçük adımlarla toparlayalım 🌸'}</T>
+      </View>
+      <RoundButton icon="down" label={isEn ? 'Change journey' : 'Yolculuğunu değiştir'} onPress={()=>open('journey')}/>
+    </View>
+    <Tabs items={tabItems} active={tab} onChange={setTab}/>
+    {tab==='Bugün'||tab==='Today'||tab==='Ruh Halim'||tab==='My Mood'?<Card style={{padding:13}}><MoodPicker postpartum value={state.postpartumMood} onChange={postpartumMood=>update({postpartumMood})} lang={lang}/>{(tab==='Bugün'||tab==='Today')&&<View style={[s.row,{gap:10,marginTop:16,paddingTop:12,borderTopWidth:1,borderColor:colors.line}]}><SmallStat title={isEn ? 'Sleep' : 'Uyku'} value={isEn ? '6 h 20 m' : '6 sa 20 dk'} icon="moon" tint="#F0EAF5" onPress={()=>open('log',{type:'Uyku'})}/><SmallStat title={isEn ? 'Water' : 'Su'} value={`${state.water}/8 ${isEn ? 'gls' : 'bardak'}`} icon="drop" tint="#E6F0F4" onPress={()=>update(old=>({water:Math.min(8,old.water+1)}))}/></View>}</Card>:null}
+    {(tab==='Bugün'||tab==='Today'||tab==='İyileşme'||tab==='Recovery')&&<><Card style={{padding:13}}><T bold style={{fontSize:16}}>{isEn ? "Today's self-care checklist" : 'Bugün yapabileceklerin'}</T><T style={s.taskMeta}>{state.tasks.filter(Boolean).length}/5 {isEn ? 'completed' : 'tamamlandı'}</T>{tasks.map((task,i)=><Tap key={task} label={task} accessibilityRole="checkbox" accessibilityState={{checked:state.tasks[i]}} onPress={()=>update(old=>({tasks:old.tasks.map((v,n)=>n===i?!v:v)}))} style={s.task}><View style={[s.checkbox,state.tasks[i]&&{backgroundColor:colors.sage,borderColor:colors.sage}]}>{state.tasks[i]&&<Icon name="check" color="white" size={16}/>}</View><T style={s.taskText}>{task}</T><Icon name="chevron" size={18} color={colors.muted}/></Tap>)}</Card><Card style={{padding:14}}><View style={s.topline}><T bold>{isEn ? 'Your recovery journey' : 'İyileşme yolculuğun'}</T><Icon name="leaf" color={colors.sage} fill="#9FB7A4" size={28}/></View><View style={[s.row,{gap:12,marginTop:10}]}><Progress value={state.tasks.filter(Boolean).length*20} style={{flex:1}}/><T style={{fontSize:13}}>%{state.tasks.filter(Boolean).length*20}</T></View><T style={{fontSize:12,color:colors.muted,marginTop:9}}>{isEn ? 'You grow stronger each day.' : 'Her gün biraz daha güçleniyorsun.'}</T></Card></>}
+    {(tab==='Notlar'||tab==='Notes')&&<><Section title={isEn ? 'Your personal notes' : 'Sana ait küçük notlar'} action={isEn ? 'Add note' : 'Not ekle'} onPress={()=>open('note')}/>{state.notes.length?state.notes.map(n=><Card key={n.id}><T style={{lineHeight:23}}>{n.text}</T></Card>):<Card><T style={{lineHeight:23}}>{isEn ? 'A feeling, a sweet moment, questions for your midwife... All are welcome here.' : 'Bir his, küçük bir an, doktoruna sormak istediğin bir soru… Hepsine burada yer var.'}</T><Tap onPress={()=>open('note')} style={s.primary}><T style={{color:'white'}}>{isEn ? 'Add your first note' : 'İlk notunu ekle'}</T></Tap></Card>}</>}
   </Page>;
 }
 
-const babyActions=[
-  {type:'Emzirme',key:'btn_nursing',icon:'nursing',bg:'#FCF4F7',border:'#F5E1EC',titleColor:'#6E3958',sub:'Sağ meme • 15 dk'},
-  {type:'Biberon',key:'btn_bottle',icon:'bottle',bg:'#F7F4FB',border:'#EBE1F8',titleColor:'#523977',sub:'120 ml'},
-  {type:'Uyku',key:'btn_sleep',icon:'moon',bg:'#F2F5FB',border:'#DFE8F8',titleColor:'#38517B',sub:'1 sa 20 dk'},
-  {type:'Bez',key:'btn_diaper',icon:'diaper',bg:'#F2F7F4',border:'#DDEEE4',titleColor:'#305D44',sub:'Temiz'}
-];
-export const sampleRecords=[{id:'s1',type:'Emzirme',value:'Sağ meme • 15 dk',time:'19:20'},{id:'s2',type:'Bez',value:'Temiz',time:'17:10'},{id:'s3',type:'Uyku',value:'1 sa 20 dk',time:'15:30'},{id:'s4',type:'Biberon',value:'120 ml',time:'13:10'}];
-export function RecordList({records}) {return <View>{records.map(r=>{const a=babyActions.find(a=>a.type===r.type)||{icon:'heart',color:colors.purple};return <View key={r.id} style={s.record}><T style={s.recordTime}>{r.time}</T><View style={[s.recordIcon,{backgroundColor:a.titleColor+'22'}]}>{generatedAssets[a.key] ? <Image source={generatedAssets[a.key]} style={{width:24,height:24}} resizeMode="contain"/> : <Icon name={a.icon} size={23} color={a.titleColor}/>}</View><View style={{flex:1}}><T bold style={{fontSize:14}}>{r.type}</T><T style={s.recordValue}>{r.value}</T></View></View>})}</View>}
-export function Baby({state,open}) {
+export function Baby({state,open,lang='tr'}) {
+  const isEn = lang === 'en';
+  const babyActions=[
+    {type:'Emzirme',display:isEn ? 'Nursing' : 'Emzirme',key:'btn_nursing',icon:'nursing',bg:'#FCF4F7',border:'#F5E1EC',titleColor:'#6E3958',sub:isEn ? 'Right breast • 15 m' : 'Sağ meme • 15 dk'},
+    {type:'Biberon',display:isEn ? 'Bottle' : 'Biberon',key:'btn_bottle',icon:'bottle',bg:'#F7F4FB',border:'#EBE1F8',titleColor:'#523977',sub:'120 ml'},
+    {type:'Uyku',display:isEn ? 'Sleep' : 'Uyku',key:'btn_sleep',icon:'moon',bg:'#F2F5FB',border:'#DFE8F8',titleColor:'#38517B',sub:isEn ? '1 h 20 m' : '1 sa 20 dk'},
+    {type:'Bez',display:isEn ? 'Diaper' : 'Bez',key:'btn_diaper',icon:'diaper',bg:'#F2F7F4',border:'#DDEEE4',titleColor:'#305D44',sub:isEn ? 'Clean' : 'Temiz'}
+  ];
   const records=[...state.records,...sampleRecords].slice(0,4);
   return <Page>
-    <ScreenHero kicker="BEBEK BAKIMI" title={`${state.babyName || 'Bebeğin'} · 6 haftalık`} body="Beslenme, uyku, bez kayıtları ve bakım rehberleri tek günlük panelde birleşir." icon="baby" asset="baby" stat={`${records.length} kayıt`} tint="#6E5A96" />
-    <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage} resizeMode="cover"/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName || 'Bebeğin'} · 6 haftalık</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>Bugünün bakım ritmi</T></View></View><RoundButton icon="down" label="Yolculuğunu değiştir" onPress={()=>open('journey')}/></View>
+    <ScreenHero kicker={isEn ? 'BABY CARE' : 'BEBEK BAKIMI'} title={`${state.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · ${isEn ? '6 weeks old' : '6 haftalık'}`} body={isEn ? 'Feeding, sleep, diaper logs, and milestone guides gathered in one daily dashboard.' : 'Beslenme, uyku, bez kayıtları ve bakım rehberleri tek günlük panelde birleşir.'} icon="baby" asset="baby" stat={`${records.length} ${isEn ? 'logs' : 'kayıt'}`} tint="#6E5A96" />
+    <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage} resizeMode="cover"/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · {isEn ? '6 weeks old' : '6 haftalık'}</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>{isEn ? "Today's daily rhythm" : 'Bugünün bakım ritmi'}</T></View></View><RoundButton icon="down" label={isEn ? 'Change journey' : 'Yolculuğunu değiştir'} onPress={()=>open('journey')}/></View>
     <View style={s.babyGrid}>
       {babyActions.map(a=>(
         <Tap
@@ -1271,7 +1333,7 @@ export function Baby({state,open}) {
             else if (a.type === 'Bez') open('diaperTracker');
             else open('log', { type: a.type });
           }}
-          label={a.type+' kaydı ekle'}
+          label={(isEn ? 'Log ' : '') + a.display + (isEn ? '' : ' kaydı ekle')}
           style={s.babyAction}
         >
           <View style={[s.babyCard, { backgroundColor: a.bg, borderColor: a.border }]}>
@@ -1282,18 +1344,18 @@ export function Baby({state,open}) {
                 <Icon name={a.icon} color={a.titleColor} size={50} strokeWidth={1.4}/>
               )}
             </View>
-            <T bold style={[s.babyCardTitle, { color: a.titleColor }]}>{a.type}</T>
+            <T bold style={[s.babyCardTitle, { color: a.titleColor }]}>{a.display}</T>
             <T style={s.babyCardSub}>{a.sub}</T>
           </View>
         </Tap>
       ))}
     </View>
-    <Section title="Bugünkü kayıtlar" action="Tümünü gör" onPress={()=>open('records')}/><RecordList records={records}/>
-    <Tap onPress={()=>open('sleepWhiteNoise')} style={s.nextSleep}><View style={s.sleepIcon}>{generatedAssets['banner_next_sleep'] ? <Image source={generatedAssets['banner_next_sleep']} style={{width:54,height:54}} resizeMode="contain"/> : <Icon name="moon" size={42} color="white" fill="#AE98D4"/>}</View><View style={{flex:1}}><T style={{fontSize:13}}>Bir sonraki uyku zamanı</T><T bold style={{fontSize:22,marginTop:5}}>1 sa 15 dk</T><T style={{fontSize:11,marginTop:6}}>{state.babyName} genellikle 21:00 civarı uyuyor. Beyaz gürültü aç →</T></View></Tap>
+    <Section title={isEn ? "Today's logs" : 'Bugünkü kayıtlar'} action={isEn ? 'See all' : 'Tümünü gör'} onPress={()=>open('records')}/><RecordList records={records}/>
+    <Tap onPress={()=>open('sleepWhiteNoise')} style={s.nextSleep}><View style={s.sleepIcon}>{generatedAssets['banner_next_sleep'] ? <Image source={generatedAssets['banner_next_sleep']} style={{width:54,height:54}} resizeMode="contain"/> : <Icon name="moon" size={42} color="white" fill="#AE98D4"/>}</View><View style={{flex:1}}><T style={{fontSize:13}}>{isEn ? 'Next soothing sleep time' : 'Bir sonraki uyku zamanı'}</T><T bold style={{fontSize:22,marginTop:5}}>{isEn ? '1 h 15 m' : '1 sa 15 dk'}</T><T style={{fontSize:11,marginTop:6}}>{state.babyName} {isEn ? 'usually sleeps around 21:00. Open white noise →' : 'genellikle 21:00 civarı uyuyor. Beyaz gürültü aç →'}</T></View></Tap>
 
     {/* Bebek Bakım Rehberleri */}
     <View style={{marginTop:10}}>
-      <Section title="Bebek Bakımı & Gelişim Rehberleri" action="Tümünü gör" onPress={()=>open('topicHub')}/>
+      <Section title={isEn ? 'Baby Care & Development Guides' : 'Bebek Bakımı & Gelişim Rehberleri'} action={isEn ? 'See all' : 'Tümünü gör'} onPress={()=>open('topicHub')}/>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:12,paddingBottom:4}}>
         {articles.filter(a=>a.topic==='baby'||a.topic==='postpartum').slice(0,5).map(art=>(
           <Tap
@@ -1324,18 +1386,19 @@ export function Baby({state,open}) {
   </Page>;
 }
 
-export function Discover({state,update,open}) {
+export function Discover({state,update,open,lang='tr'}) {
   return <Page contentStyle={{gap:12}}>
     <TopicHubScreen
       openArticle={(article) => open('editorialArticle', { article })}
       openFoodChecker={() => open('foodSafety')}
+      lang={lang}
     />
   </Page>;
 }
 
-export function Assistant({state,update,open,toast}) {
+export function Assistant({state,update,open,toast,lang='tr'}) {
   return <Page contentStyle={{paddingHorizontal:0}}>
-    <CommunityHub state={state} update={update} open={open} toast={toast} />
+    <CommunityHub state={state} update={update} open={open} toast={toast} lang={lang} />
   </Page>;
 }
 

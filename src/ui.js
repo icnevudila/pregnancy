@@ -15,8 +15,8 @@ export function Tap({ children, style, label, onPress, ...props }) {
 export function Card({ children, style, ...props }) { return <View style={[s.card, style]} {...props}>{children}</View>; }
 export function ScreenHero({ kicker, title, body, stat, icon = 'heart', asset, tint = colors.purple, style }) {
   const [imgError, setImgError] = useState(false);
-  const art = asset ? (generatedAssets[asset] || getAsset(asset)) : null;
-  const isPhoto = typeof asset === 'string' && (asset.startsWith('blog_') || asset === 'pregnancy' || asset === 'baby' || asset === 'mother');
+  const art = typeof asset === 'string' ? (generatedAssets[asset] || getAsset(asset)) : asset;
+  const isPhoto = (typeof asset === 'string' && (asset.startsWith('blog_') || asset.startsWith('infographic_') || asset === 'pregnancy' || asset === 'baby' || asset === 'mother' || asset.includes('hero'))) || (typeof asset !== 'string' && Boolean(asset));
   return (
     <Card style={[s.screenHero, style]}>
       <View style={{ flex: 1 }}>
@@ -29,7 +29,7 @@ export function ScreenHero({ kicker, title, body, stat, icon = 'heart', asset, t
         {art && !imgError ? (
           <Image
             source={art}
-            style={isPhoto ? { width: '100%', height: '100%', borderRadius: 24 } : { width: 72, height: 72 }}
+            style={isPhoto ? { width: '100%', height: '100%', borderRadius: 24 } : { width: 78, height: 78 }}
             resizeMode={isPhoto ? 'cover' : 'contain'}
             onError={() => setImgError(true)}
           />
@@ -60,9 +60,48 @@ export function Section({ title, action, onPress }) {
 export function Tabs({ items, active, onChange }) {
   return <View style={s.tabs}>{items.map(item => <Tap key={item} onPress={() => onChange(item)} accessibilityState={{ selected: active === item }} style={[s.tab, active === item && { backgroundColor: colors.purple }]}><T style={[s.tabText, active === item && { color: 'white' }]}>{item}</T></Tap>)}</View>;
 }
-export function MoodPicker({ postpartum, value, onChange }) {
-  const labels = postpartum ? ['Çok iyi', 'İyi', 'Normal', 'Halsiz', 'Zor'] : ['Harika', 'İyi', 'Normal', 'Yorgun', 'Zor'];
-  return <View><T bold style={{ fontSize: 15, marginBottom: 8 }}>{postpartum ? 'Bugünkü ruh halin nasıl?' : 'Bugün nasıl hissediyorsun?'}</T><View style={s.moods}>{labels.map((label, index) => <Tap label={'Ruh hali: '+label} key={label} onPress={() => onChange(index)} accessibilityState={{ selected: value === index }} style={[s.mood, value === index && s.moodSelected]}><MoodFace index={index}/><T style={s.moodLabel}>{label}</T></Tap>)}</View></View>;
+export function MoodPicker({ postpartum, value, onChange, lang = 'tr' }) {
+  const isEn = lang === 'en';
+  const labels = postpartum
+    ? (isEn ? ['Very good', 'Good', 'Normal', 'Sluggish', 'Hard'] : ['Çok iyi', 'İyi', 'Normal', 'Halsiz', 'Zor'])
+    : (isEn ? ['Great', 'Good', 'Normal', 'Tired', 'Hard'] : ['Harika', 'İyi', 'Normal', 'Yorgun', 'Zor']);
+  const title = postpartum
+    ? (isEn ? 'How is your postpartum mood today?' : 'Bugünkü ruh halin nasıl?')
+    : (isEn ? 'How are you feeling today?' : 'Bugün nasıl hissediyorsun?');
+  return (
+    <View>
+      <T bold style={{ fontSize: 15, marginBottom: 8 }}>{title}</T>
+      <View style={s.moods}>
+        {labels.map((label, index) => (
+          <Tap label={(isEn ? 'Mood: ' : 'Ruh hali: ') + label} key={label} onPress={() => onChange(index)} accessibilityState={{ selected: value === index }} style={[s.mood, value === index && s.moodSelected]}>
+            <MoodFace index={index}/>
+            <T style={s.moodLabel}>{label}</T>
+          </Tap>
+        ))}
+      </View>
+    </View>
+  );
+}
+export function LanguageToggle({ lang = 'tr', onChange, style }) {
+  const isEn = lang === 'en';
+  return (
+    <View style={[s.langPill, style]}>
+      <Tap
+        onPress={() => onChange && onChange('tr')}
+        label="Türkçe"
+        style={[s.langBtn, !isEn && s.langBtnActive]}
+      >
+        <T bold={!isEn} style={[s.langText, !isEn && s.langTextActive]}>TR</T>
+      </Tap>
+      <Tap
+        onPress={() => onChange && onChange('en')}
+        label="English"
+        style={[s.langBtn, isEn && s.langBtnActive]}
+      >
+        <T bold={isEn} style={[s.langText, isEn && s.langTextActive]}>EN</T>
+      </Tap>
+    </View>
+  );
 }
 export function Progress({ value, color = colors.sage, style }) { return <View style={[s.track, style]}><View style={{ height: '100%', width: `${Math.min(100, Math.max(0, value))}%`, borderRadius: 10, backgroundColor: color }}/></View>; }
 export function SmallStat({ title, value, icon, tint, onPress }) {
@@ -177,4 +216,9 @@ const s = StyleSheet.create({
   metricSubtext: { fontSize: 10.5, color: colors.muted, marginTop: 2 },
   statusCard: { padding: 13, borderRadius: 16, borderWidth: 1 },
   statusIconCircle: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  langPill: { flexDirection: 'row', backgroundColor: '#EDE5EF', borderRadius: 14, padding: 3, gap: 2, alignItems: 'center' },
+  langBtn: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 11 },
+  langBtnActive: { backgroundColor: colors.purple, ...shadow },
+  langText: { fontSize: 11, color: '#7E6B83' },
+  langTextActive: { color: 'white' },
 });

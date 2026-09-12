@@ -120,7 +120,7 @@ export function KickCounter({ state, update, toast }) {
   return (
     <View style={ts.container}>
       <ScreenHero
-        asset="card_kick_counter"
+        asset="ui_kick_foot_button"
         icon="footprint"
         kicker="FETAL HAREKET DÜZENİ"
         title="Bebeğinin Ritmini Say"
@@ -391,7 +391,7 @@ export function ContractionTimer({ state, update, toast }) {
   return (
     <View style={ts.container}>
       <ScreenHero
-        asset="card_contractions"
+        asset="ui_contraction_pulse_button"
         icon="contraction"
         kicker="DOĞUM SANCISI TAKİBİ"
         title="Kasılma & Doğum Sayacı"
@@ -611,7 +611,7 @@ export function HospitalBag({ state, update, toast }) {
   return (
     <View style={ts.container}>
       <ScreenHero
-        asset="card_hospital_bag"
+        asset="ui_hospital_bag_3d"
         icon="bag"
         kicker="DOĞUM HAZIRLIĞI"
         title="Hastane Çantası Listesi"

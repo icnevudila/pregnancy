@@ -15,65 +15,48 @@ import { BirthMonthClubScreen, CommunityThreadScreen } from './CommunityScreens'
 import { NursingTimerScreen, SleepWhiteNoiseScreen, DiaperTrackerScreen, PostpartumSelfCareScreen } from './PostpartumBabyScreens';
 import { ProfileScreen } from './ProfileScreen';
 import { AuthModal } from './AuthScreens';
+import { t } from './i18n/index.js';
 
-const titles={
-  journey:'Yolculuğun nerede?',profile:'Senin yolculuğun',appointment:'Doktor randevun',auth:'Momora Hesabı & Giriş',
-  week:'Bu hafta ikiniz',log:'Yeni kayıt',records:'Günlük kayıtların',note:'Bugünü sakla',
-  notes:'Sana ait notlar',article:'Güvenli bağ, küçük anlarla başlar',assistantAnswer:'Sorunu birlikte saklayalım',
-  community:'Anneler birbirine iyi gelir',categories:'İhtiyacın olanı keşfet',sponsored:'Ürün önerileri',
-  dailyMood:'Bugün nasıl hissediyorsun?',
-  // Modül 1
-  kickCounter:'Tekme Sayacı',contractionTimer:'Kasılma Sayacı',hospitalBag:'Doğum Çantası',
-  weight:'Kilo Takibi',birthPlan:'Doğum Planı',doctorQuestions:'Randevu Soruları',babyNames:'Bebek İsim Rehberi',
-  toolsHub:'Momora Araçlar',
-  // Modül 2
-  sizeGuide:'3’lü Boyut Kıyaslama',ultrasoundAtlas:'Ultrason Atlası',medicalTimeline:'Kontrol Zaman Çizelgesi',organDevelopment:'Organ Gelişimi & Kalp Ritim',
-  // Modül 3
-  foodSafety:'Besin Güvenliği Rehberi',topicHub:'Konu Koleksiyonları',editorialArticle:'Editoryal Rehber',
-  // Modül 4
-  babyLetter:'Bebeğin Günlük Mektubu',timelineFeed:'Günlük Zaman Tüneli',waterVitamin:'Su & Vitamin Takibi',
-  // Modül 5
-  birthMonthClub:'Doğum Ayı Kulübü',communityThread:'Topluluk Tartışması',
-  // Modül 6
-  nursingTimer:'Emzirme & Biberon Sayacı',sleepWhiteNoise:'Uyku & Beyaz Gürültü',diaperTracker:'Bez Değiştirme Günlüğü',postpartumCare:'Lohusalık & Kendine Şefkat',
-};
-export default function DetailSheet({ sheet, close, state, update, addRecord, choose, open, toast }) {
+export default function DetailSheet({ sheet, close, state, update, addRecord, choose, open, toast, lang: propLang }) {
+  const lang = propLang || state?.lang || 'tr';
+  const isEn = lang === 'en';
   const {kind,data={}}=sheet;
   const [text,setText]=useState(kind==='profile'?state.name:kind==='appointment'?state.appointment.title:'');
   const [secondary,setSecondary]=useState(kind==='profile'?state.babyName:kind==='appointment'?state.appointment.date:'');
   const [time,setTime]=useState(state.appointment.time);
-  const [side,setSide]=useState('Sağ meme');
+  const [side,setSide]=useState(isEn ? 'Right breast' : 'Sağ meme');
   const [selectedMood,setSelectedMood]=useState(state.mood??0);
   const [moodNote,setMoodNote]=useState('');
   const [error,setError]=useState('');
   function save(){
-    if(kind==='profile'){if(!text.trim())return setError('Adını yazabilir misin?');update({name:text.trim(),babyName:secondary.trim()||'Ada'});}
-    else if(kind==='appointment'){if(!text.trim()||!secondary.trim()||!/^([01]\d|2[0-3]):[0-5]\d$/.test(time))return setError('Randevu adını, tarihini ve saati (10:00 gibi) doldur.');update({appointment:{title:text.trim(),date:secondary.trim(),time}});}
+    if(kind==='profile'){if(!text.trim())return setError(isEn ? 'Please enter your name.' : 'Adını yazabilir misin?');update({name:text.trim(),babyName:secondary.trim()||'Ada'});}
+    else if(kind==='appointment'){if(!text.trim()||!secondary.trim()||!/^([01]\d|2[0-3]):[0-5]\d$/.test(time))return setError(isEn ? 'Please fill title, date and time (e.g. 10:00).' : 'Randevu adını, tarihini ve saati (10:00 gibi) doldur.');update({appointment:{title:text.trim(),date:secondary.trim(),time}});}
     else if(kind==='log'){
-      if(data.type==='Bez')addRecord(data.type,side==='Sağ meme'?'Temiz':side);
-      else {const number=Number(text.replace(',','.'));if(!Number.isFinite(number)||number<=0||number>(data.type==='Biberon'?1000:1440))return setError('Geçerli bir miktar gir.');addRecord(data.type,data.type==='Biberon'?`${number} ml`:data.type==='Emzirme'?`${side} • ${number} dk`:`${number} dk`);}
-    }else if(kind==='note'||kind==='week') {if(!text.trim())return setError('Önce küçük bir not yaz.');update(old=>({notes:[{id:Date.now().toString(),text:text.trim()},...old.notes]}));}
+      if(data.type==='Bez')addRecord(data.type,side==='Sağ meme'||side==='Right breast'?(isEn?'Clean':'Temiz'):side);
+      else {const number=Number(text.replace(',','.'));if(!Number.isFinite(number)||number<=0||number>(data.type==='Biberon'?1000:1440))return setError(isEn ? 'Please enter a valid amount.' : 'Geçerli bir miktar gir.');addRecord(data.type,data.type==='Biberon'?`${number} ml`:data.type==='Emzirme'?`${side} • ${number} ${isEn?'min':'dk'}`:`${number} ${isEn?'min':'dk'}`);}
+    }else if(kind==='note'||kind==='week') {if(!text.trim())return setError(isEn ? 'Please write a brief note first.' : 'Önce küçük bir not yaz.');update(old=>({notes:[{id:Date.now().toString(),text:text.trim()},...old.notes]}));}
     else if(kind==='dailyMood') {
       const todayStr=new Date().toISOString().slice(0,10);
-      const labels=['Harika','İyi','Normal','Yorgun','Zor'];
+      const labels=isEn ? ['Great','Good','Normal','Tired','Hard'] : ['Harika','İyi','Normal','Yorgun','Zor'];
       update(old=>{
         const patch={mood:selectedMood,lastMoodDate:todayStr};
         if(moodNote.trim())patch.notes=[{id:Date.now().toString(),text:`🌸 ${labels[selectedMood]} · ${moodNote.trim()}`},...old.notes];
         return patch;
       });
-      close();return toast('Günün kaydedildi 🌸');
+      close();return toast(isEn ? 'Your day has been saved 🌸' : 'Günün kaydedildi 🌸');
     }
-    close();toast('Kaydın saklandı');
+    close();toast(t('common.toastSaved', lang));
   }
   const input=(label,value,onChange,props={})=><View style={{marginTop:16}}><T bold style={s.label}>{label}</T><TextInput accessibilityLabel={label} value={value} onChangeText={onChange} placeholderTextColor="#A79AA7" style={[s.input,props.multiline&&{minHeight:100,textAlignVertical:'top'}]} maxLength={props.multiline?1000:80} {...props}/></View>;
   const button=(label,onPress,secondary=false)=><Tap onPress={onPress} style={[s.button,secondary&&s.secondary]}><T bold style={{color:secondary?colors.purple:'white',fontSize:16}}>{label}</T></Tap>;
-  return <Modal visible transparent animationType="fade" onRequestClose={close}><KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':undefined} style={s.backdrop}><Tap label="Pencereyi kapat" style={StyleSheet.absoluteFill} onPress={close}/><View style={s.sheet}><View style={s.handle}/><View style={s.heading}><View style={{flex:1}}><T style={s.kicker}>MOMORA · YANINDA</T><T bold style={s.title}>{kind==='log'?`${data.type} kaydı`:titles[kind]}</T></View><Tap onPress={close} label="Kapat" style={s.close}><Icon name="close" size={22}/></Tap></View><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{paddingBottom:28}} showsVerticalScrollIndicator={false}>
+  const sheetTitle = t('sheets.titles.' + kind, lang) || (kind === 'log' ? (isEn ? `${data.type} entry` : `${data.type} kaydı`) : kind);
+  return <Modal visible transparent animationType="fade" onRequestClose={close}><KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':undefined} style={s.backdrop}><Tap label="Pencereyi kapat" style={StyleSheet.absoluteFill} onPress={close}/><View style={s.sheet}><View style={s.handle}/><View style={s.heading}><View style={{flex:1}}><T style={s.kicker}>MOMORA · {isEn ? 'WITH YOU' : 'YANINDA'}</T><T bold style={s.title}>{sheetTitle}</T></View><Tap onPress={close} label="Kapat" style={s.close}><Icon name="close" size={22}/></Tap></View><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{paddingBottom:28}} showsVerticalScrollIndicator={false}>
     {kind==='journey'&&journeys.map(j=><Tap key={j.key} onPress={()=>{choose(j.key);close()}} style={s.option}><T bold style={{flex:1}}>{j.title.replace('\n',' ')}</T><Icon name="chevron"/></Tap>)}
-    {kind==='profile'&&<ProfileScreen state={state} update={update} open={open} toast={toast} choose={choose} close={close}/>}
-    {kind==='appointment'&&<>{input('Randevu adı',text,setText)}{input('Tarih',secondary,setSecondary,{placeholder:'16 Mayıs Cuma'})}{input('Saat',time,setTime,{placeholder:'10:00',maxLength:5})}{button('Randevuyu kaydet',save)}<T style={s.helper}>Randevu günlüğüne kaydedilir; bildirim ayarı bağlandığında hatırlatma olarak kullanılabilir.</T></>}
-    {kind==='log'&&<><T style={s.body}>{data.type==='Bez'?'Alt değiştirme kaydını ekle.':'Küçük bir kayıt, günün akışını hatırlamana yardımcı olur.'}</T>{data.type==='Emzirme'&&<View style={s.chips}>{['Sağ meme','Sol meme'].map(v=><Tap key={v} onPress={()=>setSide(v)} style={[s.chip,side===v&&s.chipSelected]}><T>{v}</T></Tap>)}</View>}{data.type==='Bez'?<View style={s.chips}>{['Temiz','Islak','Kirli'].map(v=><Tap key={v} onPress={()=>setSide(v)} style={[s.chip,(side===v||v==='Temiz'&&side==='Sağ meme')&&s.chipSelected]}><T>{v}</T></Tap>)}</View>:input(data.type==='Biberon'?'Miktar (ml)':'Süre (dakika)',text,setText,{keyboardType:'decimal-pad',placeholder:data.type==='Biberon'?'120':'15'})}{button('Kaydet',save)}</>}
-    {kind==='records'&&<><T style={s.helper}>Yeni kayıtların en üstte görünür. Bulut hesabı bağlandığında cihazlar arasında eşitlenir.</T><RecordList records={[...state.records,...sampleRecords]}/></>}
-    {kind==='note'&&<>{input('Bugüne ait bir not bırak ✍️',text,setText,{multiline:true,placeholder:'İçinden geçen bir his ya da an...'})}{button('Notumu sakla',save)}</>}
+    {kind==='profile'&&<ProfileScreen state={state} update={update} open={open} toast={toast} choose={choose} close={close} lang={lang}/>}
+    {kind==='appointment'&&<>{input(isEn?'Appointment Title':'Randevu adı',text,setText)}{input(isEn?'Date':'Tarih',secondary,setSecondary,{placeholder:isEn?'Friday, May 16':'16 Mayıs Cuma'})}{input(isEn?'Time':'Saat',time,setTime,{placeholder:'10:00',maxLength:5})}{button(isEn?'Save Appointment':'Randevuyu kaydet',save)}<T style={s.helper}>{isEn?'Saved to your appointment diary; can be used as a reminder.':'Randevu günlüğüne kaydedilir; bildirim ayarı bağlandığında hatırlatma olarak kullanılabilir.'}</T></>}
+    {kind==='log'&&<><T style={s.body}>{data.type==='Bez'?(isEn?'Add diaper change log.':'Alt değiştirme kaydını ekle.'):(isEn?'A quick entry helps you recall your daily rhythm.':'Küçük bir kayıt, günün akışını hatırlamana yardımcı olur.')}</T>{data.type==='Emzirme'&&<View style={s.chips}>{[isEn?'Right breast':'Sağ meme',isEn?'Left breast':'Sol meme'].map(v=><Tap key={v} onPress={()=>setSide(v)} style={[s.chip,side===v&&s.chipSelected]}><T>{v}</T></Tap>)}</View>}{data.type==='Bez'?<View style={s.chips}>{[isEn?'Clean':'Temiz',isEn?'Wet':'Islak',isEn?'Dirty':'Kirli'].map(v=><Tap key={v} onPress={()=>setSide(v)} style={[s.chip,(side===v||v===(isEn?'Clean':'Temiz')&&side===(isEn?'Right breast':'Sağ meme'))&&s.chipSelected]}><T>{v}</T></Tap>)}</View>:input(data.type==='Biberon'?(isEn?'Amount (ml)':'Miktar (ml)'):(isEn?'Duration (min)':'Süre (dakika)'),text,setText,{keyboardType:'decimal-pad',placeholder:data.type==='Biberon'?'120':'15'})}{button(t('common.save', lang),save)}</>}
+    {kind==='records'&&<><T style={s.helper}>{isEn?'Your latest records appear at the top. Synced across devices when cloud account is linked.':'Yeni kayıtların en üstte görünür. Bulut hesabı bağlandığında cihazlar arasında eşitlenir.'}</T><RecordList records={[...state.records,...sampleRecords]}/></>}
+    {kind==='note'&&<>{input(isEn?'Leave a note for today ✍️':'Bugüne ait bir not bırak ✍️',text,setText,{multiline:true,placeholder:isEn?'A feeling or moment from your heart...':'İçinden geçen bir his ya da an...'})}{button(isEn?'Save Note':'Notumu sakla',save)}</>}
     {kind==='week'&&(()=>{
       const wi=getWeekInfo(data.week||24);
       return <>
@@ -95,19 +78,20 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
           <View style={{flex:1,alignItems:'center'}}>
             <T style={{fontSize:16}}>🍏</T>
             <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:2}}>{wi.fruitName}</T>
-            <T style={{fontSize:9,color:'#8C709A'}}>Meyve</T>
+            <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:2}}>{wi.fruitName}</T>
+            <T style={{fontSize:9,color:'#8C709A'}}>{isEn ? 'Fruit' : 'Meyve'}</T>
           </View>
           <View style={{width:1,backgroundColor:'#E1D2E6'}}/>
           <View style={{flex:1,alignItems:'center'}}>
             <T style={{fontSize:16}}>{wi.animalEmoji || '🐾'}</T>
-            <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:2}}>{wi.animalName || 'Yavru'}</T>
-            <T style={{fontSize:9,color:'#8C709A'}}>Hayvan</T>
+            <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:2}}>{wi.animalName || (isEn ? 'Animal' : 'Yavru')}</T>
+            <T style={{fontSize:9,color:'#8C709A'}}>{isEn ? 'Animal' : 'Hayvan'}</T>
           </View>
           <View style={{width:1,backgroundColor:'#E1D2E6'}}/>
           <View style={{flex:1,alignItems:'center'}}>
             <T style={{fontSize:16}}>{wi.sweetEmoji || '🧁'}</T>
-            <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:2}}>{wi.sweetName || 'Tatlı'}</T>
-            <T style={{fontSize:9,color:'#8C709A'}}>Tatlı / Nesne</T>
+            <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:2}}>{wi.sweetName || (isEn ? 'Sweet' : 'Tatlı')}</T>
+            <T style={{fontSize:9,color:'#8C709A'}}>{isEn ? 'Sweet / Object' : 'Tatlı / Nesne'}</T>
           </View>
         </View>
         {/* Ultrason Bilgisi */}
@@ -126,24 +110,24 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
           </View>
         )}
         {/* Bebek bu hafta */}
-        <T bold style={{fontSize:16,marginTop:18,marginBottom:8}}>🍼 Bebeğinde bu hafta</T>
+        <T bold style={{fontSize:16,marginTop:18,marginBottom:8}}>{isEn ? '🍼 Your baby this week' : '🍼 Bebeğinde bu hafta'}</T>
         {wi.baby.map((b,i)=><View key={i} style={ds.bulletRow}><View style={ds.dot}/><T style={ds.bulletText}>{b}</T></View>)}
         {/* Anne bu hafta */}
-        <T bold style={{fontSize:16,marginTop:16,marginBottom:8}}>💜 Sende bu hafta</T>
+        <T bold style={{fontSize:16,marginTop:16,marginBottom:8}}>{isEn ? '💜 In your body this week' : '💜 Sende bu hafta'}</T>
         {wi.mom.map((m,i)=><View key={i} style={ds.bulletRow}><View style={[ds.dot,{backgroundColor:'#D4A0C0'}]}/><T style={ds.bulletText}>{m}</T></View>)}
         <View style={ds.divider}/>
-        {input('Bu haftana bir not bırak ✍️',text,setText,{multiline:true,placeholder:'Bugün ilk kez hissettim…'})}
-        {button('Notumu sakla',save)}
+        {input(isEn ? 'Leave a note for this week ✍️' : 'Bu haftana bir not bırak ✍️',text,setText,{multiline:true,placeholder:isEn ? 'Felt it for the first time today...' : 'Bugün ilk kez hissettim…'})}
+        {button(isEn ? 'Save Note' : 'Notumu sakla',save)}
       </>;
     })()}
-    {kind==='notes'&&<>{state.notes.length?state.notes.map(n=><Card key={n.id} style={{marginTop:12}}><T style={{lineHeight:23}}>{n.text}</T><Tap label="Notu sil" onPress={()=>update(old=>({notes:old.notes.filter(x=>x.id!==n.id)}))} style={{alignSelf:'flex-end',paddingTop:12}}><T style={{fontSize:12,color:colors.muted}}>Sil</T></Tap></Card>):<T style={s.body}>Henüz not eklemedin. İlk küçük anını saklayabilirsin.</T>}{button('Yeni not ekle',()=>open('note'))}</>}
+    {kind==='notes'&&<>{state.notes.length?state.notes.map(n=><Card key={n.id} style={{marginTop:12}}><T style={{lineHeight:23}}>{n.text}</T><Tap label={isEn ? 'Delete note' : 'Notu sil'} onPress={()=>update(old=>({notes:old.notes.filter(x=>x.id!==n.id)}))} style={{alignSelf:'flex-end',paddingTop:12}}><T style={{fontSize:12,color:colors.muted}}>{isEn?'Delete':'Sil'}</T></Tap></Card>):<T style={s.body}>{isEn?'No notes saved yet. You can save your first little memory.':'Henüz not eklemedin. İlk küçük anını saklayabilirsin.'}</T>}{button(isEn?'Add new note':'Yeni not ekle',()=>open('note'))}</>}
     {kind==='assistantAnswer'&&<View style={{marginTop:8}}>
       <T bold style={{fontSize:18,lineHeight:25,color:colors.ink}}>{data.question}</T>
       {data.answer ? (
         <Card style={{marginTop:12,padding:16,backgroundColor:'#FAF5FA',borderWidth:1,borderColor:'#EDE2EE'}}>
           <View style={{flexDirection:'row',alignItems:'center',gap:8,marginBottom:8}}>
             <T style={{fontSize:18}}>👩‍⚕️</T>
-            <T bold style={{fontSize:13,color:colors.purple}}>Editoryal Kaynak Notu</T>
+            <T bold style={{fontSize:13,color:colors.purple}}>{isEn ? 'Editorial Reference Note' : 'Editoryal Kaynak Notu'}</T>
           </View>
           <T style={{fontSize:14,lineHeight:22,color:'#3E3643'}}>{data.answer}</T>
           {data.faq?.tags ? (
@@ -153,17 +137,23 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
           ) : null}
         </Card>
       ) : (
-        <T style={s.body}>Sorunu notlarına ekledim. Bu soru için bilgi bankasını inceleyebilir veya randevularını ve takip kayıtlarını buradan açabilirsin.</T>
+        <T style={s.body}>{isEn ? 'Added your question to notes. You can browse articles or view your appointments here.' : 'Sorunu notlarına ekledim. Bu soru için bilgi bankasını inceleyebilir veya randevularını ve takip kayıtlarını buradan açabilirsin.'}</T>
       )}
-      {button('Notlarıma git',()=>open('notes'))}
-      {button('Sıkça Sorulan Sorular Kütüphanesi',()=>open('topicHub'),true)}
+      {button(isEn ? 'Go to my notes' : 'Notlarıma git',()=>open('notes'))}
+      {button(isEn ? 'FAQ & Guides Library' : 'Sıkça Sorulan Sorular Kütüphanesi',()=>open('topicHub'),true)}
     </View>}
-    {kind==='community'&&<BirthMonthClubScreen onOpenThread={p=>open('communityThread',p)}/>}
-    {kind==='categories'&&['Bebek bezi','Islak mendil','Beslenme','Banyo'].map(v=><View key={v} style={s.option}><T>{v}</T></View>)}
-    {kind==='sponsored'&&<T style={s.body}>Bu alanda önerilen ürünleri kendi alışveriş listene ekleyebilir, satın alma kararını kendi tercihlerin ve ihtiyaçlarınla verebilirsin.</T>}
+    {kind==='community'&&<BirthMonthClubScreen onOpenThread={p=>open('communityThread',p)} lang={lang}/>}
+    {kind==='categories'&&[isEn?'Diapers':'Bebek bezi',isEn?'Wipes':'Islak mendil',isEn?'Feeding':'Beslenme',isEn?'Bath':'Banyo'].map(v=><View key={v} style={s.option}><T>{v}</T></View>)}
+    {kind==='sponsored'&&<T style={s.body}>{isEn ? 'You can add recommended items to your own shopping checklist according to your family needs.' : 'Bu alanda önerilen ürünleri kendi alışveriş listene ekleyebilir, satın alma kararını kendi tercihlerin ve ihtiyaçlarınla verebilirsin.'}</T>}
     {kind==='dailyMood'&&(()=>{
-      const labels=['Harika','İyi','Normal','Yorgun','Zor'];
-      const moodMessages=[
+      const labels=isEn ? ['Great','Good','Normal','Tired','Hard'] : ['Harika','İyi','Normal','Yorgun','Zor'];
+      const moodMessages=isEn ? [
+        'May your energy be high! A wonderful day awaits you with your baby. ✨',
+        'Peace and calmness be with you; you are doing great. 💛',
+        'Every day has its rhythm; quiet and balanced moments are precious. 🌿',
+        'Your body is performing a miracle; allow yourself space to rest today. 🛌',
+        'You are not alone; every feeling is valid. We embrace you with kindness. 💜'
+      ] : [
         'Enerjin daim olsun! Bebeğinle harika bir gün seni bekliyor. ✨',
         'Huzurun ve dinginliğin hiç eksilmesin, harika gidiyorsun. 💛',
         'Her günün bir ritmi var; sakin ve dengeli anlar çok kıymetlidir. 🌿',
@@ -172,12 +162,12 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
       ];
       return (
         <View style={{marginTop:6}}>
-          <T style={s.body}>Günün ritmine başlamadan önce kendine bir an ayır. Bedenin ve kalbin bugün nasıl hissediyor?</T>
+          <T style={s.body}>{isEn ? 'Take a moment before starting your day. How are your heart and body feeling today?' : 'Günün ritmine başlamadan önce kendine bir an ayır. Bedenin ve kalbin bugün nasıl hissediyor?'}</T>
           <View style={[s.chips,{justifyContent:'space-between',marginVertical:18,gap:4}]}>
             {labels.map((label,idx)=>(
               <Tap
                 key={label}
-                label={'Ruh hali: '+label}
+                label={(isEn ? 'Mood: ' : 'Ruh hali: ')+label}
                 onPress={()=>setSelectedMood(idx)}
                 style={[
                   {alignItems:'center',paddingVertical:10,paddingHorizontal:6,borderRadius:18,borderWidth:1.5,borderColor:'transparent'},
@@ -194,44 +184,44 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
               {moodMessages[selectedMood]||moodMessages[0]}
             </T>
           </Card>
-          {input('Bugüne dair küçük bir not (opsiyonel)',moodNote,setMoodNote,{multiline:true,placeholder:'İçinden geçen bir his ya da an...'})}
-          {button('Günüme Devam Et 🌸',save)}
+          {input(isEn ? 'A small note for today (optional)' : 'Bugüne dair küçük bir not (opsiyonel)',moodNote,setMoodNote,{multiline:true,placeholder:isEn ? 'A feeling or memory from your heart...' : 'İçinden geçen bir his ya da an...'})}
+          {button(isEn ? 'Continue My Day 🌸' : 'Günüme Devam Et 🌸',save)}
           <Tap onPress={()=>{update({lastMoodDate:new Date().toISOString().slice(0,10)});close();}} style={{alignItems:'center',marginTop:14,padding:8}}>
-            <T style={{fontSize:13,color:colors.muted}}>Şimdilik atla</T>
+            <T style={{fontSize:13,color:colors.muted}}>{isEn ? 'Skip for now' : 'Şimdilik atla'}</T>
           </Tap>
         </View>
       );
     })()}
-    {kind==='auth'&&<AuthModal close={close} toast={toast} onAuthSuccess={u=>{update({user:u});if(u?.user_metadata?.full_name)update({name:u.user_metadata.full_name});}}/>}
-    {kind==='kickCounter'&&<KickCounter state={state} update={update} toast={toast} close={close}/>}
-    {kind==='contractionTimer'&&<ContractionTimer state={state} update={update} toast={toast} close={close}/>}
-    {kind==='hospitalBag'&&<HospitalBag state={state} update={update} toast={toast} close={close}/>}
-    {kind==='weight'&&<WeightTracker state={state} update={update} toast={toast} close={close}/>}
-    {kind==='birthPlan'&&<BirthPlanBuilder state={state} update={update} toast={toast} close={close}/>}
-    {kind==='doctorQuestions'&&<DoctorQuestions state={state} update={update} toast={toast} close={close}/>}
-    {kind==='babyNames'&&<BabyNameMatcher state={state} update={update} toast={toast} close={close}/>}
-    {kind==='toolsHub'&&<ToolsHub open={open} state={state} update={update} toast={toast} inSheet close={close}/>}
+    {kind==='auth'&&<AuthModal close={close} toast={toast} lang={lang} onAuthSuccess={u=>{update({user:u});if(u?.user_metadata?.full_name)update({name:u.user_metadata.full_name});}}/>}
+    {kind==='kickCounter'&&<KickCounter state={state} update={update} toast={toast} close={close} lang={lang}/>}
+    {kind==='contractionTimer'&&<ContractionTimer state={state} update={update} toast={toast} close={close} lang={lang}/>}
+    {kind==='hospitalBag'&&<HospitalBag state={state} update={update} toast={toast} close={close} lang={lang}/>}
+    {kind==='weight'&&<WeightTracker state={state} update={update} toast={toast} close={close} lang={lang}/>}
+    {kind==='birthPlan'&&<BirthPlanBuilder state={state} update={update} toast={toast} close={close} lang={lang}/>}
+    {kind==='doctorQuestions'&&<DoctorQuestions state={state} update={update} toast={toast} close={close} lang={lang}/>}
+    {kind==='babyNames'&&<BabyNameMatcher state={state} update={update} toast={toast} close={close} lang={lang}/>}
+    {kind==='toolsHub'&&<ToolsHub open={open} state={state} update={update} toast={toast} inSheet close={close} lang={lang}/>}
     {/* Modül 2: Gelişim & Medikal */}
-    {kind==='sizeGuide'&&<SizeComparisonHub state={state} toast={toast}/>}
-    {kind==='ultrasoundAtlas'&&<UltrasoundAtlas state={state}/>}
-    {kind==='medicalTimeline'&&<MedicalTimeline/>}
-    {kind==='organDevelopment'&&<OrganDevelopment state={state}/>}
+    {kind==='sizeGuide'&&<SizeComparisonHub state={state} toast={toast} lang={lang}/>}
+    {kind==='ultrasoundAtlas'&&<UltrasoundAtlas state={state} lang={lang}/>}
+    {kind==='medicalTimeline'&&<MedicalTimeline lang={lang}/>}
+    {kind==='organDevelopment'&&<OrganDevelopment state={state} lang={lang}/>}
     {/* Modül 3: Keşfet & Makale */}
-    {kind==='foodSafety'&&<FoodSafetyChecker toast={toast}/>}
-    {kind==='topicHub'&&<TopicHubScreen openArticle={(article)=>open('editorialArticle', {article})} openFoodChecker={()=>open('foodSafety')}/>}
-    {kind==='editorialArticle'&&<EditorialArticleScreen article={data?.article} toast={toast}/>}
+    {kind==='foodSafety'&&<FoodSafetyChecker toast={toast} lang={lang}/>}
+    {kind==='topicHub'&&<TopicHubScreen openArticle={(article)=>open('editorialArticle', {article})} openFoodChecker={()=>open('foodSafety')} lang={lang}/>}
+    {kind==='editorialArticle'&&<EditorialArticleScreen article={data?.article} toast={toast} lang={lang}/>}
     {/* Modül 4: Bugün & Günlük Akış */}
-    {kind==='babyLetter'&&<DailyBabyLetterScreen state={state} toast={toast}/>}
-    {kind==='timelineFeed'&&<DailyTimelineFeed/>}
-    {kind==='waterVitamin'&&<WaterVitaminQuickModal state={state} update={update} toast={toast}/>}
+    {kind==='babyLetter'&&<DailyBabyLetterScreen state={state} toast={toast} lang={lang}/>}
+    {kind==='timelineFeed'&&<DailyTimelineFeed lang={lang}/>}
+    {kind==='waterVitamin'&&<WaterVitaminQuickModal state={state} update={update} toast={toast} lang={lang}/>}
     {/* Modül 5: Topluluk */}
-    {kind==='birthMonthClub'&&<BirthMonthClubScreen onOpenThread={p=>open('communityThread',p)}/>}
-    {kind==='communityThread'&&<CommunityThreadScreen post={data} toast={toast}/>}
+    {kind==='birthMonthClub'&&<BirthMonthClubScreen onOpenThread={p=>open('communityThread',p)} lang={lang}/>}
+    {kind==='communityThread'&&<CommunityThreadScreen post={data} toast={toast} lang={lang}/>}
     {/* Modül 6: Lohusalık & Yenidoğan */}
-    {kind==='nursingTimer'&&<NursingTimerScreen state={state} update={update} toast={toast}/>}
-    {kind==='sleepWhiteNoise'&&<SleepWhiteNoiseScreen state={state} update={update} toast={toast}/>}
-    {kind==='diaperTracker'&&<DiaperTrackerScreen update={update} toast={toast}/>}
-    {kind==='postpartumCare'&&<PostpartumSelfCareScreen state={state} update={update} toast={toast}/>}
+    {kind==='nursingTimer'&&<NursingTimerScreen state={state} update={update} toast={toast} lang={lang}/>}
+    {kind==='sleepWhiteNoise'&&<SleepWhiteNoiseScreen state={state} update={update} toast={toast} lang={lang}/>}
+    {kind==='diaperTracker'&&<DiaperTrackerScreen update={update} toast={toast} lang={lang}/>}
+    {kind==='postpartumCare'&&<PostpartumSelfCareScreen state={state} update={update} toast={toast} lang={lang}/>}
     {!!error&&<T accessibilityRole="alert" style={{color:'#A95769',marginTop:12}}>{error}</T>}
     </ScrollView></View></KeyboardAvoidingView></Modal>;
 }

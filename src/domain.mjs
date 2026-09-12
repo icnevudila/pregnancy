@@ -11,7 +11,7 @@ export function pregnancyAt(state, now = new Date()) {
   const elapsed = due ? 280-daysBetween(now,due) : Number(state.week || 24)*7;
   return { week: Math.max(4,Math.min(40,Math.floor(elapsed/7))), day: Math.max(0,elapsed%7), remaining: due ? daysBetween(now,due) : (40-Number(state.week||24))*7 };
 }
-export function dateLabel(value) { const date = parseDay(value); return date ? date.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}) : value || ''; }
+export function dateLabel(value, locale = 'tr-TR') { const date = parseDay(value); return date ? date.toLocaleDateString(locale,{day:'numeric',month:'long',year:'numeric'}) : value || ''; }
 export const uid = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2,10)}`;
 export const normalizeSearch = text => String(text || '').toLocaleLowerCase('tr-TR').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ı/g,'i');
 export function numericInput(value, min, max) { const str=String(value).trim().replace(',','.'); if(!/^\d+(\.\d+)?$/.test(str))return null; const n=Number(str);return n>=min && n<=max ? n : null; }
