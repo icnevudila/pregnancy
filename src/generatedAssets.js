@@ -57,6 +57,10 @@ export const generatedAssets = {
   'cat_diaper': require('../assets/cat_diaper.png'),
   'cat_wipes': require('../assets/cat_wipes.png'),
   'fetus': require('../assets/fetus.png'),
+  'fetus_w04': require('../assets/fetus_w04.png'),
+  'fetus_w05': require('../assets/fetus_w05.png'),
+  'fetus_w06': require('../assets/fetus_w06.png'),
+  'fetus_w07': require('../assets/fetus_w07.png'),
   'fruit_apple': require('../assets/fruit_apple.png'),
   'fruit_avocado': require('../assets/fruit_avocado.png'),
   'fruit_banana': require('../assets/fruit_banana.png'),
@@ -132,19 +136,5 @@ export const generatedAssets = {
 };
 
 export function getAsset(name) {
-  if (generatedAssets[name]) return generatedAssets[name];
-  // Akıllı blog ve UI yedek görselleri (Henüz indirilmemiş olanlar için kusursuz fallback)
-  if (name && name.startsWith('blog_')) {
-    if (name.includes('seafood') || name.includes('coffee')) return generatedAssets['blog_healthy_breakfast'];
-    if (name.includes('morning')) return generatedAssets['blog_pregnant_morning'];
-    if (name.includes('contraction') || name.includes('braxton')) return generatedAssets['blog_couple_bump'];
-    if (name.includes('epidural') || name.includes('hospital')) return generatedAssets['blog_hospital_bag_pack'];
-    if (name.includes('breastmilk')) return generatedAssets['blog_breastfeeding_cozy'];
-    if (name.includes('colic') || name.includes('massage')) return generatedAssets['blog_baby_massage'];
-    if (name.includes('sleep')) return generatedAssets['blog_sleeping_crib'];
-    if (name.includes('blues') || name.includes('depression')) return generatedAssets['blog_postpartum_selfcare'];
-    return generatedAssets['blog_pregnant_morning'] || generatedAssets['blog_newborn_hand'];
-  }
-  return null;
+  return generatedAssets[name] || null;
 }
-
