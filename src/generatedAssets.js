@@ -99,22 +99,52 @@ export const generatedAssets = {
   'sleep': require('../assets/sleep.png'),
   'sweet_macaron': require('../assets/sweet_macaron.png'),
   'sweet_teacup': require('../assets/sweet_teacup.png'),
+  'topic_partner_guide': require('../assets/topic_partner_guide.png'),
   'topic_prenatal_nutrition': require('../assets/topic_prenatal_nutrition.png'),
+  'topic_prenatal_yoga': require('../assets/topic_prenatal_yoga.png'),
   'ui_baby_crib': require('../assets/ui_baby_crib.png'),
+  'ui_baby_letter_envelope': require('../assets/ui_baby_letter_envelope.png'),
   'ui_baby_name_blocks': require('../assets/ui_baby_name_blocks.png'),
   'ui_baby_stroller': require('../assets/ui_baby_stroller.png'),
   'ui_birth_plan_scroll': require('../assets/ui_birth_plan_scroll.png'),
+  'ui_bump_camera': require('../assets/ui_bump_camera.png'),
+  'ui_community_mothers_circle': require('../assets/ui_community_mothers_circle.png'),
   'ui_contraction_pulse_button': require('../assets/ui_contraction_pulse_button.png'),
+  'ui_diaper_dirty': require('../assets/ui_diaper_dirty.png'),
+  'ui_diaper_wet_drop': require('../assets/ui_diaper_wet_drop.png'),
   'ui_doctor_prep_notebook': require('../assets/ui_doctor_prep_notebook.png'),
   'ui_doctor_verified_badge': require('../assets/ui_doctor_verified_badge.png'),
+  'ui_fetal_brain_3d': require('../assets/ui_fetal_brain_3d.png'),
   'ui_fetal_heart_3d': require('../assets/ui_fetal_heart_3d.png'),
+  'ui_food_avoid_shield': require('../assets/ui_food_avoid_shield.png'),
+  'ui_food_moderate_shield': require('../assets/ui_food_moderate_shield.png'),
+  'ui_food_safe_shield': require('../assets/ui_food_safe_shield.png'),
   'ui_hospital_bag_3d': require('../assets/ui_hospital_bag_3d.png'),
   'ui_kick_foot_button': require('../assets/ui_kick_foot_button.png'),
   'ui_medical_dna_test': require('../assets/ui_medical_dna_test.png'),
+  'ui_midwife_expert_badge': require('../assets/ui_midwife_expert_badge.png'),
+  'ui_nursing_dual_timer': require('../assets/ui_nursing_dual_timer.png'),
+  'ui_postpartum_lotus': require('../assets/ui_postpartum_lotus.png'),
+  'ui_timeline_sun_moon': require('../assets/ui_timeline_sun_moon.png'),
   'ui_ultrasound_hdlive_20w': require('../assets/ui_ultrasound_hdlive_20w.png'),
   'ui_weight_bmi_gauge': require('../assets/ui_weight_bmi_gauge.png'),
+  'ui_white_noise_headphones': require('../assets/ui_white_noise_headphones.png'),
 };
 
 export function getAsset(name) {
-  return generatedAssets[name] || null;
+  if (generatedAssets[name]) return generatedAssets[name];
+  // Akıllı blog ve UI yedek görselleri (Henüz indirilmemiş olanlar için kusursuz fallback)
+  if (name && name.startsWith('blog_')) {
+    if (name.includes('seafood') || name.includes('coffee')) return generatedAssets['blog_healthy_breakfast'];
+    if (name.includes('morning')) return generatedAssets['blog_pregnant_morning'];
+    if (name.includes('contraction') || name.includes('braxton')) return generatedAssets['blog_couple_bump'];
+    if (name.includes('epidural') || name.includes('hospital')) return generatedAssets['blog_hospital_bag_pack'];
+    if (name.includes('breastmilk')) return generatedAssets['blog_breastfeeding_cozy'];
+    if (name.includes('colic') || name.includes('massage')) return generatedAssets['blog_baby_massage'];
+    if (name.includes('sleep')) return generatedAssets['blog_sleeping_crib'];
+    if (name.includes('blues') || name.includes('depression')) return generatedAssets['blog_postpartum_selfcare'];
+    return generatedAssets['blog_pregnant_morning'] || generatedAssets['blog_newborn_hand'];
+  }
+  return null;
 }
+

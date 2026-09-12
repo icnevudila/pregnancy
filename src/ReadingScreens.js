@@ -4,21 +4,21 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { T, Tap, Card, Page, Section, Progress } from './ui';
 import { Icon, FruitArt } from './Icons';
 import { colors } from './theme';
-import { generatedAssets } from './generatedAssets';
+import { generatedAssets, getAsset } from './generatedAssets';
 import { Header, Button, Chips, Field, Empty, Hint, RowLink, SourceLink, f } from './FlowUI';
 import { articles, topics, articleById, weeklyArticles } from './content';
 import { getWeekInfo, formatLength, formatWeight, trimesterLabel } from './weekData';
 import { normalizeSearch, pregnancyAt, uid, localDay } from './domain.mjs';
 
-export function ArticleRow({article,onPress,read}) {return <Tap label={article.title} onPress={onPress} style={r.articleRow}><Image source={generatedAssets[article.image]} style={r.thumb}/><View style={{flex:1,gap:6}}><T style={f.label}>{topics.find(t=>t.id===article.topic)?.title.toLocaleUpperCase('tr')}</T><T bold style={{fontSize:15,lineHeight:21}}>{article.title}</T><T style={f.meta}>{article.minutes} dk okuma{read?' · Okundu':''}</T></View><Icon name="chevron" size={16} color={colors.purple}/></Tap>;}
+export function ArticleRow({article,onPress,read}) {return <Tap label={article.title} onPress={onPress} style={r.articleRow}><Image source={generatedAssets[article.image] || getAsset(article.image)} style={r.thumb}/><View style={{flex:1,gap:6}}><T style={f.label}>{topics.find(t=>t.id===article.topic)?.title.toLocaleUpperCase('tr')}</T><T bold style={{fontSize:15,lineHeight:21}}>{article.title}</T><T style={f.meta}>{article.minutes} dk okuma{read?' · Okundu':''}</T></View><Icon name="chevron" size={16} color={colors.purple}/></Tap>;}
 export function ReadingRail({week,navigate,state}) {return <View><Section title="Bu haftana eşlik etsin" action="Tüm yazılar" onPress={()=>navigate('library')}/>{weeklyArticles(week).slice(0,2).map(article=><ArticleRow key={article.id} article={article} read={state.readArticles.includes(article.id)} onPress={()=>navigate('article',{id:article.id})}/>)}</View>;}
 export function Library({state,navigate,back,data={}}) {
   const [query,setQuery]=useState('');const [topic,setTopic]=useState(data.topic||'all');const [tab,setTab]=useState(data.saved?'saved':'all');
   const shown=articles.filter(a=>(topic==='all'||a.topic===topic)&&(tab!=='saved'||state.savedArticles.includes(a.id))&&normalizeSearch(`${a.title} ${a.subtitle} ${topics.find(t=>t.id===a.topic)?.title}`).includes(normalizeSearch(query)));
   return <Page><Header title="Keşfet" subtitle="Merak ettiklerine, kendi hızında." back={back}/><Field label="İçerik ara" value={query} onChangeText={setQuery} placeholder="Örn. hareket, doğum, günlük"/>
     <Chips items={[{id:'all',title:'Sana özel'},{id:'saved',title:`Kaydettiklerin (${state.savedArticles.length})`}]} value={tab} onChange={setTab}/>
-    {!query&&topic==='all'&&tab==='all'&&<><Tap label="Doğuma hazırlık konusunu keşfet" onPress={()=>setTopic('birth')} style={r.cover}><Image source={generatedAssets.blog_hospital_bag_pack} style={StyleSheet.absoluteFill}/><LinearGradient colors={['transparent','#30212AE6']} style={StyleSheet.absoluteFill}/><View style={r.coverCopy}><T style={{color:'#F0DEE6',fontSize:11,letterSpacing:2}}>BİRLİKTE HAZIRLANALIM</T><T bold style={{color:'white',fontSize:25,lineHeight:30}}>Büyük güne,{ '\n' }küçük adımlarla.</T><T style={{color:'white',fontSize:13}}>Doğuma hazırlık rehberleri  →</T></View></Tap>
-    <Section title="Neyi merak ediyorsun?"/><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:12}}>{topics.map(t=><Tap key={t.id} label={`${t.title} konusunu aç`} onPress={()=>setTopic(t.id)} style={r.topic}><Image source={generatedAssets[t.image]} style={r.topicImage}/><T bold style={{fontSize:14,marginTop:9}}>{t.title}</T><T style={f.meta}>{articles.filter(a=>a.topic===t.id).length} rehber</T></Tap>)}</ScrollView></>}
+    {!query&&topic==='all'&&tab==='all'&&<><Tap label="Doğuma hazırlık konusunu keşfet" onPress={()=>setTopic('birth')} style={r.cover}><Image source={generatedAssets.blog_hospital_bag_pack || getAsset('blog_hospital_bag_pack')} style={StyleSheet.absoluteFill}/><LinearGradient colors={['transparent','#30212AE6']} style={StyleSheet.absoluteFill}/><View style={r.coverCopy}><T style={{color:'#F0DEE6',fontSize:11,letterSpacing:2}}>BİRLİKTE HAZIRLANALIM</T><T bold style={{color:'white',fontSize:25,lineHeight:30}}>Büyük güne,{ '\n' }küçük adımlarla.</T><T style={{color:'white',fontSize:13}}>Doğuma hazırlık rehberleri  →</T></View></Tap>
+    <Section title="Neyi merak ediyorsun?"/><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:12}}>{topics.map(t=><Tap key={t.id} label={`${t.title} konusunu aç`} onPress={()=>setTopic(t.id)} style={r.topic}><Image source={generatedAssets[t.image] || getAsset(t.image)} style={r.topicImage}/><T bold style={{fontSize:14,marginTop:9}}>{t.title}</T><T style={f.meta}>{articles.filter(a=>a.topic===t.id).length} rehber</T></Tap>)}</ScrollView></>}
     <Chips items={[{id:'all',title:'Tüm konular'},...topics]} value={topic} onChange={setTopic}/>
     <T style={f.meta}>{shown.length} rehber{query?` · “${query}”`:''}</T>
     {shown.length?shown.map(a=><ArticleRow key={a.id} article={a} read={state.readArticles.includes(a.id)} onPress={()=>navigate('article',{id:a.id})}/>):<Empty title={tab==='saved'?'Burada sana ait bir kitaplık olacak':'Aradığını bulamadık'} text={tab==='saved'?'Yazılardaki kaydet düğmesine dokun. Seçtiğin konuya ait kayıtlar burada görünür.':'Daha kısa bir kelime deneyebilir veya konu filtresini kaldırabilirsin.'} action="Tüm rehberleri göster" onPress={()=>{setQuery('');setTopic('all');setTab('all');}}/>}
@@ -30,9 +30,50 @@ export function ArticleDetail({data,state,update,navigate,back,toast}) {
   const saved=state.savedArticles.includes(a.id),read=state.readArticles.includes(a.id);
   return <Page onScroll={event=>{const {contentOffset,contentSize,layoutMeasurement}=event.nativeEvent;setProgress(Math.min(100,contentOffset.y/Math.max(1,contentSize.height-layoutMeasurement.height)*100));}} scrollEventThrottle={80}>
     <Header title="Okuma köşesi" back={back} action={<Tap label={saved?'Yazıyı kaydedilenlerden çıkar':'Yazıyı kaydet'} onPress={()=>update(old=>({savedArticles:saved?old.savedArticles.filter(id=>id!==a.id):[...old.savedArticles,a.id]}))} style={f.iconButton}><Icon name={saved?'check':'book'} color={colors.purple}/></Tap>}/>
-    <Progress value={progress} color={colors.purple} style={{height:3}}/><Image source={generatedAssets[a.image]} style={r.articleCover}/>
-    <View style={{gap:10}}><T style={f.label}>{topics.find(t=>t.id===a.topic)?.title.toLocaleUpperCase('tr')}</T><T bold style={{fontSize:27,lineHeight:34}}>{a.title}</T><T style={f.body}>{a.subtitle}</T><View style={[f.row,{justifyContent:'space-between'}]}><T style={f.meta}>Momora rehberi · {a.minutes} dk</T><Tap label="Yazı boyutunu değiştir" onPress={()=>setLarge(!large)} style={f.iconButton}><T bold style={{fontSize:large?21:16}}>Aa</T></Tap></View></View>
-    {a.sections.map((section,i)=><View key={section.title} style={{gap:9,paddingVertical:10}}><T style={f.label}>0{i+1}</T><T bold style={{fontSize:large?23:20,lineHeight:28}}>{section.title}</T><T style={[f.body,{fontSize:large?19:16,lineHeight:large?31:27}]}>{section.text}</T></View>)}
+    <Progress value={progress} color={colors.purple} style={{height:3}}/><Image source={generatedAssets[a.image] || getAsset(a.image)} style={r.articleCover}/>
+    <View style={{gap:10}}>
+      <T style={f.label}>{topics.find(t=>t.id===a.topic)?.title.toLocaleUpperCase('tr')}</T>
+      <T bold style={{fontSize:27,lineHeight:34}}>{a.title}</T>
+      <T style={f.body}>{a.subtitle}</T>
+      {a.doctor && (
+        <View style={[f.row,{gap:8,alignItems:'center',backgroundColor:'#F5EFF7',paddingHorizontal:12,paddingVertical:8,borderRadius:12,marginTop:2}]}>
+          {generatedAssets['ui_doctor_verified_badge'] ? (
+            <Image source={generatedAssets['ui_doctor_verified_badge']} style={{width:20,height:20}} resizeMode="contain"/>
+          ) : (
+            <Icon name="check" size={14} color={colors.purple}/>
+          )}
+          <T style={{fontSize:12,color:colors.purple,fontWeight:'600',flex:1}}>{a.doctor}</T>
+        </View>
+      )}
+      <View style={[f.row,{justifyContent:'space-between',marginTop:4}]}>
+        <T style={f.meta}>Momora Rehberi · {a.minutes} dk okuma</T>
+        <Tap label="Yazı boyutunu değiştir" onPress={()=>setLarge(!large)} style={f.iconButton}><T bold style={{fontSize:large?21:16}}>Aa</T></Tap>
+      </View>
+    </View>
+    {a.keyPoints && a.keyPoints.length > 0 && (
+      <Card style={{backgroundColor:'#FAF7F3',borderWidth:1,borderColor:'#EDE7E1',borderRadius:16,padding:14,gap:8,marginTop:10}}>
+        <View style={[f.row,{gap:6,alignItems:'center'}]}>
+          <Icon name="star" size={15} color={colors.purple}/>
+          <T bold style={{fontSize:12,color:colors.purple,letterSpacing:0.5}}>ÖNE ÇIKAN KLİNİK NOKTALAR</T>
+        </View>
+        {a.keyPoints.map((kp,idx)=>(
+          <View key={idx} style={[f.row,{gap:8,alignItems:'flex-start'}]}>
+            <T style={{color:colors.purple,fontSize:13,lineHeight:18}}>•</T>
+            <T style={{fontSize:13,color:colors.ink,lineHeight:19,flex:1}}>{kp}</T>
+          </View>
+        ))}
+      </Card>
+    )}
+    {a.sections.map((section,i)=><View key={section.title} style={{gap:9,paddingVertical:10}}>
+      <T style={f.label}>0{i+1}</T>
+      <T bold style={{fontSize:large?23:20,lineHeight:28}}>{section.title}</T>
+      <T style={[f.body,{fontSize:large?19:16,lineHeight:large?31:27}]}>{section.text}</T>
+      {section.tip && (
+        <View style={{backgroundColor:'#FBF4EB',padding:12,borderRadius:12,borderWidth:1,borderColor:'#F2E4D5',marginTop:4}}>
+          <T style={{fontSize:13,color:'#7A4D2E',lineHeight:19}}>{section.tip}</T>
+        </View>
+      )}
+    </View>)}
     {a.source&&<Card><T bold style={{fontSize:13}}>Kaynak ve içerik notu</T><T style={[f.meta,{marginTop:6}]}>Genel bilgilendirme amaçlıdır; kişisel sağlık önerisi yerine geçmez. Kaynak kontrolü: 12 Eylül 2026.</T><SourceLink source={a.source} onError={toast}/></Card>}
     {a.action&&<Button onPress={()=>navigate(a.action.route,a.action.data)}>{a.action.label} →</Button>}
     <Button secondary onPress={()=>{update(old=>({readArticles:read?old.readArticles.filter(id=>id!==a.id):[...old.readArticles,a.id]}));toast(read?'Okundu işareti kaldırıldı':'Okuma tamamlandı');}}>{read?'Okundu ✓ · İşareti kaldır':'Okudum'}</Button>

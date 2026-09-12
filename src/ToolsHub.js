@@ -98,9 +98,11 @@ export const toolCatalog = [
   },
 ];
 
-export function ToolsHub({ open, state, update, toast }) {
+export function ToolsHub({ open, state, update, toast, inSheet = false }) {
+  const Container = inSheet ? View : ScrollView;
+  const containerProps = inSheet ? { style: th.container } : { showsVerticalScrollIndicator: false, contentContainerStyle: th.container };
   return (
-    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={th.container}>
+    <Container {...containerProps}>
       <View style={th.header}>
         <T bold style={th.title}>Momora Araçlar</T>
         <T style={th.subtitle}>Hamilelik ve doğuma hazırlıkta en büyük yardımcıların.</T>
@@ -178,7 +180,7 @@ export function ToolsHub({ open, state, update, toast }) {
           </Tap>
         ))}
       </View>
-    </ScrollView>
+    </Container>
   );
 }
 

@@ -35,7 +35,8 @@ export const extendedDefaults = {
 export function migrateState(saved = {}, defaults = {}, now = new Date()) {
   const safe = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
   const state = {...defaults,...extendedDefaults,...safe,version:2};
-  for(const key of ['records','notes','favorites','messages','savedArticles','readArticles','weights','appointments','kickSessions','contractionSessions','journal'])state[key]=Array.isArray(state[key])?state[key]:[];
+  for(const key of ['records','notes','favorites','messages','savedArticles','readArticles','weights','appointments','kickSessions','contractionSessions','journal','favNames','vitaminsList'])state[key]=Array.isArray(state[key])?state[key]:[];
+  state.birthPlan = typeof safe.birthPlan === 'object' && safe.birthPlan && !Array.isArray(safe.birthPlan) ? safe.birthPlan : {};
   state.lists = Object.fromEntries(Object.entries(defaultLists).map(([key,items])=>[key,Array.isArray(safe.lists?.[key])?safe.lists[key]:items.map(item=>({...item}))]));
   if(state.dailyDate!==localDay(now)){state.dailyDate=localDay(now);state.water=0;state.vitamin=false;state.mood=null;state.postpartumMood=null;}
   return state;

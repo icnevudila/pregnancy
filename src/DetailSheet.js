@@ -8,6 +8,11 @@ import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel } f
 import { KickCounter, ContractionTimer, HospitalBag } from './ToolScreens';
 import { WeightTracker, BirthPlanBuilder, DoctorQuestions, BabyNameMatcher } from './MoreToolScreens';
 import { ToolsHub } from './ToolsHub';
+import { SizeComparisonHub, UltrasoundAtlas, MedicalTimeline, OrganDevelopment } from './MedicalScreens';
+import { FoodSafetyChecker, TopicHubScreen, EditorialArticleScreen } from './ExploreScreens';
+import { DailyBabyLetterScreen, DailyTimelineFeed, WaterVitaminQuickModal } from './DailyFeedScreens';
+import { BirthMonthClubScreen, CommunityThreadScreen } from './CommunityScreens';
+import { NursingTimerScreen, SleepWhiteNoiseScreen, DiaperTrackerScreen, PostpartumSelfCareScreen } from './PostpartumBabyScreens';
 
 const titles={
   journey:'Yolculuğun nerede?',profile:'Senin yolculuğun',appointment:'Doktor randevun',
@@ -15,9 +20,20 @@ const titles={
   notes:'Sana ait notlar',article:'Güvenli bağ, küçük anlarla başlar',assistantAnswer:'Sorunu birlikte saklayalım',
   community:'Anneler birbirine iyi gelir',categories:'İhtiyacın olanı keşfet',sponsored:'Ürün önerileri',
   dailyMood:'Bugün nasıl hissediyorsun?',
+  // Modül 1
   kickCounter:'Tekme Sayacı',contractionTimer:'Kasılma Sayacı',hospitalBag:'Doğum Çantası',
   weight:'Kilo Takibi & BMI',birthPlan:'Doğum Planı',doctorQuestions:'Doktora Sorular',babyNames:'Bebek İsim Rehberi',
   toolsHub:'Momora Araçlar',
+  // Modül 2
+  sizeGuide:'3’lü Boyut Kıyaslama',ultrasoundAtlas:'Ultrason Atlası',medicalTimeline:'Tıbbi Zaman Çizelgesi',organDevelopment:'Organ Gelişimi & Kalp Ritim',
+  // Modül 3
+  foodSafety:'Besin Güvenliği Rehberi',topicHub:'Konu Koleksiyonları',editorialArticle:'Uzman Rehberi',
+  // Modül 4
+  babyLetter:'Bebeğin Günlük Mektubu',timelineFeed:'Günlük Zaman Tüneli',waterVitamin:'Su & Vitamin Takibi',
+  // Modül 5
+  birthMonthClub:'Doğum Ayı Kulübü',communityThread:'Topluluk Tartışması',
+  // Modül 6
+  nursingTimer:'Emzirme & Biberon Sayacı',sleepWhiteNoise:'Uyku & Beyaz Gürültü',diaperTracker:'Bez Değiştirme Günlüğü',postpartumCare:'Lohusalık & Kendine Şefkat',
 };
 export default function DetailSheet({ sheet, close, state, update, addRecord, choose, open, toast }) {
   const {kind,data={}}=sheet;
@@ -115,8 +131,27 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
       </>;
     })()}</>}}
     {kind==='notes'&&<>{state.notes.length?state.notes.map(n=><Card key={n.id} style={{marginTop:12}}><T style={{lineHeight:23}}>{n.text}</T><Tap label="Notu sil" onPress={()=>update(old=>({notes:old.notes.filter(x=>x.id!==n.id)}))} style={{alignSelf:'flex-end',paddingTop:12}}><T style={{fontSize:12,color:colors.muted}}>Sil</T></Tap></Card>):<T style={s.body}>Henüz not eklemedin. İlk küçük anını saklayabilirsin.</T>}{button('Yeni not ekle',()=>open('note'))}</>}
-    {kind==='article'&&<><T style={s.demo}>Örnek içerik · MOMORA</T>{data.video?<T style={s.body}>Video henüz eklenmedi.</T>:['1. Birlikte geçirdiğiniz küçük anlara yer açın.','2. Onunla konuşun, sesinizi duymasını sağlayın.','3. Bebeğinizin tepkilerini tanımaya zaman ayırın.','4. Kendinize de dinlenmek için alan açın.','5. Her ailenin ritminin farklı olduğunu hatırlayın.'].map(v=><T key={v} style={[s.body,{marginBottom:14}]}>{v}</T>)}</>}
-    {kind==='assistantAnswer'&&<><T bold style={{fontSize:18,lineHeight:25,marginTop:16}}>{data.question}</T><T style={s.body}>Sorunu notlarına ekledim. Bu yerel demoda canlı yapay zekâ bağlantısı henüz yok; gerçek yanıt üretmiyorum. Randevularını ve takip kayıtlarını buradan açabilirsin.</T>{button('Notlarıma git',()=>open('notes'))}{button('Takip kayıtlarını aç',()=>open('records'),true)}</>}
+    {kind==='assistantAnswer'&&<View style={{marginTop:8}}>
+      <T bold style={{fontSize:18,lineHeight:25,color:colors.ink}}>{data.question}</T>
+      {data.answer ? (
+        <Card style={{marginTop:12,padding:16,backgroundColor:'#FAF5FA',borderWidth:1,borderColor:'#EDE2EE'}}>
+          <View style={{flexDirection:'row',alignItems:'center',gap:8,marginBottom:8}}>
+            <T style={{fontSize:18}}>👩‍⚕️</T>
+            <T bold style={{fontSize:13,color:colors.purple}}>Uzman Klinik Rehberi</T>
+          </View>
+          <T style={{fontSize:14,lineHeight:22,color:'#3E3643'}}>{data.answer}</T>
+          {data.faq?.tags ? (
+            <View style={{flexDirection:'row',flexWrap:'wrap',gap:6,marginTop:12}}>
+              {data.faq.tags.map(t=><View key={t} style={{backgroundColor:'#F0E5F2',paddingHorizontal:8,paddingVertical:3,borderRadius:8}}><T style={{fontSize:10,color:'#77587B'}}>#{t}</T></View>)}
+            </View>
+          ) : null}
+        </Card>
+      ) : (
+        <T style={s.body}>Sorunu notlarına ekledim. Bu soru için bilgi bankasını inceleyebilir veya randevularını ve takip kayıtlarını buradan açabilirsin.</T>
+      )}
+      {button('Notlarıma git',()=>open('notes'))}
+      {button('Sıkça Sorulan Sorular Kütüphanesi',()=>open('topicHub'),true)}
+    </View>}
     {kind==='community'&&<><T style={s.body}>Buradaki paylaşım örnek veridir. Canlı topluluk Supabase bağlantısıyla birlikte açılacak.</T>{button('Kendime bir not bırak',()=>open('note'))}</>}
     {kind==='categories'&&['Bebek bezi','Islak mendil','Beslenme','Banyo'].map(v=><View key={v} style={s.option}><T>{v}</T></View>)}
     {kind==='sponsored'&&<T style={s.body}>Bu ürün kartları tasarım demosudur. Gerçek sponsor, satın alma bağlantısı veya ödeme işlemi yoktur. + düğmesiyle ürünleri yerel listene ekleyebilirsin.</T>}
@@ -168,7 +203,28 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
     {kind==='birthPlan'&&<BirthPlanBuilder state={state} update={update} toast={toast} close={close}/>}
     {kind==='doctorQuestions'&&<DoctorQuestions state={state} update={update} toast={toast} close={close}/>}
     {kind==='babyNames'&&<BabyNameMatcher state={state} update={update} toast={toast} close={close}/>}
-    {kind==='toolsHub'&&<ToolsHub open={open} state={state} update={update} toast={toast} close={close}/>}
+    {kind==='toolsHub'&&<ToolsHub open={open} state={state} update={update} toast={toast} inSheet close={close}/>}
+    {/* Modül 2: Gelişim & Medikal */}
+    {kind==='sizeGuide'&&<SizeComparisonHub state={state} toast={toast}/>}
+    {kind==='ultrasoundAtlas'&&<UltrasoundAtlas state={state}/>}
+    {kind==='medicalTimeline'&&<MedicalTimeline/>}
+    {kind==='organDevelopment'&&<OrganDevelopment state={state}/>}
+    {/* Modül 3: Keşfet & Makale */}
+    {kind==='foodSafety'&&<FoodSafetyChecker toast={toast}/>}
+    {kind==='topicHub'&&<TopicHubScreen openArticle={(article)=>open('editorialArticle', {article})} openFoodChecker={()=>open('foodSafety')}/>}
+    {kind==='editorialArticle'&&<EditorialArticleScreen article={data?.article} toast={toast}/>}
+    {/* Modül 4: Bugün & Günlük Akış */}
+    {kind==='babyLetter'&&<DailyBabyLetterScreen state={state} toast={toast}/>}
+    {kind==='timelineFeed'&&<DailyTimelineFeed/>}
+    {kind==='waterVitamin'&&<WaterVitaminQuickModal state={state} update={update} toast={toast}/>}
+    {/* Modül 5: Topluluk */}
+    {kind==='birthMonthClub'&&<BirthMonthClubScreen onOpenThread={p=>open('communityThread',p)}/>}
+    {kind==='communityThread'&&<CommunityThreadScreen post={data} toast={toast}/>}
+    {/* Modül 6: Lohusalık & Yenidoğan */}
+    {kind==='nursingTimer'&&<NursingTimerScreen state={state} update={update} toast={toast}/>}
+    {kind==='sleepWhiteNoise'&&<SleepWhiteNoiseScreen state={state} update={update} toast={toast}/>}
+    {kind==='diaperTracker'&&<DiaperTrackerScreen update={update} toast={toast}/>}
+    {kind==='postpartumCare'&&<PostpartumSelfCareScreen state={state} update={update} toast={toast}/>}
     {!!error&&<T accessibilityRole="alert" style={{color:'#A95769',marginTop:12}}>{error}</T>}
     </ScrollView></View></KeyboardAvoidingView></Modal>;
 }

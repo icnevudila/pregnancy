@@ -102,7 +102,19 @@ function updateGeneratedAssetsFile() {
     lines.push('};');
     lines.push('');
     lines.push('export function getAsset(name) {');
-    lines.push('  return generatedAssets[name] || null;');
+    lines.push('  if (generatedAssets[name]) return generatedAssets[name];');
+    lines.push('  if (name && name.startsWith("blog_")) {');
+    lines.push('    if (name.includes("seafood") || name.includes("coffee")) return generatedAssets["blog_healthy_breakfast"];');
+    lines.push('    if (name.includes("morning")) return generatedAssets["blog_pregnant_morning"];');
+    lines.push('    if (name.includes("contraction") || name.includes("braxton")) return generatedAssets["blog_couple_bump"];');
+    lines.push('    if (name.includes("epidural") || name.includes("hospital")) return generatedAssets["blog_hospital_bag_pack"];');
+    lines.push('    if (name.includes("breastmilk")) return generatedAssets["blog_breastfeeding_cozy"];');
+    lines.push('    if (name.includes("colic") || name.includes("massage")) return generatedAssets["blog_baby_massage"];');
+    lines.push('    if (name.includes("sleep")) return generatedAssets["blog_sleeping_crib"];');
+    lines.push('    if (name.includes("blues") || name.includes("depression")) return generatedAssets["blog_postpartum_selfcare"];');
+    lines.push('    return generatedAssets["blog_pregnant_morning"] || generatedAssets["blog_newborn_hand"];');
+    lines.push('  }');
+    lines.push('  return null;');
     lines.push('}');
     lines.push('');
 

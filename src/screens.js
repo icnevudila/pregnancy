@@ -7,6 +7,7 @@ import { generatedAssets } from './generatedAssets';
 import { T, Tap, Card, RoundButton, Section, Tabs, MoodPicker, Progress, SmallStat, Page } from './ui';
 import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel, pregnancyProgress, TOTAL_WEEKS } from './weekData';
 import { usePulse, useCrossFade } from './anim';
+import { articles, searchArticles, searchFaqs } from './content';
 
 export const journeys = [
   { key: 'pregnancy', title: 'Hamileyim', sub: 'Bebeğimle tanışmaya\nhazırlanıyorum', image: assets.pregnancy, tint: '#F5E7E8' },
@@ -177,6 +178,65 @@ export function Pregnancy({ state, update, open }) {
     {/* 3'lü Kıyaslama ve Ultrason Hero */}
     <ComparisonHero week={week} info={info} onPress={() => open('week', {week})} />
 
+    {/* Bebeğin Günlük Mektubu (Happy Mom Sırrı) */}
+    <Tap
+      onPress={() => open('babyLetter')}
+      label="Bebeğin günlük mektubunu oku"
+      style={{borderRadius:20,overflow:'hidden',backgroundColor:'#FFFDF9',borderWidth:1.5,borderColor:'#EFE0D8',padding:14,...shadow}}
+    >
+      <View style={[s.row,{gap:10}]}>
+        <View style={{width:40,height:40,borderRadius:20,backgroundColor:'#F8E8EC',alignItems:'center',justifyContent:'center'}}>
+          <T style={{fontSize:20}}>💌</T>
+        </View>
+        <View style={{flex:1}}>
+          <View style={[s.row,{justifyContent:'space-between'}]}>
+            <T bold style={{fontSize:13,color:colors.purple}}>Bebeğinden Yeni Mektup</T>
+            <T style={{fontSize:10,color:colors.muted}}>Bugün</T>
+          </View>
+          <T numberOfLines={2} style={{fontSize:12,color:'#554050',marginTop:3,lineHeight:17}}>
+            “Anneciğim merhaba! Bugün minicik parmak izlerim oluştu, sesini duyabiliyorum...”
+          </T>
+        </View>
+        <Icon name="chevron" size={16} color={colors.purple}/>
+      </View>
+    </Tap>
+
+    {/* Medikal İnceleme & Gelişim Şeridi */}
+    <View style={[s.row,{gap:8}]}>
+      <Tap
+        onPress={() => open('ultrasoundAtlas')}
+        label="Ultrason atlasını aç"
+        style={{flex:1,padding:10,borderRadius:16,backgroundColor:'#F3EEF5',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#E6DCea'}}
+      >
+        <T style={{fontSize:16}}>🩺</T>
+        <T bold style={{fontSize:11,color:colors.ink,marginTop:3}}>Ultrason Atlası</T>
+      </Tap>
+      <Tap
+        onPress={() => open('organDevelopment')}
+        label="Organ gelişimini aç"
+        style={{flex:1,padding:10,borderRadius:16,backgroundColor:'#FDF2F4',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#EED9DF'}}
+      >
+        <T style={{fontSize:16}}>💓</T>
+        <T bold style={{fontSize:11,color:colors.ink,marginTop:3}}>Organ & Kalp</T>
+      </Tap>
+      <Tap
+        onPress={() => open('medicalTimeline')}
+        label="Tıbbi takvimi aç"
+        style={{flex:1,padding:10,borderRadius:16,backgroundColor:'#EEF5F2',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#D8E8E0'}}
+      >
+        <T style={{fontSize:16}}>📅</T>
+        <T bold style={{fontSize:11,color:colors.ink,marginTop:3}}>Tıbbi Takvim</T>
+      </Tap>
+      <Tap
+        onPress={() => open('timelineFeed')}
+        label="Zaman tünelini aç"
+        style={{flex:1,padding:10,borderRadius:16,backgroundColor:'#FBF6EB',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#EDE2C8'}}
+      >
+        <T style={{fontSize:16}}>⏱️</T>
+        <T bold style={{fontSize:11,color:colors.ink,marginTop:3}}>Günlük Akış</T>
+      </Tap>
+    </View>
+
     {/* Bebek bu hafta — hızlı 3 madde */}
     <Card style={{padding:14}}>
       <View style={[s.row,{gap:8,marginBottom:10}]}>
@@ -309,6 +369,34 @@ export function Pregnancy({ state, update, open }) {
         </Tap>
       </ScrollView>
     </View>
+
+    {/* Uzman Rehberleri & Blog */}
+    <View style={{marginTop:8}}>
+      <Section title="Haftanın Uzman Rehberleri" action="Tümünü gör" onPress={()=>open('topicHub')}/>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:12,paddingBottom:4}}>
+        {articles.filter(a=>a.topic==='pregnancy'||a.topic==='nutrition'||a.topic==='wellbeing').slice(0,4).map(art=>(
+          <Tap
+            key={art.id}
+            onPress={()=>open('editorialArticle',{article:art})}
+            label={art.title}
+            style={{width:220,borderRadius:18,backgroundColor:'#FFFFFF',overflow:'hidden',borderWidth:1,borderColor:'#EBE2EB',...shadow}}
+          >
+            {generatedAssets[art.image] && (
+              <View style={{height:110,backgroundColor:'#F2EBF4'}}>
+                <Image source={generatedAssets[art.image]} style={StyleSheet.absoluteFill} resizeMode="cover"/>
+                <View style={{position:'absolute',top:8,right:8,backgroundColor:'#00000077',paddingHorizontal:7,paddingVertical:2,borderRadius:8}}>
+                  <T style={{fontSize:10,color:'white'}}>⏱️ {art.minutes} dk</T>
+                </View>
+              </View>
+            )}
+            <View style={{padding:12}}>
+              <T bold numberOfLines={2} style={{fontSize:13,color:colors.ink,lineHeight:18}}>{art.title}</T>
+              <T numberOfLines={1} style={{fontSize:11,color:colors.muted,marginTop:4}}>{art.subtitle}</T>
+            </View>
+          </Tap>
+        ))}
+      </ScrollView>
+    </View>
   </Page>;
 }
 
@@ -339,7 +427,17 @@ export function Baby({state,open}) {
     <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage}/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName} · 6 haftalık</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>Minik mutluluğumuz 💛</T></View></View><RoundButton icon="down" label="Yolculuğunu değiştir" onPress={()=>open('journey')}/></View>
     <View style={s.babyGrid}>
       {babyActions.map(a=>(
-        <Tap key={a.type} onPress={()=>open('log',{type:a.type})} label={a.type+' kaydı ekle'} style={s.babyAction}>
+        <Tap
+          key={a.type}
+          onPress={() => {
+            if (a.type === 'Emzirme' || a.type === 'Biberon') open('nursingTimer');
+            else if (a.type === 'Uyku') open('sleepWhiteNoise');
+            else if (a.type === 'Bez') open('diaperTracker');
+            else open('log', { type: a.type });
+          }}
+          label={a.type+' kaydı ekle'}
+          style={s.babyAction}
+        >
           <View style={[s.babyCard, { backgroundColor: a.bg, borderColor: a.border }]}>
             <View style={s.babyHeroBox}>
               {generatedAssets[a.key] ? (
@@ -355,7 +453,35 @@ export function Baby({state,open}) {
       ))}
     </View>
     <Section title="Bugünkü kayıtlar" action="Tümünü gör" onPress={()=>open('records')}/><RecordList records={records}/>
-    <Tap onPress={()=>open('log',{type:'Uyku'})} style={s.nextSleep}><View style={s.sleepIcon}>{generatedAssets['banner_next_sleep'] ? <Image source={generatedAssets['banner_next_sleep']} style={{width:54,height:54}} resizeMode="contain"/> : <Icon name="moon" size={42} color="white" fill="#AE98D4"/>}</View><View style={{flex:1}}><T style={{fontSize:13}}>Bir sonraki uyku zamanı</T><T bold style={{fontSize:22,marginTop:5}}>1 sa 15 dk</T><T style={{fontSize:11,marginTop:6}}>{state.babyName} genellikle 21:00 civarı uyuyor.</T></View></Tap>
+    <Tap onPress={()=>open('sleepWhiteNoise')} style={s.nextSleep}><View style={s.sleepIcon}>{generatedAssets['banner_next_sleep'] ? <Image source={generatedAssets['banner_next_sleep']} style={{width:54,height:54}} resizeMode="contain"/> : <Icon name="moon" size={42} color="white" fill="#AE98D4"/>}</View><View style={{flex:1}}><T style={{fontSize:13}}>Bir sonraki uyku zamanı</T><T bold style={{fontSize:22,marginTop:5}}>1 sa 15 dk</T><T style={{fontSize:11,marginTop:6}}>{state.babyName} genellikle 21:00 civarı uyuyor. Beyaz gürültü aç →</T></View></Tap>
+
+    {/* Bebek Bakım Rehberleri */}
+    <View style={{marginTop:10}}>
+      <Section title="Bebek Bakımı & Gelişim Rehberleri" action="Tümünü gör" onPress={()=>open('topicHub')}/>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:12,paddingBottom:4}}>
+        {articles.filter(a=>a.topic==='baby'||a.topic==='postpartum').slice(0,5).map(art=>(
+          <Tap
+            key={art.id}
+            onPress={()=>open('editorialArticle',{article:art})}
+            label={art.title}
+            style={{width:220,borderRadius:18,backgroundColor:'#FFFFFF',overflow:'hidden',borderWidth:1,borderColor:'#EBE2EB',...shadow}}
+          >
+            {generatedAssets[art.image] && (
+              <View style={{height:110,backgroundColor:'#EEF4F7'}}>
+                <Image source={generatedAssets[art.image]} style={StyleSheet.absoluteFill} resizeMode="cover"/>
+                <View style={{position:'absolute',top:8,right:8,backgroundColor:'#00000077',paddingHorizontal:7,paddingVertical:2,borderRadius:8}}>
+                  <T style={{fontSize:10,color:'white'}}>⏱️ {art.minutes} dk</T>
+                </View>
+              </View>
+            )}
+            <View style={{padding:12}}>
+              <T bold numberOfLines={2} style={{fontSize:13,color:colors.ink,lineHeight:18}}>{art.title}</T>
+              <T numberOfLines={1} style={{fontSize:11,color:colors.muted,marginTop:4}}>{art.subtitle}</T>
+            </View>
+          </Tap>
+        ))}
+      </ScrollView>
+    </View>
   </Page>;
 }
 
@@ -364,11 +490,85 @@ const products=[{id:'food',title:'Organik bebek maması\n6+ ay',type:'jar'},{id:
 export function Discover({state,update,open}) {
   const [tab,setTab]=useState('Sana özel'); const [search,setSearch]=useState(''); const [category,setCategory]=useState(null);
   const shown=products.filter(p=>p.title.toLocaleLowerCase('tr').includes(search.toLocaleLowerCase('tr'))&&(!category||p.type===category||category==='bowl'&&p.type==='jar'));
+  const matchingArticles = search ? searchArticles(search) : [];
+
   return <Page contentStyle={{gap:10}}>
     <T bold style={s.pageTitle}>Keşfet</T>
     <View style={s.search}><Icon name="search" size={20} color="#6D6B72"/><TextInput value={search} onChangeText={setSearch} placeholder="Makale, ürün veya konu ara..." placeholderTextColor="#89818A" style={s.searchInput} accessibilityLabel="İçerik ara"/>{search?<Tap onPress={()=>setSearch('')} label="Aramayı temizle"><Icon name="close" size={17}/></Tap>:null}</View>
     <Tabs items={['Sana özel','Uzmanlardan','Alışveriş','Videolar']} active={tab} onChange={setTab}/>
-    {tab!=='Alışveriş'&&!search&&<Tap onPress={()=>open('article',{video:tab==='Videolar'})} style={s.article}><Image source={assets.mother} style={s.articleImage}/><LinearGradient colors={['#EBDDD3','#EBDDD300']} start={{x:0,y:0}} end={{x:0.78,y:0}} style={StyleSheet.absoluteFill}/><T style={s.articleTag}>{tab==='Videolar'?'Yakında · video':'Uzman yazısı'}</T><View style={s.articleCopy}><T bold style={{fontSize:19,lineHeight:25}}>Bebeğinizle güvenli{ '\n' }bağ kurmanın 5 yolu</T><T style={{fontSize:12,marginTop:10}}>Uzman Psikolog Derya Kaya</T></View><View style={s.articleArrow}><Icon name="chevron" size={20}/></View></Tap>}
+
+    {/* Hızlı Erişim: Besin Güvenliği & Konu Hub */}
+    <View style={{flexDirection:'row',gap:10}}>
+      <Tap
+        onPress={() => open('foodSafety')}
+        label="Gıda Güvenliği"
+        style={{flex:1,height:78,borderRadius:18,overflow:'hidden',padding:12,justifyContent:'center',...shadow}}
+      >
+        <LinearGradient colors={['#648575', '#496A5B']} style={StyleSheet.absoluteFill}/>
+        <T style={{color:'#C6E3D4',fontSize:9,letterSpacing:0.5}}>GIDA REHBERİ</T>
+        <T bold style={{color:'white',fontSize:13,marginTop:2}}>Besin Güvenliği</T>
+        <T style={{color:'#D9EBE1',fontSize:10,marginTop:2}}>Yenebilir mi? →</T>
+      </Tap>
+
+      <Tap
+        onPress={() => open('topicHub')}
+        label="SSS ve Koleksiyonlar"
+        style={{flex:1,height:78,borderRadius:18,overflow:'hidden',padding:12,justifyContent:'center',...shadow}}
+      >
+        <LinearGradient colors={['#9A779A', '#724D72']} style={StyleSheet.absoluteFill}/>
+        <T style={{color:'#F0DCF0',fontSize:9,letterSpacing:0.5}}>BİLGİ BANKASI</T>
+        <T bold style={{color:'white',fontSize:13,marginTop:2}}>SSS & Rehberler</T>
+        <T style={{color:'#EBD9EB',fontSize:10,marginTop:2}}>30+ Soru Cevap →</T>
+      </Tap>
+    </View>
+
+    {/* Arama Sonuçlarında Makaleler */}
+    {search && matchingArticles.length > 0 ? (
+      <View style={{gap:10,marginTop:6}}>
+        <Section title={`Makaleler (${matchingArticles.length})`} />
+        {matchingArticles.map(a => (
+          <Tap key={a.id} onPress={()=>open('editorialArticle',{article:a})} style={[s.product,{backgroundColor:'#FFFFFF',padding:12}]}>
+            <T bold style={{fontSize:14,color:colors.ink}}>{a.title}</T>
+            <T style={{fontSize:12,color:colors.muted,marginTop:4}}>{a.subtitle}</T>
+            <View style={{flexDirection:'row',alignItems:'center',gap:10,marginTop:8}}>
+              <T style={{fontSize:11,color:colors.purple}}>⏱️ {a.minutes} dk okuma</T>
+              {a.doctor && <T style={{fontSize:11,color:colors.muted}}>• {a.doctor.split('·')[0]}</T>}
+            </View>
+          </Tap>
+        ))}
+      </View>
+    ) : null}
+
+    {tab==='Uzmanlardan'&&!search&&(
+      <View style={{gap:12}}>
+        <Section title="Öne Çıkan Uzman Makaleleri" action="Tümünü gör" onPress={()=>open('topicHub')}/>
+        {articles.slice(0, 5).map(a => (
+          <Tap
+            key={a.id}
+            onPress={() => open('editorialArticle', { article: a })}
+            label={a.title}
+            style={{backgroundColor:'#FFFFFF',borderRadius:18,padding:14,borderWidth:1,borderColor:'#EDE4ED',...shadow}}
+          >
+            <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
+              <View style={{backgroundColor:'#F3ECF5',paddingHorizontal:8,paddingVertical:3,borderRadius:10}}>
+                <T style={{fontSize:10,color:colors.purple}}>Uzman Rehberi</T>
+              </View>
+              <T style={{fontSize:11,color:colors.muted}}>⏱️ {a.minutes} dk</T>
+            </View>
+            <T bold style={{fontSize:15,color:colors.ink,marginTop:8,lineHeight:21}}>{a.title}</T>
+            <T style={{fontSize:12,color:'#615A68',marginTop:4,lineHeight:18}}>{a.subtitle}</T>
+            {a.doctor && (
+              <View style={{flexDirection:'row',alignItems:'center',gap:6,marginTop:10,paddingTop:8,borderTopWidth:1,borderColor:'#F5EDF5'}}>
+                <T style={{fontSize:14}}>👩‍⚕️</T>
+                <T style={{fontSize:11,color:colors.purple}}>{a.doctor}</T>
+              </View>
+            )}
+          </Tap>
+        ))}
+      </View>
+    )}
+
+    {tab!=='Alışveriş'&&tab!=='Uzmanlardan'&&!search&&<Tap onPress={()=>open('editorialArticle')} style={s.article}><Image source={assets.mother} style={s.articleImage}/><LinearGradient colors={['#EBDDD3','#EBDDD300']} start={{x:0,y:0}} end={{x:0.78,y:0}} style={StyleSheet.absoluteFill}/><T style={s.articleTag}>{tab==='Videolar'?'Yakında · video':'Uzman yazısı · Sesli dinle'}</T><View style={s.articleCopy}><T bold style={{fontSize:19,lineHeight:25}}>İkinci Trimesterda{ '\n' }Güvenli Uyku Pozisyonları</T><T style={{fontSize:12,marginTop:10}}>Uzman Dr. Elif Kaya · 4 dk okuma</T></View><View style={s.articleArrow}><Icon name="chevron" size={20}/></View></Tap>}
     {tab!=='Uzmanlardan'&&tab!=='Videolar'&&<><Section title="Senin için öneriler" action={category?'Filtreyi kaldır':'Tümünü gör'} onPress={()=>category?setCategory(null):open('categories')}/><View style={s.categories}>{categories.map(c=><Tap label={c.title} key={c.title} onPress={()=>setCategory(category===c.type?null:c.type)} accessibilityState={{selected:category===c.type}} style={[s.category,{backgroundColor:c.color,borderColor:category===c.type?colors.purple:c.color}]}><ProductArt type={c.type} size={52}/><T bold style={{fontSize:13}}>{c.title}</T></Tap>)}</View><Section title={search?'Arama sonuçları':'Öne çıkan ürünler'} action="Sponsorlu" onPress={()=>open('sponsored')}/><View style={[s.row,{gap:10,alignItems:'stretch'}]}>{shown.map(p=><View key={p.id} style={s.product}><ProductArt type={p.type} size={69}/><Tap label={p.title.replace('\n',' ')+' kaydet'} onPress={()=>update(old=>({favorites:old.favorites.includes(p.id)?old.favorites.filter(id=>id!==p.id):[...old.favorites,p.id]}))} style={s.productPlus}><Icon name={state.favorites.includes(p.id)?'check':'plus'} size={18}/></Tap><T bold style={{fontSize:12,lineHeight:17}}>{p.title}</T></View>)}</View>{!shown.length&&<Card><T>Bu aramada ürün bulunamadı.</T><Tap style={{marginTop:12}} onPress={()=>{setCategory(null);setSearch('')}}><T bold>Tüm ürünleri göster</T></Tap></Card>}</>}
     {tab==='Videolar'&&<Card><T bold>Birlikte öğrenelim</T><T style={{lineHeight:23,marginTop:8}}>Video içerikleri henüz eklenmedi. Hazır olduğunda bu alanda bulabileceksin.</T></Card>}
   </Page>;
@@ -376,12 +576,17 @@ export function Discover({state,update,open}) {
 
 export function Assistant({state,update,open}) {
   const [message,setMessage]=useState('');
-  const prompts=['Bu hafta beni neler bekliyor?','Emzirme kaydına bak','Doktor randevumu hatırlat','Lohusalıkta nelere dikkat etmeli?'];
+  const prompts=['Mide bulantısı ne zaman geçer?','Bebeğimin tekmelerini ne zaman hissederim?','Kahve içebilir miyim?','Kordon dolanması tehlikeli mi?'];
   function send(value) {
     const clean=(value||message).trim();if(!clean)return;
-    update(old=>({messages:[...old.messages,{id:Date.now().toString(),text:clean}],notes:[...old.notes,{id:Date.now().toString(),text:clean}]}));setMessage('');Keyboard.dismiss();open('assistantAnswer',{question:clean});
+    const matchedFaqs = searchFaqs(clean);
+    const bestFaq = matchedFaqs.length > 0 ? matchedFaqs[0] : null;
+    update(old=>({messages:[...old.messages,{id:Date.now().toString(),text:clean}],notes:[...old.notes,{id:Date.now().toString(),text:clean}]}));
+    setMessage('');
+    Keyboard.dismiss();
+    open('assistantAnswer',{question:clean, answer: bestFaq ? bestFaq.a : null, faq: bestFaq});
   }
-  function promptAction(p,i){if(i===1)open('records');else if(i===2)open('appointment');else send(p)}
+  function promptAction(p,i){send(p)}
   return <Page contentStyle={{gap:11}}>
     <View style={s.assistantHeader}><BrandMark size={51} outline/><T bold style={s.assistantTitle}>Momora Asistan</T><T style={{color:'#86668F',fontSize:15,marginTop:5}}>Sor, paylaş, birlikte düşünelim. 💜</T></View>
     <Card style={s.bubble}><T style={{fontSize:16,lineHeight:23}}>Merhaba! Ben Momora Asistan.{ '\n' }Hamilelik, bebek bakımı, lohusalık ve günlük yaşamda aklına takılan konularda sana rehberlik etmek için buradayım. 🌿</T></Card>
