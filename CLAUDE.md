@@ -1,1 +1,3 @@
 @AGENTS.md
+
+@MOMORA_AI_RULES.md
