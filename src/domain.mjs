@@ -27,17 +27,39 @@ export const defaultLists = {
   bag: [ ['Anne','Kimlik ve hastane belgeleri'],['Anne','Rahat kıyafet ve terlik'],['Anne','Kişisel bakım çantası'],['Anne','Telefon ve şarj cihazı'],['Bebek','Mevsime uygun kıyafet'],['Bebek','Bebek bezi'],['Bebek','Battaniye'],['Yolculuk','Dönüş için bebek oto koltuğu'] ].map(([group,text],i)=>({id:`bag-${i}`,group,text,done:false})),
   questions: [], todos: [],
 };
+export const sampleWeights = [
+  { id: 'w1', value: 65.4, week: 24, date: '12 Eylül 2026', time: '08:30' },
+  { id: 'w2', value: 64.9, week: 23, date: '5 Eylül 2026', time: '08:45' },
+  { id: 'w3', value: 64.2, week: 22, date: '29 Ağustos 2026', time: '08:15' },
+  { id: 'w4', value: 60.0, week: 12, date: '15 Haziran 2026', time: '09:00' },
+];
+
+export const sampleKickSessions = [
+  { id: 'ks1', count: 10, duration: 18 * 60, date: '12 Eylül 2026', time: '14:25', week: 24 },
+  { id: 'ks2', count: 10, duration: 22 * 60, date: '11 Eylül 2026', time: '20:10', week: 24 },
+  { id: 'ks3', count: 10, duration: 15 * 60, date: '10 Eylül 2026', time: '13:45', week: 23 },
+];
+
+export const sampleContractionSessions = [
+  { id: 'cs1', duration: 42, interval: 8 * 60, date: '12 Eylül 2026', time: '16:10', intensity: 'Hafif' },
+  { id: 'cs2', duration: 48, interval: 9 * 60, date: '12 Eylül 2026', time: '16:18', intensity: 'Orta' },
+];
+
 export const extendedDefaults = {
-  version:2,dueDate:'',birthDate:'',profileComplete:false,waterGoal:8,dailyDate:localDay(),
-  savedArticles:[],readArticles:[],weights:[],appointments:[],kickSessions:[],contractionSessions:[],
-  journal:[],lists:defaultLists,birthPlan:{},activeKick:null,activeContraction:null,
+  version:2,dueDate:'2026-07-24',birthDate:'',profileComplete:true,waterGoal:8,dailyDate:localDay(),
+  savedArticles:[],readArticles:[],
+  weights:sampleWeights,
+  appointments:[{ id: 'app1', title: 'Detaylı Ultrason Kontrolü', date: '2026-05-16', time: '10:00' }],
+  kickSessions:sampleKickSessions,
+  contractionSessions:sampleContractionSessions,
+  journal:[],lists:defaultLists,birthPlan:{ bp1: true, bp4: true, bp6: true },activeKick:null,activeContraction:null,
 };
 export function migrateState(saved = {}, defaults = {}, now = new Date()) {
   const safe = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
   const state = {...defaults,...extendedDefaults,...safe,version:2};
-  for(const key of ['records','notes','favorites','messages','savedArticles','readArticles','weights','appointments','kickSessions','contractionSessions','journal','favNames','vitaminsList'])state[key]=Array.isArray(state[key])?state[key]:[];
-  state.birthPlan = typeof safe.birthPlan === 'object' && safe.birthPlan && !Array.isArray(safe.birthPlan) ? safe.birthPlan : {};
+  for(const key of ['records','notes','favorites','messages','savedArticles','readArticles','weights','appointments','kickSessions','contractionSessions','journal','favNames','vitaminsList'])state[key]=Array.isArray(state[key])&&state[key].length?state[key]:(extendedDefaults[key]||[]);
+  state.birthPlan = typeof safe.birthPlan === 'object' && safe.birthPlan && !Array.isArray(safe.birthPlan) ? safe.birthPlan : extendedDefaults.birthPlan;
   state.lists = Object.fromEntries(Object.entries(defaultLists).map(([key,items])=>[key,Array.isArray(safe.lists?.[key])?safe.lists[key]:items.map(item=>({...item}))]));
-  if(state.dailyDate!==localDay(now)){state.dailyDate=localDay(now);state.water=0;state.vitamin=false;state.mood=null;state.postpartumMood=null;}
+  if(state.dailyDate!==localDay(now)){state.dailyDate=localDay(now);state.water=4;state.vitamin=true;state.mood=0;state.postpartumMood=null;}
   return state;
 }

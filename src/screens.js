@@ -10,6 +10,7 @@ import { usePulse, useCrossFade } from './anim';
 import { articles, searchArticles, searchFaqs } from './content';
 import { TopicHubScreen } from './ExploreScreens';
 import { CommunityHub } from './CommunityScreens';
+import { getBabyLetterForWeek } from './babyLettersData';
 
 export const journeys = [
   { key: 'pregnancy', title: 'Hamileyim', sub: 'Bebeğimle tanışmaya\nhazırlanıyorum', image: assets.pregnancy, tint: '#F5E7E8' },
@@ -253,28 +254,66 @@ function ComparisonHero({ week, info, onPress }) {
 
 // ─── Hamilelik Ekranı ─────────────────────────────────────────────────────────
 export function Pregnancy({ state, update, open }) {
+  const [timelineDay, setTimelineDay] = useState('bugun'); // 'dun' | 'bugun' | 'yarin'
   const week = state.week ?? 24;
   const info = getWeekInfo(week);
+  const letter = getBabyLetterForWeek(week);
+
   // Hafta şeridi: mevcut hafta ±5, tüm geçerli hafta aralığında
   const strip = [];
   for (let w = Math.max(4, week - 4); w <= Math.min(TOTAL_WEEKS, week + 5); w++) strip.push(w);
 
+  const moodLabels = ['Harika ✨', 'İyi 💛', 'Normal 🌿', 'Yorgun 🛌', 'Zor 💜'];
+
+  const timelineContent = {
+    dun: {
+      baby: 'Bebeğinizin parmak uçlarında minik dokunma reseptörleri aktifleşti.',
+      mom: 'Bel bölgenizde hafif tatlı bir ağırlık hissi oluşmuş olabilir.',
+      tip: 'Akşam 20 dakikalık hafif tempolu temiz hava yürüyüşü uyku kalitenizi artırır.',
+    },
+    bugun: {
+      baby: 'Bugün ilk hıçkırık refleksleri başlayabilir; bu durum diyafram kaslarını doğuma hazırlar!',
+      mom: 'Kan hacminiz %40 arttı; hafif burun tıkanıklığı bu dönemde çok yaygındır.',
+      tip: 'Magnezyum ve kalsiyum açısından zengin bir avuç badem tüketmek kas kramplarını önler.',
+    },
+    yarin: {
+      baby: 'Yüz mimik kasları gülümseme ve kaş çatma hareketlerini denemeye devam ediyor.',
+      mom: 'Enerjiniz yüksek seyredebilir; bebek odası planlamaları için harika bir gün.',
+      tip: 'Günün sonunda ayaklarınızı bir yastıkla yukarı kaldırarak dinlendirmeyi unutmayın.',
+    },
+  };
+
+  const tc = timelineContent[timelineDay];
+
   return <Page>
-    {/* Üst başlık */}
+    {/* ─── 1. ÜST BAŞLIK & GERİ SAYIM ─── */}
     <View style={s.topline}>
       <View>
-        <T bold style={{color:'#684574',fontSize:17}}>Merhaba, {state.name} <T>🌸</T></T>
-        <T style={s.subtitle}>Harika gidiyorsun!</T>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <T bold style={{ color: '#684574', fontSize: 18 }}>Merhaba, {state.name}</T>
+          <T style={{ fontSize: 18 }}>🌸</T>
+        </View>
+        <T style={s.subtitle}>Bugün: 12 Eylül Cumartesi · {week}. Hafta 5. Gün</T>
       </View>
       <Tap onPress={() => open('appointment')} label="Randevularım" style={s.iconHit}>
         <Icon name="bell" size={26}/>
       </Tap>
     </View>
 
-    {/* Hafta şeridi — yatay kaydırmalı */}
+    {/* Geri Sayım Rozet Şeridi */}
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F6EFF7', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 14 }}>
+      <T bold style={{ fontSize: 12, color: colors.purple }}>
+        ⏳ Doğuma {(40 - week) * 7} Gün Kaldı
+      </T>
+      <T style={{ fontSize: 11, color: '#7E6184' }}>
+        Bebeğin: {state.babyName || 'Ada'} ({state.babyGender || 'Kız'})
+      </T>
+    </View>
+
+    {/* ─── 2. HAFTA ŞERİDİ ─── */}
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.weekStrip}>
       {strip.map(n => (
-        <Tap key={n} label={`${n}. hafta`} onPress={() => update({week:n})}
+        <Tap key={n} label={n + '. hafta'} onPress={() => update({week:n})}
           accessibilityState={{selected: week === n}}
           style={[s.weekPill, week === n && s.weekActive]}>
           <T style={[{fontSize:13}, week === n && {color:'white',fontFamily:fonts.bold}]}>{n}</T>
@@ -285,33 +324,189 @@ export function Pregnancy({ state, update, open }) {
       ))}
     </ScrollView>
 
-    {/* 3'lü Kıyaslama ve Ultrason Hero */}
+    {/* ─── 3. 3'LÜ KIYASLAMA & ULTRASON HERO ─── */}
     <ComparisonHero week={week} info={info} onPress={() => open('week', {week})} />
 
-    {/* Bebeğin Günlük Mektubu (Happy Mom Sırrı) */}
-    <Tap
-      onPress={() => open('babyLetter')}
-      label="Bebeğin günlük mektubunu oku"
-      style={{borderRadius:20,overflow:'hidden',backgroundColor:'#FFFDF9',borderWidth:1.5,borderColor:'#EFE0D8',padding:14,...shadow}}
-    >
-      <View style={[s.row,{gap:10}]}>
-        <View style={{width:40,height:40,borderRadius:20,backgroundColor:'#F8E8EC',alignItems:'center',justifyContent:'center'}}>
-          <T style={{fontSize:20}}>💌</T>
-        </View>
-        <View style={{flex:1}}>
-          <View style={[s.row,{justifyContent:'space-between'}]}>
-            <T bold style={{fontSize:13,color:colors.purple}}>Bebeğinden Yeni Mektup</T>
-            <T style={{fontSize:10,color:colors.muted}}>Bugün</T>
+    {/* ─── 4. BEBEĞİN GÜNLÜK MEKTUBU (DOĞRUDAN SAYFADA AÇIK PARŞÖMEN) ─── */}
+    <Card style={{ padding: 16, backgroundColor: '#FFFDF9', borderColor: '#EFE0D8' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#FCEEF2', alignItems: 'center', justifyContent: 'center' }}>
+            <T style={{ fontSize: 18 }}>💌</T>
           </View>
-          <T numberOfLines={2} style={{fontSize:12,color:'#554050',marginTop:3,lineHeight:17}}>
-            “Anneciğim merhaba! Bugün minicik parmak izlerim oluştu, sesini duyabiliyorum...”
-          </T>
+          <View>
+            <T bold style={{ fontSize: 14, color: colors.purple }}>Bebeğinden Günün Mektubu</T>
+            <T style={{ fontSize: 10, color: colors.muted }}>{letter.dayText || (week + '. Hafta Mektubu')}</T>
+          </View>
         </View>
-        <Icon name="chevron" size={16} color={colors.purple}/>
+        <Tap onPress={() => open('babyLetter')} style={{ padding: 4 }}>
+          <T bold style={{ fontSize: 11, color: colors.purple }}>Arşiv (24) →</T>
+        </Tap>
       </View>
-    </Tap>
 
-    {/* Medikal İnceleme & Gelişim Şeridi */}
+      <T style={{ fontSize: 13.5, color: '#4B3F4B', lineHeight: 21, fontStyle: 'italic' }}>
+        "{letter.text}"
+      </T>
+
+      {letter.milestone ? (
+        <View style={{ marginTop: 10, backgroundColor: '#FAF3EF', padding: 8, borderRadius: 10 }}>
+          <T style={{ fontSize: 11, color: '#885842' }}>🌱 Gelişim Notu: {letter.milestone}</T>
+        </View>
+      ) : null}
+
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, paddingTop: 8, borderTopWidth: 1, borderColor: '#F5ECE5' }}>
+        <T style={{ fontSize: 11, color: colors.muted }}>Seni çok seven bebeğin 💛</T>
+        <Tap onPress={() => open('babyLetter')} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          <T bold style={{ fontSize: 11, color: colors.purple }}>Eşime Gönder</T>
+          <Icon name="chevron" size={12} color={colors.purple}/>
+        </Tap>
+      </View>
+    </Card>
+
+    {/* ─── 5. GÜNLÜK AKIŞ & ZAMAN TÜNELİ (DÜN - BUGÜN - YARIN) ─── */}
+    <Card style={{ padding: 15 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <T bold style={{ fontSize: 15, color: colors.ink }}>⏱️ Günlük Gelişim Akışı</T>
+        {/* Dün - Bugün - Yarın Sekmeleri */}
+        <View style={{ flexDirection: 'row', backgroundColor: '#EFE7F0', borderRadius: 12, padding: 2 }}>
+          {[
+            { id: 'dun', label: 'Dün' },
+            { id: 'bugun', label: 'Bugün ✨' },
+            { id: 'yarin', label: 'Yarın' },
+          ].map(d => (
+            <Tap
+              key={d.id}
+              onPress={() => setTimelineDay(d.id)}
+              style={[
+                { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 10 },
+                timelineDay === d.id && { backgroundColor: 'white', ...shadow },
+              ]}
+            >
+              <T bold={timelineDay === d.id} style={{ fontSize: 11, color: timelineDay === d.id ? colors.purple : colors.muted }}>
+                {d.label}
+              </T>
+            </Tap>
+          ))}
+        </View>
+      </View>
+
+      <View style={{ gap: 8 }}>
+        <View style={{ flexDirection: 'row', gap: 10, backgroundColor: '#FAF6FA', padding: 10, borderRadius: 12 }}>
+          <T style={{ fontSize: 18 }}>🍼</T>
+          <View style={{ flex: 1 }}>
+            <T bold style={{ fontSize: 12, color: colors.purple }}>Bebeğin</T>
+            <T style={{ fontSize: 12.5, color: '#4E4252', marginTop: 1, lineHeight: 17 }}>{tc.baby}</T>
+          </View>
+        </View>
+
+        <View style={{ flexDirection: 'row', gap: 10, backgroundColor: '#FDF3F5', padding: 10, borderRadius: 12 }}>
+          <T style={{ fontSize: 18 }}>💜</T>
+          <View style={{ flex: 1 }}>
+            <T bold style={{ fontSize: 12, color: '#A03B64' }}>Bedenin</T>
+            <T style={{ fontSize: 12.5, color: '#563D4A', marginTop: 1, lineHeight: 17 }}>{tc.mom}</T>
+          </View>
+        </View>
+
+        <View style={{ flexDirection: 'row', gap: 10, backgroundColor: '#F3F8F4', padding: 10, borderRadius: 12 }}>
+          <T style={{ fontSize: 18 }}>🌿</T>
+          <View style={{ flex: 1 }}>
+            <T bold style={{ fontSize: 12, color: '#38734A' }}>Günün Tavsiyesi</T>
+            <T style={{ fontSize: 12.5, color: '#3A5442', marginTop: 1, lineHeight: 17 }}>{tc.tip}</T>
+          </View>
+        </View>
+      </View>
+    </Card>
+
+    {/* ─── 6. BUGÜNÜN CANLI TAKİP GÜNLÜĞÜ (CHECKLIST & KAYIT LİSTESİ) ─── */}
+    <Card style={{ padding: 16 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <T style={{ fontSize: 16 }}>📋</T>
+          <T bold style={{ fontSize: 15, color: colors.ink }}>Bugünün Takip Günlüğü</T>
+        </View>
+        <Tap onPress={() => open('toolsHub')} style={{ padding: 4 }}>
+          <T bold style={{ fontSize: 11, color: colors.purple }}>Tüm Sayaçlar →</T>
+        </Tap>
+      </View>
+
+      <View style={{ gap: 8 }}>
+        {/* 1. Su Takibi */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderColor: '#F2EAF3' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <T style={{ fontSize: 16 }}>💧</T>
+            <View>
+              <T bold style={{ fontSize: 13 }}>Su Takibi ({state.water || 4}/8 Bardak)</T>
+              <T style={{ fontSize: 11, color: colors.muted }}>{(state.water * 0.25).toFixed(1)} / 2.0 Litre tamamlandı</T>
+            </View>
+          </View>
+          <Tap onPress={() => update(old => ({ water: Math.min(12, (old.water || 0) + 1) }))} style={{ backgroundColor: '#EDF5F8', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
+            <T bold style={{ fontSize: 11, color: '#367B9E' }}>+1 Bardak</T>
+          </Tap>
+        </View>
+
+        {/* 2. Vitamin Takibi */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderColor: '#F2EAF3' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <T style={{ fontSize: 16 }}>💊</T>
+            <View>
+              <T bold style={{ fontSize: 13 }}>Sabah Vitamini (Folik Asit & Demir)</T>
+              <T style={{ fontSize: 11, color: state.vitamin ? '#3A8253' : colors.muted }}>
+                {state.vitamin ? 'Bugün alındı ✓' : 'Günlük doz bekleniyor'}
+              </T>
+            </View>
+          </View>
+          <Tap onPress={() => update(old => ({ vitamin: !old.vitamin }))} style={{ backgroundColor: state.vitamin ? '#EBF5ED' : '#F7ECEB', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
+            <T bold style={{ fontSize: 11, color: state.vitamin ? '#2E6E43' : '#A8453E' }}>
+              {state.vitamin ? 'Alındı ✓' : 'Alındı İşaretle'}
+            </T>
+          </Tap>
+        </View>
+
+        {/* 3. Tekme Takibi */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderColor: '#F2EAF3' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <T style={{ fontSize: 16 }}>🦶</T>
+            <View>
+              <T bold style={{ fontSize: 13 }}>Tekme Sayımı (Fetal Hareket)</T>
+              <T style={{ fontSize: 11, color: colors.muted }}>Son seans: 10 tekme · 18 dk (Bugün)</T>
+            </View>
+          </View>
+          <Tap onPress={() => open('kickCounter')} style={{ backgroundColor: '#FAF1F5', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
+            <T bold style={{ fontSize: 11, color: '#A03B64' }}>Seans Başlat</T>
+          </Tap>
+        </View>
+
+        {/* 4. Kilo Takibi */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderColor: '#F2EAF3' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <T style={{ fontSize: 16 }}>⚖️</T>
+            <View>
+              <T bold style={{ fontSize: 13 }}>Kilo Takibi (65.4 kg)</T>
+              <T style={{ fontSize: 11, color: '#3A8253' }}>+5.4 kg toplam (İdeal IOM koridorunda)</T>
+            </View>
+          </View>
+          <Tap onPress={() => open('weight')} style={{ backgroundColor: '#EEF5F1', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
+            <T bold style={{ fontSize: 11, color: '#34754B' }}>Kilo Kaydet</T>
+          </Tap>
+        </View>
+
+        {/* 5. Ruh Hali */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <T style={{ fontSize: 16 }}>🌸</T>
+            <View>
+              <T bold style={{ fontSize: 13 }}>Günün Ruh Hali: {moodLabels[state.mood ?? 0]}</T>
+              <T style={{ fontSize: 11, color: colors.muted }}>Pozitif enerji bebeğine yansıyor</T>
+            </View>
+          </View>
+          <Tap onPress={() => open('dailyMood')} style={{ backgroundColor: '#F3ECF5', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
+            <T bold style={{ fontSize: 11, color: colors.purple }}>Değiştir</T>
+          </Tap>
+        </View>
+      </View>
+    </Card>
+
+    {/* ─── 7. MEDİKAL İNCELEME & GELİŞİM ŞERİDİ ─── */}
     <View style={[s.row,{gap:8}]}>
       <Tap
         onPress={() => open('ultrasoundAtlas')}
@@ -337,20 +532,12 @@ export function Pregnancy({ state, update, open }) {
         <T style={{fontSize:16}}>📅</T>
         <T bold style={{fontSize:11,color:colors.ink,marginTop:3}}>Tıbbi Takvim</T>
       </Tap>
-      <Tap
-        onPress={() => open('timelineFeed')}
-        label="Zaman tünelini aç"
-        style={{flex:1,padding:10,borderRadius:16,backgroundColor:'#FBF6EB',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#EDE2C8'}}
-      >
-        <T style={{fontSize:16}}>⏱️</T>
-        <T bold style={{fontSize:11,color:colors.ink,marginTop:3}}>Günlük Akış</T>
-      </Tap>
     </View>
 
-    {/* Bebek bu hafta — hızlı 3 madde */}
+    {/* ─── 8. BEBEK BU HAFTA ─── */}
     <Card style={{padding:14}}>
       <View style={[s.row,{gap:8,marginBottom:10}]}>
-        <T bold style={{fontSize:15}}>🍼 Bebeğinde bu hafta</T>
+        <T bold style={{fontSize:15}}>🍼 Bebeğinde bu hafta ({week}. Hafta)</T>
       </View>
       {info.baby.map((b,i) => (
         <View key={i} style={[s.row,{gap:8,marginBottom:i<info.baby.length-1?8:0}]}>
@@ -364,10 +551,7 @@ export function Pregnancy({ state, update, open }) {
       </Tap>
     </Card>
 
-    {/* Ruh hali */}
-    <Card style={{padding:12}}><MoodPicker value={state.mood} onChange={mood => update({mood})}/></Card>
-
-    {/* Randevu kartı */}
+    {/* ─── 9. RANDEVU KARTI ─── */}
     <Tap onPress={() => open('appointment')} style={s.appointment}>
       <View style={{flex:1}}>
         <T style={{fontSize:13}}>{state.appointment.title}</T>
@@ -379,38 +563,7 @@ export function Pregnancy({ state, update, open }) {
       <View style={s.appointmentIcon}><Icon name="bottle" size={23} color="#A69BCF" fill="#E5DDF6"/></View>
     </Tap>
 
-    {/* Su & Vitamin hatırlatıcı */}
-    <View style={[s.row,{gap:9}]}>
-      <Tap onPress={() => update(old=>({water:Math.min(8,old.water+1)}))} label="Bir bardak su ekle" style={{flex:1}}>
-        <LinearGradient colors={['#E8EEEA','#F5F7F2']} style={s.reminder}>
-          {generatedAssets['card_water'] ? (
-            <Image source={generatedAssets['card_water']} style={{width:38,height:38}} resizeMode="contain"/>
-          ) : (
-            <Icon name="cup" size={30} color="#72BDDE"/>
-          )}
-          <View style={{flex:1}}>
-            <T bold style={s.reminderTitle}>Su hatırlatıcı</T>
-            <T style={s.reminderSub}>{state.water}/8 bardak</T>
-            <Progress value={state.water/8*100} color="#B7DBE5" style={{height:6,marginTop:6}}/>
-          </View>
-        </LinearGradient>
-      </Tap>
-      <Tap onPress={() => update(old=>({vitamin:!old.vitamin}))} label="Vitamin alındı durumunu değiştir" style={{flex:1}}>
-        <LinearGradient colors={['#F8E5DE','#FCF5EF']} style={s.reminder}>
-          {generatedAssets['card_vitamin'] ? (
-            <Image source={generatedAssets['card_vitamin']} style={{width:38,height:38}} resizeMode="contain"/>
-          ) : (
-            <Icon name={state.vitamin?'check':'pill'} size={29} color="#E99986"/>
-          )}
-          <View style={{flex:1}}>
-            <T bold style={s.reminderTitle}>Vitamin zamanı</T>
-            <T style={s.reminderSub}>{state.vitamin ? 'Bugün aldın ✓' : 'Günlük dozunu\nunutma'}</T>
-          </View>
-        </LinearGradient>
-      </Tap>
-    </View>
-
-    {/* Gebelik Araçları & Sayaçlar */}
+    {/* ─── 10. GEBELİK SAYAÇLARI & ARAÇLAR ─── */}
     <View style={{marginTop:6}}>
       <Section title="Hazırlık & Sayaçlar" action="Tümü" onPress={()=>open('toolsHub')}/>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:10,paddingBottom:4}}>
@@ -480,7 +633,7 @@ export function Pregnancy({ state, update, open }) {
       </ScrollView>
     </View>
 
-    {/* Uzman Rehberleri & Blog */}
+    {/* ─── 11. HAFTANIN UZMAN REHBERLERİ ─── */}
     <View style={{marginTop:8}}>
       <Section title="Haftanın Uzman Rehberleri" action="Tümünü gör" onPress={()=>open('topicHub')}/>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:12,paddingBottom:4}}>
@@ -509,7 +662,6 @@ export function Pregnancy({ state, update, open }) {
     </View>
   </Page>;
 }
-
 
 export function Postpartum({state,update,open}) {
   const [tab,setTab]=useState('Bugün');

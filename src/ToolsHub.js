@@ -196,6 +196,7 @@ export const allTools = [
 ];
 
 export function ToolsHub({ open, state, update, toast, inSheet = false, close }) {
+  const [hubTab, setHubTab] = useState('tracking'); // 'tracking' | 'apps'
   const [catFilter, setCatFilter] = useState('all');
 
   const categories = [
@@ -210,6 +211,22 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
     ? allTools
     : allTools.filter(t => t.cat === catFilter);
 
+  // Canlı Takip Verileri
+  const kickSessions = (state.kickSessions && state.kickSessions.length) ? state.kickSessions : [
+    { id: 'ks1', count: 10, duration: 18 * 60, date: '12 Eylül 2026', time: '14:25', week: 24 },
+    { id: 'ks2', count: 10, duration: 22 * 60, date: '11 Eylül 2026', time: '20:10', week: 24 },
+  ];
+
+  const contractionSessions = (state.contractionSessions && state.contractionSessions.length) ? state.contractionSessions : [
+    { id: 'cs1', duration: 42, interval: 8 * 60, date: '12 Eylül 2026', time: '16:10', intensity: 'Hafif' },
+    { id: 'cs2', duration: 48, interval: 9 * 60, date: '12 Eylül 2026', time: '16:18', intensity: 'Orta' },
+  ];
+
+  const weights = (state.weights && state.weights.length) ? state.weights : [
+    { id: 'w1', value: 65.4, week: 24, date: '12 Eylül 2026', time: '08:30' },
+    { id: 'w2', value: 64.9, week: 23, date: '5 Eylül 2026', time: '08:45' },
+  ];
+
   const Container = inSheet ? View : ScrollView;
   const containerProps = inSheet
     ? { style: th.container }
@@ -220,113 +237,273 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
       {/* Başlık ve Kicker */}
       <View style={th.header}>
         <T style={{ fontSize: 11, letterSpacing: 1.5, color: colors.purple, fontWeight: '700' }}>
-          SAYAÇLAR, HESAPLAYICILAR & REHBERLER
+          GÜNLÜK TAKİP & SAYAÇ MERKEZİ
         </T>
-        <T bold style={th.title}>Momora Araçlar & Appler</T>
+        <T bold style={th.title}>Momora Takip & Araçlar</T>
         <T style={th.subtitle}>
-          Hamilelikten doğuma ve yenidoğan bakımına kadar ihtiyaç duyacağınız tüm akıllı araçlar.
+          Günlük sayaç kayıtlarınız, vücut takip geçmişiniz ve 15 akıllı medikal araç.
         </T>
       </View>
 
-      {/* Hızlı Aksiyon: Tekme & Kasılma Sayaçları Hero */}
-      <View style={th.quickRow}>
+      {/* ─── ÜST İKİLİ SEKME (TAKİP KAYITLARIM vs TÜM ARAÇLAR) ─── */}
+      <View style={th.hubTabs}>
         <Tap
-          onPress={() => open('kickCounter')}
-          label="Tekme sayacını aç"
-          style={[th.quickHero, { backgroundColor: '#FDF2F5', borderColor: '#F3DBE3' }]}
+          onPress={() => setHubTab('tracking')}
+          label="Takiplerim"
+          style={[th.hubTabBtn, hubTab === 'tracking' && th.hubTabBtnActive]}
         >
-          <View style={th.quickHeroIcon}>
-            {generatedAssets['card_kick_counter'] ? (
-              <Image source={generatedAssets['card_kick_counter']} style={{ width: 44, height: 44 }} resizeMode="contain" />
-            ) : (
-              <Icon name="footprint" size={28} color="#9D5C80" />
-            )}
-          </View>
-          <T bold style={{ fontSize: 15, color: '#632D4C' }}>Tekme Sayacı</T>
-          <T style={{ fontSize: 11.5, color: '#91637F', marginTop: 3 }}>
-            {(state.kickSessions || []).length} seans kayıtlı · 10 tekme kuralı
+          <T bold={hubTab === 'tracking'} style={[th.hubTabLabel, hubTab === 'tracking' && th.hubTabLabelActive]}>
+            📊 Takiplerim & Kayıtlarım ({kickSessions.length + weights.length})
           </T>
         </Tap>
-
         <Tap
-          onPress={() => open('contractionTimer')}
-          label="Kasılma sayacını aç"
-          style={[th.quickHero, { backgroundColor: '#F0F6FB', borderColor: '#D7E5F1' }]}
+          onPress={() => setHubTab('apps')}
+          label="Tüm Araçlar"
+          style={[th.hubTabBtn, hubTab === 'apps' && th.hubTabBtnActive]}
         >
-          <View style={th.quickHeroIcon}>
-            {generatedAssets['card_contractions'] ? (
-              <Image source={generatedAssets['card_contractions']} style={{ width: 44, height: 44 }} resizeMode="contain" />
-            ) : (
-              <Icon name="contraction" size={28} color="#4F79A1" />
-            )}
-          </View>
-          <T bold style={{ fontSize: 15, color: '#274969' }}>Kasılma Sayacı</T>
-          <T style={{ fontSize: 11.5, color: '#567594', marginTop: 3 }}>
-            5-1-1 kuralı · Doğum sinyalleri
+          <T bold={hubTab === 'apps'} style={[th.hubTabLabel, hubTab === 'apps' && th.hubTabLabelActive]}>
+            🛠️ 15 Akıllı Araç
           </T>
         </Tap>
       </View>
 
-      {/* Kategori Filtre Butonları */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
-        {categories.map(c => (
-          <Tap
-            key={c.id}
-            onPress={() => setCatFilter(c.id)}
-            label={c.label}
-            style={[th.catTab, catFilter === c.id && th.catTabActive]}
-          >
-            <T bold={catFilter === c.id} style={{ fontSize: 12, color: catFilter === c.id ? 'white' : colors.ink }}>
-              {c.label}
-            </T>
-          </Tap>
-        ))}
-      </ScrollView>
-
-      {/* Tüm Araçlar Grid */}
-      <View style={th.grid}>
-        {displayedTools.map(tool => (
-          <Tap
-            key={tool.id}
-            onPress={() => {
-              if (tool.available) {
-                open(tool.id);
-              } else {
-                toast && toast(`${tool.title} sonraki güncellemede aktif olacak ✨`);
-              }
-            }}
-            label={tool.title}
-            style={[th.toolCard, { backgroundColor: tool.color }]}
-          >
-            <View style={th.toolTop}>
-              <View style={[th.toolIconBox, { backgroundColor: tool.tint + '18' }]}>
-                {tool.art && generatedAssets[tool.art] ? (
-                  <Image source={generatedAssets[tool.art]} style={{ width: 34, height: 34 }} resizeMode="contain" />
+      {/* ─── 1. BÖLÜM: CANLI TAKİP VE SAYAÇ GEÇMİŞİ LİSTESİ ─── */}
+      {hubTab === 'tracking' && (
+        <View style={{ gap: 14 }}>
+          {/* Hızlı Aksiyon Kartları */}
+          <View style={th.quickRow}>
+            <Tap
+              onPress={() => open('kickCounter')}
+              label="Tekme sayacını aç"
+              style={[th.quickHero, { backgroundColor: '#FDF2F5', borderColor: '#F3DBE3' }]}
+            >
+              <View style={th.quickHeroIcon}>
+                {generatedAssets['card_kick_counter'] ? (
+                  <Image source={generatedAssets['card_kick_counter']} style={{ width: 40, height: 40 }} resizeMode="contain" />
                 ) : (
-                  <Icon name={tool.icon} size={22} color={tool.tint} />
+                  <Icon name="footprint" size={26} color="#9D5C80" />
                 )}
               </View>
-              <View style={th.categoryTag}>
-                <T style={{ fontSize: 9.5, color: tool.tint, fontWeight: 'bold' }}>{tool.catTitle}</T>
+              <T bold style={{ fontSize: 14, color: '#632D4C' }}>Tekme Sayacı</T>
+              <T style={{ fontSize: 11, color: '#91637F', marginTop: 2 }}>
+                Son: 10 tekme · 18 dk
+              </T>
+            </Tap>
+
+            <Tap
+              onPress={() => open('contractionTimer')}
+              label="Kasılma sayacını aç"
+              style={[th.quickHero, { backgroundColor: '#F0F6FB', borderColor: '#D7E5F1' }]}
+            >
+              <View style={th.quickHeroIcon}>
+                {generatedAssets['card_contractions'] ? (
+                  <Image source={generatedAssets['card_contractions']} style={{ width: 40, height: 40 }} resizeMode="contain" />
+                ) : (
+                  <Icon name="contraction" size={26} color="#4F79A1" />
+                )}
               </View>
+              <T bold style={{ fontSize: 14, color: '#274969' }}>Kasılma Sayacı</T>
+              <T style={{ fontSize: 11, color: '#567594', marginTop: 2 }}>
+                5-1-1 kuralı alarmı
+              </T>
+            </Tap>
+          </View>
+
+          {/* 1. Tekme Takip Kayıtları Listesi */}
+          <Card style={{ padding: 16 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <T style={{ fontSize: 18 }}>🦶</T>
+                <T bold style={{ fontSize: 15, color: colors.ink }}>Tekme Seansları Geçmişi</T>
+              </View>
+              <Tap onPress={() => open('kickCounter')} style={{ padding: 4 }}>
+                <T bold style={{ fontSize: 12, color: colors.purple }}>+ Yeni Seans</T>
+              </Tap>
             </View>
-            <T bold style={[th.toolTitle, { color: colors.ink }]}>{tool.title}</T>
-            <T style={th.toolSub}>{tool.subtitle}</T>
-          </Tap>
-        ))}
-      </View>
+
+            <View style={{ gap: 8 }}>
+              {kickSessions.map(ks => (
+                <View key={ks.id} style={th.logRow}>
+                  <View>
+                    <T bold style={{ fontSize: 14, color: colors.ink }}>
+                      {ks.count} Tekme Tamamlandı ✓
+                    </T>
+                    <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                      {ks.date} · {ks.time} · {ks.week ? (ks.week + '. Hafta') : 'Seans'}
+                    </T>
+                  </View>
+                  <View style={th.logBadge}>
+                    <T bold style={{ fontSize: 11, color: colors.purple }}>
+                      {Math.floor(ks.duration / 60)} dk sürdü
+                    </T>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </Card>
+
+          {/* 2. Kasılma Takip Kayıtları Listesi */}
+          <Card style={{ padding: 16 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <T style={{ fontSize: 18 }}>⏱️</T>
+                <T bold style={{ fontSize: 15, color: colors.ink }}>Kasılma Kayıtları (Doğum Sancısı)</T>
+              </View>
+              <Tap onPress={() => open('contractionTimer')} style={{ padding: 4 }}>
+                <T bold style={{ fontSize: 12, color: colors.purple }}>+ Sayacı Başlat</T>
+              </Tap>
+            </View>
+
+            <View style={{ gap: 8 }}>
+              {contractionSessions.map(cs => (
+                <View key={cs.id} style={th.logRow}>
+                  <View>
+                    <T bold style={{ fontSize: 14, color: colors.ink }}>
+                      {cs.duration} saniye sürdü ({cs.intensity || 'Hafif'})
+                    </T>
+                    <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                      {cs.date} · {cs.time}
+                    </T>
+                  </View>
+                  <View style={[th.logBadge, { backgroundColor: '#E9F1F9' }]}>
+                    <T bold style={{ fontSize: 11, color: '#3A6A94' }}>
+                      {Math.floor((cs.interval || 480) / 60)} dk aralık
+                    </T>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </Card>
+
+          {/* 3. Kilo Takibi Listesi */}
+          <Card style={{ padding: 16 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <T style={{ fontSize: 18 }}>⚖️</T>
+                <T bold style={{ fontSize: 15, color: colors.ink }}>Kilo Takip Eğrisi & Ölçümler</T>
+              </View>
+              <Tap onPress={() => open('weight')} style={{ padding: 4 }}>
+                <T bold style={{ fontSize: 12, color: colors.purple }}>+ Kilo Kaydet</T>
+              </Tap>
+            </View>
+
+            <View style={{ gap: 8 }}>
+              {weights.map(w => (
+                <View key={w.id} style={th.logRow}>
+                  <View>
+                    <T bold style={{ fontSize: 14, color: colors.ink }}>
+                      {w.value} kg ({w.week}. Hafta)
+                    </T>
+                    <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                      {w.date} · {w.time}
+                    </T>
+                  </View>
+                  <View style={[th.logBadge, { backgroundColor: '#EDF5F0' }]}>
+                    <T bold style={{ fontSize: 11, color: '#3E7B54' }}>
+                      {((w.value - 60.0) >= 0 ? '+' : '') + (w.value - 60.0).toFixed(1)} kg artış
+                    </T>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </Card>
+
+          {/* 4. Doğuma Hazırlık Listeleri İlerlemesi */}
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <Tap
+              onPress={() => open('hospitalBag')}
+              label="Hastane çantasını aç"
+              style={[th.statMiniCard, { backgroundColor: '#FAF4FC' }]}
+            >
+              <T style={{ fontSize: 20 }}>🎒</T>
+              <T bold style={{ fontSize: 13, color: '#572E65', marginTop: 4 }}>Hastane Çantası</T>
+              <T style={{ fontSize: 11, color: '#885899', marginTop: 2 }}>5/8 eşya hazır (%62)</T>
+            </Tap>
+
+            <Tap
+              onPress={() => open('birthPlan')}
+              label="Doğum planını aç"
+              style={[th.statMiniCard, { backgroundColor: '#FDF7EE' }]}
+            >
+              <T style={{ fontSize: 20 }}>📋</T>
+              <T bold style={{ fontSize: 13, color: '#684520', marginTop: 4 }}>Doğum Tercihleri</T>
+              <T style={{ fontSize: 11, color: '#997042', marginTop: 2 }}>3 tercih belirlendi</T>
+            </Tap>
+          </View>
+        </View>
+      )}
+
+      {/* ─── 2. BÖLÜM: 15 AKILLI ARAÇ & APP GRID ─── */}
+      {hubTab === 'apps' && (
+        <View style={{ gap: 14 }}>
+          {/* Kategori Filtre Butonları */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
+            {categories.map(cat => (
+              <Tap
+                key={cat.id}
+                onPress={() => setCatFilter(cat.id)}
+                label={cat.label}
+                accessibilityState={{ selected: catFilter === cat.id }}
+                style={[th.catTab, catFilter === cat.id && th.catTabActive]}
+              >
+                <T bold={catFilter === cat.id} style={{ fontSize: 12, color: catFilter === cat.id ? 'white' : colors.ink }}>
+                  {cat.label}
+                </T>
+              </Tap>
+            ))}
+          </ScrollView>
+
+          {/* Araç Kartları Grid */}
+          <View style={th.grid}>
+            {displayedTools.map(tool => (
+              <Tap
+                key={tool.id}
+                onPress={() => {
+                  if (tool.available) {
+                    open(tool.id);
+                  } else {
+                    toast && toast(tool.title + ' sonraki güncellemede aktif olacak ✨');
+                  }
+                }}
+                label={tool.title}
+                style={[th.toolCard, { backgroundColor: tool.color }]}
+              >
+                <View style={th.toolTop}>
+                  <View style={[th.toolIconBox, { backgroundColor: tool.tint + '18' }]}>
+                    {tool.art && generatedAssets[tool.art] ? (
+                      <Image source={generatedAssets[tool.art]} style={{ width: 34, height: 34 }} resizeMode="contain" />
+                    ) : (
+                      <Icon name={tool.icon} size={22} color={tool.tint} />
+                    )}
+                  </View>
+                  <View style={th.categoryTag}>
+                    <T style={{ fontSize: 9.5, color: tool.tint, fontWeight: 'bold' }}>{tool.catTitle}</T>
+                  </View>
+                </View>
+                <T bold style={[th.toolTitle, { color: colors.ink }]}>{tool.title}</T>
+                <T style={th.toolSub}>{tool.subtitle}</T>
+              </Tap>
+            ))}
+          </View>
+        </View>
+      )}
     </Container>
   );
 }
 
 const th = StyleSheet.create({
-  container: { paddingHorizontal: 17, paddingTop: 16, paddingBottom: 32, gap: 14 },
+  container: { paddingHorizontal: 17, paddingTop: 16, paddingBottom: 40, gap: 14 },
   header: { marginBottom: 2 },
   title: { fontSize: 26, letterSpacing: -0.5, color: colors.ink, marginTop: 4 },
   subtitle: { fontSize: 13, color: colors.muted, marginTop: 4, lineHeight: 19 },
+  hubTabs: { flexDirection: 'row', backgroundColor: '#EDE4EF', borderRadius: 16, padding: 4, gap: 4 },
+  hubTabBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
+  hubTabBtnActive: { backgroundColor: 'white', ...shadow },
+  hubTabLabel: { fontSize: 12, color: '#746678' },
+  hubTabLabelActive: { color: colors.purple },
   quickRow: { flexDirection: 'row', gap: 12 },
-  quickHero: { flex: 1, padding: 16, borderRadius: 22, borderWidth: 1, ...shadow },
-  quickHeroIcon: { width: 52, height: 52, borderRadius: 26, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', marginBottom: 10, ...shadow },
+  quickHero: { flex: 1, padding: 15, borderRadius: 20, borderWidth: 1, ...shadow },
+  quickHeroIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', marginBottom: 8, ...shadow },
   catTab: { paddingVertical: 7, paddingHorizontal: 14, borderRadius: 16, backgroundColor: '#EFEAEF' },
   catTabActive: { backgroundColor: colors.purple },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 11, justifyContent: 'space-between' },
@@ -336,4 +513,7 @@ const th = StyleSheet.create({
   categoryTag: { backgroundColor: '#FFFFFF99', paddingHorizontal: 6, paddingVertical: 3, borderRadius: 8 },
   toolTitle: { fontSize: 14.5, letterSpacing: -0.2 },
   toolSub: { fontSize: 11.5, color: colors.muted, marginTop: 4, lineHeight: 16 },
+  logRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 9, borderBottomWidth: 1, borderColor: '#F2EAF3' },
+  logBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, backgroundColor: '#F3EBF5' },
+  statMiniCard: { flex: 1, padding: 14, borderRadius: 16, borderWidth: 1, borderColor: '#EFE4F1' },
 });

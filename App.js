@@ -14,8 +14,8 @@ import { useDemoStore } from './src/store';
 
 const previewScreens=[
   ['onboarding','Başlangıç'],
-  ['pregnancy','Bugün (Hamilelik)'],
-  ['tools','Araçlar & Sayaçlar (Appler)'],
+  ['pregnancy','Bugün (Hamilelik & Akış)'],
+  ['tools','Takip & Akıllı Araçlar (15 Araç)'],
   ['discover','Kütüphane & Magazin (Blog)'],
   ['assistant','Topluluk & Asistan'],
   ['profile','Profil & Ortak Aile'],
@@ -51,8 +51,8 @@ function Momora() {
       {desktop?<View style={s.statusMock}><T bold style={{fontSize:13}}>9:41</T><View style={s.island}/><T style={{fontSize:13}}>▮▮▮  ▰</T></View>:<View style={{height:insets.top}}/>}
       <View style={{flex:1}} key={active}>{renderPage()}</View>
       {active!=='onboarding'&&<View style={[s.nav,{paddingBottom:desktop?19:Math.max(12,insets.bottom)}]}>{[
-        {label:'Bugün',icon:'home',selected:['pregnancy','postpartum'].includes(active),action:()=>setPage(state.mode||'pregnancy')},
-        {label:'Araçlar',icon:'track',selected:active==='tools',action:()=>setPage('tools')},
+        {label:'Bugün',icon:'home',selected:['pregnancy','postpartum','baby'].includes(active),action:()=>setPage(state.mode||'pregnancy')},
+        {label:'Takip & Araçlar',icon:'track',selected:active==='tools',action:()=>setPage('tools')},
         {label:'Kütüphane',icon:'book',selected:active==='discover',action:()=>setPage('discover')},
         {label:'Topluluk',icon:'community',selected:active==='assistant',action:()=>setPage('assistant')},
         {label:'Profil',icon:'profile',selected:active==='profile',action:()=>setPage('profile')},
