@@ -159,12 +159,43 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // 2. Görsel Önizleme (Thumbnail) Sunucu Endpointi
+  // 1b. 3D Model Listesi Endpointi
+  if (req.method === 'GET' && req.url === '/models') {
+    try {
+      const allEntries = fs.readdirSync(ASSETS_DIR);
+      const models = allEntries.filter(f => f.endsWith('.glb') || f.endsWith('.gltf'));
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ models }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
+  // 1c. 3D Fetus Viewer Sayfası
+  if (req.method === 'GET' && (req.url === '/3d' || req.url === '/viewer' || req.url === '/3d/')) {
+    const viewerPath = path.join(__dirname, 'view_3d_fetus.html');
+    if (fs.existsSync(viewerPath)) {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      fs.createReadStream(viewerPath).pipe(res);
+      return;
+    }
+  }
+
+  // 2. Asset Dosyası Sunucu Endpointi (PNG, GLB, vb.)
   if (req.method === 'GET' && req.url.startsWith('/assets/')) {
     const filename = decodeURIComponent(req.url.replace('/assets/', ''));
     const filePath = path.join(ASSETS_DIR, filename);
     if (fs.existsSync(filePath)) {
-      res.writeHead(200, { 'Content-Type': 'image/png' });
+      const ext = path.extname(filename).toLowerCase();
+      let contentType = 'application/octet-stream';
+      if (ext === '.png') contentType = 'image/png';
+      else if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
+      else if (ext === '.glb') contentType = 'model/gltf-binary';
+      else if (ext === '.gltf') contentType = 'model/gltf+json';
+
+      res.writeHead(200, { 'Content-Type': contentType });
       fs.createReadStream(filePath).pipe(res);
       return;
     } else {

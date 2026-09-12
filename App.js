@@ -14,10 +14,10 @@ import { useDemoStore } from './src/store';
 
 const previewScreens=[
   ['onboarding','Başlangıç'],
-  ['pregnancy','Bugün (Hamilelik & Akış)'],
-  ['tools','Takip & Akıllı Araçlar (15 Araç)'],
-  ['discover','Kütüphane & Magazin (Blog)'],
-  ['assistant','Topluluk & Asistan'],
+  ['pregnancy','Bugün · Günlük Akış'],
+  ['tools','Takip & Araçlar'],
+  ['discover','Kütüphane & Magazin'],
+  ['assistant','Topluluk'],
   ['profile','Profil & Ortak Aile'],
   ['postpartum','Lohusalık'],
   ['baby','Bebek Takibi'],

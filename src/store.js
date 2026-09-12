@@ -14,9 +14,9 @@ export const initialState = {
   ],
   records: [
     { id: 'rec1', type: 'Tekme', value: '10 tekme • 18 dk seans', time: '14:25' },
-    { id: 'rec2', type: 'Su', value: '4. bardak içildi (1.0 L)', time: '13:10' },
+    { id: 'rec2', type: 'Su', value: '4. bardak içildi · 1.0 L', time: '13:10' },
     { id: 'rec3', type: 'Vitamin', value: 'Prenatal Multivitamin alındı', time: '09:00' },
-    { id: 'rec4', type: 'Kilo', value: '65.4 kg (İdeal koridorda)', time: '08:30' },
+    { id: 'rec4', type: 'Kilo', value: '65.4 kg · İdeal koridorda', time: '08:30' },
   ],
   favorites: [], liked: false, messages: [],
   favNames: ['bn_defne', 'bn_lina', 'bn_atlas', 'bn_cinar'],

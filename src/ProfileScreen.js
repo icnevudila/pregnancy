@@ -334,7 +334,7 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
           </View>
 
           <View style={ps.fieldGroup}>
-            <T bold style={ps.fieldLabel}>Tahmini Doğum Tarihi (SAT / EDD)</T>
+            <T bold style={ps.fieldLabel}>Tahmini Doğum Tarihi</T>
             <TextInput value={dueDate} onChangeText={setDueDate} placeholder="Örn: 24 Temmuz 2026" style={ps.fieldInput} />
           </View>
 
@@ -474,7 +474,7 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
 
           <T bold style={{ fontSize: 15, marginBottom: 10 }}>Yolculuk Modu</T>
           <Tap onPress={() => open && open('journey')} label="Yolculuğu değiştir" style={ps.secondaryBtn}>
-            <T bold style={{ fontSize: 14, color: colors.purple }}>Yolculuk Aşamasını Değiştir (Hamilelik / Lohusa / Bebek)</T>
+            <T bold style={{ fontSize: 14, color: colors.purple }}>Yolculuk Aşamasını Değiştir</T>
           </Tap>
 
           <View style={{ marginTop: 20, alignItems: 'center' }}>
@@ -482,7 +482,7 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
               <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#48945A' }} />
               <T style={{ fontSize: 12, color: colors.muted }}>Momora Bulut Eşitleme · Aktif</T>
             </View>
-            <T style={{ fontSize: 10, color: '#A092A3', marginTop: 4 }}>Versiyon 2.4.0 (2026 Edition)</T>
+            <T style={{ fontSize: 10, color: '#A092A3', marginTop: 4 }}>Versiyon 2.4.0 · 2026 Edition</T>
           </View>
         </Card>
       )}

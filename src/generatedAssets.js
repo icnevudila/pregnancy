@@ -74,6 +74,15 @@ export const generatedAssets = {
   'fetus_w18': require('../assets/fetus_w18.png'),
   'fetus_w19': require('../assets/fetus_w19.png'),
   'fetus_w20': require('../assets/fetus_w20.png'),
+  'fetus_w21': require('../assets/fetus_w21.png'),
+  'fetus_w22': require('../assets/fetus_w22.png'),
+  'fetus_w23': require('../assets/fetus_w23.png'),
+  'fetus_w24': require('../assets/fetus_w24.png'),
+  'fetus_w25': require('../assets/fetus_w25.png'),
+  'fetus_w26': require('../assets/fetus_w26.png'),
+  'fetus_w27': require('../assets/fetus_w27.png'),
+  'fetus_w28': require('../assets/fetus_w28.png'),
+  'fetus_w29': require('../assets/fetus_w29.png'),
   'fruit_apple': require('../assets/fruit_apple.png'),
   'fruit_avocado': require('../assets/fruit_avocado.png'),
   'fruit_banana': require('../assets/fruit_banana.png'),
@@ -149,5 +158,17 @@ export const generatedAssets = {
 };
 
 export function getAsset(name) {
-  return generatedAssets[name] || null;
+  if (generatedAssets[name]) return generatedAssets[name];
+  if (name && name.startsWith("blog_")) {
+    if (name.includes("seafood") || name.includes("coffee")) return generatedAssets["blog_healthy_breakfast"];
+    if (name.includes("morning")) return generatedAssets["blog_pregnant_morning"];
+    if (name.includes("contraction") || name.includes("braxton")) return generatedAssets["blog_couple_bump"];
+    if (name.includes("epidural") || name.includes("hospital")) return generatedAssets["blog_hospital_bag_pack"];
+    if (name.includes("breastmilk")) return generatedAssets["blog_breastfeeding_cozy"];
+    if (name.includes("colic") || name.includes("massage")) return generatedAssets["blog_baby_massage"];
+    if (name.includes("sleep")) return generatedAssets["blog_sleeping_crib"];
+    if (name.includes("blues") || name.includes("depression")) return generatedAssets["blog_postpartum_selfcare"];
+    return generatedAssets["blog_pregnant_morning"] || generatedAssets["blog_newborn_hand"];
+  }
+  return null;
 }

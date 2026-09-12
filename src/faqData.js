@@ -3,9 +3,9 @@
 
 export const faqCategories = [
   'Tümü',
-  '1. Trimester (Hafta 1-12)',
-  '2. Trimester (Hafta 13-27)',
-  '3. Trimester (Hafta 28-40)',
+  '1. Trimester · Hafta 1-12',
+  '2. Trimester · Hafta 13-27',
+  '3. Trimester · Hafta 28-40',
   'Beslenme & Gıda Güvenliği',
   'Doğum & Hastane',
   'Lohusalık & İyileşme',
@@ -16,35 +16,35 @@ export const pregnancyFaqs = [
   // ─── 1. TRIMESTER ───
   {
     id: 'faq-1',
-    category: '1. Trimester (Hafta 1-12)',
+    category: '1. Trimester · Hafta 1-12',
     q: 'Mide bulantısı ve kusma ne zaman geçer? Bebeğime zarar verir mi?',
     a: 'Mide bulantıları gebelik hormonu (hCG) artışına bağlıdır ve genellikle 6. haftada başlayıp 12-14. haftalarda belirgin şekilde azalır. Hafif ve orta derece bulantılar bebeğin gelişimini olumsuz etkilemez çünkü bebek ihtiyaç duyduğu besinleri vücudunuzun depolarından çeker. Sabah kalkmadan önce tuzlu kraker atıştırmak, az ve sık yemek ve zencefil çayı tüketmek rahatlatır. Hiçbir sıvı tutamıyorsanız doktorunuza danışmalısınız.',
     tags: ['bulantı', 'kusma', 'hcg', 'beslenme', 'ilk trimester']
   },
   {
     id: 'faq-2',
-    category: '1. Trimester (Hafta 1-12)',
+    category: '1. Trimester · Hafta 1-12',
     q: 'Erken gebelikte hafif lekelenme veya kasık batması normal mi?',
     a: 'Gebeliğin ilk haftalarında embriyonun rahim duvarına tutunması sırasında "yerleşme kanaması" (hafif pembe-kahverengi lekelenme) ve rahim kaslarının esnemesine bağlı batmalar çok yaygındır. Ancak kanama adet kanaması yoğunluğuna ulaşırsa, parlak kırmızı renkteyse veya şiddetli tek taraflı kasık ağrısı eşlik ediyorsa acilen hekiminize başvurmalısınız.',
     tags: ['lekelenme', 'kanama', 'kasık ağrısı', 'yerleşme kanaması']
   },
   {
     id: 'faq-3',
-    category: '1. Trimester (Hafta 1-12)',
+    category: '1. Trimester · Hafta 1-12',
     q: 'Folik asit ne kadar süre kullanılmalıdır?',
     a: 'Folik asit (günde en az 400 mcg), bebeğin beyin ve omurilik gelişiminde nöral tüp defektlerini önlemek için gebelik planlamasından başlayarak ilk 12. haftanın sonuna kadar kesintisiz kullanılmalıdır. 12. haftadan sonra hekiminiz ihtiyacınıza göre multivitamin veya demir/D vitamini takviyesine geçiş yapabilir.',
     tags: ['folik asit', 'vitamin', 'omurilik', 'nöral tüp']
   },
   {
     id: 'faq-4',
-    category: '1. Trimester (Hafta 1-12)',
+    category: '1. Trimester · Hafta 1-12',
     q: 'Gebelikte cinsel ilişki güvenli midir?',
     a: 'Doktorunuz tarafından düşük tehdidi, rahim ağzı yetmezliği veya plasenta previa gibi özel bir risk belirtilmediği sürece gebeliğin tüm dönemlerinde cinsel ilişki güvenlidir. Bebek rahim kasları ve amniyon kesesi içinde mükemmel şekilde korunmaktadır.',
     tags: ['cinsellik', 'ilişki', 'güvenlik', 'ilk aylar']
   },
   {
     id: 'faq-5',
-    category: '1. Trimester (Hafta 1-12)',
+    category: '1. Trimester · Hafta 1-12',
     q: 'Saç boyatmak veya oje sürmek bebeğe geçer mi?',
     a: 'Özellikle organ gelişiminin en hassas olduğu ilk 12 hafta boyunca kimyasal maruziyetini en aza indirmek için saç boyatma ertelenmelidir. 2. trimesterden sonra bitkisel/amonyaksız boyalar tercih edilebilir. Tırnak cilaları ve asetonlar iyi havalandırılan ortamlarda ara sıra kullanılabilir.',
     tags: ['saç boyası', 'kozmetik', 'oje', 'kimyasal']
@@ -53,35 +53,35 @@ export const pregnancyFaqs = [
   // ─── 2. TRIMESTER ───
   {
     id: 'faq-6',
-    category: '2. Trimester (Hafta 13-27)',
+    category: '2. Trimester · Hafta 13-27',
     q: 'Bebeğimin tekmelerini ilk ne zaman hissederim?',
     a: 'İlk gebeliklerde tekmeler genellikle 18-22. haftalar arasında hissedilir; daha önce doğum yapmış anneler ise 16. haftadan itibaren bu hissi tanıyabilir. İlk hareketler gaz kabarcığı, seğirme veya kelebek kanadı çırpıntısı gibidir. 24. haftadan sonra hareketler net ve belirgin bir ritme kavuşur.',
     tags: ['tekme', 'hareket', 'hissetme', 'ikinci trimester']
   },
   {
     id: 'faq-7',
-    category: '2. Trimester (Hafta 13-27)',
+    category: '2. Trimester · Hafta 13-27',
     q: 'Detaylı (ayrıntılı) ultrason ne zaman yapılır ve neden önemlidir?',
     a: 'Detaylı ultrason genellikle 20-22. haftalar arasında perinatoloji uzmanı veya kadın doğum hekimi tarafından yapılır. Bebeğin beyin, kalp odacıkları, omurga, böbrek, yüz hatları ve parmakları milimetrik incelenir, plasentanın konumu ve amniyon sıvısı değerlendirilir.',
     tags: ['ultrason', 'detaylı ultrason', '20 hafta', 'perinatoloji']
   },
   {
     id: 'faq-8',
-    category: '2. Trimester (Hafta 13-27)',
+    category: '2. Trimester · Hafta 13-27',
     q: 'Şeker yükleme testi (OGTT) bebeğe zararlı mıdır?',
     a: 'Hayır. Uluslararası Kadın Doğum Dernekleri (ACOG, FIGO) şeker yükleme testinin bebeğe hiçbir zararı olmadığını, aksine teşhis edilmeyen gestasyonel diyabetin bebekte aşırı kilo, doğum travması ve erken doğum riskini artırdığını belirtmektedir. Testteki şeker miktarı yaklaşık 2 dilim baklava veya bir porsiyon tatlıya eşittir.',
     tags: ['şeker testi', 'ogtt', 'diyabet', 'gebelik şekeri']
   },
   {
     id: 'faq-9',
-    category: '2. Trimester (Hafta 13-27)',
+    category: '2. Trimester · Hafta 13-27',
     q: 'Sol tarafa yatmak gerçekten şart mı?',
     a: '20. haftadan sonra sol tarafa yatmak, vücudun ana toplardamarına (vena cava) yapılan baskıyı önler; plasentaya giden kan ve oksijen akışını artırır. Ancak uykuda sağa dönmekten korkmayın; bedeniniz rahatsız olduğunda uyanıp pozisyon değiştirmeniz yeterlidir. Bacak arasına yastık koymak omurganızı rahatlatır.',
     tags: ['uyku pozisyonu', 'sol taraf', 'yastık', 'vena cava']
   },
   {
     id: 'faq-10',
-    category: '2. Trimester (Hafta 13-27)',
+    category: '2. Trimester · Hafta 13-27',
     q: 'Gebelikte burun kanaması veya diş eti kanaması neden olur?',
     a: 'Artan östrojen hormonu ve %40-50 oranında yükselen kan hacmi mukozal dokulardaki kılcal damarları genişletir. Bu nedenle diş fırçalarken kanama veya sabahları burun tıkanıklığı/hafif kanama oldukça yaygındır. Yumuşak diş fırçası kullanmak ve odayı nemlendirmek iyi gelir.',
     tags: ['diş eti', 'burun kanaması', 'hormonlar', 'kan hacmi']
@@ -90,35 +90,35 @@ export const pregnancyFaqs = [
   // ─── 3. TRIMESTER ───
   {
     id: 'faq-11',
-    category: '3. Trimester (Hafta 28-40)',
+    category: '3. Trimester · Hafta 28-40',
     q: 'Braxton Hicks kasılmaları ile gerçek doğum sancısı nasıl ayırt edilir?',
     a: 'Braxton Hicks kasılmaları düzensizdir, pozisyon değiştirince veya dinlenince geçer, şiddeti zamanla artmaz ve genellikle karında gerilme hissi verir. Gerçek doğum sancıları ise sırttan öne doğru dalga dalga yayılır, düzenli aralıklarla (örneğin 5 dakikada bir) gelir, yürümekle geçmez ve süresi 45-60 saniyeye ulaşır.',
     tags: ['braxton hicks', 'doğum sancısı', 'kasılma', 'yalancı sancı']
   },
   {
     id: 'faq-12',
-    category: '3. Trimester (Hafta 28-40)',
+    category: '3. Trimester · Hafta 28-40',
     q: 'Bebeğin hareketleri azaldı, ne yapmalıyım?',
     a: '28. haftadan sonra her anne bebeğinin hareket düzenini izlemelidir. Hareketlerde azalma hissederseniz sol yanınıza uzanın, bir bardak meyve suyu veya tatlı bir atıştırmalık tüketin ve 2 saat boyunca bebeğinize odaklanın. 2 saatte 10 net hareket hissetmezseniz vakit kaybetmeden doğum kliniğine veya hekiminize başvurmalısınız.',
     tags: ['tekme sayımı', 'bebek hareketi', 'acil durum', 'hareketsizlik']
   },
   {
     id: 'faq-13',
-    category: '3. Trimester (Hafta 28-40)',
+    category: '3. Trimester · Hafta 28-40',
     q: 'Kordon dolanması tehlikeli midir? Sezaryen sebebi midir?',
     a: 'Gebeliklerin yaklaşık %30\'unda kordonda bir veya iki tur boyuna dolanma görülür. Kordon dokusu "Wharton jölesi" adı verilen kaygan ve esnek bir maddeyle korunur; bebek boynunu sıkmaz. Çoğu bebek kordon dolanmasıyla sorunsuz normal doğum yapar. Doğum sırasında NST ile bebeğin kalp atışları takip edilerek güvenliği sağlanır.',
     tags: ['kordon dolanması', 'normal doğum', 'sezaryen', 'nst']
   },
   {
     id: 'faq-14',
-    category: '3. Trimester (Hafta 28-40)',
+    category: '3. Trimester · Hafta 28-40',
     q: 'Nişan gelmesi nedir, doğum ne zaman başlar?',
     a: 'Nişan (servikal mukus tıkacı), rahim ağzını enfeksiyonlardan koruyan sümüksü, pembe veya kahverengi çizgili jelimsi bir maddedir. Rahim ağzı yumuşayıp açılmaya başladığında düşer. Nişan geldikten sonra doğum birkaç saat içinde de başlayabilir, birkaç gün hatta 1 hafta sonra da.',
     tags: ['nişan gelmesi', 'mukus tıkacı', 'doğum belirtileri']
   },
   {
     id: 'faq-15',
-    category: '3. Trimester (Hafta 28-40)',
+    category: '3. Trimester · Hafta 28-40',
     q: 'Suyum gelirse ne yapmalıyım?',
     a: 'Amniyon kesesi açıldığında sıvı kontrolsüz bir şekilde bacaklardan aşağı sızabilir veya aniden boşalabilir. Suyunuz geldiğinde sakin olun, sıvının rengine dikkat edin (şeffaf/berrak normaldir, yeşil/kahverengimsi ise acildir), hijyenik ped yerleştirin ve kasılmanız olmasa dahi hekiminizle iletişime geçip hastaneye gidin.',
     tags: ['su gelmesi', 'amniyon sıvısı', 'doğum başlangıcı', 'acil']

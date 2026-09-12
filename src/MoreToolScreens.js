@@ -22,7 +22,7 @@ export function WeightTracker({ state, update, toast }) {
   function logWeight() {
     const val = parseFloat(weightInput.replace(',', '.'));
     if (isNaN(val) || val < 30 || val > 200) {
-      toast && toast('Lütfen geçerli bir kilo girin (Örn: 65.5)');
+      toast && toast('Lütfen geçerli bir kilo girin. Örn: 65.5');
       return;
     }
     const newEntry = {
@@ -71,7 +71,7 @@ export function WeightTracker({ state, update, toast }) {
         <TextInput
           value={weightInput}
           onChangeText={setWeightInput}
-          placeholder="Bugünkü kilon (Örn: 66.2)"
+          placeholder="Bugünkü kilon · Örn: 66.2"
           placeholderTextColor={colors.muted}
           keyboardType="numeric"
           style={ws.input}
@@ -322,7 +322,7 @@ export function BabyNameMatcher({ state, update, toast }) {
         <TextInput
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder="İsim, anlam veya kökene göre ara... (Örn: Nehir, Zafer)"
+          placeholder="İsim, anlam veya kökene göre ara..."
           placeholderTextColor={colors.muted}
           style={ws.input}
         />

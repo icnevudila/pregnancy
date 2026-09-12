@@ -28,7 +28,7 @@ export const initialCommunityPosts = [
     id: 'p2',
     user: 'Deniz K.',
     week: '32. Hafta',
-    title: 'İlk gebeliğimde normal doğum korkumu nasıl yendim? (Umut olsun diye yazıyorum 💕)',
+    title: 'İlk gebeliğimde normal doğum korkumu nasıl yendim? · Umut olsun diye yazıyorum 💕',
     desc: 'Başlarda doğum kelimesi bile kalbimi çarptırıyordu. Doğum nefesi egzersizleri, perine masajı ve eşimin desteğiyle korkularım güvene dönüştü. Kimse korkmasın!',
     likes: 84,
     comments: 29,
@@ -39,7 +39,7 @@ export const initialCommunityPosts = [
   },
   {
     id: 'p3',
-    user: 'Gözde S. (Anonim)',
+    user: 'Gözde S. · Anonim',
     week: '18. Hafta',
     title: 'Geceleri şiddetli bacak krampları yaşayan var mı?',
     desc: 'Uykudan uyandıran kramplar başladı. Doktorum magnezyum önerdi, siz nasıl rahatladınız? Bitkisel bir çözümü var mı?',
@@ -74,7 +74,7 @@ export const initialCommunityPosts = [
     cat: 'Dertleşme',
     verified: true,
     verifiedBy: 'Psk. Melis Akın · Perinatal Psikolog',
-    verifiedAnswer: 'Bu Baby Blues (Lohusa Hüznü) sürecidir; doğum sonrası ani hormon düşüşünün doğal biyolojik sonucudur. Yalnız değilsin, harika bir annesin ve bu günler geçecek.',
+    verifiedAnswer: 'Bu Lohusa Hüznü sürecidir; doğum sonrası ani hormon düşüşünün doğal biyolojik sonucudur. Yalnız değilsin, harika bir annesin ve bu günler geçecek.',
     time: '8 saat önce',
     blogRef: 'art-postpartum-rest',
   },
@@ -182,7 +182,7 @@ export function CommunityHub({ open, state, update, toast }) {
           style={[cs.hubTab, activeTab === 'forum' && cs.hubTabActive]}
         >
           <T bold={activeTab === 'forum'} style={[cs.hubTabText, activeTab === 'forum' && { color: 'white' }]}>
-            💬 Anne Sohbetleri ({posts.length})
+            💬 Anne Sohbetleri
           </T>
         </Tap>
         <Tap
@@ -191,7 +191,7 @@ export function CommunityHub({ open, state, update, toast }) {
           style={[cs.hubTab, activeTab === 'club' && cs.hubTabActive]}
         >
           <T bold={activeTab === 'club'} style={[cs.hubTabText, activeTab === 'club' && { color: 'white' }]}>
-            🌸 Doğum Kulübüm (Temmuz)
+            🌸 Doğum Kulübüm
           </T>
         </Tap>
       </View>
@@ -382,7 +382,7 @@ export function CommunityHub({ open, state, update, toast }) {
                 <View style={[cs.checkbox, isAnon && cs.checkboxActive]}>
                   {isAnon && <T style={{ color: 'white', fontSize: 13, fontWeight: 'bold' }}>✓</T>}
                 </View>
-                <T style={{ fontSize: 12.5, color: colors.ink }}>İsmimi gizle (Anonim Anne olarak yayınla)</T>
+                <T style={{ fontSize: 12.5, color: colors.ink }}>İsmimi gizle · Anonim Anne olarak yayınla</T>
               </Tap>
 
               {/* Paylaş Butonu */}

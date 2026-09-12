@@ -243,7 +243,7 @@ export function ContractionTimer({ state, update, toast }) {
     if (avgInterval <= 360 && avgDuration >= 45) {
       medicalStatus = {
         color: '#D1586E',
-        badge: '🔴 Hastaneye Gitme Zamanı (5-1-1)',
+        badge: '🔴 Hastaneye Gitme Zamanı · 5-1-1 Kuralı',
         text: 'Kasılmalarınız her 5 dakikada bir geliyor ve yaklaşık 1 dakika sürüyor. Doktorunuzu arayın ve hastaneye geçin!',
       };
     } else if (avgInterval <= 600) {
@@ -286,7 +286,7 @@ export function ContractionTimer({ state, update, toast }) {
         >
           <Icon name="contraction" size={32} color="white" />
           <T bold style={ts.contractionBtnText}>
-            {active ? 'SANCI BİTTİ (DURDUR)' : 'SANCI BAŞLADI'}
+            {active ? 'SANCIYI DURDUR' : 'SANCI BAŞLADI'}
           </T>
         </LinearGradient>
       </Tap>

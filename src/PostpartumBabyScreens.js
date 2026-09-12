@@ -31,7 +31,7 @@ export function NursingTimerScreen({ state, update, toast }) {
   function saveNursing() {
     setActiveSide(null);
     const totalMins = Math.max(1, Math.round((leftSecs + rightSecs) / 60));
-    const sideText = leftSecs > 0 && rightSecs > 0 ? `Sol (${Math.round(leftSecs/60)} dk) + Sağ (${Math.round(rightSecs/60)} dk)` : leftSecs > 0 ? `Sol meme • ${totalMins} dk` : `Sağ meme • ${totalMins} dk`;
+    const sideText = leftSecs > 0 && rightSecs > 0 ? `Sol ${Math.round(leftSecs/60)} dk + Sağ ${Math.round(rightSecs/60)} dk` : leftSecs > 0 ? `Sol meme • ${totalMins} dk` : `Sağ meme • ${totalMins} dk`;
     
     update(old => ({
       records: [{
@@ -307,10 +307,10 @@ export function SleepWhiteNoiseScreen({ state, update, toast }) {
             <T bold style={{ fontSize: 11, color: colors.muted, marginBottom: 6 }}>SES SEVİYESİ:</T>
             <View style={{ flexDirection: 'row', gap: 6 }}>
               {[
-                { label: 'Sessiz (%25)', val: 0.25 },
-                { label: 'Orta (%50)', val: 0.5 },
-                { label: 'İdeal (%80)', val: 0.8 },
-                { label: 'Yüksek (%100)', val: 1.0 },
+                { label: 'Sessiz · %25', val: 0.25 },
+                { label: 'Orta · %50', val: 0.5 },
+                { label: 'İdeal · %80', val: 0.8 },
+                { label: 'Yüksek · %100', val: 1.0 },
               ].map(v => (
                 <Tap
                   key={v.val}
@@ -428,8 +428,8 @@ export function DiaperTrackerScreen({ update, toast }) {
       {/* 3 Hızlı Dokunsal Seçici */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
         {[
-          { id: 'Islak', icon: '💧', label: 'Islak (Çiş)', tint: '#4896BC', bg: '#EDF6FA' },
-          { id: 'Kirli', icon: '💩', label: 'Kirli (Kaka)', tint: '#8A6840', bg: '#F9F4EE' },
+          { id: 'Islak', icon: '💧', label: 'Islak Bez', tint: '#4896BC', bg: '#EDF6FA' },
+          { id: 'Kirli', icon: '💩', label: 'Kirli Bez', tint: '#8A6840', bg: '#F9F4EE' },
           { id: 'Karışık', icon: '🔄', label: 'Karışık', tint: '#6E4D84', bg: '#F6EFF8' },
         ].map(item => (
           <Tap

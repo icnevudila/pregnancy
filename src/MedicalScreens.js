@@ -222,10 +222,10 @@ export function UltrasoundAtlas({ state }) {
 // ─── EKRAN 12: TIBBİ ZAMAN ÇİZELGESİ & TEST TAKVİMİ (MEDICAL TIMELINE) ────────
 export const medicalMilestones = [
   { weekRange: '6-8. Hafta', title: 'İlk Muayene & Kalp Atışı', desc: 'Kese ve fetal kalp atımının teyidi', done: true, key: 'm1' },
-  { weekRange: '11-14. Hafta', title: 'İkili Tarama & Ense Kalınlığı (NT)', desc: 'Kromozom anomalisi taraması ve burun kemiği', done: true, key: 'm2' },
+  { weekRange: '11-14. Hafta', title: 'İkili Tarama & Ense Kalınlığı', desc: 'Kromozom anomalisi taraması ve burun kemiği', done: true, key: 'm2' },
   { weekRange: '16-18. Hafta', title: 'Dörtlü Tarama Testi', desc: 'Opsiyonel biyokimyasal risk taraması', done: true, key: 'm3' },
-  { weekRange: '18-22. Hafta', title: 'Detaylı Anatomi Taraması (2. Düzey USG)', desc: 'Tüm iç organlar, beyin, kalp ve uzuvların tek tek incelenmesi', current: true, key: 'm4' },
-  { weekRange: '24-28. Hafta', title: 'Şeker Yükleme (OGTT) & Tam Kan', desc: 'Gestasyonel diyabet ve kansızlık kontrolü', upcoming: true, key: 'm5' },
+  { weekRange: '18-22. Hafta', title: 'Detaylı Anatomi Taraması · 2. Düzey USG', desc: 'Tüm iç organlar, beyin, kalp ve uzuvların tek tek incelenmesi', current: true, key: 'm4' },
+  { weekRange: '24-28. Hafta', title: 'Şeker Yükleme & Tam Kan', desc: 'Gestasyonel diyabet ve kansızlık kontrolü', upcoming: true, key: 'm5' },
   { weekRange: '32-36. Hafta', title: 'Gelişim & NST Taramaları', desc: 'Bebek kalp atışı, hareket reaktivitesi ve pozisyonu', upcoming: true, key: 'm6' },
   { weekRange: '37-40. Hafta', title: 'Doğuma Hazırlık & Çatı Muayenesi', desc: 'Doğum kanalı, baş inişi ve son hazırlıklar', upcoming: true, key: 'm7' },
 ];

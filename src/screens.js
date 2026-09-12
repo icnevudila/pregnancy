@@ -107,7 +107,7 @@ export function Onboarding({ choose, update, toast }) {
         style={{ paddingVertical: 6, paddingHorizontal: 12, borderRadius: 12, backgroundColor: '#F0EAF2' }}
       >
         <T bold style={{ fontSize: 11, color: colors.purple }}>
-          {showSyncInput ? '✕ Kapat' : '📲 Eşimin Aile Kodu Var (Ortak Hesaba Bağlan)'}
+          {showSyncInput ? '✕ Kapat' : '📲 Eşimin Aile Kodu Var · Ortak Hesaba Bağlan'}
         </T>
       </Tap>
 
@@ -306,7 +306,7 @@ export function Pregnancy({ state, update, open }) {
         ⏳ Doğuma {(40 - week) * 7} Gün Kaldı
       </T>
       <T style={{ fontSize: 11, color: '#7E6184' }}>
-        Bebeğin: {state.babyName || 'Ada'} ({state.babyGender || 'Kız'})
+        Bebeğin: {state.babyName || 'Ada'} · {state.babyGender || 'Kız'}
       </T>
     </View>
 
@@ -340,7 +340,7 @@ export function Pregnancy({ state, update, open }) {
           </View>
         </View>
         <Tap onPress={() => open('babyLetter')} style={{ padding: 4 }}>
-          <T bold style={{ fontSize: 11, color: colors.purple }}>Arşiv (24) →</T>
+          <T bold style={{ fontSize: 11, color: colors.purple }}>Tüm Mektuplar →</T>
         </Tap>
       </View>
 
@@ -435,7 +435,7 @@ export function Pregnancy({ state, update, open }) {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <T style={{ fontSize: 16 }}>💧</T>
             <View>
-              <T bold style={{ fontSize: 13 }}>Su Takibi ({state.water || 4}/8 Bardak)</T>
+              <T bold style={{ fontSize: 13 }}>Su Takibi · {state.water || 4}/8 Bardak</T>
               <T style={{ fontSize: 11, color: colors.muted }}>{(state.water * 0.25).toFixed(1)} / 2.0 Litre tamamlandı</T>
             </View>
           </View>
@@ -449,7 +449,7 @@ export function Pregnancy({ state, update, open }) {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <T style={{ fontSize: 16 }}>💊</T>
             <View>
-              <T bold style={{ fontSize: 13 }}>Sabah Vitamini (Folik Asit & Demir)</T>
+              <T bold style={{ fontSize: 13 }}>Sabah Vitamini · Folik Asit & Demir</T>
               <T style={{ fontSize: 11, color: state.vitamin ? '#3A8253' : colors.muted }}>
                 {state.vitamin ? 'Bugün alındı ✓' : 'Günlük doz bekleniyor'}
               </T>
@@ -467,8 +467,8 @@ export function Pregnancy({ state, update, open }) {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <T style={{ fontSize: 16 }}>🦶</T>
             <View>
-              <T bold style={{ fontSize: 13 }}>Tekme Sayımı (Fetal Hareket)</T>
-              <T style={{ fontSize: 11, color: colors.muted }}>Son seans: 10 tekme · 18 dk (Bugün)</T>
+              <T bold style={{ fontSize: 13 }}>Tekme Sayımı · Fetal Hareket</T>
+              <T style={{ fontSize: 11, color: colors.muted }}>Son seans: 10 tekme · 18 dk</T>
             </View>
           </View>
           <Tap onPress={() => open('kickCounter')} style={{ backgroundColor: '#FAF1F5', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
@@ -481,8 +481,8 @@ export function Pregnancy({ state, update, open }) {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <T style={{ fontSize: 16 }}>⚖️</T>
             <View>
-              <T bold style={{ fontSize: 13 }}>Kilo Takibi (65.4 kg)</T>
-              <T style={{ fontSize: 11, color: '#3A8253' }}>+5.4 kg toplam (İdeal IOM koridorunda)</T>
+              <T bold style={{ fontSize: 13 }}>Kilo Takibi · 65.4 kg</T>
+              <T style={{ fontSize: 11, color: '#3A8253' }}>+5.4 kg toplam · İdeal IOM koridoru</T>
             </View>
           </View>
           <Tap onPress={() => open('weight')} style={{ backgroundColor: '#EEF5F1', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>

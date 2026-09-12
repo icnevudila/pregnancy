@@ -11,18 +11,18 @@ import { playSound, stopSound } from './soundEngine';
 // ─── EKRAN 16: "YENEBİLİR Mİ / GÜVENLİ Mİ?" GIDA REHBERİ ────────────────────
 export const foodDatabase = [
   { id: 'f1', name: 'Suşi & Çiğ Balık', cat: 'Deniz Ürünleri', status: 'avoid', badge: '🔴 Kaçınılmalı', reason: 'Çiğ deniz ürünlerinde bakteri ve parazit riski yüksektir.', alt: 'Pişmiş Somon veya Buharda Balık' },
-  { id: 'f2', name: 'Ton Balığı (Konserve)', cat: 'Deniz Ürünleri', status: 'limit', badge: '🟡 Ölçülü Tüket', reason: 'Yüksek cıva içeriği nedeniyle haftada en fazla 1-2 porsiyon önerilir.', alt: 'Sardalya, Hamsi (Düşük cıvalı)' },
-  { id: 'f3', name: 'Somon Balığı (İyi Pişmiş)', cat: 'Deniz Ürünleri', status: 'safe', badge: '🟢 Güvenli & Faydalı', reason: 'Omega-3 ve DHA zengini; bebeğin beyin ve göz gelişimini destekler.', alt: 'Haftada 2 porsiyon idealdir.' },
-  { id: 'f4', name: 'Pastörize Edilmemiş Peynir (Rokfor, Brie)', cat: 'Süt Ürünleri', status: 'avoid', badge: '🔴 Kaçınılmalı', reason: 'Listeria bakterisi riski taşır; erken doğum veya enfeksiyon yapabilir.', alt: 'Pastörize beyaz peynir veya kaşar' },
-  { id: 'f5', name: 'Yoğurt & Kefir (Pastörize)', cat: 'Süt Ürünleri', status: 'safe', badge: '🟢 Güvenli & Faydalı', reason: 'Kalsiyum ve probiyotik deposu; sindirimi ve bağışıklığı güçlendirir.', alt: 'Günde 1-2 kase tüketilebilir.' },
+  { id: 'f2', name: 'Konserve Ton Balığı', cat: 'Deniz Ürünleri', status: 'limit', badge: '🟡 Ölçülü Tüket', reason: 'Yüksek cıva içeriği nedeniyle haftada en fazla 1-2 porsiyon önerilir.', alt: 'Sardalya, Hamsi (Düşük cıvalı)' },
+  { id: 'f3', name: 'Pişmiş Somon Balığı', cat: 'Deniz Ürünleri', status: 'safe', badge: '🟢 Güvenli & Faydalı', reason: 'Omega-3 ve DHA zengini; bebeğin beyin ve göz gelişimini destekler.', alt: 'Haftada 2 porsiyon idealdir.' },
+  { id: 'f4', name: 'Pastörize Edilmemiş Peynir · Rokfor, Brie', cat: 'Süt Ürünleri', status: 'avoid', badge: '🔴 Kaçınılmalı', reason: 'Listeria bakterisi riski taşır; erken doğum veya enfeksiyon yapabilir.', alt: 'Pastörize beyaz peynir veya kaşar' },
+  { id: 'f5', name: 'Pastörize Yoğurt & Kefir', cat: 'Süt Ürünleri', status: 'safe', badge: '🟢 Güvenli & Faydalı', reason: 'Kalsiyum ve probiyotik deposu; sindirimi ve bağışıklığı güçlendirir.', alt: 'Günde 1-2 kase tüketilebilir.' },
   { id: 'f6', name: 'Türk Kahvesi & Filtre Kahve', cat: 'İçecekler', status: 'limit', badge: '🟡 Ölçülü Tüket', reason: 'Günlük kafein miktarı 200 mg (yaklaşık 1 fincan) ile sınırlandırılmalıdır.', alt: 'Kafeinsiz kahve veya ılık süt' },
   { id: 'f7', name: 'Adaçayı & Biberiye Çayı', cat: 'Bitki Çayları', status: 'avoid', badge: '🔴 Kaçınılmalı', reason: 'Rahim kasılmalarını tetikleyebilecek bileşenler içerebilir.', alt: 'Ihlamur veya Zencefil çayı' },
-  { id: 'f8', name: 'Yumurta (Tam Pişmiş / Katı)', cat: 'Temel Gıdalar', status: 'safe', badge: '🟢 Güvenli & Faydalı', reason: 'Kolin ve yüksek kaliteli protein kaynağıdır. Sarısı tamamen katı olmalıdır.', alt: 'Her sabah 1 adet haşlanmış yumurta' },
+  { id: 'f8', name: 'Tam Pişmiş Katı Yumurta', cat: 'Temel Gıdalar', status: 'safe', badge: '🟢 Güvenli & Faydalı', reason: 'Kolin ve yüksek kaliteli protein kaynağıdır. Sarısı tamamen katı olmalıdır.', alt: 'Her sabah 1 adet haşlanmış yumurta' },
   { id: 'f9', name: 'Midye & Karides Kokteyli', cat: 'Deniz Ürünleri', status: 'avoid', badge: '🔴 Kaçınılmalı', reason: 'Kabuklu deniz canlıları toksin ve ağır metal biriktirebilir.', alt: 'İyi pişmiş ızgara levrek' },
   { id: 'f10', name: 'Kokoreç & Sakatat', cat: 'Et Ürünleri', status: 'avoid', badge: '🔴 Kaçınılmalı', reason: 'Yüksek A vitamini (retinol) ve toksin riski taşır; gebelikte tüketilmemelidir.', alt: 'İyi pişmiş ızgara tavuk veya köfte' },
-  { id: 'f11', name: 'Pastırma & Sucuk (Çiğ)', cat: 'Et Ürünleri', status: 'avoid', badge: '🔴 Kaçınılmalı', reason: 'Çiğ kurutulmuş etlerde toksoplazma paraziti riski bulunur. İyice pişirilmelidir.', alt: 'Tavada tam pişmiş sucuklu yumurta' },
-  { id: 'f12', name: 'Maydanoz (Aşırı Çiğ Tüketim)', cat: 'Sebze & Yeşillik', status: 'limit', badge: '🟡 Ölçülü Tüket', reason: 'Yüksek miktarda apiole içerir, rahim kasılmalarını uyarabilir. Salatalarda az miktar güvenlidir.', alt: 'Roka, marul, taze ıspanak' },
-  { id: 'f13', name: 'Çiğ Köfte (Etsiz / Bulgurlu)', cat: 'Temel Gıdalar', status: 'safe', badge: '🟢 Güvenli & Faydalı', reason: 'Etsiz, hijyenik hazırlanan cevizli veya bulgurlu çiğ köfte güvenlidir.', alt: 'Bol limon ve taze marul ile' },
+  { id: 'f11', name: 'Çiğ Pastırma & Sucuk', cat: 'Et Ürünleri', status: 'avoid', badge: '🔴 Kaçınılmalı', reason: 'Çiğ kurutulmuş etlerde toksoplazma paraziti riski bulunur. İyice pişirilmelidir.', alt: 'Tavada tam pişmiş sucuklu yumurta' },
+  { id: 'f12', name: 'Aşırı Çiğ Maydanoz Tüketimi', cat: 'Sebze & Yeşillik', status: 'limit', badge: '🟡 Ölçülü Tüket', reason: 'Yüksek miktarda apiole içerir, rahim kasılmalarını uyarabilir. Salatalarda az miktar güvenlidir.', alt: 'Roka, marul, taze ıspanak' },
+  { id: 'f13', name: 'Etsiz Bulgurlu Çiğ Köfte', cat: 'Temel Gıdalar', status: 'safe', badge: '🟢 Güvenli & Faydalı', reason: 'Etsiz, hijyenik hazırlanan cevizli veya bulgurlu çiğ köfte güvenlidir.', alt: 'Bol limon ve taze marul ile' },
   { id: 'f14', name: 'Ihlamur & Zencefil Çayı', cat: 'Bitki Çayları', status: 'safe', badge: '🟢 Güvenli & Faydalı', reason: 'Mide bulantısını hafifletir ve boğazı rahatlatır; gebelikte en güvenli bitki çaylarıdır.', alt: 'Günde 1-2 fincan ılık tüketilebilir.' },
 ];
 
@@ -54,7 +54,7 @@ export function FoodSafetyChecker({ toast }) {
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="Gıda veya içecek ara (Örn: Suşi, Kahve, Peynir)..."
+          placeholder="Gıda veya içecek ara: Suşi, Kahve, Peynir..."
           placeholderTextColor={colors.muted}
           style={es.searchInput}
         />
@@ -190,7 +190,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
           style={[es.hubTabBtn, hubTab === 'articles' && es.hubTabBtnActive]}
         >
           <T bold={hubTab === 'articles'} style={[es.hubTabText, hubTab === 'articles' && { color: 'white' }]}>
-            📖 Magazin ({articles.length})
+            📖 Magazin
           </T>
         </Tap>
         <Tap
@@ -222,7 +222,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
             <TextInput
               value={articleQuery}
               onChangeText={setArticleQuery}
-              placeholder="Konu, soru, belirti veya makale ara (Örn: bulantı, kordon, dikiş)..."
+              placeholder="Konu, soru, belirti veya makale ara..."
               placeholderTextColor={colors.muted}
               style={es.searchInput}
             />
@@ -243,7 +243,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                 style={[es.catPill, articleFilter === t && es.catPillActive]}
               >
                 <T bold={articleFilter === t} style={{ fontSize: 12, color: articleFilter === t ? 'white' : colors.ink }}>
-                  {t === 'Tümü' ? `Tümü (${articles.length})` : t}
+                  {t}
                 </T>
               </Tap>
             ))}

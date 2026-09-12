@@ -24,7 +24,7 @@ export const allTools = [
     cat: 'counters',
     catTitle: 'Sayaçlar',
     title: 'Kasılma Sayacı',
-    subtitle: '5-1-1 kuralı & doğum zamanı',
+    subtitle: '5-1-1 kuralı ve doğum zamanı',
     icon: 'contraction',
     art: 'card_contractions',
     color: '#F0F6FB',
@@ -88,7 +88,7 @@ export const allTools = [
     title: 'Organ Gelişimi & Kalp',
     subtitle: '145 BPM fetal kalp sesi simülatörü',
     icon: 'heart',
-    art: 'fetus',
+    art: 'ui_fetal_heart_3d',
     color: '#FDF2F4',
     tint: '#A84D67',
     available: true,
@@ -102,7 +102,7 @@ export const allTools = [
     title: 'Hastane Çantası',
     subtitle: 'Anne, bebek & refakatçi listesi',
     icon: 'bag',
-    art: 'card_hospital_bag',
+    art: 'ui_hospital_bag_3d',
     color: '#F4EEF8',
     tint: '#744E8A',
     available: true,
@@ -126,7 +126,7 @@ export const allTools = [
     title: 'Doktora Sorular',
     subtitle: 'Kontrol randevusu soru defteri',
     icon: 'chat',
-    art: 'card_ask_doctor',
+    art: 'ui_doctor_prep_notebook',
     color: '#F5EEF5',
     tint: '#844E86',
     available: true,
@@ -152,7 +152,7 @@ export const allTools = [
     title: 'Emzirme & Biberon',
     subtitle: 'Sol/Sağ meme kronometresi & ml takibi',
     icon: 'nursing',
-    art: 'btn_nursing',
+    art: 'ui_nursing_dual_timer',
     color: '#FBF1F5',
     tint: '#9E567B',
     available: true,
@@ -164,7 +164,7 @@ export const allTools = [
     title: 'Uyku & Beyaz Gürültü',
     subtitle: 'Fön, dalga, rahim içi sakinleştirici',
     icon: 'moon',
-    art: 'btn_sleep',
+    art: 'ui_white_noise_headphones',
     color: '#ECEEF7',
     tint: '#4C589C',
     available: true,
@@ -176,7 +176,7 @@ export const allTools = [
     title: 'Bez Değiştirme Günlüğü',
     subtitle: 'Islak, kirli ve temiz bez sayaçları',
     icon: 'diaper',
-    art: 'btn_diaper',
+    art: 'cat_diaper',
     color: '#EDF5F2',
     tint: '#437E65',
     available: true,
@@ -188,7 +188,7 @@ export const allTools = [
     title: 'Lohusa İyileşme Rehberi',
     subtitle: 'Fiziksel toparlanma & kendine şefkat',
     icon: 'leaf',
-    art: 'blog_postpartum_selfcare',
+    art: 'ui_postpartum_lotus',
     color: '#F7EFF8',
     tint: '#86518A',
     available: true,
@@ -200,11 +200,11 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
   const [catFilter, setCatFilter] = useState('all');
 
   const categories = [
-    { id: 'all', label: 'Tüm Appler (15)' },
-    { id: 'counters', label: 'Sayaçlar (3)' },
-    { id: 'medical', label: 'Gelişim & Tıp (4)' },
-    { id: 'prep', label: 'Doğuma Hazırlık (4)' },
-    { id: 'postpartum', label: 'Bebek & Lohusa (4)' },
+    { id: 'all', label: 'Tüm Araçlar' },
+    { id: 'counters', label: 'Sayaçlar' },
+    { id: 'medical', label: 'Gelişim & Tıp' },
+    { id: 'prep', label: 'Doğuma Hazırlık' },
+    { id: 'postpartum', label: 'Bebek & Lohusa' },
   ];
 
   const displayedTools = catFilter === 'all'
@@ -253,7 +253,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
           style={[th.hubTabBtn, hubTab === 'tracking' && th.hubTabBtnActive]}
         >
           <T bold={hubTab === 'tracking'} style={[th.hubTabLabel, hubTab === 'tracking' && th.hubTabLabelActive]}>
-            📊 Takiplerim & Kayıtlarım ({kickSessions.length + weights.length})
+            📊 Takiplerim & Kayıtlarım
           </T>
         </Tap>
         <Tap
@@ -279,7 +279,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
             >
               <View style={th.quickHeroIcon}>
                 {generatedAssets['card_kick_counter'] ? (
-                  <Image source={generatedAssets['card_kick_counter']} style={{ width: 40, height: 40 }} resizeMode="contain" />
+                  <Image source={generatedAssets['card_kick_counter']} style={{ width: 44, height: 44 }} resizeMode="contain" />
                 ) : (
                   <Icon name="footprint" size={26} color="#9D5C80" />
                 )}
@@ -297,7 +297,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
             >
               <View style={th.quickHeroIcon}>
                 {generatedAssets['card_contractions'] ? (
-                  <Image source={generatedAssets['card_contractions']} style={{ width: 40, height: 40 }} resizeMode="contain" />
+                  <Image source={generatedAssets['card_contractions']} style={{ width: 44, height: 44 }} resizeMode="contain" />
                 ) : (
                   <Icon name="contraction" size={26} color="#4F79A1" />
                 )}
@@ -347,7 +347,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <T style={{ fontSize: 18 }}>⏱️</T>
-                <T bold style={{ fontSize: 15, color: colors.ink }}>Kasılma Kayıtları (Doğum Sancısı)</T>
+                <T bold style={{ fontSize: 15, color: colors.ink }}>Kasılma Kayıtları</T>
               </View>
               <Tap onPress={() => open('contractionTimer')} style={{ padding: 4 }}>
                 <T bold style={{ fontSize: 12, color: colors.purple }}>+ Sayacı Başlat</T>
@@ -359,7 +359,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
                 <View key={cs.id} style={th.logRow}>
                   <View>
                     <T bold style={{ fontSize: 14, color: colors.ink }}>
-                      {cs.duration} saniye sürdü ({cs.intensity || 'Hafif'})
+                      {cs.duration} saniye sürdü · {cs.intensity || 'Hafif Şiddet'}
                     </T>
                     <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
                       {cs.date} · {cs.time}
@@ -392,7 +392,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
                 <View key={w.id} style={th.logRow}>
                   <View>
                     <T bold style={{ fontSize: 14, color: colors.ink }}>
-                      {w.value} kg ({w.week}. Hafta)
+                      {w.value} kg · {w.week}. Hafta
                     </T>
                     <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
                       {w.date} · {w.time}
@@ -417,7 +417,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
             >
               <T style={{ fontSize: 20 }}>🎒</T>
               <T bold style={{ fontSize: 13, color: '#572E65', marginTop: 4 }}>Hastane Çantası</T>
-              <T style={{ fontSize: 11, color: '#885899', marginTop: 2 }}>5/8 eşya hazır (%62)</T>
+              <T style={{ fontSize: 11, color: '#885899', marginTop: 2 }}>5/8 eşya hazır</T>
             </Tap>
 
             <Tap
@@ -471,9 +471,9 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
                 <View style={th.toolTop}>
                   <View style={[th.toolIconBox, { backgroundColor: tool.tint + '18' }]}>
                     {tool.art && generatedAssets[tool.art] ? (
-                      <Image source={generatedAssets[tool.art]} style={{ width: 34, height: 34 }} resizeMode="contain" />
+                      <Image source={generatedAssets[tool.art]} style={{ width: 46, height: 46 }} resizeMode="contain" />
                     ) : (
-                      <Icon name={tool.icon} size={22} color={tool.tint} />
+                      <Icon name={tool.icon} size={28} color={tool.tint} />
                     )}
                   </View>
                   <View style={th.categoryTag}>
@@ -503,13 +503,13 @@ const th = StyleSheet.create({
   hubTabLabelActive: { color: colors.purple },
   quickRow: { flexDirection: 'row', gap: 12 },
   quickHero: { flex: 1, padding: 15, borderRadius: 20, borderWidth: 1, ...shadow },
-  quickHeroIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', marginBottom: 8, ...shadow },
+  quickHeroIcon: { width: 56, height: 56, borderRadius: 20, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', marginBottom: 8, ...shadow },
   catTab: { paddingVertical: 7, paddingHorizontal: 14, borderRadius: 16, backgroundColor: '#EFEAEF' },
   catTabActive: { backgroundColor: colors.purple },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 11, justifyContent: 'space-between' },
-  toolCard: { width: '48%', borderRadius: 22, padding: 15, minHeight: 136, borderWidth: 1, borderColor: '#ECE1EC', ...shadow },
-  toolTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  toolIconBox: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  toolCard: { width: '48%', borderRadius: 24, padding: 16, minHeight: 156, borderWidth: 1.2, borderColor: '#ECE1EC', ...shadow },
+  toolTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },
+  toolIconBox: { width: 58, height: 58, borderRadius: 18, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', shadowColor: '#886488', shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 3 }, elevation: 2 },
   categoryTag: { backgroundColor: '#FFFFFF99', paddingHorizontal: 6, paddingVertical: 3, borderRadius: 8 },
   toolTitle: { fontSize: 14.5, letterSpacing: -0.2 },
   toolSub: { fontSize: 11.5, color: colors.muted, marginTop: 4, lineHeight: 16 },
