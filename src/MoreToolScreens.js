@@ -4,6 +4,7 @@ import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
 import { T, Tap, Card, Section, Progress } from './ui';
 import { uid, localDay } from './domain.mjs';
+import { babyNamesList, nameThemes, nameOrigins } from './babyNamesData';
 
 // ─── 4. KİLO TAKİBİ (WEIGHT TRACKER) ─────────────────────────────────────────
 export function WeightTracker({ state, update, toast }) {
@@ -237,18 +238,12 @@ export function DoctorQuestions({ state, update, toast }) {
   );
 }
 
-// ─── 7. BEBEK İSİMLERİ (BABY NAME MATCHER) ───────────────────────────────────
-const sampleNames = [
-  { id: 'bn1', name: 'Mila', gender: 'Kız', origin: 'Slav', meaning: 'Sevgili, lütufkâr', votes: 420 },
-  { id: 'bn2', name: 'Atlas', gender: 'Erkek', origin: 'Mitoloji', meaning: 'Gökyüzünü taşıyan, güçlü', votes: 512 },
-  { id: 'bn3', name: 'Lina', gender: 'Kız', origin: 'Arapça', meaning: 'Hurma fidesi, yumuşak', votes: 389 },
-  { id: 'bn4', name: 'Kaan', gender: 'Erkek', origin: 'Türkçe', meaning: 'Hükümdar, hanların hanı', votes: 450 },
-  { id: 'bn5', name: 'Arya', gender: 'Üniseks', origin: 'Sanskritçe', meaning: 'Soylu, erdemli, ezgi', votes: 610 },
-  { id: 'bn6', name: 'Deniz', gender: 'Üniseks', origin: 'Türkçe', meaning: 'Engin su kütlesi, ferahlık', votes: 540 },
-];
-
+// ─── 7. BEBEK İSİMLERİ KÜTÜPHANESİ (BABY NAME MATCHER & DISCOVERY) ───────────
 export function BabyNameMatcher({ state, update, toast }) {
-  const [filter, setFilter] = useState('Tümü');
+  const [genderFilter, setGenderFilter] = useState('Tümü');
+  const [themeFilter, setThemeFilter] = useState('Tümü');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [randomPick, setRandomPick] = useState(null);
   const favNames = state.favNames || [];
 
   function toggleFav(id) {
@@ -258,47 +253,174 @@ export function BabyNameMatcher({ state, update, toast }) {
     toast && toast(exists ? 'Favorilerden çıkarıldı' : 'Favorilere eklendi 💛');
   }
 
-  const filtered = sampleNames.filter(n => filter === 'Tümü' || n.gender === filter);
+  function pickRandom() {
+    const pool = filtered.length ? filtered : babyNamesList;
+    const randomIndex = Math.floor(Math.random() * pool.length);
+    setRandomPick(pool[randomIndex]);
+    toast && toast('Şanslı isim seçildi ✨');
+  }
+
+  // Filtreleme mantığı
+  const filtered = babyNamesList.filter(n => {
+    // Cinsiyet filtresi
+    if (genderFilter !== 'Tümü' && n.gender !== genderFilter) return false;
+
+    // Tema filtresi
+    if (themeFilter === '💕 Ortak Eşleşmeler' && !n.partnerMatch) return false;
+    if (themeFilter === '🌿 Doğa & Çiçek' && n.tag !== 'Doğa & Çiçek') return false;
+    if (themeFilter === '🏛️ Tarihi & Göktürk' && n.tag !== 'Tarihi & Göktürk') return false;
+    if (themeFilter === '✨ Modern & Kısa' && n.tag !== 'Modern & Kısa') return false;
+    if (themeFilter === '📖 Kuran\'da Geçen' && !n.quran) return false;
+
+    // Arama sorgusu
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      const matchName = n.name.toLowerCase().includes(q);
+      const matchMeaning = n.meaning.toLowerCase().includes(q);
+      const matchOrigin = n.origin.toLowerCase().includes(q);
+      if (!matchName && !matchMeaning && !matchOrigin) return false;
+    }
+
+    return true;
+  });
+
+  const partnerMatchesCount = babyNamesList.filter(n => n.partnerMatch).length;
 
   return (
     <View style={ws.container}>
-      {/* Filtre Butonları */}
+      {/* İstatistik & Bilgi Kartı */}
+      <Card style={{ padding: 14, backgroundColor: '#FAF6FA', borderColor: '#EFE5F0' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View>
+            <T bold style={{ fontSize: 16, color: colors.purple }}>Bebek İsim Kütüphanesi</T>
+            <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
+              {babyNamesList.length} Seçkin İsim · {favNames.length} Favorin · 💕 {partnerMatchesCount} Eşinle Ortak
+            </T>
+          </View>
+          <Tap onPress={pickRandom} label="Şanslı İsim" style={{ backgroundColor: '#F0E5F2', paddingHorizontal: 12, paddingVertical: 7, borderRadius: 12, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <T style={{ fontSize: 13 }}>🎲</T>
+            <T bold style={{ fontSize: 11, color: colors.purple }}>Şanslı İsim</T>
+          </Tap>
+        </View>
+
+        {/* Rastgele Seçim Bildirimi */}
+        {randomPick && (
+          <View style={{ marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#EAE0ED', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ flex: 1, paddingRight: 8 }}>
+              <T bold style={{ fontSize: 14, color: colors.purple }}>✨ Şanslı Öneri: {randomPick.name} ({randomPick.gender})</T>
+              <T style={{ fontSize: 11, color: '#6A5670', marginTop: 2 }}>{randomPick.meaning}</T>
+            </View>
+            <Tap onPress={() => toggleFav(randomPick.id)} style={{ padding: 6 }}>
+              <Icon name="heart" size={18} color={favNames.includes(randomPick.id) ? '#C55B77' : colors.muted} fill={favNames.includes(randomPick.id) ? '#C55B77' : 'none'} />
+            </Tap>
+          </View>
+        )}
+      </Card>
+
+      {/* Arama Çubuğu */}
+      <View style={ws.inputRow}>
+        <TextInput
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="İsim, anlam veya kökene göre ara... (Örn: Nehir, Zafer)"
+          placeholderTextColor={colors.muted}
+          style={ws.input}
+        />
+        {searchQuery ? (
+          <Tap onPress={() => setSearchQuery('')} style={{ padding: 8 }}>
+            <T style={{ fontSize: 13, color: colors.muted }}>✕</T>
+          </Tap>
+        ) : null}
+      </View>
+
+      {/* Cinsiyet Filtresi */}
       <View style={{ flexDirection: 'row', gap: 8 }}>
         {['Tümü', 'Kız', 'Erkek', 'Üniseks'].map(g => (
           <Tap
             key={g}
-            onPress={() => setFilter(g)}
+            onPress={() => setGenderFilter(g)}
             label={g}
-            style={[ws.filterPill, filter === g && ws.filterPillActive]}
+            style={[ws.filterPill, genderFilter === g && ws.filterPillActive]}
           >
-            <T bold={filter === g} style={{ fontSize: 12, color: filter === g ? 'white' : colors.ink }}>
-              {g}
+            <T bold={genderFilter === g} style={{ fontSize: 12, color: genderFilter === g ? 'white' : colors.ink }}>
+              {g === 'Kız' ? '👧 Kız' : g === 'Erkek' ? '👦 Erkek' : g === 'Üniseks' ? '🤍 Üniseks' : 'Tümü'}
             </T>
           </Tap>
         ))}
       </View>
 
+      {/* Tema & Kategori Rozetleri */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
+        {nameThemes.map(t => (
+          <Tap
+            key={t}
+            onPress={() => setThemeFilter(t)}
+            label={t}
+            style={[ws.themePill, themeFilter === t && ws.themePillActive]}
+          >
+            <T bold={themeFilter === t} style={{ fontSize: 11, color: themeFilter === t ? colors.purple : colors.muted }}>
+              {t}
+            </T>
+          </Tap>
+        ))}
+      </ScrollView>
+
+      {/* İsim Kartları Listesi */}
       <View style={{ gap: 10 }}>
-        {filtered.map(n => {
-          const isFav = favNames.includes(n.id);
-          return (
-            <Card key={n.id} style={ws.nameCard}>
-              <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <T bold style={{ fontSize: 18, color: colors.ink }}>{n.name}</T>
-                  <View style={ws.genderBadge}>
-                    <T style={{ fontSize: 10, color: colors.purple }}>{n.gender}</T>
+        {filtered.length === 0 ? (
+          <Card style={{ padding: 24, alignItems: 'center' }}>
+            <T style={{ fontSize: 14, color: colors.muted, textAlign: 'center' }}>
+              Aramana uygun isim bulunamadı. Filtreleri sıfırlayabilir veya farklı bir harf deneyebilirsin.
+            </T>
+          </Card>
+        ) : (
+          filtered.map(n => {
+            const isFav = favNames.includes(n.id);
+            return (
+              <Card key={n.id} style={ws.nameCard}>
+                <View style={{ flex: 1 }}>
+                  {/* İsim, Cinsiyet ve Eşleşme Rozeti */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <T bold style={{ fontSize: 18, color: colors.ink }}>{n.name}</T>
+                    
+                    <View style={[ws.genderBadge, n.gender === 'Kız' ? { backgroundColor: '#FBEBF2' } : n.gender === 'Erkek' ? { backgroundColor: '#EBF3FB' } : { backgroundColor: '#F0EEF5' }]}>
+                      <T style={{ fontSize: 10, color: n.gender === 'Kız' ? '#B84570' : n.gender === 'Erkek' ? '#3B72A4' : '#6A5C78' }}>
+                        {n.gender}
+                      </T>
+                    </View>
+
+                    {n.partnerMatch && (
+                      <View style={ws.matchBadge}>
+                        <T style={{ fontSize: 10, color: '#9B3F63' }}>💕 Eşinle Ortak</T>
+                      </View>
+                    )}
+
+                    {n.quran && (
+                      <View style={[ws.matchBadge, { backgroundColor: '#EBF4ED' }]}>
+                        <T style={{ fontSize: 9, color: '#3E7D52' }}>📖 Kuran'da Geçen</T>
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Anlam */}
+                  <T style={{ fontSize: 13, color: '#554A58', marginTop: 5, lineHeight: 18 }}>{n.meaning}</T>
+                  
+                  {/* Köken & Etiket */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 6 }}>
+                    <T style={{ fontSize: 11, color: colors.muted }}>Köken: {n.origin}</T>
+                    <T style={{ fontSize: 11, color: '#88708E' }}>• {n.tag}</T>
+                    <T style={{ fontSize: 11, color: '#88708E' }}>• {n.popularity}</T>
                   </View>
                 </View>
-                <T style={{ fontSize: 13, color: '#554A58', marginTop: 4 }}>{n.meaning}</T>
-                <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>Köken: {n.origin}</T>
-              </View>
-              <Tap onPress={() => toggleFav(n.id)} label="Favoriye al" style={ws.favBtn}>
-                <Icon name="heart" size={22} color={isFav ? '#C55B77' : colors.muted} fill={isFav ? '#C55B77' : 'none'} />
-              </Tap>
-            </Card>
-          );
-        })}
+
+                {/* Kalp Butonu */}
+                <Tap onPress={() => toggleFav(n.id)} label="Favoriye al" style={ws.favBtn}>
+                  <Icon name="heart" size={24} color={isFav ? '#C55B77' : '#BFAEC2'} fill={isFav ? '#C55B77' : 'none'} />
+                </Tap>
+              </Card>
+            );
+          })
+        )}
       </View>
     </View>
   );
@@ -324,6 +446,9 @@ const ws = StyleSheet.create({
   checkText: { flex: 1, fontSize: 13, color: colors.ink },
   filterPill: { paddingVertical: 7, paddingHorizontal: 14, borderRadius: 16, backgroundColor: '#EFEAEF' },
   filterPillActive: { backgroundColor: colors.purple },
+  themePill: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 14, backgroundColor: '#FAF4FA', borderWidth: 1, borderColor: '#EBDDEB' },
+  themePillActive: { backgroundColor: '#F0E2F1', borderColor: colors.purple },
+  matchBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, backgroundColor: '#FCEEF3' },
   nameCard: { flexDirection: 'row', alignItems: 'center', padding: 14 },
   genderBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, backgroundColor: '#EFE5F3' },
   favBtn: { padding: 8 },

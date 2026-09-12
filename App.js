@@ -9,6 +9,7 @@ import { T, Tap } from './src/ui';
 import { Onboarding, Pregnancy, Postpartum, Baby, Discover, Assistant } from './src/screens';
 import { ToolsHub } from './src/ToolsHub';
 import DetailSheet from './src/DetailSheet';
+import { ProfileScreen } from './src/ProfileScreen';
 import { useDemoStore } from './src/store';
 
 const previewScreens=[
@@ -17,6 +18,7 @@ const previewScreens=[
   ['tools','Araçlar & Sayaçlar (Appler)'],
   ['discover','Kütüphane & Magazin (Blog)'],
   ['assistant','Topluluk & Asistan'],
+  ['profile','Profil & Ortak Aile'],
   ['postpartum','Lohusalık'],
   ['baby','Bebek Takibi'],
 ];
@@ -40,7 +42,7 @@ function Momora() {
     }
   },[ready,state.mode,state.lastMoodDate]);
   const props={state,update,addRecord,open};
-  const renderPage=()=>{switch(active){case'pregnancy':return <Pregnancy {...props}/>;case'tools':return <ToolsHub {...props} toast={setNotice}/>;case'postpartum':return <Postpartum {...props}/>;case'baby':return <Baby {...props}/>;case'discover':return <Discover {...props}/>;case'assistant':return <Assistant {...props} toast={setNotice}/>;default:return <Onboarding choose={choose}/>}};
+  const renderPage=()=>{switch(active){case'pregnancy':return <Pregnancy {...props}/>;case'tools':return <ToolsHub {...props} toast={setNotice}/>;case'postpartum':return <Postpartum {...props}/>;case'baby':return <Baby {...props}/>;case'discover':return <Discover {...props}/>;case'assistant':return <Assistant {...props} toast={setNotice}/>;case'profile':return <ProfileScreen {...props} toast={setNotice} choose={choose}/>;default:return <Onboarding choose={choose} update={update} toast={setNotice}/>}};
   if(!ready)return <View style={s.loading}><BrandMark size={60}/><ActivityIndicator color={colors.purple}/></View>;
   return <View style={[s.root,desktop&&s.desktop]}>
     {desktop&&<View style={s.sidebar}><View style={s.desktopBrand}><BrandMark size={55}/><T style={s.desktopWordmark}>MOMORA</T></View><T style={s.desktopTag}>Her adımda, daha güçlü bir sen.</T><View style={{gap:8,marginTop:42}}>{previewScreens.map(([id,label],index)=><Tap key={id} onPress={()=>setPage(id)} label={'Ekran: '+label} accessibilityState={{selected:active===id}} style={[s.previewTab,active===id&&s.previewTabActive]}><T style={[s.previewNumber,active===id&&{color:colors.purple}]}>{String(index+1).padStart(2,'0')}</T><T bold={active===id} style={{fontSize:15}}>{label}</T><View style={{flex:1}}/>{active===id&&<Icon name="chevron" color={colors.purple} size={18}/>}</Tap>)}</View><View style={s.localBadge}><View style={s.dot}/><T style={{fontSize:12,color:colors.muted}}>Yerel demo · React Native / Expo Go</T></View></View>}
@@ -53,7 +55,7 @@ function Momora() {
         {label:'Araçlar',icon:'track',selected:active==='tools',action:()=>setPage('tools')},
         {label:'Kütüphane',icon:'book',selected:active==='discover',action:()=>setPage('discover')},
         {label:'Topluluk',icon:'community',selected:active==='assistant',action:()=>setPage('assistant')},
-        {label:'Profil',icon:'profile',selected:false,action:()=>open('profile')},
+        {label:'Profil',icon:'profile',selected:active==='profile',action:()=>setPage('profile')},
       ].map(tab=><Tap key={tab.label} label={tab.label} onPress={tab.action} accessibilityState={{selected:tab.selected}} style={s.navItem}><Icon name={tab.icon} size={22} color={tab.selected?'#5F4D7D':'#7C7E83'} fill={tab.selected&&(tab.icon==='home'||tab.icon==='book')?'#5F4D7D':'none'}/><T style={[s.navLabel,tab.selected&&{color:'#5F4D7D',fontFamily:fonts.bold}]}>{tab.label}</T></Tap>)}</View>}
       {active==='onboarding'&&!desktop&&<View style={{height:insets.bottom}}/>}
       {!!notice&&<View style={s.toast}><T style={{color:'white',fontSize:14,textAlign:'center'}}>{notice}</T></View>}

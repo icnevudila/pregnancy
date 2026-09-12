@@ -17,15 +17,122 @@ export const journeys = [
   { key: 'baby', title: 'Bebeğimi\nbüyütüyorum', sub: 'Her gününde birlikte', image: assets.baby, tint: '#EAEAE3' },
 ];
 
-export function Onboarding({ choose }) {
+export function Onboarding({ choose, update, toast }) {
+  const [role, setRole] = useState('mother'); // 'mother' | 'father'
+  const [showSyncInput, setShowSyncInput] = useState(false);
+  const [partnerCode, setPartnerCode] = useState('');
+
+  const fatherJourneys = [
+    { key: 'pregnancy', title: 'Bebeğimizi Bekliyoruz', sub: 'Eşimin yanında, bebeğimizle\ntanışmaya hazırlanıyorum', image: assets.pregnancy, tint: '#EBF2F7' },
+    { key: 'postpartum', title: 'Lohusalık Desteği', sub: 'Eşime ve bebeğime lohusalıkta\nen iyi desteği veriyorum', image: assets.mother, tint: '#EAF0F6' },
+    { key: 'baby', title: 'Bebeğimizi Büyütüyoruz', sub: 'Gelişimini her gün\nbirlikte takip ediyoruz', image: assets.baby, tint: '#ECEEE7' },
+  ];
+
+  const currentJourneys = role === 'father' ? fatherJourneys : journeys;
+
+  function selectJourney(key) {
+    if (update) {
+      update({
+        role,
+        name: role === 'father' ? 'Mehmet' : 'Zeynep',
+        partnerName: role === 'father' ? 'Zeynep' : 'Mehmet',
+        partnerRole: role === 'father' ? 'mother' : 'father',
+        partnerConnected: true,
+      });
+    }
+    toast && toast(role === 'father' ? 'Hoş geldin Baba! 👨‍🍼 Ortak yolculuğunuz başladı.' : 'Hoş geldin Anne! 🌸 Mucizeniz başladı.');
+    choose(key);
+  }
+
+  function handleSyncSubmit() {
+    if (!partnerCode.trim()) return;
+    toast && toast('Eşinin aile hesabına başarıyla bağlandın! 💚');
+    selectJourney('pregnancy');
+  }
+
   return <Page contentStyle={s.onboarding}>
     <View style={s.brand}><BrandMark size={38}/><T style={s.wordmark}>MOMORA</T></View>
-    <View style={s.welcome}><T bold style={s.welcomeTitle}>Yolculuğun nerede?</T><T style={s.welcomeText}>Sana en uygun deneyimi sunalım.{ '\n' }İstediğin zaman değiştirebilirsin.</T></View>
-    <View style={{ gap: 20 }}>{journeys.map(j => <Tap key={j.key} label={j.title.replace('\n',' ')} onPress={() => choose(j.key)} style={[s.journey, { backgroundColor: j.tint }]}>
+    
+    <View style={s.welcome}>
+      <T bold style={s.welcomeTitle}>Yolculuğun Nerede?</T>
+      <T style={s.welcomeText}>Anne ve baba aynı hesaptan birlikte takip edebilir.{ '\n' }Sana en uygun deneyimi sunalım.</T>
+    </View>
+
+    {/* ─── ANNE / BABA ROL SEÇİCİ ─── */}
+    <View style={{ marginBottom: 20 }}>
+      <T bold style={{ fontSize: 13, color: colors.purple, marginBottom: 8, textAlign: 'center' }}>BEN KİMİM?</T>
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        <Tap
+          onPress={() => setRole('mother')}
+          label="Anne Adayıyım"
+          style={[
+            { flex: 1, paddingVertical: 14, paddingHorizontal: 10, borderRadius: 18, alignItems: 'center', backgroundColor: '#FAF6FA', borderWidth: 2, borderColor: '#ECE0EE' },
+            role === 'mother' && { backgroundColor: '#F7EDF5', borderColor: colors.purple, ...shadow },
+          ]}
+        >
+          <T style={{ fontSize: 26 }}>🤰</T>
+          <T bold style={{ fontSize: 13, color: role === 'mother' ? colors.purple : colors.ink, marginTop: 4 }}>
+            Ben Anneyim
+          </T>
+          <T style={{ fontSize: 10, color: colors.muted, marginTop: 2, textAlign: 'center' }}>
+            Hamilelik & Beden Takibi
+          </T>
+        </Tap>
+
+        <Tap
+          onPress={() => setRole('father')}
+          label="Baba Adayıyım"
+          style={[
+            { flex: 1, paddingVertical: 14, paddingHorizontal: 10, borderRadius: 18, alignItems: 'center', backgroundColor: '#F6F9FB', borderWidth: 2, borderColor: '#DCE8F2' },
+            role === 'father' && { backgroundColor: '#EBF3F9', borderColor: '#3E76A8', ...shadow },
+          ]}
+        >
+          <T style={{ fontSize: 26 }}>👨‍🍼</T>
+          <T bold style={{ fontSize: 13, color: role === 'father' ? '#3E76A8' : colors.ink, marginTop: 4 }}>
+            Ben Babayım
+          </T>
+          <T style={{ fontSize: 10, color: colors.muted, marginTop: 2, textAlign: 'center' }}>
+            Eş Desteği & Ortak Takip
+          </T>
+        </Tap>
+      </View>
+    </View>
+
+    {/* EŞİNİN AİLE KODU İLE BAĞLAN BUTONU */}
+    <View style={{ marginBottom: 18, alignItems: 'center' }}>
+      <Tap
+        onPress={() => setShowSyncInput(!showSyncInput)}
+        label="Eşimin aile kodu var"
+        style={{ paddingVertical: 6, paddingHorizontal: 12, borderRadius: 12, backgroundColor: '#F0EAF2' }}
+      >
+        <T bold style={{ fontSize: 11, color: colors.purple }}>
+          {showSyncInput ? '✕ Kapat' : '📲 Eşimin Aile Kodu Var (Ortak Hesaba Bağlan)'}
+        </T>
+      </Tap>
+
+      {showSyncInput && (
+        <View style={{ width: '100%', marginTop: 10, flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+          <TextInput
+            value={partnerCode}
+            onChangeText={setPartnerCode}
+            placeholder="Örn: MOM-7829-TR"
+            placeholderTextColor={colors.muted}
+            style={{ flex: 1, height: 42, borderRadius: 12, borderWidth: 1, borderColor: colors.purple, paddingHorizontal: 12, backgroundColor: '#FFFFFF', fontSize: 13 }}
+          />
+          <Tap onPress={handleSyncSubmit} label="Bağlan" style={{ height: 42, paddingHorizontal: 14, borderRadius: 12, backgroundColor: colors.purple, alignItems: 'center', justifyContent: 'center' }}>
+            <T bold style={{ color: 'white', fontSize: 12 }}>Eşime Bağlan</T>
+          </Tap>
+        </View>
+      )}
+    </View>
+
+    {/* YOLCULUK KARTLARI */}
+    <View style={{ gap: 16 }}>{currentJourneys.map(j => <Tap key={j.key} label={j.title.replace('\n',' ')} onPress={() => selectJourney(j.key)} style={[s.journey, { backgroundColor: j.tint }]}>
       <View style={s.journeyPhoto}><Image source={j.image} style={s.journeyImage}/><LinearGradient colors={['transparent', j.tint]} start={{x:0.72,y:0}} end={{x:1,y:0}} style={StyleSheet.absoluteFill}/></View>
       <View style={s.journeyCopy}><T bold style={s.journeyTitle}>{j.title}</T><T style={s.journeySub}>{j.sub}</T></View><Icon name="chevron" size={22}/>
     </Tap>)}</View>
-    <View style={s.motto}><Icon name="heart" color="#A68A9C" size={29}/><T style={s.handwritten}>Daha bilinçli, daha huzurlu{ '\n' }bir yolculuk için</T></View>
+
+    <View style={s.motto}><Icon name="heart" color="#A68A9C" size={29}/><T style={s.handwritten}>Anne ve Baba el ele,{ '\n' }huzurlu bir yolculuk için</T></View>
   </Page>;
 }
 
