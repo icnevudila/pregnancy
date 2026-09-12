@@ -468,35 +468,76 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
               </View>
 
               <View style={th.grid}>
-                {group.tools.map(tool => (
-                  <Tap
-                    key={tool.id}
-                    onPress={() => {
-                      if (tool.available) {
-                        open(tool.id);
-                      } else {
-                        toast && toast(tool.title + ' sonraki güncellemede aktif olacak ✨');
-                      }
-                    }}
-                    label={tool.title}
-                    style={[th.toolCard, { backgroundColor: tool.color }]}
-                  >
-                    <View style={th.toolTop}>
-                      <View style={[th.toolIconBox, { backgroundColor: tool.tint + '18' }]}>
-                        {tool.art && generatedAssets[tool.art] ? (
-                          <Image source={generatedAssets[tool.art]} style={{ width: 46, height: 46 }} resizeMode="contain" />
-                        ) : (
-                          <Icon name={tool.icon} size={28} color={tool.tint} />
-                        )}
+                {group.tools.map(tool => {
+                  let liveBadge = null;
+                  if (tool.id === 'kickCounter') {
+                    const ks = state?.kickSessions || [];
+                    liveBadge = ks.length ? `${ks[0].kicks ?? ks[0].count} tekme` : null;
+                  } else if (tool.id === 'contractionTimer') {
+                    const cs = state?.contractionSessions || [];
+                    liveBadge = cs.length ? `${cs[0].durationSecs ?? cs[0].duration}s sancı` : null;
+                  } else if (tool.id === 'weight') {
+                    const ws = state?.weights || [];
+                    liveBadge = ws.length ? `${ws[0].value} kg` : null;
+                  } else if (tool.id === 'hospitalBag') {
+                    const items = state?.lists?.bag || [];
+                    const done = items.filter(i => i.done).length;
+                    liveBadge = items.length ? `%{Math.round((done / items.length) * 100)}` : null;
+                  } else if (tool.id === 'birthPlan') {
+                    const done = Object.values(state?.birthPlan || {}).filter(Boolean).length;
+                    liveBadge = done ? `${done}/8 tercih` : null;
+                  } else if (tool.id === 'babyNames') {
+                    const favs = state?.favNames || [];
+                    liveBadge = favs.length ? `${favs.length} favori` : null;
+                  } else if (tool.id === 'doctorQuestions') {
+                    const qs = state?.lists?.questions || [];
+                    const open = qs.filter(q => !q.done).length;
+                    liveBadge = open ? `${open} soru` : null;
+                  } else if (tool.id === 'nursingTimer') {
+                    liveBadge = state?.lastNursingSide || null;
+                  } else if (tool.id === 'diaperTracker') {
+                    const diapers = (state?.records || []).filter(r => r.type === 'Bez');
+                    liveBadge = diapers.length ? `${diapers.length} bez` : null;
+                  }
+
+                  return (
+                    <Tap
+                      key={tool.id}
+                      onPress={() => {
+                        if (tool.available) {
+                          open(tool.id);
+                        } else {
+                          toast && toast(tool.title + ' sonraki güncellemede aktif olacak ✨');
+                        }
+                      }}
+                      label={tool.title}
+                      style={[th.toolCard, { backgroundColor: tool.color }]}
+                    >
+                      <View style={th.toolTop}>
+                        <View style={[th.toolIconBox, { backgroundColor: tool.tint + '18' }]}>
+                          {tool.art && generatedAssets[tool.art] ? (
+                            <Image source={generatedAssets[tool.art]} style={{ width: 46, height: 46 }} resizeMode="contain" />
+                          ) : (
+                            <Icon name={tool.icon} size={28} color={tool.tint} />
+                          )}
+                        </View>
+                        <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                          <View style={th.categoryTag}>
+                            <T style={{ fontSize: 9, color: tool.tint, fontWeight: 'bold' }}>{tool.catTitle}</T>
+                          </View>
+                          {liveBadge && (
+                            <View style={[th.liveBadge, { borderColor: tool.tint + '55' }]}>
+                              <View style={[th.liveBadgeDot, { backgroundColor: tool.tint }]} />
+                              <T bold style={{ fontSize: 9.5, color: tool.tint }}>{liveBadge}</T>
+                            </View>
+                          )}
+                        </View>
                       </View>
-                      <View style={th.categoryTag}>
-                        <T style={{ fontSize: 9.5, color: tool.tint, fontWeight: 'bold' }}>{tool.catTitle}</T>
-                      </View>
-                    </View>
-                    <T bold style={[th.toolTitle, { color: colors.ink }]}>{tool.title}</T>
-                    <T style={th.toolSub}>{tool.subtitle}</T>
-                  </Tap>
-                ))}
+                      <T bold style={[th.toolTitle, { color: colors.ink }]}>{tool.title}</T>
+                      <T style={th.toolSub}>{tool.subtitle}</T>
+                    </Tap>
+                  );
+                })}
               </View>
             </View>
           ))}
@@ -527,10 +568,12 @@ const th = StyleSheet.create({
   catTabActive: { backgroundColor: colors.purple },
   groupHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 2 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 11, justifyContent: 'space-between' },
-  toolCard: { width: '48%', borderRadius: 24, padding: 16, minHeight: 156, borderWidth: 1.2, borderColor: '#ECE1EC', ...shadow },
+  toolCard: { width: '48%', borderRadius: 24, padding: 15, minHeight: 160, borderWidth: 1.2, borderColor: '#ECE1EC', ...shadow },
   toolTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },
-  toolIconBox: { width: 58, height: 58, borderRadius: 18, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', shadowColor: '#886488', shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 3 }, elevation: 2 },
+  toolIconBox: { width: 56, height: 56, borderRadius: 18, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', shadowColor: '#886488', shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 3 }, elevation: 2 },
   categoryTag: { backgroundColor: '#FFFFFF99', paddingHorizontal: 6, paddingVertical: 3, borderRadius: 8 },
+  liveBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#FFFFFFEE', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8, borderWidth: 1 },
+  liveBadgeDot: { width: 5, height: 5, borderRadius: 2.5 },
   toolTitle: { fontSize: 14.5, letterSpacing: -0.2 },
   toolSub: { fontSize: 11.5, color: colors.muted, marginTop: 4, lineHeight: 16 },
   logRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 9, borderBottomWidth: 1, borderColor: '#F2EAF3' },

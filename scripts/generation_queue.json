@@ -5,11 +5,10 @@
       "filename": "onboarding_hero_pregnancy.png",
       "prompt": "Award-winning artistic 3D illustration of a glowing, radiant expectant mother gently cradling her pregnant belly with deep maternal tenderness, surrounded by delicate floating warm golden light particles and soft pastel watercolor floral accents, ethereal serene atmosphere, warm cream and dusty rose tones, cinematic lighting, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": false,
-      "status": "processing",
+      "status": "pending",
       "attempts": 3,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249574209,
-      "startedAt": 1789249728764,
+      "updatedAt": 1789249762780,
       "platform": "unknown"
     },
     {
@@ -18,10 +17,10 @@
       "prompt": "Hyperrealistic HD-Live medical 3D visualization of a serene human fetus floating peacefully in the amniotic sac, glowing translucent skin, warm golden amber illumination, gentle umbilical cord, tender baby features resting in peaceful sleep, macro medical cinematography, National Geographic quality, emotional miracle of life, 8k render, no logos, no text.",
       "transparent": false,
       "status": "pending",
-      "attempts": 2,
+      "attempts": 3,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249577699,
-      "startedAt": 1789249577642
+      "updatedAt": 1789249764026,
+      "platform": "unknown"
     },
     {
       "id": "job_1789249250053_e5tdw",
@@ -29,10 +28,9 @@
       "prompt": "Emotional heartwarming fine art illustration of an expectant father and mother sitting closely on a warm sunlit daybed, father's hands gently resting on mother's pregnant belly with profound love, joyful anticipatory smile, soft organic linen textures, warm golden hour sunbeams streaming through curtains, luxury editorial style, 8k render, no watermarks, no text.",
       "transparent": false,
       "status": "pending",
-      "attempts": 2,
+      "attempts": 3,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249607771,
-      "startedAt": 1789249602319,
+      "updatedAt": 1789249799757,
       "platform": "unknown"
     },
     {
@@ -41,10 +39,9 @@
       "prompt": "High-end 3D modern isometric aesthetic concept of daily maternal health guidance, featuring an elegant glowing celestial calendar, a soft pastel stethoscope entwined with blooming jasmine flowers, and an open golden advice scroll, soft sage green, lilac and warm ivory colors, 8k render, clean studio lighting, no text, no watermarks.",
       "transparent": false,
       "status": "pending",
-      "attempts": 2,
+      "attempts": 3,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249608952,
-      "startedAt": 1789249608890,
+      "updatedAt": 1789249831771,
       "platform": "unknown"
     },
     {
@@ -78,13 +75,11 @@
       "filename": "infographic_labor_stages.png",
       "prompt": "Serene artistic medical visual representation of the journey of childbirth: three harmonious elegant phases showing early labor serenity in a birthing tub with gentle warm water ripples, active labor breathing with partner support, and the triumphant golden hour of mother holding newborn skin-to-skin against her heart, warm amber and soft mauve palette, tasteful fine art aesthetic, 8k resolution, no graphic medical gore, dignified and uplifting, no text, no logos.",
       "transparent": false,
-      "status": "error",
+      "status": "pending",
       "attempts": 2,
       "createdAt": 1789249250053,
       "updatedAt": 1789249727893,
-      "startedAt": 1789249693773,
-      "platform": "unknown",
-      "error": "Capture timeout"
+      "platform": "unknown"
     },
     {
       "id": "job_1789249250053_ypzo2",
@@ -92,9 +87,10 @@
       "prompt": "Beautiful warm conceptual illustration of fetal movement awareness: an expectant mother reclining peacefully with closed eyes and smiling softly, her hands resting on her bump where a stylized glowing gentle baby footprint radiates soft golden ripples of life, serene cozy bedroom setting, warm dusk lighting, 8k resolution, no text, no watermarks.",
       "transparent": false,
       "status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249499929
+      "updatedAt": 1789249867061,
+      "platform": "unknown"
     },
     {
       "id": "job_1789249250053_upb7o",
@@ -102,19 +98,22 @@
       "prompt": "Aesthetic pediatric infographic guide of newborn hunger and sleep cues: an adorable realistic baby shown in four stages from early hunger cue (rooting and bringing hands to mouth), active cue (stretching and fussing), to crying and peaceful post-feed milk drunkenness, clean warm pastel nursery backdrop, soft studio lighting, high resolution photography, no text, no watermarks.",
       "transparent": false,
       "status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249500773
+      "updatedAt": 1789249869203,
+      "platform": "unknown"
     },
     {
       "id": "job_1789249250053_tdst0",
       "filename": "infographic_hospital_checklist.png",
       "prompt": "Luxury top-down flatlay visual of the ultimate maternity hospital bag essentials: a premium beige canvas weekender bag unpacked neatly on white linen sheets showing rolled organic cotton baby onesies, wooden hairbrush, nursing balm, fuzzy warm socks, maternity gown, and baby swaddle, warm sunlight, editorial Kinfolk layout, 8k resolution, no logos, no text.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 1,
+      "status": "processing",
+      "attempts": 2,
       "createdAt": 1789249250053,
-      "updatedAt": 1789249504807
+      "updatedAt": 1789249504807,
+      "startedAt": 1789249869761,
+      "platform": "unknown"
     },
     {
       "id": "job_1789249250053_vcnij",
@@ -155,6 +154,510 @@
       "status": "pending",
       "attempts": 0,
       "createdAt": 1789249250053
+    },
+    {
+      "id": "job_1789249938707_81c28",
+      "filename": "onboarding_father_mode.png",
+      "prompt": "Heartwarming authentic lifestyle fine art photograph of a proud, gentle modern father cradling his newborn baby against his bare chest with deep paternal bond and loving smile, warm nursery amber lighting, soft waffle cotton swaddle, raw emotion, 50mm f/1.4 portrait, no text, no watermarks.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_a3bnq",
+      "filename": "onboarding_postpartum_recovery.png",
+      "prompt": "Peaceful authentic lifestyle editorial photography of a recovering postpartum mother resting comfortably in a white linen bed with a warm cup of herbal tea, her sleeping newborn baby resting safely in an organic bedside bassinet nearby, soft morning sunbeams, cozy healing environment, no text, no watermarks.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_9nynv",
+      "filename": "onboarding_twin_pregnancy.png",
+      "prompt": "Artistic luxury 3D medical visualization of twin human fetuses nestled together peacefully in the womb, gentle glowing amber translucency, hands touching with twin bond, ethereal floating starlight particles, emotional masterpiece, 8k render, no logos, no text.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_nvq07",
+      "filename": "onboarding_first_baby_journey.png",
+      "prompt": "Top-down aesthetic flatlay of first-time parents' nursery preparation: a pair of tiny hand-knitted merino wool baby booties, an open linen pregnancy journal with gold fountain pen, a miniature wooden rattle, and a sonogram ultrasound photo, warm morning daylight, luxury editorial Kinfolk style, no logos, no text.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_ue4ey",
+      "filename": "screen_hero_kick_counter.png",
+      "prompt": "Peaceful artistic illustration of an expectant mother reclining gracefully on a plush daybed with eyes closed, gentle glowing golden ripple pulse radiating from her baby bump representing baby kicks, soothing lavender and dusk tones, fine art digital painting, 8k resolution, no text, no watermarks.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_9v2m2",
+      "filename": "screen_hero_contraction_timer.png",
+      "prompt": "High-end luxury aesthetic concept of childbirth labor wave: a rhythmic undulating golden water surge with a gentle stopwatch timer dial glowing softly, warm amber and peach tones, serene medical design, 8k render, no logos, no text.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_10xqp",
+      "filename": "screen_hero_hospital_bag.png",
+      "prompt": "Top-down aesthetic flatlay of a luxury natural canvas maternity weekender bag packed meticulously on white sheets, rolled organic newborn outfits, wooden hairbrush, soothing nipple balm, cozy knitted socks, and maternity robe, warm sunbeams, editorial organization, 8k resolution, no logos, no text.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_1vsaj",
+      "filename": "screen_hero_weight_bmi.png",
+      "prompt": "High-end 3D claymorphic illustration of an elegant round bathroom weight scale with a soft pastel sage green optimal weight gain corridor curve and rose gold indicator, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_xai5g",
+      "filename": "screen_hero_birth_plan.png",
+      "prompt": "High-end 3D claymorphic illustration of an ancient rolled parchment diploma scroll with a delicate golden heart wax seal and pastel lilac satin ribbon, hospital birth plan preferences icon, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_h0ww8",
+      "filename": "screen_hero_baby_names.png",
+      "prompt": "High-end 3D claymorphic illustration of pastel wooden toy alphabet blocks spelling baby letters with a tiny cute sparkling golden crown resting on top, soft cream and mauve colors, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_s0f73",
+      "filename": "screen_hero_bump_gallery.png",
+      "prompt": "High-end 3D claymorphic vintage instant polaroid camera in blush rose and warm cream, with a tiny engraved blossom on the lens, belly bump photo album icon, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_ylthw",
+      "filename": "screen_hero_doctor_prep.png",
+      "prompt": "High-end 3D claymorphic pastel lavender medical notebook with a gold pen and a miniature stethoscope bookmark, doctor visit Q&A preparation icon, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_t4yko",
+      "filename": "screen_hero_white_noise.png",
+      "prompt": "High-end 3D claymorphic icon of a cute sleepy lilac cloud wearing soft cream audio headphones with floating golden musical notes, baby sleep sound machine icon, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_awv5y",
+      "filename": "screen_hero_food_safety.png",
+      "prompt": "High-end 3D claymorphic food safety verification shield in soft pastel sage green with a crisp checkmark and fresh mint sprig, pregnancy food safety checker icon, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_ltg3x",
+      "filename": "screen_hero_community_mothers.png",
+      "prompt": "Artistic fine art illustration of a loving diverse circle of expectant mothers and new mothers sitting together in support, gentle warm watercolor and pastel tones, deep sisterhood and emotional reassurance, 8k render, no logos, no text.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_2yfqq",
+      "filename": "screen_hero_baby_letters.png",
+      "prompt": "High-end 3D claymorphic vintage deckled-edge stationery envelope with an embossed dusty rose wax seal heart, daily baby letter icon, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_5m83x",
+      "filename": "infographic_breastfeeding_latch.png",
+      "prompt": "Medical anatomical illustration of proper deep asymmetrical breastfeeding latch: close-up showing baby's wide open mouth (140-degree angle), flanged lips, chin pressed gently into mother's breast, and nipple aimed toward the soft palate, warm gentle pastel clinical tones, medically accurate and clear, no logos, no text.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_dbm75",
+      "filename": "infographic_postpartum_recovery_timeline.png",
+      "prompt": "Aesthetic holistic medical timeline visual of fourth trimester maternal recovery: showing uterine shrinking from day 1 to week 6, pelvic floor healing with gentle yoga silhouette, and hormonal rebalancing, soft sage green, blush and warm ivory palette, tasteful medical design, 8k render, no text, no watermarks.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_jxrgd",
+      "filename": "infographic_baby_first_aid_choking.png",
+      "prompt": "Clear pediatric medical education illustration of infant choking first aid: showing the correct angle of infant supported head-down along caregiver forearm for 5 gentle back blows, followed by turning baby for 5 chest thrusts, calm reassuring medical vector aesthetic, clear technique demonstration, no logos, no text.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_d0dmj",
+      "filename": "infographic_newborn_reflexes.png",
+      "prompt": "Adorable pediatric illustration of newborn primitive reflexes: showing Moro startle reflex, rooting reflex, palmar grasp of tiny fingers curling around mother's finger, and stepping reflex, soft pastel nursery aesthetic, high resolution art, no logos, no text.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_zf4mq",
+      "filename": "future_ai_ultrasound_analyzer.png",
+      "prompt": "Futuristic high-end luxury medical technology visual: a glowing crystalline holographic lens scanning a 3D fetal ultrasound scan profile, delicate biometric gestational measurements in soft gold and cyan light, clean medical minimalism, 8k render, no text, no logos.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_liv8h",
+      "filename": "future_fetal_growth_curve.png",
+      "prompt": "High-end 3D aesthetic visualization of fetal growth velocity: an elegant glowing curved percentile corridor with a cute stylized 3D baby resting on the 50th percentile sweet spot, soft pastel lilac and sage lighting, clean modern fintech-medical aesthetic, 8k render, no text.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_eml2q",
+      "filename": "future_water_break_advisor.png",
+      "prompt": "Gentle medical guide visual for amniotic fluid assessment: clean glass test vials showing clear straw-colored healthy amniotic fluid versus clinical caution notes, serene laboratory aesthetic with fresh white rose petal, tasteful and clear, no logos, no text.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_kxydc",
+      "filename": "future_partner_labor_coaching.png",
+      "prompt": "Emotional candid fine art photograph of a supportive father using two hands to provide soothing counter-pressure to mother's lower sacrum during active labor breathing, dim warm candle-lit hospital delivery room, deep intimacy and teamwork, 50mm lens, no watermarks, no text.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_ekhc6",
+      "filename": "future_postpartum_mental_health.png",
+      "prompt": "Poetic fine art illustration of maternal emotional wellness: two cupped caring hands protecting a fragile yet blooming pastel lotus flower with golden morning dewdrops, representing healing from baby blues and postpartum anxiety, serene hopeful mood, 8k render, no text, no watermarks.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_7a8xa",
+      "filename": "future_baby_sleep_sound_synthesizer.png",
+      "prompt": "High-end 3D claymorphic sound console: miniature cute vintage turntable with a soft glowing moon button, pink noise waveform, and gentle raindrops, pastel lavender and warm beige, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_751jl",
+      "filename": "future_breast_milk_storage_guide.png",
+      "prompt": "Aesthetic kitchen flatlay of proper breast milk storage guidelines: clean glass storage bottles with measurement markings at room temperature (4 hours), organized neatly in refrigerator (4 days), and frozen flat in breast milk freezer bags (6 months), bright clean natural light, Kinfolk aesthetic, no logos, no text.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_eg0qt",
+      "filename": "future_pediatric_growth_milestones.png",
+      "prompt": "Charming pediatric developmental milestones illustration: four cute stages showing baby tummy time lifting chest, rolling over, sitting independently with wooden building block, and taking first supported steps, soft Scandinavian pastel palette, 8k resolution, no logos, no text.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_ur8qs",
+      "filename": "future_baby_led_weaning_plate.png",
+      "prompt": "Top-down aesthetic flatlay of a baby-led weaning (BLW) first foods silicone suction plate: steamed sweet potato batons, soft avocado wedges, ripe banana spear, and a tiny open silicone training cup with water, clean light wood dining table, bright morning sunlight, editorial food photography, no text, no logos.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_09e22",
+      "filename": "future_family_cloud_vault.png",
+      "prompt": "High-end 3D claymorphic secure family memory safe vault: an elegant pearl and rose gold treasure box with a heart keyhole, with tiny glowing polaroids of baby milestones and medical records floating out gently, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_clv1b",
+      "filename": "profile_hero_family_sync.png",
+      "prompt": "High-end 3D claymorphic illustration of two cute stylized avatar figures (mother and father) holding hands, connected by a glowing golden pulse ring around a tiny baby heart, pastel sage and dusty rose, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_6gb99",
+      "filename": "settings_biometric_security.png",
+      "prompt": "High-end 3D claymorphic security icon: a glowing rose gold fingerprint scan impression inside a soft pastel lavender shield, smooth porcelain texture, privacy and biometric health data lock icon, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_91g0j",
+      "filename": "settings_cloud_sync_backup.png",
+      "prompt": "High-end 3D claymorphic icon of a soft fluffy lilac cloud with two continuous circular sync arrows and tiny golden stars, cloud database synchronization icon, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_1sjxm",
+      "filename": "settings_notification_bell.png",
+      "prompt": "High-end 3D claymorphic icon of a cute polished golden reminder bell with a delicate pastel pink ribbon bow and tiny floating chime soundwaves, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_jhzko",
+      "filename": "settings_premium_crown.png",
+      "prompt": "High-end 3D claymorphic royal crown badge in rose gold with inlaid polished pearls and delicate floral engraving, luxury VIP membership badge, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_ejv04",
+      "filename": "settings_data_export_pdf.png",
+      "prompt": "High-end 3D claymorphic icon of an official medical health summary dossier document with an embossed gold wax seal stethoscope badge and ribbon, health record export icon, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_sidpi",
+      "filename": "animal_ant.png",
+      "prompt": "High-end 3D claymorphic cute tiny friendly ant carrying a golden grain, soft pastel tones, smooth porcelain clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_sk1tt",
+      "filename": "animal_ladybug.png",
+      "prompt": "High-end 3D claymorphic cute round ladybug with soft coral red shell and tiny glossy black spots, smooth porcelain clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_myvhe",
+      "filename": "animal_bee.png",
+      "prompt": "High-end 3D claymorphic cute chubby bumblebee with tiny translucent wings and warm honey yellow stripes, smooth porcelain clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_ejx98",
+      "filename": "animal_snail.png",
+      "prompt": "High-end 3D claymorphic cute garden snail with a spiral pastel peach shell and friendly smile, smooth porcelain clay texture, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_bpfuc",
+      "filename": "animal_chick.png",
+      "prompt": "High-end 3D claymorphic cute fluffy yellow baby chick with tiny orange beak and sweet closed happy eyes, smooth porcelain finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_jkcfi",
+      "filename": "animal_hedgehog.png",
+      "prompt": "High-end 3D claymorphic cute chubby baby hedgehog curled up peacefully, soft cream belly and rounded soft quills, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_g8769",
+      "filename": "animal_kitten.png",
+      "prompt": "High-end 3D claymorphic cute sleeping kitten curled in a ball with paws tucked in, soft pastel cream and apricot tones, smooth porcelain clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_8cv2b",
+      "filename": "animal_otter.png",
+      "prompt": "High-end 3D claymorphic cute playful baby otter floating on back holding a tiny polished river pebble on chest, smooth matte clay texture, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_386mi",
+      "filename": "animal_koala.png",
+      "prompt": "High-end 3D claymorphic cute sleepy baby koala hugging a smooth eucalyptus twig, soft pastel gray and cream, smooth porcelain finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_u2kwm",
+      "filename": "animal_lion_cub.png",
+      "prompt": "High-end 3D claymorphic majestic and adorable baby lion cub sitting proudly, fluffy golden fur texture in smooth clay, sweet friendly expression, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_khj7j",
+      "filename": "sweet_sprinkle.png",
+      "prompt": "High-end 3D claymorphic cute golden sugar sprinkle pellet resting on a miniature cream podium, smooth porcelain clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_30oyc",
+      "filename": "sweet_candy.png",
+      "prompt": "High-end 3D claymorphic cute wrapped bonbon candy with striped pastel coral and cream wrapper, glossy porcelain finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_h0wj3",
+      "filename": "sweet_gummybear.png",
+      "prompt": "High-end 3D claymorphic translucent glossy strawberry gummy bear with soft internal glow, cute toy aesthetic, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_hb0qw",
+      "filename": "sweet_cookie.png",
+      "prompt": "High-end 3D claymorphic freshly baked chocolate chip cookie with embossed chocolate chunks, warm golden brown porcelain clay, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_smcff",
+      "filename": "sweet_donut.png",
+      "prompt": "High-end 3D claymorphic cute ring donut with glossy pink strawberry frosting and pastel rainbow sprinkles, smooth clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_inuop",
+      "filename": "sweet_cupcake.png",
+      "prompt": "High-end 3D claymorphic cute cupcake with a tall swirl of fluffy vanilla cream and a glossy red cherry on top, pastel lavender baking cup, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_yx1hl",
+      "filename": "sweet_croissant.png",
+      "prompt": "High-end 3D claymorphic flaky golden French croissant with delicate curved crescent shape and butter glaze, smooth porcelain clay finish, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_5065m",
+      "filename": "sweet_waffle.png",
+      "prompt": "High-end 3D claymorphic round Belgian waffle with crisp square grid, melted butter pat and a fresh raspberry, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_xfacb",
+      "filename": "sweet_pancake_stack.png",
+      "prompt": "High-end 3D claymorphic tall stack of three fluffy golden pancakes dripping with warm maple syrup and a cube of butter, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
+    },
+    {
+      "id": "job_1789249938707_808pq",
+      "filename": "sweet_birthdaycake.png",
+      "prompt": "High-end 3D claymorphic two-tier pastel celebration birthday cake with delicate white piped frosting, a tiny golden candle, and sugar pearls, isolated on pure solid white background, cut out style, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789249938707
     }
   ]
 }
