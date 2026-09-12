@@ -26,7 +26,7 @@ export const initialState = {
 };
 export function useMomoraStore() {
   const [state, setState] = useState(initialState);
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(true);
   const [storageError, setStorageError] = useState(null);
   const [cloudStatus, setCloudStatus] = useState(cloudStatusLabel());
   useEffect(() => {
