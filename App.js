@@ -23,7 +23,7 @@ const previewScreens=[
   ['baby','Bebek Takibi'],
 ];
 function Momora() {
-  const {state,update,addRecord,ready,storageError,cloudStatus}=useDemoStore();
+  const {state,update,addRecord,ready,storageError,cloudStatus,refreshFromCloud}=useDemoStore();
   const [page,setPage]=useState(null);const [sheet,setSheet]=useState(null);const [notice,setNotice]=useState('');
   const insets=useSafeAreaInsets();const {width,height}=useWindowDimensions();
   const desktop=Platform.OS==='web'&&width>=850;
@@ -41,7 +41,7 @@ function Momora() {
       return()=>clearTimeout(timer);
     }
   },[ready,state.mode,state.lastMoodDate]);
-  const props={state,update,addRecord,open,cloudStatus};
+  const props={state,update,addRecord,open,cloudStatus,refreshFromCloud};
   const renderPage=()=>{switch(active){case'pregnancy':return <Pregnancy {...props}/>;case'tools':return <ToolsHub {...props} toast={setNotice}/>;case'postpartum':return <Postpartum {...props}/>;case'baby':return <Baby {...props}/>;case'discover':return <Discover {...props}/>;case'assistant':return <Assistant {...props} toast={setNotice}/>;case'profile':return <ProfileScreen {...props} toast={setNotice} choose={choose}/>;default:return <Onboarding choose={choose} update={update} toast={setNotice}/>}};
   if(!ready)return <View style={s.loading}><BrandMark size={60}/><ActivityIndicator color={colors.purple}/></View>;
   return <View style={[s.root,desktop&&s.desktop]}>

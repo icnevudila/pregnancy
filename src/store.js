@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { defaultLists, extendedDefaults, migrateState } from './domain.mjs';
-import { loadCloudState, saveCloudState, cloudStatusLabel } from './backendSync';
+import { loadCloudState, saveCloudState, saveTrackingEvent, cloudStatusLabel } from './backendSync';
 
 const KEY = 'momora.local-demo.v1';
 export const initialState = {
@@ -61,6 +61,26 @@ export function useDemoStore() {
     return () => clearTimeout(timer);
   }, [state, ready]);
   const update = patch => setState(old => ({ ...old, ...(typeof patch === 'function' ? patch(old) : patch) }));
-  const addRecord = (type, value) => update(old => ({ records: [{ id: Date.now().toString(), type, value, time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }), createdAt: new Date().toISOString() }, ...old.records] }));
-  return { state, update, addRecord, ready, storageError, cloudStatus };
+  const refreshFromCloud = async () => {
+    const cloud = await loadCloudState();
+    if (cloud.error) {
+      setCloudStatus('Bulut kaydı okunamadı; yerel kayıtla devam ediliyor.');
+      return { error: cloud.error };
+    }
+    if (cloud.state) {
+      const nextState = migrateState(cloud.state, initialState);
+      setState(nextState);
+      setCloudStatus('Bulut kaydı bu cihaza indirildi.');
+      return { ok: true, state: nextState };
+    }
+    const result = await saveCloudState(state);
+    if (result?.ok) setCloudStatus('Bu cihazdaki kayıt buluta aktarıldı.');
+    return result;
+  };
+  const addRecord = (type, value) => {
+    const record = { id: Date.now().toString(), type, value, time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }), createdAt: new Date().toISOString() };
+    update(old => ({ records: [record, ...old.records] }));
+    saveTrackingEvent(type, { value, record }).catch(() => {});
+  };
+  return { state, update, addRecord, ready, storageError, cloudStatus, refreshFromCloud };
 }

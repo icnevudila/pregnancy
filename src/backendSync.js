@@ -61,6 +61,35 @@ export async function saveCloudState(state) {
   return { ok: true };
 }
 
+export async function saveTrackingEvent(eventType, payload = {}, occurredAt = new Date().toISOString()) {
+  if (!supabase) return { skipped: true };
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) return { skipped: true, error: userError || null };
+
+  const { error } = await supabase.from('momora_tracking_events').insert({
+    user_id: userData.user.id,
+    event_type: eventType,
+    occurred_at: occurredAt,
+    payload,
+  });
+  if (error) return { error };
+  return { ok: true };
+}
+
+export async function saveFamilyMessage(body, payload = {}) {
+  if (!supabase) return { skipped: true };
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) return { skipped: true, error: userError || null };
+
+  const { data, error } = await supabase
+    .from('momora_family_messages')
+    .insert({ sender_id: userData.user.id, body, payload })
+    .select('*')
+    .single();
+  if (error) return { error };
+  return { ok: true, data };
+}
+
 export async function signInWithEmail(email, password, signUp = false) {
   if (!supabase) return { error: { message: 'Supabase publishable key eksik.' } };
   return signUp

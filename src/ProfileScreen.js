@@ -6,9 +6,9 @@ import { T, Tap, Card, Section, ScreenHero } from './ui';
 import { babyNamesList } from './babyNamesData';
 import { dateLabel, pregnancyAt } from './domain.mjs';
 import { isSupabaseConfigured, supabase } from './supabaseClient';
-import { signInWithEmail, signOut, cloudStatusLabel } from './backendSync';
+import { signInWithEmail, signOut, cloudStatusLabel, saveCloudState } from './backendSync';
 
-export function ProfileScreen({ state, update, open, toast, choose, cloudStatus }) {
+export function ProfileScreen({ state, update, open, toast, choose, cloudStatus, refreshFromCloud }) {
   const [activeTab, setActiveTab] = useState('family'); // 'family' | 'personal' | 'favorites' | 'settings'
 
   // Kişisel Form State'leri
@@ -134,7 +134,9 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus 
     setAuthBusy(false);
     if (error) return toast && toast(error.message);
     setCloudUser(data.user || data.session?.user || null);
-    toast && toast(authMode === 'signup' ? 'Hesap oluşturuldu. E-postanı doğrulaman gerekebilir.' : 'Bulut hesabına giriş yapıldı.');
+    const syncResult = refreshFromCloud ? await refreshFromCloud() : await saveCloudState(state);
+    if (syncResult?.error) toast && toast('Giriş yapıldı; bulut kaydı daha sonra eşitlenecek.');
+    else toast && toast(authMode === 'signup' ? 'Hesap oluşturuldu ve kayıtların hazırlandı.' : 'Bulut hesabına giriş yapıldı.');
   }
 
   async function handleSignOut() {
