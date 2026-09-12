@@ -132,6 +132,7 @@ function ComparisonHero({ week, info, onPress }) {
             size={mode === 'ultrasound' ? 96 : 108}
             emoji={compEmoji}
             info={info}
+            week={week}
           />
           <T numberOfLines={1} style={s.fruitName}>{compName}</T>
           <T style={s.fruitSub}>{compSub}</T>

@@ -841,7 +841,7 @@ export function FruitArt({ type, size = 80, useReal = false }) {
 /**
  * ComparisonArt — 3'lü Kıyaslama (Meyve, Sevimli Hayvan, Tatlı/Nesne ve Ultrason)
  */
-export function ComparisonArt({ mode = 'fruit', type, size = 80, emoji, info, useReal = false }) {
+export function ComparisonArt({ mode = 'fruit', type, size = 80, emoji, info, useReal = false, week }) {
   if (mode === 'fruit') {
     return <FruitArt type={type} size={size} useReal={useReal} />;
   }
@@ -889,7 +889,13 @@ export function ComparisonArt({ mode = 'fruit', type, size = 80, emoji, info, us
   }
 
   if (mode === 'ultrasound') {
-    const usImg = generatedAssets['fetus'] || generatedAssets['card_ultrasound_frame'] || generatedAssets['blog_ultrasound_memory'];
+    const weekNum = week || info?.week;
+    const weekKey = weekNum ? `fetus_w${String(weekNum).padStart(2, '0')}` : null;
+    const usImg = (weekKey && generatedAssets[weekKey]) || 
+                  generatedAssets['ui_ultrasound_hdlive_20w'] || 
+                  generatedAssets['fetus'] || 
+                  generatedAssets['card_ultrasound_frame'] || 
+                  generatedAssets['blog_ultrasound_memory'];
     return (
       <View style={{
         width: size, height: size, borderRadius: 16,
@@ -897,7 +903,7 @@ export function ComparisonArt({ mode = 'fruit', type, size = 80, emoji, info, us
         borderWidth: 2, borderColor: '#695773', overflow: 'hidden'
       }}>
         {usImg ? (
-          <Image source={usImg} style={{ width: size * 0.85, height: size * 0.85, opacity: 0.92 }} resizeMode="contain" />
+          <Image source={usImg} style={{ width: size, height: size }} resizeMode="cover" />
         ) : (
           <Text style={{ fontSize: size * 0.45 }}>🩺</Text>
         )}

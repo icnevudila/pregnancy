@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal, View, StyleSheet, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { colors, fonts } from './theme';
 import { T, Tap, Card } from './ui';
-import { Icon, BrandMark, FruitArt, MoodFace } from './Icons';
+import { Icon, BrandMark, FruitArt, ComparisonArt, MoodFace } from './Icons';
 import { journeys, RecordList, sampleRecords } from './screens';
 import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel } from './weekData';
 import { KickCounter, ContractionTimer, HospitalBag } from './ToolScreens';
@@ -56,7 +56,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
       const labels=['Harika','İyi','Normal','Yorgun','Zor'];
       update(old=>{
         const patch={mood:selectedMood,lastMoodDate:todayStr};
-        if(moodNote.trim())patch.notes=[{id:Date.now().toString(),text:`[${labels[selectedMood]}] ${moodNote.trim()}`},...old.notes];
+        if(moodNote.trim())patch.notes=[{id:Date.now().toString(),text:`🌸 ${labels[selectedMood]} · ${moodNote.trim()}`},...old.notes];
         return patch;
       });
       close();return toast('Günün kaydedildi 🌸');
@@ -109,14 +109,17 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
         </View>
         {/* Ultrason Bilgisi */}
         {!!wi.ultrasound && (
-          <View style={{marginTop:10,backgroundColor:'#FAF5FD',padding:12,borderRadius:14,borderWidth:1,borderColor:'#EBE0F2'}}>
-            <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
-              <T bold style={{fontSize:12,color:'#5C396B'}}>🩺 {wi.ultrasound.scan}</T>
-              <View style={{backgroundColor:'#E8D5EB',paddingHorizontal:6,paddingVertical:2,borderRadius:8}}>
-                <T style={{fontSize:9,color:'#4A2860'}}>{wi.ultrasound.badge}</T>
+          <View style={{marginTop:10,backgroundColor:'#FAF5FD',padding:12,borderRadius:14,borderWidth:1,borderColor:'#EBE0F2',flexDirection:'row',gap:12,alignItems:'center'}}>
+            <ComparisonArt mode="ultrasound" size={56} week={data.week||24} />
+            <View style={{flex:1}}>
+              <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+                <T bold style={{fontSize:12,color:'#5C396B'}}>🩺 {wi.ultrasound.scan}</T>
+                <View style={{backgroundColor:'#E8D5EB',paddingHorizontal:6,paddingVertical:2,borderRadius:8}}>
+                  <T style={{fontSize:9,color:'#4A2860'}}>{wi.ultrasound.badge}</T>
+                </View>
               </View>
+              <T style={{fontSize:11,color:'#6A4878',marginTop:4,lineHeight:16}}>{wi.ultrasound.milestone}</T>
             </View>
-            <T style={{fontSize:11,color:'#6A4878',marginTop:4,lineHeight:16}}>{wi.ultrasound.milestone}</T>
           </View>
         )}
         {/* Bebek bu hafta */}

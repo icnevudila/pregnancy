@@ -65,7 +65,7 @@ graph TD
 *Anne, Bebek ve Refakatçi için kategorize edilmiş interaktif hazırlık kontrol listesi.*
 
 - **UI Bileşenleri:**
-  - 3 Sekmeli Gezinme: **[Anne İçin]** • **[Bebek İçin]** • **[Refakatçi / Eş İçin]**.
+  - 3 Sekmeli Gezinme: **Anne İçin** • **Bebek İçin** • **Refakatçi / Eş İçin**.
   - Üstte toplam tamamlanma yüzdesi: *"%72 Hazır (18/25 eşya çantada)"*.
   - Hazır öneri maddeleri (Gecelik, emzirme sütyeni, hastane çıkış seti, zıbın, pişik kremi, kimlik ve evraklar).
   - Yeni madde ekleme butonu (`+ Kendi Eşyanı Ekle`).
@@ -175,7 +175,7 @@ graph TD
 *Pregnancy+'ın en çok sevilen ekranı: Bebeği 3 farklı dünyada kıyaslama.*
 
 - **UI Bileşenleri:**
-  - Üstte 3 Segment: **[Meyve & Sebze]** • **[Sevimli Hayvanlar]** • **[Tatlılar & Nesneler]**.
+  - Üstte 3 Segment: **Meyve & Sebze** • **Sevimli Hayvanlar** • **Tatlılar & Nesneler**.
   - Seçilen nesnenin büyük 3D porselen görseli (Örn: 16. Hafta Avokado vs Hamster vs Ekler Pasta).
   - Bebeğin tam boyu (cm) ve ağırlığı (g).
   - *"Bebeğiniz şu an bir avuç dolusu!"* gibi esprili anlatım.
@@ -190,7 +190,7 @@ graph TD
 *Her haftanın gerçek klinik ultrason görüntüsü.*
 
 - **UI Bileşenleri:**
-  - **[2D Ultrason]** ve **[3D / 4D Renkli Ultrason]** sekmesi.
+  - **2D Ultrason** ve **3D / 4D Renkli Ultrason** sekmesi.
   - Ekranda interaktif anatomik işaretçiler (Kafa, bacak kemiği, burun kemiği, kalp atımı).
   - *"Bu haftaki ultrasonda doktorunuz neye bakacak?"* açıklaması.
   - Kullanıcının kendi ultrason fotoğrafını yükleyip yan yana kıyaslama alanı.
@@ -219,7 +219,7 @@ graph TD
 *Bebeğin iç organlarının hafta hafta nasıl olgunlaştığını anlatan bilimsel görsel ekran.*
 
 - **UI Bileşenleri:**
-  - Akordeon sekmeler: **[Beyin & Sinirler]** • **[Kalp & Dolaşım]** • **[Duyular & Hareket]** • **[Kemikler & Yağ]**.
+  - Akordeon sekmeler: **Beyin & Sinirler** • **Kalp & Dolaşım** • **Duyular & Hareket** • **Kemikler & Yağ**.
   - Bebeğin kalp atış hızı göstergesi (Örn: *145 BPM - Dinlemek için dokun*).
 - **Full-Pack Prompt:**
   ```text
@@ -339,7 +339,7 @@ graph TD
 
 - **UI Bileşenleri:**
   - Kulüp Başlığı: *"🌸 Temmuz 2026 Anneleri (4.250 Anne)"*.
-  - Konu Filtreleri: **[Doktor & Hastane]** • **[Belirtiler & Aşerme]** • **[Bebek Alışverişi]** • **[Dertleşme]**.
+  - Konu Filtreleri: **Doktor & Hastane** • **Belirtiler & Aşerme** • **Bebek Alışverişi** • **Dertleşme**.
   - Gönderi Kartları: Kullanıcı anonimlik seçeneği (*"22. haftada bir anne sordu"*), beğeni, yorum sayısı.
 - **Full-Pack Prompt:**
   ```text
@@ -371,7 +371,7 @@ graph TD
 *Doğumdan sonra annenin en çok kullandığı: Hangi memeden kaç dakika emzirdiğini kaydeden sayaç.*
 
 - **UI Bileşenleri:**
-  - Yan yana iki büyük dokunsal buton: **[Sol Meme]** • **[Sağ Meme]**.
+  - Yan yana iki büyük dokunsal buton: **Sol Meme** • **Sağ Meme**.
   - Aktif tarafın canlı kronometresi.
   - Son emzirmenin üstünden geçen süre: *"Son beslenme 2 saat önce Sağ Memeden yapıldı"*.
   - Alternatif Biberon Sekmesi: Sağılmış anne sütü veya mama (ml cinsinden giriş).
@@ -429,4 +429,4 @@ graph TD
 
 Bu 25 ekran, Momora uygulamasını sıradan bir hafta sayacından çıkarıp **Apple App Store ve Google Play'de zirveye oynayacak "All-in-One Maternity & Baby Super-App"** haline getirecek tam plandır.
 
-Tüm ekranlar mevcut [App.js](file:///c:/Users/TP2/Documents/annelik/momora-mobile/App.js) navigasyonuna ve [screens.js](file:///c:/Users/TP2/Documents/annelik/momora-mobile/src/screens.js) bileşen yapısına modüler olarak eklenmeye hazırdır.
+Tüm ekranlar mevcut App.js navigasyonuna ve screens.js bileşen yapısına modüler olarak eklenmeye hazırdır.
