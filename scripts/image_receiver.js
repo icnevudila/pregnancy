@@ -7,15 +7,20 @@ try {
   const j = require('jimp');
   Jimp = j.Jimp || j;
 } catch (e) {
-  console.warn('[MOMORA] Jimp modulu yuklenemedi, seffaf PNG donusumu atlanacak.');
+  console.warn('[MOMORA] Jimp modulu yuklenemedi.');
 }
 
 const PORT = 3456;
 const ASSETS_DIR = path.join(__dirname, '..', 'assets');
+const DOWNLOADS_DIR = 'C:\\Users\\TP2\\Downloads';
 const QUEUE_FILE = path.join(__dirname, 'generation_queue.json');
 const GENERATED_ASSETS_FILE = path.join(__dirname, '..', 'src', 'generatedAssets.js');
 
-// --- QUEUE MANAGEMENT ---
+// --- GLOBAL MUTEX LOCK (Çakışma Önleyici Tekil Kilit) ---
+// ChatGPT ve Gemini'nin aynı anda üretmesini kesin olarak engeller
+let activeLock = null; // { platform, filename, jobId, startedAt }
+let reloadRequested = false;
+
 function loadQueue() {
   try {
     if (fs.existsSync(QUEUE_FILE)) {
@@ -35,25 +40,63 @@ function saveQueue(queueData) {
   }
 }
 
-function getNextJob() {
+function getNextJob(clientPlatform = 'unknown') {
   const queueData = loadQueue();
   const now = Date.now();
-  queueData.jobs.forEach(j => {
-    if (j.status === 'processing' && (now - (j.startedAt || 0) > 240000)) {
-      console.log('[QUEUE] Resetting timed out job:', j.filename);
-      j.status = 'pending';
-    }
-  });
 
+  // 1. Kilit zaman aşımı kontrolü (4 dakika işlem olmazsa kilidi otomatik kaldır)
+  if (activeLock && (now - activeLock.startedAt > 240000)) {
+    console.log('[MUTEX] ⚠️ Zaman asimina ugrayan kilit serbest birakildi:', activeLock.filename);
+    const stuckJob = queueData.jobs.find(j => j.id === activeLock.jobId);
+    if (stuckJob && stuckJob.status === 'processing') {
+      stuckJob.status = 'pending';
+      saveQueue(queueData);
+    }
+    activeLock = null;
+  }
+
+  // 2. KİLİT KONTROLÜ: Başka bir sekme (ChatGPT veya Gemini) şu an üretim yapıyor mu?
+  if (activeLock) {
+    return {
+      status: 'busy',
+      activePlatform: activeLock.platform,
+      activeFilename: activeLock.filename,
+      message: 'Aktif uretim suren: ' + activeLock.platform.toUpperCase() + ' (' + activeLock.filename + '). Cakismayi onlemek icin bekleniyor.'
+    };
+  }
+
+  // 3. Sıradaki pending işi bul
   const pendingJob = queueData.jobs.find(j => j.status === 'pending');
   if (pendingJob) {
     pendingJob.status = 'processing';
     pendingJob.startedAt = now;
+    pendingJob.platform = clientPlatform;
     pendingJob.attempts = (pendingJob.attempts || 0) + 1;
+
+    activeLock = {
+      platform: clientPlatform,
+      filename: pendingJob.filename,
+      jobId: pendingJob.id,
+      startedAt: now
+    };
+
     saveQueue(queueData);
-    return pendingJob;
+    console.log('[MUTEX] 🔒 Kilit verildi -> [' + clientPlatform.toUpperCase() + '] Uretilecek: ' + pendingJob.filename);
+    return { status: 'job', job: pendingJob };
   }
-  return null;
+
+  return { status: 'idle' };
+}
+
+function releaseLock(jobIdOrFilename) {
+  if (activeLock) {
+    if (!jobIdOrFilename || activeLock.jobId === jobIdOrFilename || activeLock.filename === jobIdOrFilename) {
+      console.log('[MUTEX] 🔓 Kilit kaldirildi:', activeLock.filename);
+      activeLock = null;
+      return true;
+    }
+  }
+  return false;
 }
 
 function updateJobStatus(idOrFilename, status, extra = {}) {
@@ -64,12 +107,17 @@ function updateJobStatus(idOrFilename, status, extra = {}) {
     job.updatedAt = Date.now();
     Object.assign(job, extra);
     saveQueue(queueData);
-    console.log('[QUEUE] Job ' + job.filename + ' -> ' + status);
+    console.log('[QUEUE] 📌 Job ' + job.filename + ' -> ' + status);
+
+    if (status === 'done' || status === 'error') {
+      releaseLock(job.id);
+    }
     return true;
   }
   return false;
 }
 
+// Flood Fill Alpha Remover
 async function makeTransparentPNG(filePath) {
   if (!Jimp) return;
   try {
@@ -79,6 +127,7 @@ async function makeTransparentPNG(filePath) {
     const bgG = img.bitmap.data[1];
     const bgB = img.bitmap.data[2];
     const tolerance = 24;
+
     function isBg(r, g, b) {
       return (
         Math.abs(r - bgR) < tolerance &&
@@ -86,6 +135,7 @@ async function makeTransparentPNG(filePath) {
         Math.abs(b - bgB) < tolerance
       ) || (r > 248 && g > 248 && b > 248);
     }
+
     const visited = new Uint8Array(width * height);
     const queue = [];
     for (let x = 0; x < width; x++) {
@@ -96,6 +146,7 @@ async function makeTransparentPNG(filePath) {
       queue.push(0, y);
       queue.push(width - 1, y);
     }
+
     let head = 0;
     while (head < queue.length) {
       const x = queue[head++];
@@ -103,6 +154,7 @@ async function makeTransparentPNG(filePath) {
       const idx1D = y * width + x;
       if (visited[idx1D]) continue;
       visited[idx1D] = 1;
+
       const pIdx = (y * width + x) * 4;
       const r = img.bitmap.data[pIdx + 0];
       const g = img.bitmap.data[pIdx + 1];
@@ -115,6 +167,7 @@ async function makeTransparentPNG(filePath) {
         if (y < height - 1 && !visited[(y + 1) * width + x]) queue.push(x, y + 1);
       }
     }
+
     await img.write(filePath);
     console.log('[MOMORA] ✨ Arka plan seffaf yapildi:', path.basename(filePath));
   } catch (err) {
@@ -123,6 +176,49 @@ async function makeTransparentPNG(filePath) {
 }
 
 let lastGeneratedContent = '';
+
+// Otomatik İndirilenler Klasörü Hasatçısı (Downloads Harvester)
+// Tarayıcı fallback olarak indirse bile anında yakalayıp projeye çeker
+async function harvestDownloadsFolder() {
+  try {
+    if (!fs.existsSync(DOWNLOADS_DIR)) return;
+    const files = fs.readdirSync(DOWNLOADS_DIR);
+    const targets = files.filter(f => {
+      const lower = f.toLowerCase();
+      return (
+        lower.startsWith('onboarding_') ||
+        lower.startsWith('infographic_') ||
+        lower.startsWith('ui_') ||
+        lower.startsWith('fruit_') ||
+        lower.startsWith('animal_') ||
+        lower.startsWith('sweet_') ||
+        lower.startsWith('blog_')
+      ) && lower.endsWith('.png');
+    });
+
+    for (const f of targets) {
+      const srcPath = path.join(DOWNLOADS_DIR, f);
+      const destPath = path.join(ASSETS_DIR, f);
+      try {
+        fs.copyFileSync(srcPath, destPath);
+        fs.unlinkSync(srcPath);
+        console.log('[DOWNLOADS-HARVESTER] 🌾 Yakalandi ve tasindi: ' + f);
+
+        const shouldBeTrans = f.startsWith('ui_') || f.startsWith('fruit_') || f.startsWith('animal_') || f.startsWith('sweet_');
+        if (shouldBeTrans) {
+          await makeTransparentPNG(destPath);
+        }
+
+        updateGeneratedAssetsFile();
+        updateJobStatus(f, 'done', { thumb: '/assets/' + f });
+        releaseLock(f);
+      } catch (err) {
+        console.error('[DOWNLOADS-HARVESTER] Hata:', err.message);
+      }
+    }
+  } catch (e) {}
+}
+
 function updateGeneratedAssetsFile() {
   try {
     if (!fs.existsSync(ASSETS_DIR)) return;
@@ -195,20 +291,39 @@ const server = http.createServer(async (req, res) => {
     return res.end();
   }
 
-  // A. Sonraki Isi Getir (Next Job for Extension Worker)
-  if (req.method === 'GET' && req.url === '/job/next') {
-    const job = getNextJob();
+  // --- BOT HEALTH / LIVE RELOAD PING ---
+  if (req.method === 'GET' && req.url.startsWith('/bot/ping')) {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    if (job) {
-      console.log('[JOB-DISPATCH] 🚀 Bot icin is gonderildi:', job.filename);
-      res.end(JSON.stringify({ status: 'job', job }));
-    } else {
-      res.end(JSON.stringify({ status: 'idle' }));
+    res.end(JSON.stringify({ status: 'ok', reload: reloadRequested, activeLock }));
+    if (reloadRequested) reloadRequested = false;
+    return;
+  }
+
+  // A. Sonraki Isi Getir (Mutual Exclusion Lock - Tek Seferde Tek Sekme!)
+  if (req.method === 'GET' && req.url.startsWith('/job/next')) {
+    const urlObj = new URL(req.url, 'http://localhost:' + PORT);
+    const platform = urlObj.searchParams.get('platform') || 'unknown';
+    const result = getNextJob(platform);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(result));
+    return;
+  }
+
+  // B. Kilidi Serbest Bırak (Release Mutex)
+  if (req.method === 'POST' && req.url === '/job/release') {
+    try {
+      const data = await parseJsonBody(req);
+      releaseLock(data.id || data.filename);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true }));
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
     }
     return;
   }
 
-  // B. Is Durumu Guncelle (Job Status Update)
+  // C. Is Durumu Guncelle
   if (req.method === 'POST' && req.url === '/job/status') {
     try {
       const data = await parseJsonBody(req);
@@ -222,7 +337,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // C. Yeni Is Ekle (Add Job to Queue)
+  // D. Yeni Is Ekle
   if (req.method === 'POST' && req.url === '/job/add') {
     try {
       const data = await parseJsonBody(req);
@@ -256,7 +371,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // D. Kuyruk Listesi ve Istatistikleri (Get Queue List)
+  // E. Kuyruk Listesi ve Istatistikleri
   if (req.method === 'GET' && req.url === '/job/list') {
     const queueData = loadQueue();
     const stats = {
@@ -264,7 +379,8 @@ const server = http.createServer(async (req, res) => {
       pending: queueData.jobs.filter(j => j.status === 'pending').length,
       processing: queueData.jobs.filter(j => j.status === 'processing').length,
       done: queueData.jobs.filter(j => j.status === 'done').length,
-      error: queueData.jobs.filter(j => j.status === 'error').length
+      error: queueData.jobs.filter(j => j.status === 'error').length,
+      activeLock
     };
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ stats, jobs: queueData.jobs }));
@@ -287,30 +403,6 @@ const server = http.createServer(async (req, res) => {
       res.end(JSON.stringify({ error: e.message }));
     }
     return;
-  }
-
-  // 1b. 3D Model Listesi Endpointi
-  if (req.method === 'GET' && req.url === '/models') {
-    try {
-      const allEntries = fs.readdirSync(ASSETS_DIR);
-      const models = allEntries.filter(f => f.endsWith('.glb') || f.endsWith('.gltf'));
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ models }));
-    } catch (e) {
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: e.message }));
-    }
-    return;
-  }
-
-  // 1c. 3D Fetus Viewer Sayfasi
-  if (req.method === 'GET' && (req.url === '/3d' || req.url === '/viewer' || req.url === '/3d/')) {
-    const viewerPath = path.join(__dirname, 'view_3d_fetus.html');
-    if (fs.existsSync(viewerPath)) {
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      fs.createReadStream(viewerPath).pipe(res);
-      return;
-    }
   }
 
   // 2. Asset Dosyasi Sunucu Endpointi
@@ -349,11 +441,14 @@ const server = http.createServer(async (req, res) => {
       }
       updateGeneratedAssetsFile();
       updateJobStatus(filename, 'done', { thumb: '/assets/' + filename });
+      releaseLock(filename);
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ status: 'ok', filename, transparent: shouldMakeTransparent }));
     });
     req.on('error', (err) => {
       console.error('[ASSET-RECEIVER] Hata:', err);
+      releaseLock(filename);
       res.writeHead(500);
       res.end(JSON.stringify({ error: err.message }));
     });
@@ -361,11 +456,12 @@ const server = http.createServer(async (req, res) => {
   }
 
   res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
-  res.end('MOMORA Transparent Asset Receiver & Autonomous Job Engine calisiyor.');
+  res.end('MOMORA Transparent Asset Receiver & Global AI Mutex Engine calisiyor.');
 });
 
 server.listen(PORT, () => {
-  console.log('[MOMORA] 🪄 Otomatik Seffaf PNG Alici ve Otonom Is Kuyrugu http://localhost:' + PORT + ' uzerinde hazir!');
+  console.log('[MOMORA] 🪄 Otomatik Seffaf PNG Alici ve Global AI Mutex Motoru http://localhost:' + PORT + ' uzerinde hazir!');
   updateGeneratedAssetsFile();
   setInterval(updateGeneratedAssetsFile, 3000);
+  setInterval(harvestDownloadsFolder, 2500);
 });

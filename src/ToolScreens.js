@@ -309,8 +309,10 @@ export function ContractionTimer({ state, update, toast }) {
   const [active, setActive] = useState(false);
   const [duration, setDuration] = useState(0);
   const [intensity, setIntensity] = useState('Orta'); // 'Hafif' | 'Orta' | 'Şiddetli'
+  const [showPartnerTips, setShowPartnerTips] = useState(false);
   const contractions = state?.contractionSessions || [];
   const timerRef = useRef(null);
+  const waveAnim = usePulse(0.95, 1.05, 800);
 
   useEffect(() => {
     if (active) {
@@ -326,11 +328,9 @@ export function ContractionTimer({ state, update, toast }) {
 
   function toggleContraction() {
     if (!active) {
-      // Sancı başladı
       setActive(true);
       setDuration(0);
     } else {
-      // Sancı bitti
       setActive(false);
       const now = new Date();
       let intervalSecs = null;
@@ -359,44 +359,32 @@ export function ContractionTimer({ state, update, toast }) {
         statusAlert: isFiveOneOneActive ? '5-1-1 Kuralı Karşılandı' : 'Normal Takip',
       }).catch(() => {});
 
-      toast && toast('Kasılma kaydedildi.');
+      toast && toast('Sancı kaydedildi.');
       setDuration(0);
     }
   }
 
   // 5-1-1 Kuralı Hesaplama Algoritması
   let isFiveOneOneActive = false;
-  let medicalStatus = {
-    badge: 'Normal Takip',
-    color: '#4B7B56',
-    bg: '#EFF7F1',
-    border: '#C8E6D0',
-    text: 'Kasılmalarınızı süre, aralık ve şiddet olarak kaydedin. Düzenli hale geldiklerinde sistem sizi bilgilendirecektir.',
-  };
+  let statusLevel = 'safe';
+  let statusTitle = 'Erken Dönem / Normal Takip';
+  let statusBody = 'Kasılmalar henüz düzenli doğum sancısı paterninde değil. Sakin nefesler alın ve dinlenin.';
 
   if (contractions.length >= 3) {
-    const recent = contractions.slice(0, 3);
-    const avgDuration = recent.reduce((a, b) => a + (b.durationSecs || 0), 0) / 3;
-    const intervals = recent.map(r => r.intervalSecs).filter(Boolean);
-    const avgInterval = intervals.length ? (intervals.reduce((a, b) => a + b, 0) / intervals.length) : null;
+    const recent = contractions.slice(0, 4);
+    const avgDuration = recent.reduce((sum, c) => sum + (c.durationSecs || 0), 0) / recent.length;
+    const intervals = recent.map(c => c.intervalSecs).filter(Boolean);
+    const avgInterval = intervals.length ? (intervals.reduce((sum, i) => sum + i, 0) / intervals.length) : null;
 
     if (avgInterval && avgInterval <= 300 && avgDuration >= 50) {
       isFiveOneOneActive = true;
-      medicalStatus = {
-        badge: '🚨 5-1-1 KURALI: HASTANEYE GİTME VAKTİ!',
-        color: '#B42318',
-        bg: '#FEF3F2',
-        border: '#FECDCA',
-        text: 'Kasılmalarınız 5 dakikada bir veya daha sık geliyor ve en az 1 dakika sürüyor. Lütfen doktorunuzu veya doğum hastanenizi arayarak yola çıkın!',
-      };
+      statusLevel = 'alert';
+      statusTitle = '🚨 5-1-1 KURALI: DOĞUM BAŞLIYOR OLABİLİR!';
+      statusBody = 'Kasılmalarınız 5 dakikada bir geliyor ve en az 1 dakika sürüyor. Lütfen doktorunuzu veya doğum hastanenizi arayarak yola çıkın!';
     } else if (avgInterval && avgInterval <= 480) {
-      medicalStatus = {
-        badge: 'Kasılmalar Sıklaşıyor',
-        color: '#B54708',
-        bg: '#FFFAEB',
-        border: '#FEDF89',
-        text: 'Aralıklar 8 dakikanın altına indi. Hastane çantanızı kontrol edin ve refakatçinizi yanınızda bulundurun.',
-      };
+      statusLevel = 'warning';
+      statusTitle = 'Kasılmalar Sıklaşıyor';
+      statusBody = 'Aralıklar 8 dakikanın altına indi. Hastane çantanızı yanınıza alın ve refakatçinizi bilgilendirin.';
     }
   }
 
@@ -413,24 +401,35 @@ export function ContractionTimer({ state, update, toast }) {
       />
 
       {/* 5-1-1 Tıbbi Durum Bildirim Kartı */}
-      <View style={[ts.statusBanner, { backgroundColor: medicalStatus.bg, borderColor: medicalStatus.border }]}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: medicalStatus.color }} />
-          <T bold style={{ color: medicalStatus.color, fontSize: 13 }}>{medicalStatus.badge}</T>
-        </View>
-        <T style={{ fontSize: 12, color: colors.ink, marginTop: 4, lineHeight: 18 }}>{medicalStatus.text}</T>
+      <StatusCard
+        level={statusLevel}
+        title={statusTitle}
+        body={statusBody}
+        action={isFiveOneOneActive ? "Hastaneyi / Doktoru Ara" : null}
+        onAction={() => toast && toast('Acil arama yönlendiriliyor...')}
+      />
 
-        {isFiveOneOneActive && (
-          <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
-            <Tap onPress={() => toast && toast('Acil arama yönlendiriliyor...')} style={[ts.callBtn, { backgroundColor: '#B42318' }]}>
-              <Icon name="bell" size={14} color="white" />
-              <T bold style={{ color: 'white', fontSize: 12 }}>Doktorumu / Hastaneyi Ara</T>
-            </Tap>
-          </View>
-        )}
+      {/* Canlı İkili Metrikler */}
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        <MetricCard
+          title="SON SANCI"
+          value={lastContraction ? `${lastContraction.durationSecs || 0} sn` : '--'}
+          unit=""
+          subtext={lastContraction ? `Şiddet: ${lastContraction.intensity}` : 'Kayıt bekleniyor'}
+          icon="time"
+          tint="#4F79A1"
+        />
+        <MetricCard
+          title="SANCI ARALIĞI"
+          value={lastIntervalSecs ? `${Math.round(lastIntervalSecs / 60)} dk` : '--'}
+          unit=""
+          subtext={lastIntervalSecs ? `${lastIntervalSecs % 60} sn aralık` : 'İlk sancı'}
+          icon="contraction"
+          tint="#844E86"
+        />
       </View>
 
-      {/* Şiddet Seçimi */}
+      {/* Şiddet Seçimi Segmentleri */}
       <View style={ts.intensityRow}>
         <T bold style={{ fontSize: 12, color: colors.ink }}>Sancı Şiddeti:</T>
         {['Hafif', 'Orta', 'Şiddetli'].map(lvl => (
@@ -446,35 +445,61 @@ export function ContractionTimer({ state, update, toast }) {
         ))}
       </View>
 
-      {/* Canlı Sayaç Kartı */}
-      <View style={ts.counterBox}>
-        <T style={ts.counterLabel}>{active ? 'KASILMA SÜRÜYOR' : 'SANCI DURUMU'}</T>
-        <T bold style={ts.counterNumber}>{secondsLabel(duration)}</T>
-        {lastIntervalSecs && !active && (
-          <T style={ts.counterSub}>
-            Son sancıdan bu yana: <T bold>{Math.round(lastIntervalSecs / 60)} dk {lastIntervalSecs % 60} sn</T>
-          </T>
-        )}
-      </View>
+      {/* Canlı Sayaç & Dalga Kutusu */}
+      <Card style={[ts.counterBox, active && { borderColor: '#4F79A1', backgroundColor: '#F0F6FB' }]}>
+        <Animated.View style={{ transform: [{ scale: active ? waveAnim : 1 }], alignItems: 'center' }}>
+          <T style={ts.counterLabel}>{active ? '〰️ KASILMA SÜRÜYOR 〰️' : 'SANCI DURUMU'}</T>
+          <T bold style={[ts.counterNumber, active && { color: '#2B577E' }]}>{secondsLabel(duration)}</T>
+          {lastIntervalSecs && !active && (
+            <T style={ts.counterSub}>
+              Son sancıdan bu yana: <T bold>{Math.round(lastIntervalSecs / 60)} dk {lastIntervalSecs % 60} sn</T>
+            </T>
+          )}
+        </Animated.View>
+      </Card>
 
-      {/* Başlat / Durdur Butonu */}
+      {/* Başlat / Durdur Büyük Butonu */}
       <Tap
         onPress={toggleContraction}
-        label={active ? 'Sancıyı Durdur' : 'Sancı Başladı'}
+        label={active ? 'Sancıyı durdur' : 'Sancı başladı'}
         style={ts.contractionBtn}
       >
         <LinearGradient
-          colors={active ? ['#E8879E', '#CF5573'] : ['#8FABC8', '#6289B5']}
+          colors={active ? ['#D4536D', '#B33650'] : ['#5B84AA', '#406A91']}
           style={ts.contractionGrad}
         >
-          <Icon name="contraction" size={32} color="white" />
+          <Icon name="contraction" size={24} color="white" />
           <T bold style={ts.contractionBtnText}>
-            {active ? 'Sancıyı Durdur ve Kaydet' : 'Sancı Başladı (Dokun)'}
+            {active ? 'SANCI BİTTİ (KAYDET)' : 'SANCI BAŞLADI (DOKUN)'}
           </T>
         </LinearGradient>
       </Tap>
 
-      {/* Geçmiş Kayıtlar Tablosu */}
+      {/* Eş & Destek Nefes Rehberi */}
+      <Card style={{ padding: 14 }}>
+        <Tap
+          onPress={() => setShowPartnerTips(!showPartnerTips)}
+          style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Icon name="sparkle" size={16} color={colors.purple} />
+            <T bold style={{ fontSize: 13.5, color: colors.purple }}>Eş & Destek: Nefes & Masaj Rehberi</T>
+          </View>
+          <Icon name={showPartnerTips ? "chevron" : "down"} size={16} color={colors.muted} />
+        </Tap>
+        {showPartnerTips && (
+          <View style={{ marginTop: 10, gap: 8, borderTopWidth: 1, borderColor: '#F0E5F0', paddingTop: 10 }}>
+            <T style={{ fontSize: 12, color: colors.ink, lineHeight: 18 }}>
+              🌬️ <T bold>Nefes Ritmi:</T> Kasılma dalgası yükselirken 4 saniye boyunca burundan derin nefes alın, 6 saniyede gevşeyerek ağızdan sakince üfleyin.
+            </T>
+            <T style={{ fontSize: 12, color: colors.ink, lineHeight: 18 }}>
+              💆 <T bold>Eş Masajı:</T> Belin alt kısmına (sakrum bölgesi) avuç içiyle sabit dairesel baskı uygulamak sancı hissini belirgin rahatlatır.
+            </T>
+          </View>
+        )}
+      </Card>
+
+      {/* Geçmiş Kasılmalar */}
       <Section title="Son Kasılma Kayıtları" />
       {contractions.length === 0 ? (
         <Card style={{ alignItems: 'center', padding: 20 }}>
@@ -595,16 +620,28 @@ export function HospitalBag({ state, update, toast }) {
         tint="#744E8A"
       />
 
-      {/* Genel İlerleme Barı */}
-      <Card style={ts.progressBox}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <T bold style={{ fontSize: 14 }}>Genel Hazırlık Durumu</T>
-          <T bold style={{ color: colors.purple, fontSize: 15 }}>%{totalPercent} Hazır</T>
+      {/* Genel İlerleme Dairesel Göstergesi */}
+      <Card style={{ padding: 16 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+          <ProgressRing
+            size={72}
+            strokeWidth={7}
+            progress={totalPercent}
+            color={colors.purple}
+            bgColor="#EDE4F0"
+          >
+            <T bold style={{ fontSize: 14.5, color: colors.purple }}>%{totalPercent}</T>
+          </ProgressRing>
+
+          <View style={{ flex: 1 }}>
+            <T bold style={{ fontSize: 16, color: colors.ink }}>
+              {totalPercent === 100 ? '🎉 Çantanız Tamamen Hazır!' : 'Hazırlık Durumu'}
+            </T>
+            <T style={{ fontSize: 12, color: colors.muted, marginTop: 3 }}>
+              {totalPercent === 100 ? 'Tebrikler! Doğum çantanız eksiksiz hazır.' : `Toplam ${totalCount} eşyadan ${packedCount} tanesi çantada (${totalCount - packedCount} kalan).`}
+            </T>
+          </View>
         </View>
-        <Progress current={packedCount} total={totalCount} tint={colors.purple} height={8} />
-        <T style={{ fontSize: 11, color: colors.muted, marginTop: 6 }}>
-          {totalCount - packedCount === 0 ? 'Tebrikler! Hastane çantanız eksiksiz hazır.' : `Kalan: ${totalCount - packedCount} adet eşya`}
-        </T>
       </Card>
 
       {/* Kategori Sekmeleri */}

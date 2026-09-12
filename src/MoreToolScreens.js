@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, TextInput, ScrollView } from 'react-native';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
-import { T, Tap, Card, Section, Progress, ScreenHero, InfoNote } from './ui';
+import { T, Tap, Card, Section, Progress, ScreenHero, InfoNote, MetricCard, StatusCard, ProgressRing } from './ui';
 import { uid, localDay } from './domain.mjs';
 import { babyNamesList, nameThemes, nameOrigins } from './babyNamesData';
 
@@ -14,20 +14,20 @@ export function WeightTracker({ state, update, toast }) {
   const currentWeight = weights[0]?.value || startWeight;
   const totalGained = (currentWeight - startWeight).toFixed(1);
 
-  // Haftaya göre kişisel kilo eğrisi için sade görsel aralık.
+  // Haftaya göre kişisel kilo eğrisi
   const week = state.week || 24;
   const minExpectedGain = Math.max(0, ((week - 12) * 0.35)).toFixed(1);
   const maxExpectedGain = Math.max(0.5, ((week - 12) * 0.50 + 2.0)).toFixed(1);
 
-  function logWeight() {
-    const val = parseFloat(weightInput.replace(',', '.'));
+  function logWeight(customVal) {
+    const val = typeof customVal === 'number' ? customVal : parseFloat(weightInput.replace(',', '.'));
     if (isNaN(val) || val < 30 || val > 200) {
       toast && toast('Lütfen geçerli bir kilo girin. Örn: 65.5');
       return;
     }
     const newEntry = {
       id: uid(),
-      value: val,
+      value: parseFloat(val.toFixed(1)),
       week: state.week || 24,
       date: localDay(),
       time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
@@ -36,89 +36,118 @@ export function WeightTracker({ state, update, toast }) {
       weights: [newEntry, ...(old.weights || [])],
     }));
     setWeightInput('');
-    toast && toast(`Kilo kaydedildi: ${val} kg`);
+    toast && toast(`⚖️ Kilo kaydedildi: ${val.toFixed(1)} kg`);
   }
+
+  function adjustQuick(delta) {
+    const nextVal = currentWeight + delta;
+    logWeight(nextVal);
+  }
+
+  const isGainInRange = totalGained >= minExpectedGain && totalGained <= maxExpectedGain;
 
   return (
     <View style={ws.container}>
-      <ScreenHero asset="card_scale"
+      <ScreenHero
+        asset="card_scale"
         icon="scale"
-        kicker="HAFTALIK EĞİLİM"
-        title="Kilo takip paneli"
-        body="Ölçümlerini tek çizgide tut; randevu öncesi değişimi hızlıca hatırla."
+        kicker="HAFTALIK KİLO TAKİBİ"
+        title="Gestasyonel Kilo Paneli"
+        body="IOM ve DSÖ gebelik koridoruna göre kilo eğrinizi takip edin. Ölçümleri aynı saatte ve benzer kıyafetle yapın."
         stat={`${weights.length} ölçüm`}
         tint="#4F8464"
       />
 
-      {/* Kilo Özeti Kartı */}
-      <Card style={ws.summaryCard}>
-        <View style={ws.summaryRow}>
-          <View>
-            <T style={ws.label}>GÜNCEL KİLO</T>
-            <T bold style={ws.weightNum}>{currentWeight} <T style={{ fontSize: 18 }}>kg</T></T>
-          </View>
-          <View style={ws.gainPill}>
-            <T bold style={{ color: colors.sage, fontSize: 13 }}>
-              {totalGained >= 0 ? `+${totalGained}` : totalGained} kg
-            </T>
-            <T style={{ fontSize: 10, color: colors.muted }}>Toplam artış</T>
-          </View>
+      {/* İkili Metrik Kartları */}
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        <MetricCard
+          title="GÜNCEL KİLO"
+          value={`${currentWeight}`}
+          unit="kg"
+          subtext={`Başlangıç: ${startWeight} kg`}
+          icon="scale"
+          tint="#4F8464"
+        />
+        <MetricCard
+          title="TOPLAM DEĞİŞİM"
+          value={totalGained >= 0 ? `+${totalGained}` : `${totalGained}`}
+          unit="kg"
+          subtext={isGainInRange ? "İdeal takip koridorunda" : "Kişisel eğilim"}
+          icon="milestone"
+          tint="#844E86"
+        />
+      </View>
+
+      {/* IOM Kılavuz Kartı */}
+      <StatusCard
+        level={isGainInRange ? "safe" : "warning"}
+        title={`${week}. Hafta Önerilen Kilo Bandı: +${minExpectedGain} kg ile +${maxExpectedGain} kg`}
+        body={isGainInRange
+          ? "Harika gidiyorsunuz! Kilo artışınız gebelik haftanıza göre uluslararası standart bantta ilerliyor."
+          : "Kilo artışı haftalık eğilimle değerlendirilir. Ani ödem veya endişeniz olursa doktor kontrolünüzde danışın."
+        }
+        icon="sparkle"
+      />
+
+      {/* Hızlı Kilo Ekleme & Dokunmatik Butonlar */}
+      <Card style={{ padding: 14 }}>
+        <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>Hızlı Kilo Kaydet:</T>
+        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+          {[-0.5, +0.2, +0.5, +1.0].map(delta => (
+            <Tap
+              key={delta}
+              onPress={() => adjustQuick(delta)}
+              style={[ws.stepBtn, { backgroundColor: delta > 0 ? '#F3F8F5' : '#FAF4F4' }]}
+            >
+              <T bold style={{ fontSize: 12, color: delta > 0 ? '#377E55' : '#994444' }}>
+                {delta > 0 ? `+${delta}` : delta} kg
+              </T>
+            </Tap>
+          ))}
         </View>
 
-        <View style={ws.corridorBox}>
-          <T bold style={{ fontSize: 12, color: colors.purple }}>
-            {week}. Hafta Takip Aralığı:
-          </T>
-          <T style={{ fontSize: 12, color: colors.ink, marginTop: 2 }}>
-            +{minExpectedGain} kg ile +{maxExpectedGain} kg arası kişisel izleme bandı
-          </T>
+        <View style={ws.inputRow}>
+          <TextInput
+            value={weightInput}
+            onChangeText={setWeightInput}
+            placeholder={`Güncel kilonuz (Örn: ${currentWeight})`}
+            placeholderTextColor={colors.muted}
+            keyboardType="numeric"
+            style={ws.input}
+            onSubmitEditing={() => logWeight()}
+          />
+          <Tap onPress={() => logWeight()} label="Kaydet" style={ws.addBtn}>
+            <T bold style={{ color: 'white', fontSize: 13.5 }}>Kaydet</T>
+          </Tap>
         </View>
       </Card>
 
-      <InfoNote icon="scale"
-        title="Tek değere değil, eğriye bak"
-        body="Kilo takibi en iyi haftalık eğilimle okunur. Ani değişim, iştah, ödem veya endişe varsa notunu randevuda doktorunla paylaş."
-      />
-
-      {/* Yeni Kilo Girişi */}
-      <View style={ws.inputRow}>
-        <TextInput
-          value={weightInput}
-          onChangeText={setWeightInput}
-          placeholder="Bugünkü kilon · Örn: 66.2"
-          placeholderTextColor={colors.muted}
-          keyboardType="numeric"
-          style={ws.input}
-          onSubmitEditing={logWeight}
-        />
-        <Tap onPress={logWeight} label="Kaydet" style={ws.addBtn}>
-          <T bold style={{ color: 'white', fontSize: 14 }}>Kaydet</T>
-        </Tap>
-      </View>
-
       {/* Geçmiş Kilo Kayıtları */}
-      <Section title="Kilo Geçmişi" />
+      <Section title="Kilo Ölçüm Geçmişi" />
       {weights.length === 0 ? (
         <Card style={{ padding: 18, alignItems: 'center' }}>
-          <T bold style={{ color: colors.ink, fontSize: 14 }}>İlk ölçümü ekle</T>
+          <T bold style={{ color: colors.ink, fontSize: 14 }}>İlk ölçümü ekleyin</T>
           <T style={{ color: colors.muted, fontSize: 12, textAlign: 'center', marginTop: 4 }}>
-            Aynı tartı ve benzer saatlerde kayıt almak eğilimi daha okunur yapar.
+            Benzer saatlerde ve aç karnına tartılmak eğilimi daha güvenilir gösterir.
           </T>
         </Card>
       ) : (
-        weights.map(w => (
-          <View key={w.id} style={ws.historyRow}>
-            <View>
-              <T bold style={{ fontSize: 15 }}>{w.value} kg</T>
-              <T style={{ fontSize: 11, color: colors.muted }}>{w.date} · {w.week}. Hafta</T>
+        weights.map(w => {
+          const diff = (w.value - startWeight).toFixed(1);
+          return (
+            <View key={w.id} style={ws.historyRow}>
+              <View>
+                <T bold style={{ fontSize: 15 }}>{w.value} kg</T>
+                <T style={{ fontSize: 11, color: colors.muted }}>{w.date} · {w.week}. Hafta</T>
+              </View>
+              <View style={[ws.badge, { backgroundColor: '#EFF7F2' }]}>
+                <T bold style={{ fontSize: 12, color: '#3E7B54' }}>
+                  {diff >= 0 ? `+${diff}` : diff} kg
+                </T>
+              </View>
             </View>
-            <View style={ws.badge}>
-              <T style={{ fontSize: 12, color: colors.purple }}>
-                {(w.value - startWeight).toFixed(1) >= 0 ? `+${(w.value - startWeight).toFixed(1)}` : (w.value - startWeight).toFixed(1)} kg
-              </T>
-            </View>
-          </View>
-        ))
+          );
+        })
       )}
     </View>
   );
@@ -126,18 +155,22 @@ export function WeightTracker({ state, update, toast }) {
 
 // ─── 5. DOĞUM PLANI (BIRTH PLAN BUILDER) ──────────────────────────────────────
 const defaultBirthPlanOptions = [
-  { id: 'bp1', cat: 'Doğum Ortamı', title: 'Loş ve sakin ışıklandırma', desc: 'Rahatlatıcı ve huzurlu bir oda atmosferi' },
-  { id: 'bp2', cat: 'Doğum Ortamı', title: 'Sakinleştirici arka plan müziği', desc: 'Kendi hazırladığım çalma listesi' },
-  { id: 'bp3', cat: 'Doğum Ortamı', title: 'Serbest hareket & pilates topu', desc: 'Yatakta sabit kalmak yerine aktif pozisyonlar' },
-  { id: 'bp4', cat: 'Ağrı Yönetimi', title: 'Doğal nefes ve gevşeme teknikleri', desc: 'İlaçsız rahatlama yöntemleri' },
-  { id: 'bp5', cat: 'Ağrı Yönetimi', title: 'Gerektiğinde epidural anestezi', desc: 'Ağrı eşiğim zorlandığında epidural tercihi' },
+  { id: 'bp1', cat: 'Doğum Ortamı', title: 'Loş ve sakin ışıklandırma', desc: 'Rahatlatıcı, loş ve huzurlu bir oda atmosferi' },
+  { id: 'bp2', cat: 'Doğum Ortamı', title: 'Sakinleştirici arka plan müziği', desc: 'Kendi hazırladığım gevşeme ve dalga çalma listesi' },
+  { id: 'bp3', cat: 'Doğum Ortamı', title: 'Serbest hareket & pilates topu', desc: 'Yatakta sabit kalmak yerine dikey ve aktif pozisyonlar' },
+  { id: 'bp4', cat: 'Ağrı Yönetimi', title: 'Doğal nefes ve gevşeme teknikleri', desc: 'İlaçsız rahatlama ve derin nefes döngüleri' },
+  { id: 'bp5', cat: 'Ağrı Yönetimi', title: 'Gerektiğinde epidural anestezi', desc: 'Ağrı eşiğim zorlandığında epidural opsiyonunun hazır olması' },
   { id: 'bp6', cat: 'Bebek Doğunca', title: 'İlk saat Ten Tene Temas', desc: 'Kordon kesildikten sonra hemen anne göğsüne verilmesi' },
-  { id: 'bp7', cat: 'Bebek Doğunca', title: 'Geç kordon klempleme', desc: 'Kordon pulsasyonunun durması beklenerek kesilmesi' },
-  { id: 'bp8', cat: 'Bebek Doğunca', title: 'İlk saat içinde ilk emzirme', desc: 'Altın saatte kolostrumla ilk temas' },
+  { id: 'bp7', cat: 'Bebek Doğunca', title: 'Geç kordon klempleme', desc: 'Kordon pulsasyonunun durması beklenerek (1-3 dk) klemplenmesi' },
+  { id: 'bp8', cat: 'Bebek Doğunca', title: 'İlk saat kolostrum ile emzirme', desc: 'Altın saatte anne sütüyle ilk bağın kurulması' },
 ];
+
+const birthPlanCategories = ['Tümü', 'Doğum Ortamı', 'Ağrı Yönetimi', 'Bebek Doğunca'];
 
 export function BirthPlanBuilder({ state, update, toast }) {
   const plan = state.birthPlan || {};
+  const [selectedCat, setSelectedCat] = useState('Tümü');
+  const [showDoctorSheet, setShowDoctorSheet] = useState(false);
 
   function toggleOption(id) {
     const nextVal = !plan[id];
@@ -147,6 +180,14 @@ export function BirthPlanBuilder({ state, update, toast }) {
   }
 
   const selectedCount = Object.values(plan).filter(Boolean).length;
+  const totalOptions = defaultBirthPlanOptions.length;
+  const planPercent = Math.round((selectedCount / totalOptions) * 100);
+
+  const filteredOptions = selectedCat === 'Tümü'
+    ? defaultBirthPlanOptions
+    : defaultBirthPlanOptions.filter(o => o.cat === selectedCat);
+
+  const selectedList = defaultBirthPlanOptions.filter(o => plan[o.id]);
 
   return (
     <View style={ws.container}>
@@ -154,66 +195,156 @@ export function BirthPlanBuilder({ state, update, toast }) {
         icon="book"
         kicker="DOĞUM HAZIRLIĞI"
         title="Tercihlerini tek sayfada topla"
-        body="Ortam, destek ve ilk temas tercihlerini sade, paylaşılabilir bir plana dönüştür."
-        stat={`${selectedCount}/8 tercih`}
+        body="Ortam, ağrı kontrolü ve ilk temas tercihlerini sade, paylaşılabilir bir plana dönüştür."
+        stat={`${selectedCount}/${totalOptions} tercih`}
         tint="#946635"
       />
 
+      {/* İlerleme & İstatistik Kartı */}
       <Card style={{ padding: 16 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
-          <View style={{ flex: 1 }}>
-            <T bold style={{ fontSize: 16 }}>Doğum Tercihlerim</T>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ flex: 1, paddingRight: 12 }}>
+            <T bold style={{ fontSize: 16, color: colors.ink }}>Doğum Tercih Özeti</T>
             <T style={{ fontSize: 12, color: colors.muted, marginTop: 4, lineHeight: 18 }}>
-              {selectedCount} tercih belirlendi · Planı randevuda konuşmak için sade bir özet olarak kullan.
+              {selectedCount === totalOptions
+                ? 'Tüm temel tercihler belirlendi. Muayenede doktorunla inceleyebilirsin.'
+                : `${totalOptions - selectedCount} başlık henüz seçilmedi. Doğum ekibin için rehber hazırla.`}
             </T>
+            <Tap
+              onPress={() => setShowDoctorSheet(!showDoctorSheet)}
+              label="Doktora Sunum Özeti"
+              style={[ws.presentationBtn, showDoctorSheet && { backgroundColor: '#EADCEE' }]}
+            >
+              <Icon name="clipboard" size={14} color={colors.purple} />
+              <T bold style={{ fontSize: 11, color: colors.purple }}>
+                {showDoctorSheet ? 'Düzenleme Moduna Dön' : '📋 Doktora Göster Modu'}
+              </T>
+            </Tap>
           </View>
-          <View style={ws.scoreRing}>
-            <T bold style={{ fontSize: 18, color: colors.purple }}>{selectedCount}</T>
-            <T style={{ fontSize: 10, color: colors.muted }}>seçim</T>
-          </View>
+          <ProgressRing
+            size={74}
+            strokeWidth={7}
+            progress={planPercent}
+            color={colors.purple}
+            trackColor="#F0E5F2"
+          >
+            <T bold style={{ fontSize: 15, color: colors.purple }}>%{planPercent}</T>
+            <T style={{ fontSize: 9, color: colors.muted }}>hazır</T>
+          </ProgressRing>
         </View>
       </Card>
 
-      <InfoNote icon="milestone"
-        title="Plan esnek olmalı"
-        body="Doğum planı kesin talimat değil; ekip, koşullar ve güvenlik önceliğine göre birlikte güncellenen bir tercih özeti gibi çalışır."
-      />
+      {/* Doktora Göster / Klinik Sunum Modu */}
+      {showDoctorSheet ? (
+        <Card style={ws.clinicalSheet}>
+          <View style={ws.clinicalHeader}>
+            <View>
+              <T bold style={{ fontSize: 16, color: '#2C3E50' }}>MOMORA DOĞUM TERCİH FORMU</T>
+              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                Anne Adayı: {state.user?.name || 'Momora Annesi'} · {state.week || 24}. Gebelik Haftası
+              </T>
+            </View>
+            <View style={ws.clinicalBadge}>
+              <T bold style={{ fontSize: 10, color: '#3E7B54' }}>ÖZET BELGE</T>
+            </View>
+          </View>
 
-      <View style={{ gap: 10 }}>
-        {defaultBirthPlanOptions.map(opt => {
-          const isSelected = !!plan[opt.id];
-          return (
-            <Tap
-              key={opt.id}
-              onPress={() => toggleOption(opt.id)}
-              label={opt.title}
-              style={[ws.planCard, isSelected && ws.planCardActive]}
-            >
-              <View style={[ws.planCheck, isSelected && ws.planCheckActive]}>
-                {isSelected && <Icon name="check" size={14} color="white" />}
-              </View>
-              <View style={{ flex: 1 }}>
-                <T bold style={{ fontSize: 14, color: isSelected ? colors.purple : colors.ink }}>
-                  {opt.title}
+          {selectedList.length === 0 ? (
+            <View style={{ paddingVertical: 20, alignItems: 'center' }}>
+              <T style={{ fontSize: 13, color: colors.muted }}>Henüz bir tercih seçilmedi.</T>
+            </View>
+          ) : (
+            <View style={{ gap: 12, marginTop: 8 }}>
+              {selectedList.map((item, idx) => (
+                <View key={item.id} style={ws.clinicalItem}>
+                  <T bold style={{ fontSize: 13, color: colors.purple }}>{idx + 1}. [{item.cat}]</T>
+                  <T bold style={{ fontSize: 13, color: colors.ink, marginTop: 2 }}>{item.title}</T>
+                  <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>{item.desc}</T>
+                </View>
+              ))}
+            </View>
+          )}
+
+          <T style={ws.clinicalFooter}>
+            * Bu plan acil klinik gereksinimler ve doktor tavsiyeleri doğrultusunda esneklik göstermek üzere hazırlanmıştır.
+          </T>
+        </Card>
+      ) : (
+        <>
+          <StatusCard
+            level="info"
+            icon="info"
+            title="Klinik Esneklik İlkesi"
+            description="Doğum planı bir talimatname değil, annenin konforunu ve ekiple iletişimi güçlendiren esnek bir rehberdir."
+          />
+
+          {/* Kategori Sekmeleri */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
+            {birthPlanCategories.map(cat => (
+              <Tap
+                key={cat}
+                onPress={() => setSelectedCat(cat)}
+                label={cat}
+                style={[ws.filterPill, selectedCat === cat && ws.filterPillActive]}
+              >
+                <T bold={selectedCat === cat} style={{ fontSize: 12, color: selectedCat === cat ? 'white' : colors.ink }}>
+                  {cat}
                 </T>
-                <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>{opt.desc}</T>
-                <T style={{ fontSize: 10, color: '#A08EA0', marginTop: 4 }}>{opt.cat}</T>
-              </View>
-            </Tap>
-          );
-        })}
-      </View>
+              </Tap>
+            ))}
+          </ScrollView>
+
+          {/* Tercih Maddeleri */}
+          <View style={{ gap: 10 }}>
+            {filteredOptions.map(opt => {
+              const isSelected = !!plan[opt.id];
+              return (
+                <Tap
+                  key={opt.id}
+                  onPress={() => toggleOption(opt.id)}
+                  label={opt.title}
+                  style={[ws.planCard, isSelected && ws.planCardActive]}
+                >
+                  <View style={[ws.planCheck, isSelected && ws.planCheckActive]}>
+                    {isSelected && <Icon name="check" size={14} color="white" />}
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <T bold style={{ fontSize: 14, color: isSelected ? colors.purple : colors.ink }}>
+                        {opt.title}
+                      </T>
+                      <View style={[ws.catChip, isSelected && { backgroundColor: '#F0E3F3' }]}>
+                        <T style={{ fontSize: 9, color: isSelected ? colors.purple : colors.muted }}>{opt.cat}</T>
+                      </View>
+                    </View>
+                    <T style={{ fontSize: 11, color: colors.muted, marginTop: 3 }}>{opt.desc}</T>
+                  </View>
+                </Tap>
+              );
+            })}
+          </View>
+        </>
+      )}
     </View>
   );
 }
 
 // ─── 6. DOKTORA SORULAR (DOCTOR QUESTIONS) ───────────────────────────────────
+const suggestedTrimesterQuestions = [
+  { text: '24-28. hafta Şeker Yükleme (OGTT) testi için doğru zaman nedir?', tag: 'Tahlil' },
+  { text: 'Kan uyuşmazlığı iğnesi (Anti-D) bu kontrolde yapılacak mı?', tag: 'Aşı/İlaç' },
+  { text: 'Gece krampları için magnezyum dozu yeterli mi?', tag: 'Semptom' },
+  { text: 'Bebek hareketleri gün içinde nasıl takip edilmeli?', tag: 'Hareket' },
+  { text: 'Doğum pozisyonu ve plasenta yerleşimi ne durumda?', tag: 'Ultrason' },
+];
+
 export function DoctorQuestions({ state, update, toast }) {
   const [newQ, setNewQ] = useState('');
+  const [readingMode, setReadingMode] = useState(false);
   const questions = state.lists?.questions || [
     { id: 'dq1', text: 'Bu hafta demir veya vitamin takviyelerimi artırmalı mıyım?', done: false },
-    { id: 'dq2', text: 'Yolculuk veya uçuş için seyahat raporuna ihtiyacım var mı?', done: false },
-    { id: 'dq3', text: 'Hissedilen kasılmalar Braxton Hicks mi yoksa doğum sancısı mı?', done: false },
+    { id: 'dq2', text: 'Yolculuk veya seyahat için hekim onayı raporu almalı mıyım?', done: false },
+    { id: 'dq3', text: 'Hissedilen kasılmalar Braxton Hicks mi yoksa servikal açılma mı?', done: false },
   ];
 
   function toggleQ(id) {
@@ -223,15 +354,19 @@ export function DoctorQuestions({ state, update, toast }) {
     }));
   }
 
-  function addQ() {
-    if (!newQ.trim()) return;
-    const item = { id: `q-${uid()}`, text: newQ.trim(), done: false };
+  function addQ(textToAdd) {
+    const text = typeof textToAdd === 'string' ? textToAdd : newQ;
+    if (!text.trim()) return;
+    const item = { id: `q-${uid()}`, text: text.trim(), done: false };
     update(old => ({
       lists: { ...(old.lists || {}), questions: [item, ...(old.lists?.questions || questions)] },
     }));
-    setNewQ('');
+    if (typeof textToAdd !== 'string') setNewQ('');
     toast && toast('Soru listeye eklendi');
   }
+
+  const openCount = questions.filter(q => !q.done).length;
+  const answeredCount = questions.filter(q => q.done).length;
 
   return (
     <View style={ws.container}>
@@ -239,61 +374,142 @@ export function DoctorQuestions({ state, update, toast }) {
         icon="chat"
         kicker="KONTROL HAZIRLIĞI"
         title="Randevuda unutma"
-        body="Soruları açık, yanıtlananları kapalı tut; sonraki kontrol için gündemin kendiliğinden oluşsun."
-        stat={`${questions.filter(q => !q.done).length} açık soru`}
+        body="Soruları açık, yanıtlananları kapalı tut; sonraki muayene için gündemin eksiksiz olsun."
+        stat={`${openCount} açık soru`}
         tint="#7C5C96"
       />
 
+      {/* Metrik Göstergeleri */}
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        <MetricCard
+          title="AÇIK SORULAR"
+          value={openCount}
+          unit="adet"
+          subtext="Muayenede sorulacak"
+          icon="chat"
+        />
+        <MetricCard
+          title="YANITLANANLAR"
+          value={answeredCount}
+          unit="tamamlandı"
+          subtext="Önceki kontrollerde"
+          icon="check"
+        />
+      </View>
+
+      {/* Muayene Odası Okuma Modu Butonu */}
       <Card style={{ padding: 14 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <View style={ws.proNoteIcon}>
-            <Icon name="chat" size={17} color={colors.purple} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <T bold style={{ fontSize: 15 }}>Randevu Soruları</T>
-            <T style={{ fontSize: 12, color: colors.muted, marginTop: 2, lineHeight: 18 }}>
-              {questions.filter(q => !q.done).length} açık soru · Muayene odasında aklından çıkabilecek başlıkları önceden sırala.
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ flex: 1, paddingRight: 10 }}>
+            <T bold style={{ fontSize: 14 }}>Muayene Odası Okuma Modu</T>
+            <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+              Doktora gösterirken büyük puntolu, yüksek kontrastlı ekran açar.
             </T>
           </View>
+          <Tap
+            onPress={() => setReadingMode(!readingMode)}
+            label="Mod Değiştir"
+            style={[ws.modeToggle, readingMode && { backgroundColor: colors.purple }]}
+          >
+            <T bold style={{ fontSize: 11, color: readingMode ? 'white' : colors.purple }}>
+              {readingMode ? 'Standart Mod' : '🔍 Büyük Görünüm'}
+            </T>
+          </Tap>
         </View>
       </Card>
 
-      <View style={ws.inputRow}>
-        <TextInput
-          value={newQ}
-          onChangeText={setNewQ}
-          placeholder="Randevuda konuşmak istediğin soru..."
-          placeholderTextColor={colors.muted}
-          style={ws.input}
-          onSubmitEditing={addQ}
-        />
-        <Tap onPress={addQ} label="Ekle" style={ws.addBtn}>
-          <Icon name="plus" size={18} color="white" />
-        </Tap>
-      </View>
-
-      <View style={{ gap: 8 }}>
-        {questions.map(q => (
-          <Tap
-            key={q.id}
-            onPress={() => toggleQ(q.id)}
-            label={q.text}
-            style={[ws.planCard, q.done && { backgroundColor: '#F8F5F8', opacity: 0.8 }]}
-          >
-            <View style={[ws.planCheck, q.done && ws.planCheckActive]}>
-              {q.done && <Icon name="check" size={14} color="white" />}
-            </View>
-            <T style={[ws.checkText, q.done && { textDecorationLine: 'line-through', color: colors.muted }]}>
-              {q.text}
+      {readingMode ? (
+        /* Yüksek Kontrastlı Muayene Okuma Kartı */
+        <Card style={ws.readingCard}>
+          <T bold style={{ fontSize: 18, color: '#1B2A4A', marginBottom: 14 }}>
+            📋 Doktoruma Sorulacaklar ({openCount})
+          </T>
+          {openCount === 0 ? (
+            <T style={{ fontSize: 16, color: colors.muted, textAlign: 'center', paddingVertical: 20 }}>
+              Şu an bekleyen açık soru bulunmuyor.
             </T>
-          </Tap>
-        ))}
-      </View>
+          ) : (
+            questions.filter(q => !q.done).map((q, idx) => (
+              <View key={q.id} style={ws.readingItem}>
+                <View style={ws.readingBadge}>
+                  <T bold style={{ fontSize: 13, color: 'white' }}>{idx + 1}</T>
+                </View>
+                <T bold style={{ flex: 1, fontSize: 16, color: '#1A1824', lineHeight: 24 }}>
+                  {q.text}
+                </T>
+              </View>
+            ))
+          )}
+        </Card>
+      ) : (
+        <>
+          {/* Yeni Soru Ekleme Alanı */}
+          <View style={ws.inputRow}>
+            <TextInput
+              value={newQ}
+              onChangeText={setNewQ}
+              placeholder="Randevuda konuşmak istediğin soru..."
+              placeholderTextColor={colors.muted}
+              style={ws.input}
+              onSubmitEditing={() => addQ()}
+            />
+            <Tap onPress={() => addQ()} label="Ekle" style={ws.addBtn}>
+              <Icon name="plus" size={18} color="white" />
+            </Tap>
+          </View>
 
-      <InfoNote icon="check"
-        title="Randevu sonrası kapat"
-        body="Yanıt aldığın soruları işaretle; açık kalan konular bir sonraki kontrol için otomatik gündem gibi kalır."
-      />
+          {/* Haftaya Özel Önerilen Sorular */}
+          <View style={{ gap: 8 }}>
+            <T bold style={{ fontSize: 12, color: colors.muted, letterSpacing: 0.5 }}>
+              💡 BU HAFTA İÇİN ÖNERİLEN MEDİKAL SORULAR
+            </T>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
+              {suggestedTrimesterQuestions.map((s, idx) => (
+                <Tap
+                  key={idx}
+                  onPress={() => addQ(s.text)}
+                  label={s.text}
+                  style={ws.suggestedPill}
+                >
+                  <View style={ws.suggestedTag}>
+                    <T style={{ fontSize: 9, color: colors.purple }}>{s.tag}</T>
+                  </View>
+                  <T numberOfLines={1} style={{ fontSize: 12, color: colors.ink, maxWidth: 220 }}>
+                    {s.text}
+                  </T>
+                  <Icon name="plus" size={12} color={colors.purple} />
+                </Tap>
+              ))}
+            </ScrollView>
+          </View>
+
+          {/* Soru Listesi */}
+          <View style={{ gap: 8 }}>
+            {questions.map(q => (
+              <Tap
+                key={q.id}
+                onPress={() => toggleQ(q.id)}
+                label={q.text}
+                style={[ws.planCard, q.done && { backgroundColor: '#F8F5F8', opacity: 0.8 }]}
+              >
+                <View style={[ws.planCheck, q.done && ws.planCheckActive]}>
+                  {q.done && <Icon name="check" size={14} color="white" />}
+                </View>
+                <T style={[ws.checkText, q.done && { textDecorationLine: 'line-through', color: colors.muted }]}>
+                  {q.text}
+                </T>
+              </Tap>
+            ))}
+          </View>
+
+          <StatusCard
+            level="safe"
+            icon="check"
+            title="Randevu Sonrası Tamamla"
+            description="Doktorundan yanıt aldığın maddelerin üzerini tıkla; sonraki kontrol için otomatik olarak güncel kalır."
+          />
+        </>
+      )}
     </View>
   );
 }
@@ -358,18 +574,36 @@ export function BabyNameMatcher({ state, update, toast }) {
         tint="#9B4E76"
       />
 
+      {/* Metrik Göstergeleri */}
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        <MetricCard
+          title="KÜTÜPHANE"
+          value={babyNamesList.length}
+          unit="seçkin isim"
+          subtext="Anlam & kökenli"
+          icon="sparkles"
+        />
+        <MetricCard
+          title="EŞİMLE ORTAK"
+          value={partnerMatchesCount}
+          unit="eşleşme"
+          subtext="İkinizin de beğendiği"
+          icon="heart"
+        />
+      </View>
+
       {/* İstatistik & Bilgi Kartı */}
       <Card style={{ padding: 14, backgroundColor: '#FAF6FA', borderColor: '#EFE5F0' }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <View>
-            <T bold style={{ fontSize: 16, color: colors.purple }}>Bebek İsim Kütüphanesi</T>
-            <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
-              {babyNamesList.length} Seçkin İsim · {favNames.length} Favorin · 💕 {partnerMatchesCount} Eşinle Ortak
+          <View style={{ flex: 1, paddingRight: 8 }}>
+            <T bold style={{ fontSize: 15, color: colors.purple }}>Günün Şanslı İsmi</T>
+            <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+              Karar vermekte zorlanıyorsan kütüphaneden rastgele bir ilham al.
             </T>
           </View>
-          <Tap onPress={pickRandom} label="Şanslı İsim" style={{ backgroundColor: '#F0E5F2', paddingHorizontal: 12, paddingVertical: 7, borderRadius: 12, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <T style={{ fontSize: 13 }}>🎲</T>
-            <T bold style={{ fontSize: 11, color: colors.purple }}>Şanslı İsim</T>
+          <Tap onPress={pickRandom} label="Şanslı İsim" style={{ backgroundColor: '#F0E5F2', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <T style={{ fontSize: 14 }}>🎲</T>
+            <T bold style={{ fontSize: 11, color: colors.purple }}>Rastgele Seç</T>
           </Tap>
         </View>
 
@@ -386,21 +620,6 @@ export function BabyNameMatcher({ state, update, toast }) {
           </View>
         )}
       </Card>
-
-      <View style={ws.nameStatsRow}>
-        <View style={ws.nameStat}>
-          <T bold style={ws.nameStatNum}>{filtered.length}</T>
-          <T style={ws.nameStatLabel}>sonuç</T>
-        </View>
-        <View style={ws.nameStat}>
-          <T bold style={ws.nameStatNum}>{originCount}</T>
-          <T style={ws.nameStatLabel}>köken</T>
-        </View>
-        <View style={ws.nameStat}>
-          <T bold style={ws.nameStatNum}>{favNames.length}</T>
-          <T style={ws.nameStatLabel}>favori</T>
-        </View>
-      </View>
 
       {/* Arama Çubuğu */}
       <View style={ws.inputRow}>
@@ -543,4 +762,19 @@ const ws = StyleSheet.create({
   nameCard: { flexDirection: 'row', alignItems: 'center', padding: 14 },
   genderBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, backgroundColor: '#EFE5F3' },
   favBtn: { padding: 8 },
+
+  // Luxury upgrades
+  presentationBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 12, backgroundColor: '#F5ECF7', alignSelf: 'flex-start' },
+  clinicalSheet: { padding: 18, backgroundColor: '#FAFAF9', borderWidth: 1.5, borderColor: '#D7D2CF' },
+  clinicalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', borderBottomWidth: 1.5, borderColor: '#E3DFDC', paddingBottom: 12, marginBottom: 12 },
+  clinicalBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: '#E8F3EB' },
+  clinicalItem: { paddingBottom: 10, borderBottomWidth: 1, borderColor: '#EFECE9' },
+  clinicalFooter: { fontSize: 10, color: colors.muted, fontStyle: 'italic', marginTop: 14, lineHeight: 14 },
+  catChip: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, backgroundColor: '#F4EFF5' },
+  modeToggle: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 12, backgroundColor: '#F5ECF7' },
+  readingCard: { padding: 18, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: colors.purple },
+  readingItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingVertical: 12, borderBottomWidth: 1, borderColor: '#F0EAE6' },
+  readingBadge: { width: 26, height: 26, borderRadius: 13, backgroundColor: colors.purple, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
+  suggestedPill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14, backgroundColor: '#F9F4F9', borderWidth: 1, borderColor: '#EFE3F0' },
+  suggestedTag: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, backgroundColor: '#EFE2F1' },
 });
