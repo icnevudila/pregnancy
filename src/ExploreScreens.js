@@ -88,8 +88,15 @@ export function FoodSafetyChecker({ toast }) {
             <Card key={food.id} style={es.foodCard}>
               <View style={es.foodCardTop}>
                 <T bold style={{ fontSize: 16, color: colors.ink }}>{food.name}</T>
-                <View style={[es.statusPill, { backgroundColor: badgeBg }]}>
-                  <T bold style={{ fontSize: 11, color: badgeColor }}>{food.badge}</T>
+                <View style={[es.statusPill, { backgroundColor: badgeBg, flexDirection: 'row', alignItems: 'center', gap: 5 }]}>
+                  {isAvoid && generatedAssets['ui_food_avoid_shield'] ? (
+                    <Image source={generatedAssets['ui_food_avoid_shield']} style={{ width: 14, height: 14 }} resizeMode="contain" />
+                  ) : isLimit && generatedAssets['ui_food_moderate_shield'] ? (
+                    <Image source={generatedAssets['ui_food_moderate_shield']} style={{ width: 14, height: 14 }} resizeMode="contain" />
+                  ) : generatedAssets['ui_food_safe_shield'] ? (
+                    <Image source={generatedAssets['ui_food_safe_shield']} style={{ width: 14, height: 14 }} resizeMode="contain" />
+                  ) : null}
+                  <T bold style={{ fontSize: 11, color: badgeColor }}>{food.badge.replace(/^[🔴🟡🟢]\s*/, '')}</T>
                 </View>
               </View>
 
@@ -263,9 +270,8 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
             >
               {(() => {
                 const featImg = generatedAssets[featuredArticle?.image] || getAsset(featuredArticle?.image) || generatedAssets['blog_pregnant_morning'];
-                console.log('EXPLORE_DEBUG featuredArticle.image:', featuredArticle?.image, 'featImg:', featImg);
                 return featImg ? (
-                  <Image source={featImg} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} resizeMode="cover" />
+                  <Image source={featImg} style={StyleSheet.absoluteFill} resizeMode="cover" />
                 ) : null;
               })()}
               <LinearGradient
@@ -318,7 +324,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                   <View style={es.blogPostImgBox}>
                     <Image
                       source={imgAsset}
-                      style={{ width: '100%', height: '100%' }}
+                      style={StyleSheet.absoluteFill}
                       resizeMode="cover"
                     />
                     <View style={es.blogPostTimeTag}>
@@ -426,7 +432,7 @@ export function EditorialArticleScreen({ article, toast }) {
       {/* 1. Büyük Editoryal Kapak (16:9 Hero Image with Vignette Gradient) */}
       <View style={es.articleCoverBox}>
         {coverAsset ? (
-          <Image source={coverAsset} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} resizeMode="cover" />
+          <Image source={coverAsset} style={StyleSheet.absoluteFill} resizeMode="cover" />
         ) : (
           <LinearGradient colors={['#9A779A', '#664566']} style={StyleSheet.absoluteFill} />
         )}
@@ -560,7 +566,7 @@ export function EditorialArticleScreen({ article, toast }) {
                 {inlineAsset && (
                   <View style={es.inlineFigureBox}>
                     <View style={es.inlineImgFrame}>
-                      <Image source={inlineAsset} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                      <Image source={inlineAsset} style={StyleSheet.absoluteFill} resizeMode="cover" />
                     </View>
                     <View style={es.inlineCaptionRow}>
                       <Icon name="search" size={12} color="#7E6D82" style={{ marginRight: 5 }} />
@@ -651,7 +657,7 @@ const es = StyleSheet.create({
   hubTabBtnActive: { backgroundColor: colors.purple },
   hubTabText: { fontSize: 11, color: '#795B82' },
   // Featured Lead Story Hero
-  featuredHeroCard: { height: 230, borderRadius: 22, overflow: 'hidden', justifyContent: 'flex-end', padding: 16, ...shadow },
+  featuredHeroCard: { height: 230, borderRadius: 22, overflow: 'hidden', justifyContent: 'flex-end', padding: 16, position: 'relative', ...shadow },
   featuredHeroBadge: { position: 'absolute', top: 14, left: 14, backgroundColor: '#7E4E8AEE', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   featuredHeroContent: { gap: 6 },
   featuredHeroTitle: { fontSize: 18, color: 'white', lineHeight: 24 },
@@ -672,7 +678,7 @@ const es = StyleSheet.create({
   faqTagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
   faqTag: { backgroundColor: '#F5EDF7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
   // Editorial Article Reader styles
-  articleCoverBox: { height: 260, borderRadius: 24, overflow: 'hidden', justifyContent: 'flex-end', padding: 18, ...shadow },
+  articleCoverBox: { height: 260, borderRadius: 24, overflow: 'hidden', justifyContent: 'flex-end', padding: 18, position: 'relative', ...shadow },
   coverMeta: { gap: 6 },
   coverBadgeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
   categoryPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: '#784882CC' },
@@ -687,7 +693,7 @@ const es = StyleSheet.create({
   keyPointsCard: { backgroundColor: '#F8F3FA', padding: 16, borderRadius: 20, borderWidth: 1, borderColor: '#EBE0F0' },
   sectionNumberBadge: { width: 26, height: 26, borderRadius: 13, backgroundColor: '#F0E5F2', alignItems: 'center', justifyContent: 'center' },
   inlineFigureBox: { marginVertical: 14 },
-  inlineImgFrame: { width: '100%', height: 220, borderRadius: 18, overflow: 'hidden', backgroundColor: '#F4EEF5', borderWidth: 1, borderColor: '#ECE2EC', ...shadow },
+  inlineImgFrame: { width: '100%', height: 220, borderRadius: 18, overflow: 'hidden', backgroundColor: '#F4EEF5', borderWidth: 1, borderColor: '#ECE2EC', position: 'relative', ...shadow },
   inlineCaptionRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4, paddingTop: 8 },
   inlineCaptionText: { fontSize: 11.5, color: '#7E6D82', fontStyle: 'italic', flex: 1, lineHeight: 16 },
   articleP: { fontSize: 14.5, lineHeight: 24, color: '#3A3240' },

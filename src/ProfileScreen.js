@@ -6,7 +6,7 @@ import { T, Tap, Card, Section, ScreenHero } from './ui';
 import { babyNamesList } from './babyNamesData';
 import { dateLabel, pregnancyAt } from './domain.mjs';
 import { isSupabaseConfigured, supabase } from './supabaseClient';
-import { signInWithEmail, signOut, cloudStatusLabel, saveCloudState } from './backendSync';
+import { signInWithEmail, signOut, cloudStatusLabel, saveCloudState, linkPartnerAccount, sendPartnerMessage as sendPartnerMessageCloud, fetchPartnerMessages, saveBabyLetterCloud, fetchBabyLettersCloud } from './backendSync';
 
 export function ProfileScreen({ state, update, open, toast, choose, cloudStatus, refreshFromCloud }) {
   const [activeTab, setActiveTab] = useState('family'); // 'family' | 'personal' | 'favorites' | 'settings'
@@ -23,6 +23,8 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
 
   // Mesajlaşma State'leri
   const [newPartnerMsg, setNewPartnerMsg] = useState('');
+  const [inputPartnerCode, setInputPartnerCode] = useState('');
+  const [partnerSyncBusy, setPartnerSyncBusy] = useState(false);
   const [newBabyLetter, setNewBabyLetter] = useState('');
 
   // Hatırlatıcı Toggle State'leri
@@ -91,6 +93,33 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
       dueDate: dueDate.trim(),
     });
     toast && toast('Profil bilgilerin başarıyla güncellendi 🌸');
+  }
+
+
+  async function handleLinkPartner() {
+    if (!inputPartnerCode.trim()) {
+      toast && toast('Lütfen eşinizin aile kodunu girin.');
+      return;
+    }
+    setPartnerSyncBusy(true);
+    const result = await linkPartnerAccount(inputPartnerCode.trim());
+    setPartnerSyncBusy(false);
+
+    if (result?.error) {
+      toast && toast(result.error.message || 'Eşleşme başarısız oldu.');
+      return;
+    }
+
+    if (result?.data) {
+      update({
+        partnerName: result.data.partner_name || partnerName,
+        familyCode: result.data.family_code || inputPartnerCode.trim().toUpperCase(),
+        dueDate: result.data.due_date || state.dueDate,
+        babyName: result.data.baby_name || state.babyName,
+      });
+      setInputPartnerCode('');
+      toast && toast('Eşinizle başarıyla eşleşildi! 💚 Tüm verileriniz senkronize.');
+    }
   }
 
   function sendPartnerMessage() {
@@ -242,24 +271,48 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
       {activeTab === 'family' && (
         <View style={{ gap: 14 }}>
           {/* Aile Senkronizasyon Kodu Kartı */}
-          <Card style={{ padding: 16, backgroundColor: '#FAF6FA', borderColor: '#EDE0EE' }}>
+          <Card style={{ padding: 18, backgroundColor: '#FAF6FA', borderColor: '#EDE0EE' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View>
-                <T style={{ fontSize: 11, color: colors.muted, letterSpacing: 1 }}>AİLE SENKRONİZASYON KODU</T>
-                <T bold style={{ fontSize: 20, color: colors.purple, marginTop: 2 }}>MOM-7829-TR</T>
+                <T style={{ fontSize: 11, color: colors.muted, letterSpacing: 1 }}>SENİN AİLE SENKRONİZASYON KODUN</T>
+                <T bold style={{ fontSize: 22, color: colors.purple, marginTop: 3, letterSpacing: 1 }}>{state.familyCode || 'MOM-7829-TR'}</T>
               </View>
               <Tap
                 onPress={() => toast && toast('Aile kodu kopyalandı! Eşinle paylaşabilirsin 📲')}
                 label="Kodu Kopyala"
                 style={ps.copyBtn}
               >
-                <Icon name="share" size={14} color="white" />
-                <T bold style={{ fontSize: 12, color: 'white' }}>Kodu Paylaş</T>
+                <Icon name="check" size={14} color="white" />
+                <T bold style={{ fontSize: 12, color: 'white' }}>Kodu Kopyala</T>
               </Tap>
             </View>
-            <T style={{ fontSize: 12, color: '#66536C', marginTop: 8, lineHeight: 17 }}>
-              Aile hesabı için hazırlanan alan. Supabase bağlantısı tamamlandığında bu kod gerçek eşleştirme ve ortak kayıt akışına bağlanacak.
-            </T>
+
+            {/* Eş Kodu Girme Alanı */}
+            <View style={{ marginTop: 16, paddingTop: 14, borderTopWidth: 1, borderColor: '#EDE0EE' }}>
+              <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 6 }}>Eşinin Kodunu Gir (Canlı Eşleşme)</T>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <TextInput
+                  value={inputPartnerCode}
+                  onChangeText={setInputPartnerCode}
+                  placeholder="MOM-XXXX-TR"
+                  placeholderTextColor={colors.muted}
+                  autoCapitalize="characters"
+                  style={[ps.input, { flex: 1, letterSpacing: 2, textTransform: 'uppercase' }]}
+                />
+                <Tap
+                  onPress={handleLinkPartner}
+                  disabled={partnerSyncBusy}
+                  style={[ps.sendBtn, { paddingHorizontal: 16, backgroundColor: colors.purple }]}
+                >
+                  <T bold style={{ color: 'white', fontSize: 13 }}>
+                    {partnerSyncBusy ? 'Bağlanıyor...' : 'Eşleş 💚'}
+                  </T>
+                </Tap>
+              </View>
+              <T style={{ fontSize: 11, color: colors.muted, marginTop: 6 }}>
+                Eşin kendi telefonundaki Momora kodunu buraya yazdığında tüm verileriniz otomatik eşitlenir.
+              </T>
+            </View>
           </Card>
 
           {/* Eşler Arası Sevgi & Destek Sohbeti */}

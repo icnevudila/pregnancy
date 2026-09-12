@@ -71,18 +71,28 @@ export function NursingTimerScreen({ state, update, toast }) {
           label="Emzirme"
           style={[pbs.segBtn, feedMode === 'breast' && pbs.segBtnActive]}
         >
-          <T bold={feedMode === 'breast'} style={[pbs.segText, feedMode === 'breast' && { color: 'white' }]}>
-            🤱 Meme Emzirme
-          </T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            {generatedAssets['btn_nursing'] ? (
+              <Image source={generatedAssets['btn_nursing']} style={{ width: 18, height: 18 }} resizeMode="contain" />
+            ) : null}
+            <T bold={feedMode === 'breast'} style={[pbs.segText, feedMode === 'breast' && { color: 'white' }]}>
+              Meme Emzirme
+            </T>
+          </View>
         </Tap>
         <Tap
           onPress={() => setFeedMode('bottle')}
           label="Biberon"
           style={[pbs.segBtn, feedMode === 'bottle' && pbs.segBtnActive]}
         >
-          <T bold={feedMode === 'bottle'} style={[pbs.segText, feedMode === 'bottle' && { color: 'white' }]}>
-            🍼 Biberon (ml)
-          </T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            {generatedAssets['btn_bottle'] ? (
+              <Image source={generatedAssets['btn_bottle']} style={{ width: 18, height: 18 }} resizeMode="contain" />
+            ) : null}
+            <T bold={feedMode === 'bottle'} style={[pbs.segText, feedMode === 'bottle' && { color: 'white' }]}>
+              Biberon (ml)
+            </T>
+          </View>
         </Tap>
       </View>
 
@@ -434,9 +444,9 @@ export function DiaperTrackerScreen({ update, toast }) {
       {/* 3 Hızlı Dokunsal Seçici */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
         {[
-          { id: 'Islak', icon: '💧', label: 'Islak Bez', tint: '#4896BC', bg: '#EDF6FA' },
-          { id: 'Kirli', icon: '💩', label: 'Kirli Bez', tint: '#8A6840', bg: '#F9F4EE' },
-          { id: 'Karışık', icon: '🔄', label: 'Karışık', tint: '#6E4D84', bg: '#F6EFF8' },
+          { id: 'Islak', asset: 'ui_diaper_wet_drop', label: 'Islak Bez', tint: '#4896BC', bg: '#EDF6FA' },
+          { id: 'Kirli', asset: 'ui_diaper_dirty', label: 'Kirli Bez', tint: '#8A6840', bg: '#F9F4EE' },
+          { id: 'Karışık', asset: 'btn_diaper', label: 'Karışık', tint: '#6E4D84', bg: '#F6EFF8' },
         ].map(item => (
           <Tap
             key={item.id}
@@ -444,7 +454,9 @@ export function DiaperTrackerScreen({ update, toast }) {
             label={item.label}
             style={[pbs.diaperBtn, { backgroundColor: item.bg }]}
           >
-            <T style={{ fontSize: 32 }}>{item.icon}</T>
+            {generatedAssets[item.asset] ? (
+              <Image source={generatedAssets[item.asset]} style={{ width: 44, height: 44 }} resizeMode="contain" />
+            ) : null}
             <T bold style={{ fontSize: 13, color: item.tint, marginTop: 8 }}>{item.label}</T>
             <T style={{ fontSize: 10, color: colors.muted, marginTop: 2 }}>Kaydetmek için dokun</T>
           </Tap>

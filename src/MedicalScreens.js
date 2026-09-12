@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Image, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
-import { Icon, FruitArt } from './Icons';
+import { Icon, FruitArt, ComparisonArt } from './Icons';
 import { T, Tap, Card, Section, ScreenHero } from './ui';
 import { getWeekInfo, formatLength, formatWeight, trimesterLabel } from './weekData';
 import { generatedAssets } from './generatedAssets';
@@ -24,12 +24,13 @@ export function SizeComparisonHub({ state, toast }) {
         tint="#7B4C80"
       />
 
-      {/* 3'lü Segment Seçici */}
+      {/* 4'lü Segment Seçici */}
       <View style={ms.segRow}>
         {[
-          { id: 'fruit', label: '🍎 Meyve', sub: 'Klasik' },
-          { id: 'animal', label: '🐰 Sevimli Hayvan', sub: 'Doğa' },
-          { id: 'sweet', label: '🧁 Tatlı & Fırın', sub: 'Keyif' },
+          { id: 'fruit', label: '🍏 Meyve', sub: 'Klasik' },
+          { id: 'ultrasound', label: '🩺 Ultrason', sub: 'Medikal' },
+          { id: 'animal', label: '🧸 Hayvan', sub: 'Doğa' },
+          { id: 'sweet', label: '🧁 Tatlı', sub: 'Keyif' },
         ].map(s => (
           <Tap
             key={s.id}
@@ -63,14 +64,17 @@ export function SizeComparisonHub({ state, toast }) {
         <View style={ms.stage}>
           {mode === 'fruit' ? (
             <FruitArt type={info.fruit} size={150} />
-          ) : mode === 'animal' ? (
-            <View style={ms.emojiStage}>
-              <T style={{ fontSize: 96 }}>{info.animalEmoji || '🐾'}</T>
-            </View>
+          ) : mode === 'ultrasound' ? (
+            <ComparisonArt mode="ultrasound" size={150} week={week} info={info} />
           ) : (
-            <View style={ms.emojiStage}>
-              <T style={{ fontSize: 96 }}>{info.sweetEmoji || '🍬'}</T>
-            </View>
+            <ComparisonArt
+              mode={mode}
+              type={mode === 'animal' ? info.animal : info.sweet}
+              size={130}
+              emoji={mode === 'animal' ? (info.animalEmoji || '🐾') : (info.sweetEmoji || '🧁')}
+              info={info}
+              week={week}
+            />
           )}
 
           <T bold style={ms.stageTitle}>
@@ -78,9 +82,11 @@ export function SizeComparisonHub({ state, toast }) {
               ? `${info.fruitName}`
               : mode === 'animal'
               ? `${info.animalName}`
+              : mode === 'ultrasound'
+              ? (info.ultrasound?.scan || 'Ultrason Anatomisi')
               : `${info.sweetName}`}
           </T>
-          <T style={ms.stageSub}>büyüklüğünde</T>
+          <T style={ms.stageSub}>{mode === 'ultrasound' ? (info.ultrasound?.badge || 'Gelişim taraması') : 'büyüklüğünde'}</T>
         </View>
 
         {/* Boy & Ağırlık Şeridi */}

@@ -7,6 +7,7 @@ import { T, Tap, Card, Section, ScreenHero } from './ui';
 import { uid, localDay } from './domain.mjs';
 import { generatedAssets } from './generatedAssets';
 import { articles, searchFaqs } from './content';
+import { fetchCommunityPostsCloud, createCommunityPostCloud, addCommunityCommentCloud, fetchCommunityCommentsCloud } from './backendSync';
 
 // ─── BAŞLANGIÇ FORUM VE TOPLULUK GÖNDERİLERİ ─────────────────────────────────
 export const initialCommunityPosts = [
@@ -102,6 +103,30 @@ export function CommunityHub({ open, state, update, toast }) {
   const [posts, setPosts] = useState(initialCommunityPosts);
   const [likedPosts, setLikedPosts] = useState({});
   const [newPostModal, setNewPostModal] = useState(false);
+
+  React.useEffect(() => {
+    fetchCommunityPostsCloud().then(res => {
+      if (res?.data && res.data.length > 0) {
+        const mapped = res.data.map(p => ({
+          id: p.id,
+          user: p.author_name,
+          week: p.week_label || 'Anne',
+          title: p.title,
+          desc: p.body,
+          likes: p.likes_count || 0,
+          comments: p.comments_count || 0,
+          cat: p.category,
+          verified: false,
+          time: new Date(p.created_at).toLocaleDateString('tr-TR'),
+        }));
+        setPosts(prev => {
+          const existingIds = new Set(prev.map(x => x.id));
+          const unique = mapped.filter(x => !existingIds.has(x.id));
+          return [...unique, ...prev];
+        });
+      }
+    }).catch(() => {});
+  }, []);
 
   // Yeni gönderi formu
   const [newTitle, setNewTitle] = useState('');

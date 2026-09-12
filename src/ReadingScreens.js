@@ -63,6 +63,14 @@ export function ArticleDetail({data,state,update,navigate,back,toast}) {
     {a.sections.map((section,i)=><View key={section.title} style={{gap:9,paddingVertical:10}}>
       <T style={f.label}>0{i+1}</T>
       <T bold style={{fontSize:large?23:20,lineHeight:28}}>{section.title}</T>
+      {section.image && (
+        <View style={{marginVertical:8,height:210,borderRadius:18,overflow:'hidden',backgroundColor:'#F0EAF1',position:'relative'}}>
+          <Image source={generatedAssets[section.image] || getAsset(section.image)} style={StyleSheet.absoluteFill} resizeMode="cover"/>
+        </View>
+      )}
+      {section.caption && (
+        <T style={{fontSize:12,color:colors.muted,fontStyle:'italic',marginTop:-2,marginBottom:4}}>{section.caption}</T>
+      )}
       <T style={[f.body,{fontSize:large?19:16,lineHeight:large?31:27}]}>{section.text}</T>
       {section.tip && (
         <View style={{backgroundColor:'#FBF4EB',padding:12,borderRadius:12,borderWidth:1,borderColor:'#F2E4D5',marginTop:4}}>

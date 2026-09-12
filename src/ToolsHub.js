@@ -317,7 +317,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <T style={{ fontSize: 18 }}>🦶</T>
+                <Image source={generatedAssets['ui_kick_foot_button']} style={{ width: 22, height: 22 }} resizeMode="contain" />
                 <T bold style={{ fontSize: 15, color: colors.ink }}>Tekme Seansları Geçmişi</T>
               </View>
               <Tap onPress={() => open('kickCounter')} style={{ padding: 4 }}>
@@ -350,7 +350,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <T style={{ fontSize: 18 }}>⏱️</T>
+                <Image source={generatedAssets['ui_contraction_pulse_button']} style={{ width: 22, height: 22 }} resizeMode="contain" />
                 <T bold style={{ fontSize: 15, color: colors.ink }}>Kasılma Kayıtları</T>
               </View>
               <Tap onPress={() => open('contractionTimer')} style={{ padding: 4 }}>
@@ -383,7 +383,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <T style={{ fontSize: 18 }}>⚖️</T>
+                <Image source={generatedAssets['ui_weight_bmi_gauge']} style={{ width: 22, height: 22 }} resizeMode="contain" />
                 <T bold style={{ fontSize: 15, color: colors.ink }}>Kilo Takip Eğrisi & Ölçümler</T>
               </View>
               <Tap onPress={() => open('weight')} style={{ padding: 4 }}>
@@ -419,7 +419,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
               label="Hastane çantasını aç"
               style={[th.statMiniCard, { backgroundColor: '#FAF4FC' }]}
             >
-              <T style={{ fontSize: 20 }}>🎒</T>
+              <Image source={generatedAssets['ui_hospital_bag_3d']} style={{ width: 26, height: 26 }} resizeMode="contain" />
               <T bold style={{ fontSize: 13, color: '#572E65', marginTop: 4 }}>Hastane Çantası</T>
               <T style={{ fontSize: 11, color: '#885899', marginTop: 2 }}>{bagDone}/{bagItems.length || 0} eşya hazır</T>
             </Tap>
@@ -429,7 +429,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
               label="Doğum planını aç"
               style={[th.statMiniCard, { backgroundColor: '#FDF7EE' }]}
             >
-              <T style={{ fontSize: 20 }}>📋</T>
+              <Image source={generatedAssets['ui_birth_plan_scroll']} style={{ width: 26, height: 26 }} resizeMode="contain" />
               <T bold style={{ fontSize: 13, color: '#684520', marginTop: 4 }}>Doğum Tercihleri</T>
               <T style={{ fontSize: 11, color: '#997042', marginTop: 2 }}>{birthPlanDone} tercih belirlendi</T>
             </Tap>

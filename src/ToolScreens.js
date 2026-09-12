@@ -6,6 +6,7 @@ import { Icon } from './Icons';
 import { T, Tap, Card, Section, Progress, ScreenHero, InfoNote } from './ui';
 import { usePulse } from './anim';
 import { secondsLabel, uid, localDay } from './domain.mjs';
+import { saveKickSessionCloud, saveContractionSessionCloud } from './backendSync';
 import { generatedAssets } from './generatedAssets';
 
 // ─── 1. TEKME SAYACI (KICK COUNTER) ──────────────────────────────────────────
@@ -51,6 +52,7 @@ export function KickCounter({ state, update, toast }) {
     update(old => ({
       kickSessions: [newSession, ...(old.kickSessions || [])],
     }));
+    saveKickSessionCloud({ durationSeconds: finalSecs, kickCount: finalKicks, week: state.week || 28 }).catch(() => {});
     toast && toast(`${finalKicks} hareket ${secondsLabel(finalSecs)} içinde kaydedildi.`);
     setKicks(0);
     setSeconds(0);
@@ -244,6 +246,7 @@ export function ContractionTimer({ state, update, toast }) {
       update(old => ({
         contractionSessions: [entry, ...(old.contractionSessions || [])],
       }));
+      saveContractionSessionCloud({ durationSeconds: duration, intervalSeconds: intervalSecs, intensity, statusAlert: medicalStatus.badge }).catch(() => {});
       toast && toast('Kasılma kaydedildi.');
       setDuration(0);
     }
