@@ -5,6 +5,7 @@ import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
 import { T, Tap, Card, Section } from './ui';
 import { generatedAssets } from './generatedAssets';
+import { articles, pregnancyFaqs, faqCategories, searchFaqs, getFaqsByCategory, searchArticles } from './content';
 
 // ─── EKRAN 16: "YENEBİLİR Mİ / GÜVENLİ Mİ?" GIDA REHBERİ ────────────────────
 export const foodDatabase = [
@@ -39,10 +40,10 @@ export function FoodSafetyChecker({ toast }) {
 
   return (
     <View style={es.container}>
-      <Card style={{ padding: 14 }}>
-        <T bold style={{ fontSize: 16 }}>Gebelikte Besin Güvenliği</T>
-        <T style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>
-          "Bunu yiyebilir miyim?" diye merak ettiğiniz tüm yiyecekleri anında sorgulayın.
+      <Card style={{ padding: 16 }}>
+        <T bold style={{ fontSize: 17, color: colors.ink }}>Gebelikte Besin Güvenliği Kılavuzu</T>
+        <T style={{ fontSize: 13, color: colors.muted, marginTop: 5, lineHeight: 19 }}>
+          "Bunu yiyebilir miyim?" diye merak ettiğiniz tüm gıdaların klinik güvenilirlik durumunu sorgulayın.
         </T>
       </Card>
 
@@ -52,7 +53,7 @@ export function FoodSafetyChecker({ toast }) {
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="Yiyecek veya içecek ara (Örn: Suşi, Kahve)..."
+          placeholder="Gıda veya içecek ara (Örn: Suşi, Kahve, Peynir)..."
           placeholderTextColor={colors.muted}
           style={es.searchInput}
         />
@@ -64,7 +65,7 @@ export function FoodSafetyChecker({ toast }) {
       </View>
 
       {/* Kategori Filtreleri */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
         {categories.map(c => (
           <Tap
             key={c}
@@ -80,7 +81,7 @@ export function FoodSafetyChecker({ toast }) {
       </ScrollView>
 
       {/* Sonuç Kartları */}
-      <View style={{ gap: 10 }}>
+      <View style={{ gap: 11 }}>
         {filtered.map(food => {
           const isAvoid = food.status === 'avoid';
           const isLimit = food.status === 'limit';
@@ -96,13 +97,13 @@ export function FoodSafetyChecker({ toast }) {
                 </View>
               </View>
 
-              <T style={{ fontSize: 13, color: '#4E4856', marginTop: 6, lineHeight: 19 }}>
+              <T style={{ fontSize: 13, color: '#4E4856', marginTop: 8, lineHeight: 20 }}>
                 {food.reason}
               </T>
 
               <View style={es.altBox}>
-                <T bold style={{ fontSize: 11, color: colors.purple }}>ÖNERİLEN ALTERNATİF:</T>
-                <T style={{ fontSize: 12, color: colors.ink, marginTop: 2 }}>{food.alt}</T>
+                <T bold style={{ fontSize: 11, color: colors.purple, letterSpacing: 0.5 }}>ÖNERİLEN SAĞLIKLI ALTERNATİF:</T>
+                <T style={{ fontSize: 13, color: colors.ink, marginTop: 3 }}>{food.alt}</T>
               </View>
             </Card>
           );
@@ -113,8 +114,6 @@ export function FoodSafetyChecker({ toast }) {
 }
 
 // ─── EKRAN 14: KONU KOLEKSİYONLARI, BLOG MAGAZİN & SSS KÜTÜPHANESİ ─────────
-import { articles, pregnancyFaqs, faqCategories, searchFaqs, getFaqsByCategory, searchArticles } from './content';
-
 export const topicCollections = [
   { id: 'pregnancy', title: 'Gebelikte Hafta Hafta Gelişim & Testler', count: 4, art: 'blog_ultrasound_memory', color: '#F4EEF6' },
   { id: 'nutrition', title: 'Gebelikte Beslenme & Güvenli Gıdalar', count: 3, art: 'blog_healthy_breakfast', color: '#F4F7F2' },
@@ -125,8 +124,8 @@ export const topicCollections = [
   { id: 'partner', title: 'Eş & Baba Olmak: İlk Günlerde Destek', count: 2, art: 'blog_father_baby_bond', color: '#F0F5FA' },
 ];
 
-export function TopicHubScreen({ openArticle, openFoodChecker }) {
-  const [hubTab, setHubTab] = useState('articles'); // 'articles' | 'topics' | 'faq'
+export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'articles' }) {
+  const [hubTab, setHubTab] = useState(initialTab); // 'articles' | 'food' | 'faq' | 'topics'
   const [articleQuery, setArticleQuery] = useState('');
   const [articleTopic, setArticleTopic] = useState('Tümü');
   const [faqQuery, setFaqQuery] = useState('');
@@ -138,8 +137,8 @@ export function TopicHubScreen({ openArticle, openFoodChecker }) {
     'Tümü': 'Tümü',
     'pregnancy': 'Gelişim & Tıp',
     'nutrition': 'Beslenme',
-    'wellbeing': 'İyi Hisset & Uyku',
-    'birth': 'Doğum',
+    'wellbeing': 'İyi Hisset & Ruh',
+    'birth': 'Doğuma Hazırlık',
     'baby': 'Bebek Bakımı',
     'postpartum': 'Lohusalık',
     'partner': 'Eş & Baba'
@@ -153,52 +152,32 @@ export function TopicHubScreen({ openArticle, openFoodChecker }) {
     return matchesSearch && matchesTopic;
   });
 
+  const featuredArticle = articles[0];
+
   const displayedFaqs = faqQuery
     ? searchFaqs(faqQuery).filter(f => faqCat === 'Tümü' || f.category === faqCat)
     : getFaqsByCategory(faqCat);
 
   return (
     <View style={es.container}>
-      {/* Hızlı Gıda Güvenliği Banner'ı */}
-      <Tap
-        onPress={openFoodChecker}
-        label="Gıda güvenliği sorgula"
-        style={es.foodBanner}
-      >
-        <LinearGradient
-          colors={['#729584', '#557565']}
-          style={StyleSheet.absoluteFill}
-        />
-        <View style={{ flex: 1 }}>
-          <T style={{ color: '#D4E8DC', fontSize: 11, letterSpacing: 1 }}>HIZLI KONTROL</T>
-          <T bold style={{ color: 'white', fontSize: 16, marginTop: 2 }}>“Bunu yiyebilir miyim?”</T>
-          <T style={{ color: '#EAF3ED', fontSize: 12, marginTop: 4 }}>
-            Suşi, bitki çayı, peynir ve kahve rehberini aç →
-          </T>
-        </View>
-        <View style={es.foodBannerIcon}>
-          <Icon name="bowl" size={26} color="white" />
-        </View>
-      </Tap>
-
-      {/* Hub Sekmeleri: Tüm Yazılar / Koleksiyonlar / SSS */}
+      {/* Hub Üst Sekmeleri (Luxury Editorial Navigation) */}
       <View style={es.hubTabRow}>
         <Tap
           onPress={() => setHubTab('articles')}
-          label="Tüm Yazılar"
+          label="Yazılar & Magazin"
           style={[es.hubTabBtn, hubTab === 'articles' && es.hubTabBtnActive]}
         >
           <T bold={hubTab === 'articles'} style={[es.hubTabText, hubTab === 'articles' && { color: 'white' }]}>
-            📖 Yazılar ({articles.length})
+            📖 Magazin ({articles.length})
           </T>
         </Tap>
         <Tap
-          onPress={() => setHubTab('topics')}
-          label="Koleksiyonlar"
-          style={[es.hubTabBtn, hubTab === 'topics' && es.hubTabBtnActive]}
+          onPress={() => setHubTab('food')}
+          label="Besin Güvenliği"
+          style={[es.hubTabBtn, hubTab === 'food' && es.hubTabBtnActive]}
         >
-          <T bold={hubTab === 'topics'} style={[es.hubTabText, hubTab === 'topics' && { color: 'white' }]}>
-            📚 Koleksiyonlar
+          <T bold={hubTab === 'food'} style={[es.hubTabText, hubTab === 'food' && { color: 'white' }]}>
+            🥗 Yenebilir mi?
           </T>
         </Tap>
         <Tap
@@ -210,17 +189,27 @@ export function TopicHubScreen({ openArticle, openFoodChecker }) {
             ❓ SSS ({pregnancyFaqs.length})
           </T>
         </Tap>
+        <Tap
+          onPress={() => setHubTab('topics')}
+          label="Koleksiyonlar"
+          style={[es.hubTabBtn, hubTab === 'topics' && es.hubTabBtnActive]}
+        >
+          <T bold={hubTab === 'topics'} style={[es.hubTabText, hubTab === 'topics' && { color: 'white' }]}>
+            📚 Dosyalar
+          </T>
+        </Tap>
       </View>
 
       {hubTab === 'articles' ? (
-        /* Tüm Makaleler Listesi */
-        <View style={{ gap: 12 }}>
+        /* 1. TÜM EDİTORYAL YAZILAR & MAGAZİN */
+        <View style={{ gap: 14 }}>
+          {/* Arama Barı */}
           <View style={es.searchBox}>
             <Icon name="search" size={20} color={colors.muted} />
             <TextInput
               value={articleQuery}
               onChangeText={setArticleQuery}
-              placeholder="Konu, belirti veya makale ara..."
+              placeholder="Konu, belirti veya makale ara (Örn: bulantı, kordon)..."
               placeholderTextColor={colors.muted}
               style={es.searchInput}
             />
@@ -232,7 +221,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker }) {
           </View>
 
           {/* Konu Filtreleri */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
             {topicFilters.map(t => (
               <Tap
                 key={t}
@@ -240,15 +229,43 @@ export function TopicHubScreen({ openArticle, openFoodChecker }) {
                 label={topicLabels[t]}
                 style={[es.catPill, articleTopic === t && es.catPillActive]}
               >
-                <T bold={articleTopic === t} style={{ fontSize: 11, color: articleTopic === t ? 'white' : colors.ink }}>
+                <T bold={articleTopic === t} style={{ fontSize: 12, color: articleTopic === t ? 'white' : colors.ink }}>
                   {topicLabels[t]}
                 </T>
               </Tap>
             ))}
           </ScrollView>
 
-          {/* Makale Kartları */}
-          <View style={{ gap: 12 }}>
+          {/* Öne Çıkan Başyazı (Featured Lead Story) */}
+          {!articleQuery && articleTopic === 'Tümü' && featuredArticle && (
+            <Tap
+              onPress={() => openArticle && openArticle(featuredArticle)}
+              label="Öne Çıkan Başyazı"
+              style={es.featuredHeroCard}
+            >
+              {generatedAssets[featuredArticle.image] && (
+                <Image source={generatedAssets[featuredArticle.image]} style={StyleSheet.absoluteFill} resizeMode="cover" />
+              )}
+              <LinearGradient
+                colors={['rgba(35,22,40,0.15)', 'rgba(25,16,30,0.92)']}
+                style={StyleSheet.absoluteFill}
+              />
+              <View style={es.featuredHeroBadge}>
+                <T bold style={{ fontSize: 10, color: 'white', letterSpacing: 1 }}>🌟 GÜNÜN ÖNE ÇIKAN REHBERİ</T>
+              </View>
+              <View style={es.featuredHeroContent}>
+                <T bold style={es.featuredHeroTitle}>{featuredArticle.title}</T>
+                <T numberOfLines={2} style={es.featuredHeroSub}>{featuredArticle.subtitle}</T>
+                <View style={es.featuredHeroMeta}>
+                  <T style={{ fontSize: 11, color: '#E4D6E6' }}>⏱️ {featuredArticle.minutes} dk okuma</T>
+                  <T style={{ fontSize: 11, color: '#E4D6E6' }}>• {featuredArticle.doctor.split('·')[0]}</T>
+                </View>
+              </View>
+            </Tap>
+          )}
+
+          {/* Makale Listesi (Magazine Feed) */}
+          <View style={{ gap: 14 }}>
             {filteredArticles.map(a => {
               const imgAsset = generatedAssets[a.image];
               return (
@@ -262,17 +279,17 @@ export function TopicHubScreen({ openArticle, openFoodChecker }) {
                     <View style={es.blogPostImgBox}>
                       <Image source={imgAsset} style={StyleSheet.absoluteFill} resizeMode="cover" />
                       <View style={es.blogPostTimeTag}>
-                        <T style={{ fontSize: 10, color: 'white' }}>⏱️ {a.minutes} dk</T>
+                        <T style={{ fontSize: 10, color: 'white', fontWeight: 'bold' }}>⏱️ {a.minutes} dk</T>
                       </View>
                     </View>
                   )}
-                  <View style={{ padding: 14 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <View style={{ padding: 16 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                       <View style={es.blogPostCategoryTag}>
-                        <T style={{ fontSize: 10, color: colors.purple }}>{a.categoryName || topicLabels[a.topic] || 'Rehber'}</T>
+                        <T bold style={{ fontSize: 10, color: colors.purple }}>{a.categoryName || topicLabels[a.topic] || 'Rehber'}</T>
                       </View>
                       {a.weeks && (
-                        <T style={{ fontSize: 10, color: colors.muted }}>• Hafta {a.weeks[0]}-{a.weeks[1]}</T>
+                        <T style={{ fontSize: 11, color: colors.muted }}>• Hafta {a.weeks[0]}-{a.weeks[1]}</T>
                       )}
                     </View>
 
@@ -281,8 +298,10 @@ export function TopicHubScreen({ openArticle, openFoodChecker }) {
 
                     {a.doctor && (
                       <View style={es.blogPostDocRow}>
-                        <T style={{ fontSize: 13 }}>👩‍⚕️</T>
-                        <T numberOfLines={1} style={{ fontSize: 11, color: colors.purple, flex: 1 }}>{a.doctor}</T>
+                        <T style={{ fontSize: 14 }}>👩‍⚕️</T>
+                        <T numberOfLines={1} style={{ fontSize: 11, color: colors.purple, flex: 1, fontWeight: '500' }}>
+                          {a.doctor}
+                        </T>
                         <Icon name="chevron" size={16} color={colors.purple} />
                       </View>
                     )}
@@ -292,33 +311,11 @@ export function TopicHubScreen({ openArticle, openFoodChecker }) {
             })}
           </View>
         </View>
-      ) : hubTab === 'topics' ? (
-        /* Tematik Koleksiyonlar */
-        <View style={{ gap: 12 }}>
-          <Section title="Tematik Koleksiyonlar" />
-          {topicCollections.map(col => (
-            <Tap
-              key={col.id}
-              onPress={() => {
-                const match = articles.find(a => a.topic === col.id) || articles[0];
-                openArticle && openArticle(match);
-              }}
-              label={col.title}
-              style={[es.collectionCard, { backgroundColor: col.color }]}
-            >
-              {generatedAssets[col.art] && (
-                <Image source={generatedAssets[col.art]} style={es.colImg} resizeMode="cover" />
-              )}
-              <View style={es.colInfo}>
-                <T bold style={{ fontSize: 15, color: colors.ink, lineHeight: 21 }}>{col.title}</T>
-                <T style={{ fontSize: 12, color: colors.muted, marginTop: 6 }}>{col.count} uzman rehberi</T>
-              </View>
-              <Icon name="chevron" size={18} color={colors.purple} />
-            </Tap>
-          ))}
-        </View>
-      ) : (
-        /* Sıkça Sorulan Sorular (SSS) */
+      ) : hubTab === 'food' ? (
+        /* 2. BESİN GÜVENLİĞİ KILAVUZU */
+        <FoodSafetyChecker />
+      ) : hubTab === 'faq' ? (
+        /* 3. SIKÇA SORULAN SORULAR */
         <View style={{ gap: 12 }}>
           <View style={es.searchBox}>
             <Icon name="search" size={20} color={colors.muted} />
@@ -336,7 +333,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker }) {
             ) : null}
           </View>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
             {faqCategories.map(c => (
               <Tap
                 key={c}
@@ -344,31 +341,31 @@ export function TopicHubScreen({ openArticle, openFoodChecker }) {
                 label={c}
                 style={[es.catPill, faqCat === c && es.catPillActive]}
               >
-                <T bold={faqCat === c} style={{ fontSize: 11, color: faqCat === c ? 'white' : colors.ink }}>
+                <T bold={faqCat === c} style={{ fontSize: 12, color: faqCat === c ? 'white' : colors.ink }}>
                   {c}
                 </T>
               </Tap>
             ))}
           </ScrollView>
 
-          <View style={{ gap: 10 }}>
+          <View style={{ gap: 11 }}>
             {displayedFaqs.map(faq => {
               const isOpen = expandedFaq === faq.id;
               return (
-                <Card key={faq.id} style={{ padding: 14 }}>
+                <Card key={faq.id} style={{ padding: 15 }}>
                   <Tap
                     onPress={() => setExpandedFaq(isOpen ? null : faq.id)}
                     label={faq.q}
-                    style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}
+                    style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}
                   >
                     <View style={es.faqIcon}>
-                      <T style={{ fontSize: 14 }}>{isOpen ? '💬' : '❓'}</T>
+                      <T style={{ fontSize: 15 }}>{isOpen ? '💬' : '❓'}</T>
                     </View>
                     <View style={{ flex: 1 }}>
-                      <T bold style={{ fontSize: 14, color: colors.ink, lineHeight: 20 }}>
+                      <T bold style={{ fontSize: 14.5, color: colors.ink, lineHeight: 21 }}>
                         {faq.q}
                       </T>
-                      <T style={{ fontSize: 10, color: colors.purple, marginTop: 4 }}>
+                      <T style={{ fontSize: 11, color: colors.purple, marginTop: 4, fontWeight: '500' }}>
                         {faq.category}
                       </T>
                     </View>
@@ -383,7 +380,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker }) {
                       <View style={es.faqTagsRow}>
                         {faq.tags.map(t => (
                           <View key={t} style={es.faqTag}>
-                            <T style={{ fontSize: 10, color: '#77587B' }}>#{t}</T>
+                            <T style={{ fontSize: 11, color: '#77587B' }}>#{t}</T>
                           </View>
                         ))}
                       </View>
@@ -394,12 +391,37 @@ export function TopicHubScreen({ openArticle, openFoodChecker }) {
             })}
           </View>
         </View>
+      ) : (
+        /* 4. TEMATİK DOSYALAR & KOLEKSİYONLAR */
+        <View style={{ gap: 12 }}>
+          <Section title="Tematik Koleksiyon Dosyaları" />
+          {topicCollections.map(col => (
+            <Tap
+              key={col.id}
+              onPress={() => {
+                const match = articles.find(a => a.topic === col.id) || articles[0];
+                openArticle && openArticle(match);
+              }}
+              label={col.title}
+              style={[es.collectionCard, { backgroundColor: col.color }]}
+            >
+              {generatedAssets[col.art] && (
+                <Image source={generatedAssets[col.art]} style={es.colImg} resizeMode="cover" />
+              )}
+              <View style={es.colInfo}>
+                <T bold style={{ fontSize: 15, color: colors.ink, lineHeight: 21 }}>{col.title}</T>
+                <T style={{ fontSize: 12, color: colors.muted, marginTop: 5 }}>{col.count} uzman klinik rehberi</T>
+              </View>
+              <Icon name="chevron" size={18} color={colors.purple} />
+            </Tap>
+          ))}
+        </View>
       )}
     </View>
   );
 }
 
-// ─── EKRAN 15: MAKALE DETAY EKRANI (SESLİ DİNLEME, GÖRSELLER & KLİNİK İPUÇLARI) ───
+// ─── EKRAN 15: MAKALE DETAY EKRANI (LUXURY MAGAZINE EDITORIAL READER) ────────
 export function EditorialArticleScreen({ article, toast }) {
   const [playingAudio, setPlayingAudio] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
@@ -419,8 +441,8 @@ export function EditorialArticleScreen({ article, toast }) {
     sections: [
       {
         title: 'Neden Sabahları Daha Şiddetli?',
-        text: 'Gebelikte hızla yükselen hCG ve östrojen hormonları sindirim sistemini yavaşlatır. Gece boyunca boş kalan mide asidi sabahları yoğun bulantıya neden olur.',
-        tip: '💡 Baş ucunuzda tuzlu galeta veya leblebi bulundurun.'
+        text: 'Gebelikte hızla yükselen insan koryonik gonadotropini (hCG) ve östrojen hormonları, sindirim sisteminin yavaşlamasına ve mide boşalmasının gecikmesine yol açar.',
+        tip: '💡 Baş ucunuzda tuzlu galeta veya leblebi bulundurun; gözünüzü açtığınızda ayağa kalkmadan bir iki lokma atıştırıp 10 dakika uzanın.'
       }
     ]
   };
@@ -433,30 +455,44 @@ export function EditorialArticleScreen({ article, toast }) {
 
   return (
     <View style={es.container}>
-      {/* Kapak Görseli */}
+      {/* 1. Büyük Editoryal Kapak (16:9 Hero Image with Vignette Gradient) */}
       <View style={es.articleCoverBox}>
         {coverAsset ? (
           <Image source={coverAsset} style={StyleSheet.absoluteFill} resizeMode="cover" />
         ) : (
           <LinearGradient colors={['#9A779A', '#664566']} style={StyleSheet.absoluteFill} />
         )}
-        <LinearGradient colors={['transparent', '#1B141CEE']} style={StyleSheet.absoluteFill} />
+        <LinearGradient
+          colors={['rgba(35,22,40,0.2)', 'rgba(25,16,30,0.94)']}
+          style={StyleSheet.absoluteFill}
+        />
         <View style={es.coverMeta}>
-          <View style={es.readingTimePill}>
-            <T style={{ fontSize: 11, color: 'white' }}>⏱️ {readingTime}</T>
+          <View style={es.coverBadgeRow}>
+            <View style={es.categoryPill}>
+              <T bold style={{ fontSize: 10, color: 'white', letterSpacing: 0.8 }}>
+                {a.categoryName ? a.categoryName.toLocaleUpperCase('tr') : 'UZMAN REHBERİ'}
+              </T>
+            </View>
+            <View style={es.readingTimePill}>
+              <T style={{ fontSize: 11, color: 'white' }}>⏱️ {readingTime}</T>
+            </View>
           </View>
           <T bold style={es.articleTitle}>{a.title}</T>
+          <T style={es.articleCoverSub}>{a.subtitle}</T>
         </View>
       </View>
 
-      {/* Doktor Onay Rozeti & Kaydet Butonu */}
+      {/* 2. Doktor Doğrulama Rozeti & Yer İmleri Butonu */}
       <Card style={es.doctorCard}>
         <View style={es.docAvatar}>
-          <T style={{ fontSize: 20 }}>👩‍⚕️</T>
+          <T style={{ fontSize: 22 }}>👩‍⚕️</T>
         </View>
         <View style={{ flex: 1 }}>
-          <T bold style={{ fontSize: 13, color: colors.ink }}>Medikal Olarak Doğrulanmıştır</T>
-          <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>{doctorName}</T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+            <T bold style={{ fontSize: 13.5, color: colors.ink }}>Klinik Olarak Doğrulanmıştır</T>
+            <T style={{ fontSize: 12, color: colors.purple }}>✓</T>
+          </View>
+          <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2 }}>{doctorName}</T>
         </View>
         <Tap
           onPress={() => {
@@ -470,72 +506,111 @@ export function EditorialArticleScreen({ article, toast }) {
         </Tap>
       </Card>
 
-      {/* Sesli Dinleme (Podcast Player) Barı */}
+      {/* 3. Momora Audio: Sesli Dinleme (Podcast Bar) */}
       <Card style={es.audioBar}>
         <Tap
           onPress={() => setPlayingAudio(!playingAudio)}
           label="Sesli dinle"
           style={es.audioPlayBtn}
         >
-          <T style={{ fontSize: 14 }}>{playingAudio ? '⏸️' : '▶️'}</T>
+          <T style={{ fontSize: 15 }}>{playingAudio ? '⏸️' : '▶️'}</T>
         </Tap>
-        <View style={{ flex: 1, marginLeft: 12 }}>
-          <T bold style={{ fontSize: 13, color: colors.ink }}>Sesli Dinle (Momora Audio)</T>
-          <T style={{ fontSize: 11, color: colors.muted }}>
+        <View style={{ flex: 1, marginLeft: 14 }}>
+          <T bold style={{ fontSize: 13, color: colors.ink }}>Momora Sesli Dinleme</T>
+          <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
             {playingAudio ? 'Yazı seslendiriliyor...' : `${a.audioDuration || '3:45'} · Sakinleştirici ses`}
           </T>
+          {/* Dalga Formu / Waveform Görselleştirmesi */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 6 }}>
+            {[8, 14, 20, 12, 18, 10, 16, 22, 14, 8, 12].map((h, i) => (
+              <View
+                key={i}
+                style={{
+                  width: 3,
+                  height: playingAudio ? (i % 2 === 0 ? h : h * 0.7) : 5,
+                  borderRadius: 2,
+                  backgroundColor: playingAudio ? colors.purple : '#D8CCD8',
+                }}
+              />
+            ))}
+          </View>
         </View>
         <Tap
           onPress={() => toast && toast('Makale bağlantısı kopyalandı 🔗')}
           label="Paylaş"
-          style={{ padding: 6 }}
+          style={{ padding: 8 }}
         >
-          <Icon name="heart" size={18} color={colors.purple} />
+          <Icon name="heart" size={19} color={colors.purple} />
         </Tap>
       </Card>
 
-      {/* Özetle: Önemli Noktalar Kutusu */}
+      {/* 4. Özetle: Önemli Noktalar Kartı */}
       {a.keyPoints && a.keyPoints.length > 0 && (
         <Card style={es.keyPointsCard}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-            <T style={{ fontSize: 16 }}>✨</T>
-            <T bold style={{ fontSize: 13, color: colors.purple }}>Özetle: 3 Önemli Nokta</T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 }}>
+            <T style={{ fontSize: 17 }}>✨</T>
+            <T bold style={{ fontSize: 13.5, color: colors.purple, letterSpacing: 0.5 }}>
+              ÖZETLE: KLİNİK ÖNEMLİ NOKTALAR
+            </T>
           </View>
           {a.keyPoints.map((kp, idx) => (
-            <View key={idx} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginTop: 4 }}>
-              <T style={{ color: colors.purple, fontSize: 14 }}>•</T>
-              <T style={{ fontSize: 13, color: colors.ink, lineHeight: 19, flex: 1 }}>{kp}</T>
+            <View key={idx} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 9, marginTop: 6 }}>
+              <T style={{ color: colors.purple, fontSize: 14, marginTop: 1 }}>•</T>
+              <T style={{ fontSize: 13.5, color: colors.ink, lineHeight: 20, flex: 1 }}>{kp}</T>
             </View>
           ))}
         </Card>
       )}
 
-      {/* Makale Bölümleri & Satır İçi Görseller */}
-      <View style={{ gap: 14 }}>
+      {/* 5. Makale Bölümleri & Geniş Editoryal Görseller (16:9) */}
+      <View style={{ gap: 16 }}>
         {a.sections ? (
           a.sections.map((sec, idx) => {
             const inlineAsset = sec.image && generatedAssets[sec.image];
             return (
-              <Card key={idx} style={{ padding: 16 }}>
-                <T bold style={{ fontSize: 16, color: colors.ink, marginBottom: 8, lineHeight: 22 }}>
-                  {sec.title}
-                </T>
+              <Card key={idx} style={{ padding: 18 }}>
+                {/* Bölüm Başlığı & Numara Rozeti */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                  <View style={es.sectionNumberBadge}>
+                    <T bold style={{ fontSize: 11, color: colors.purple }}>{String(idx + 1).padStart(2, '0')}</T>
+                  </View>
+                  <T bold style={{ fontSize: 17, color: colors.ink, lineHeight: 23, flex: 1 }}>
+                    {sec.title}
+                  </T>
+                </View>
 
-                {/* Satır İçi İllüstrasyon / Fotoğraf */}
+                {/* 16:9 Geniş Fotoğraf ve İtalyan Altyazı Kartı */}
                 {inlineAsset && (
-                  <View style={es.inlineImageBox}>
-                    <Image source={inlineAsset} style={StyleSheet.absoluteFill} resizeMode="contain" />
+                  <View style={es.inlineFigureBox}>
+                    <View style={es.inlineImgFrame}>
+                      <Image source={inlineAsset} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                    </View>
+                    <View style={es.inlineCaptionRow}>
+                      <T style={{ fontSize: 12, marginRight: 5 }}>📷</T>
+                      <T style={es.inlineCaptionText}>
+                        {sec.caption || `${sec.title} görsel rehberi`}
+                      </T>
+                    </View>
                   </View>
                 )}
 
+                {/* Paragraf Metni */}
                 <T style={es.articleP}>
                   {sec.text}
                 </T>
 
-                {/* Klinik İpucu Kutusu */}
+                {/* Klinik İpucu / Uyarı Kutusu */}
                 {sec.tip && (
-                  <View style={es.clinicTipBox}>
-                    <T style={es.clinicTipText}>{sec.tip}</T>
+                  <View style={[
+                    es.clinicTipBox,
+                    sec.tip.includes('⚠️') && es.clinicWarningBox
+                  ]}>
+                    <T style={[
+                      es.clinicTipText,
+                      sec.tip.includes('⚠️') && { color: '#99352A' }
+                    ]}>
+                      {sec.tip}
+                    </T>
                   </View>
                 )}
               </Card>
@@ -543,17 +618,17 @@ export function EditorialArticleScreen({ article, toast }) {
           })
         ) : a.paragraphs ? (
           a.paragraphs.map((p, idx) => (
-            <Card key={idx} style={{ padding: 14 }}>
+            <Card key={idx} style={{ padding: 16 }}>
               <T style={es.articleP}>{p}</T>
             </Card>
           ))
         ) : null}
       </View>
 
-      {/* Benzer Rehberler */}
+      {/* 6. Benzer Rehberler */}
       {relatedArticles.length > 0 && (
-        <View style={{ marginTop: 12, gap: 10 }}>
-          <Section title="Benzer Rehberler" />
+        <View style={{ marginTop: 14, gap: 11 }}>
+          <Section title="Konuyla İlgili Diğer Rehberler" />
           {relatedArticles.map(rel => (
             <Tap
               key={rel.id}
@@ -565,8 +640,8 @@ export function EditorialArticleScreen({ article, toast }) {
                 <Image source={generatedAssets[rel.image]} style={es.relatedImg} resizeMode="cover" />
               )}
               <View style={{ flex: 1 }}>
-                <T bold numberOfLines={1} style={{ fontSize: 13, color: colors.ink }}>{rel.title}</T>
-                <T style={{ fontSize: 11, color: colors.muted, marginTop: 3 }}>⏱️ {rel.minutes} dk okuma</T>
+                <T bold numberOfLines={1} style={{ fontSize: 13.5, color: colors.ink }}>{rel.title}</T>
+                <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 4 }}>⏱️ {rel.minutes} dk okuma</T>
               </View>
               <Icon name="chevron" size={16} color={colors.purple} />
             </Tap>
@@ -578,55 +653,70 @@ export function EditorialArticleScreen({ article, toast }) {
 }
 
 const es = StyleSheet.create({
-  container: { gap: 14, paddingBottom: 24 },
+  container: { gap: 14, paddingBottom: 28 },
   searchBox: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFDFA', borderWidth: 1, borderColor: '#DED3DB', borderRadius: 18, paddingHorizontal: 14, height: 46, ...shadow },
   searchInput: { flex: 1, fontSize: 13, color: colors.ink },
   catPill: { paddingVertical: 7, paddingHorizontal: 14, borderRadius: 16, backgroundColor: '#EFEAEF' },
   catPillActive: { backgroundColor: colors.purple },
-  foodCard: { padding: 14 },
+  foodCard: { padding: 15 },
   foodCardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   statusPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   altBox: { marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderColor: colors.line },
   // Hub styles
   foodBanner: { height: 95, borderRadius: 20, overflow: 'hidden', padding: 16, flexDirection: 'row', alignItems: 'center', ...shadow },
   foodBannerIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#FFFFFF33', alignItems: 'center', justifyContent: 'center' },
-  collectionCard: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 18, borderWidth: 1, borderColor: '#EBE1EA', ...shadow },
-  colImg: { width: 68, height: 68, borderRadius: 14, marginRight: 12 },
+  collectionCard: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 18, borderWidth: 1, borderColor: '#EBE1EA', ...shadow },
+  colImg: { width: 68, height: 68, borderRadius: 14, marginRight: 14 },
   colInfo: { flex: 1 },
   // Hub Tabs
-  hubTabRow: { flexDirection: 'row', backgroundColor: '#EDE4F2', borderRadius: 16, padding: 3, gap: 4 },
+  hubTabRow: { flexDirection: 'row', backgroundColor: '#EFE6F3', borderRadius: 16, padding: 3, gap: 4 },
   hubTabBtn: { flex: 1, paddingVertical: 8, alignItems: 'center', justifyContent: 'center', borderRadius: 13 },
   hubTabBtnActive: { backgroundColor: colors.purple },
   hubTabText: { fontSize: 11, color: '#795B82' },
+  // Featured Lead Story Hero
+  featuredHeroCard: { height: 230, borderRadius: 22, overflow: 'hidden', justifyContent: 'flex-end', padding: 16, ...shadow },
+  featuredHeroBadge: { position: 'absolute', top: 14, left: 14, backgroundColor: '#7E4E8AEE', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  featuredHeroContent: { gap: 6 },
+  featuredHeroTitle: { fontSize: 18, color: 'white', lineHeight: 24 },
+  featuredHeroSub: { fontSize: 12, color: '#F0E5F2', lineHeight: 17 },
+  featuredHeroMeta: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 },
   // Blog Post Card styles
   blogPostCard: { backgroundColor: '#FFFFFF', borderRadius: 20, overflow: 'hidden', borderWidth: 1, borderColor: '#ECE2EC', ...shadow },
-  blogPostImgBox: { height: 145, backgroundColor: '#F0EAF1', position: 'relative' },
-  blogPostTimeTag: { position: 'absolute', top: 12, right: 12, backgroundColor: '#00000077', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 },
+  blogPostImgBox: { height: 165, backgroundColor: '#F0EAF1', position: 'relative' },
+  blogPostTimeTag: { position: 'absolute', top: 12, right: 12, backgroundColor: '#00000077', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 10 },
   blogPostCategoryTag: { backgroundColor: '#F4EDF6', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
-  blogPostTitle: { fontSize: 16, color: colors.ink, marginTop: 8, lineHeight: 22 },
-  blogPostSub: { fontSize: 12, color: '#635B69', marginTop: 4, lineHeight: 18 },
-  blogPostDocRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12, paddingTop: 8, borderTopWidth: 1, borderColor: '#F5EDF6' },
+  blogPostTitle: { fontSize: 16, color: colors.ink, lineHeight: 22 },
+  blogPostSub: { fontSize: 12.5, color: '#5C5463', marginTop: 4, lineHeight: 18 },
+  blogPostDocRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#F5EDF6' },
   // FAQ styles
-  faqIcon: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#F0E5F3', alignItems: 'center', justifyContent: 'center' },
+  faqIcon: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#F0E5F3', alignItems: 'center', justifyContent: 'center' },
   faqAnswerBox: { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderColor: '#EDE2EE' },
-  faqAnswerText: { fontSize: 13, lineHeight: 21, color: '#483E4C' },
+  faqAnswerText: { fontSize: 13.5, lineHeight: 22, color: '#443A48' },
   faqTagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
   faqTag: { backgroundColor: '#F5EDF7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
-  // Editorial styles
-  articleCoverBox: { height: 220, borderRadius: 22, overflow: 'hidden', justifyContent: 'flex-end', padding: 16, ...shadow },
-  coverMeta: { gap: 8 },
-  readingTimePill: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: '#00000066' },
-  articleTitle: { fontSize: 20, color: 'white', lineHeight: 26 },
-  doctorCard: { flexDirection: 'row', alignItems: 'center', padding: 12 },
-  docAvatar: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#EFE7EE', alignItems: 'center', justifyContent: 'center', marginRight: 10 },
+  // Editorial Article Reader styles
+  articleCoverBox: { height: 260, borderRadius: 24, overflow: 'hidden', justifyContent: 'flex-end', padding: 18, ...shadow },
+  coverMeta: { gap: 6 },
+  coverBadgeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
+  categoryPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: '#784882CC' },
+  readingTimePill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: '#00000066' },
+  articleTitle: { fontSize: 21, color: 'white', lineHeight: 27 },
+  articleCoverSub: { fontSize: 13, color: '#E8DBEA', lineHeight: 18 },
+  doctorCard: { flexDirection: 'row', alignItems: 'center', padding: 14 },
+  docAvatar: { width: 42, height: 42, borderRadius: 21, backgroundColor: '#EFE7EE', alignItems: 'center', justifyContent: 'center', marginRight: 12 },
   bookmarkBtn: { padding: 8 },
-  audioBar: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: '#FAF6FA' },
-  audioPlayBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.purple, alignItems: 'center', justifyContent: 'center' },
-  keyPointsCard: { backgroundColor: '#F7F3FA', padding: 14, borderRadius: 18, borderWidth: 1, borderColor: '#EBE0F0' },
-  inlineImageBox: { height: 150, borderRadius: 14, overflow: 'hidden', backgroundColor: '#F8F4F9', marginVertical: 10, alignItems: 'center', justifyContent: 'center' },
-  articleP: { fontSize: 14, lineHeight: 23, color: '#3E3744' },
-  clinicTipBox: { backgroundColor: '#FAF2F8', padding: 12, borderRadius: 12, marginTop: 10, borderWidth: 1, borderColor: '#EEDEEA' },
-  clinicTipText: { fontSize: 12, color: '#68406E', lineHeight: 18 },
-  relatedCard: { flexDirection: 'row', alignItems: 'center', padding: 10, backgroundColor: '#FFFFFF', borderRadius: 14, borderWidth: 1, borderColor: '#EAE1EB', gap: 10 },
-  relatedImg: { width: 46, height: 46, borderRadius: 10 },
+  audioBar: { flexDirection: 'row', alignItems: 'center', padding: 14, backgroundColor: '#FAF6FA' },
+  audioPlayBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.purple, alignItems: 'center', justifyContent: 'center' },
+  keyPointsCard: { backgroundColor: '#F8F3FA', padding: 16, borderRadius: 20, borderWidth: 1, borderColor: '#EBE0F0' },
+  sectionNumberBadge: { width: 26, height: 26, borderRadius: 13, backgroundColor: '#F0E5F2', alignItems: 'center', justifyContent: 'center' },
+  inlineFigureBox: { marginVertical: 14 },
+  inlineImgFrame: { width: '100%', height: 220, borderRadius: 18, overflow: 'hidden', backgroundColor: '#F4EEF5', borderWidth: 1, borderColor: '#ECE2EC', ...shadow },
+  inlineCaptionRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4, paddingTop: 8 },
+  inlineCaptionText: { fontSize: 11.5, color: '#7E6D82', fontStyle: 'italic', flex: 1, lineHeight: 16 },
+  articleP: { fontSize: 14.5, lineHeight: 24, color: '#3A3240' },
+  clinicTipBox: { backgroundColor: '#FAF3F8', padding: 14, borderRadius: 14, marginTop: 14, borderLeftWidth: 4, borderLeftColor: colors.purple },
+  clinicWarningBox: { backgroundColor: '#FDF4F2', borderLeftColor: '#C44E3F' },
+  clinicTipText: { fontSize: 12.5, color: '#634468', lineHeight: 19 },
+  relatedCard: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#EAE1EB', gap: 12 },
+  relatedImg: { width: 52, height: 52, borderRadius: 12 },
 });

@@ -8,6 +8,7 @@ import { T, Tap, Card, RoundButton, Section, Tabs, MoodPicker, Progress, SmallSt
 import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel, pregnancyProgress, TOTAL_WEEKS } from './weekData';
 import { usePulse, useCrossFade } from './anim';
 import { articles, searchArticles, searchFaqs } from './content';
+import { TopicHubScreen } from './ExploreScreens';
 
 export const journeys = [
   { key: 'pregnancy', title: 'Hamileyim', sub: 'Bebeğimle tanışmaya\nhazırlanıyorum', image: assets.pregnancy, tint: '#F5E7E8' },
@@ -486,92 +487,27 @@ export function Baby({state,open}) {
   </Page>;
 }
 
-const categories=[{title:'Bebek bezi',type:'diaper',color:'#E1EBF3'},{title:'Islak mendil',type:'wipes',color:'#E2EBF3'},{title:'Beslenme',type:'bowl',color:'#F5E1E5'},{title:'Banyo',type:'soap',color:'#E4ECE3'}];
-const products=[{id:'food',title:'Organik bebek maması\n6+ ay',type:'jar'},{id:'wipes',title:'Hassas ciltler için\nıslak mendil',type:'wipes'}];
 export function Discover({state,update,open}) {
-  const [tab,setTab]=useState('Sana özel'); const [search,setSearch]=useState(''); const [category,setCategory]=useState(null);
-  const shown=products.filter(p=>p.title.toLocaleLowerCase('tr').includes(search.toLocaleLowerCase('tr'))&&(!category||p.type===category||category==='bowl'&&p.type==='jar'));
-  const matchingArticles = search ? searchArticles(search) : [];
-
-  return <Page contentStyle={{gap:10}}>
-    <T bold style={s.pageTitle}>Keşfet</T>
-    <View style={s.search}><Icon name="search" size={20} color="#6D6B72"/><TextInput value={search} onChangeText={setSearch} placeholder="Makale, ürün veya konu ara..." placeholderTextColor="#89818A" style={s.searchInput} accessibilityLabel="İçerik ara"/>{search?<Tap onPress={()=>setSearch('')} label="Aramayı temizle"><Icon name="close" size={17}/></Tap>:null}</View>
-    <Tabs items={['Sana özel','Uzmanlardan','Alışveriş','Videolar']} active={tab} onChange={setTab}/>
-
-    {/* Hızlı Erişim: Besin Güvenliği & Konu Hub */}
-    <View style={{flexDirection:'row',gap:10}}>
+  return <Page contentStyle={{gap:12}}>
+    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:4}}>
+      <View>
+        <T style={{fontSize:11,letterSpacing:1.5,color:colors.purple,fontWeight:'700'}}>EDİTORYAL DERGİ & ARŞİV</T>
+        <T bold style={s.pageTitle}>Momora Kütüphane</T>
+      </View>
       <Tap
         onPress={() => open('foodSafety')}
         label="Gıda Güvenliği"
-        style={{flex:1,height:78,borderRadius:18,overflow:'hidden',padding:12,justifyContent:'center',...shadow}}
+        style={{flexDirection:'row',alignItems:'center',gap:6,backgroundColor:'#EAF3ED',paddingHorizontal:12,paddingVertical:8,borderRadius:14}}
       >
-        <LinearGradient colors={['#648575', '#496A5B']} style={StyleSheet.absoluteFill}/>
-        <T style={{color:'#C6E3D4',fontSize:9,letterSpacing:0.5}}>GIDA REHBERİ</T>
-        <T bold style={{color:'white',fontSize:13,marginTop:2}}>Besin Güvenliği</T>
-        <T style={{color:'#D9EBE1',fontSize:10,marginTop:2}}>Yenebilir mi? →</T>
-      </Tap>
-
-      <Tap
-        onPress={() => open('topicHub')}
-        label="SSS ve Koleksiyonlar"
-        style={{flex:1,height:78,borderRadius:18,overflow:'hidden',padding:12,justifyContent:'center',...shadow}}
-      >
-        <LinearGradient colors={['#9A779A', '#724D72']} style={StyleSheet.absoluteFill}/>
-        <T style={{color:'#F0DCF0',fontSize:9,letterSpacing:0.5}}>BİLGİ BANKASI</T>
-        <T bold style={{color:'white',fontSize:13,marginTop:2}}>SSS & Rehberler</T>
-        <T style={{color:'#EBD9EB',fontSize:10,marginTop:2}}>30+ Soru Cevap →</T>
+        <T style={{fontSize:13}}>🥗</T>
+        <T bold style={{fontSize:11,color:'#2D754C'}}>Gıda Sorgula</T>
       </Tap>
     </View>
 
-    {/* Arama Sonuçlarında Makaleler */}
-    {search && matchingArticles.length > 0 ? (
-      <View style={{gap:10,marginTop:6}}>
-        <Section title={`Makaleler (${matchingArticles.length})`} />
-        {matchingArticles.map(a => (
-          <Tap key={a.id} onPress={()=>open('editorialArticle',{article:a})} style={[s.product,{backgroundColor:'#FFFFFF',padding:12}]}>
-            <T bold style={{fontSize:14,color:colors.ink}}>{a.title}</T>
-            <T style={{fontSize:12,color:colors.muted,marginTop:4}}>{a.subtitle}</T>
-            <View style={{flexDirection:'row',alignItems:'center',gap:10,marginTop:8}}>
-              <T style={{fontSize:11,color:colors.purple}}>⏱️ {a.minutes} dk okuma</T>
-              {a.doctor && <T style={{fontSize:11,color:colors.muted}}>• {a.doctor.split('·')[0]}</T>}
-            </View>
-          </Tap>
-        ))}
-      </View>
-    ) : null}
-
-    {tab==='Uzmanlardan'&&!search&&(
-      <View style={{gap:12}}>
-        <Section title="Öne Çıkan Uzman Makaleleri" action="Tümünü gör" onPress={()=>open('topicHub')}/>
-        {articles.slice(0, 5).map(a => (
-          <Tap
-            key={a.id}
-            onPress={() => open('editorialArticle', { article: a })}
-            label={a.title}
-            style={{backgroundColor:'#FFFFFF',borderRadius:18,padding:14,borderWidth:1,borderColor:'#EDE4ED',...shadow}}
-          >
-            <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-              <View style={{backgroundColor:'#F3ECF5',paddingHorizontal:8,paddingVertical:3,borderRadius:10}}>
-                <T style={{fontSize:10,color:colors.purple}}>Uzman Rehberi</T>
-              </View>
-              <T style={{fontSize:11,color:colors.muted}}>⏱️ {a.minutes} dk</T>
-            </View>
-            <T bold style={{fontSize:15,color:colors.ink,marginTop:8,lineHeight:21}}>{a.title}</T>
-            <T style={{fontSize:12,color:'#615A68',marginTop:4,lineHeight:18}}>{a.subtitle}</T>
-            {a.doctor && (
-              <View style={{flexDirection:'row',alignItems:'center',gap:6,marginTop:10,paddingTop:8,borderTopWidth:1,borderColor:'#F5EDF5'}}>
-                <T style={{fontSize:14}}>👩‍⚕️</T>
-                <T style={{fontSize:11,color:colors.purple}}>{a.doctor}</T>
-              </View>
-            )}
-          </Tap>
-        ))}
-      </View>
-    )}
-
-    {tab!=='Alışveriş'&&tab!=='Uzmanlardan'&&!search&&<Tap onPress={()=>open('editorialArticle')} style={s.article}><Image source={assets.mother} style={s.articleImage}/><LinearGradient colors={['#EBDDD3','#EBDDD300']} start={{x:0,y:0}} end={{x:0.78,y:0}} style={StyleSheet.absoluteFill}/><T style={s.articleTag}>{tab==='Videolar'?'Yakında · video':'Uzman yazısı · Sesli dinle'}</T><View style={s.articleCopy}><T bold style={{fontSize:19,lineHeight:25}}>İkinci Trimesterda{ '\n' }Güvenli Uyku Pozisyonları</T><T style={{fontSize:12,marginTop:10}}>Uzman Dr. Elif Kaya · 4 dk okuma</T></View><View style={s.articleArrow}><Icon name="chevron" size={20}/></View></Tap>}
-    {tab!=='Uzmanlardan'&&tab!=='Videolar'&&<><Section title="Senin için öneriler" action={category?'Filtreyi kaldır':'Tümünü gör'} onPress={()=>category?setCategory(null):open('categories')}/><View style={s.categories}>{categories.map(c=><Tap label={c.title} key={c.title} onPress={()=>setCategory(category===c.type?null:c.type)} accessibilityState={{selected:category===c.type}} style={[s.category,{backgroundColor:c.color,borderColor:category===c.type?colors.purple:c.color}]}><ProductArt type={c.type} size={52}/><T bold style={{fontSize:13}}>{c.title}</T></Tap>)}</View><Section title={search?'Arama sonuçları':'Öne çıkan ürünler'} action="Sponsorlu" onPress={()=>open('sponsored')}/><View style={[s.row,{gap:10,alignItems:'stretch'}]}>{shown.map(p=><View key={p.id} style={s.product}><ProductArt type={p.type} size={69}/><Tap label={p.title.replace('\n',' ')+' kaydet'} onPress={()=>update(old=>({favorites:old.favorites.includes(p.id)?old.favorites.filter(id=>id!==p.id):[...old.favorites,p.id]}))} style={s.productPlus}><Icon name={state.favorites.includes(p.id)?'check':'plus'} size={18}/></Tap><T bold style={{fontSize:12,lineHeight:17}}>{p.title}</T></View>)}</View>{!shown.length&&<Card><T>Bu aramada ürün bulunamadı.</T><Tap style={{marginTop:12}} onPress={()=>{setCategory(null);setSearch('')}}><T bold>Tüm ürünleri göster</T></Tap></Card>}</>}
-    {tab==='Videolar'&&<Card><T bold>Birlikte öğrenelim</T><T style={{lineHeight:23,marginTop:8}}>Video içerikleri henüz eklenmedi. Hazır olduğunda bu alanda bulabileceksin.</T></Card>}
+    <TopicHubScreen
+      openArticle={(article) => open('editorialArticle', { article })}
+      openFoodChecker={() => open('foodSafety')}
+    />
   </Page>;
 }
 

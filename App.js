@@ -11,7 +11,15 @@ import { ToolsHub } from './src/ToolsHub';
 import DetailSheet from './src/DetailSheet';
 import { useDemoStore } from './src/store';
 
-const previewScreens=[['onboarding','Başlangıç'],['pregnancy','Hamilelik'],['tools','Araçlar & Sayaçlar'],['postpartum','Lohusalık'],['baby','Bebek takibi'],['discover','Keşfet'],['assistant','Asistan / Topluluk']];
+const previewScreens=[
+  ['onboarding','Başlangıç'],
+  ['pregnancy','Bugün (Hamilelik)'],
+  ['tools','Araçlar & Sayaçlar (Appler)'],
+  ['discover','Kütüphane & Magazin (Blog)'],
+  ['assistant','Topluluk & Asistan'],
+  ['postpartum','Lohusalık'],
+  ['baby','Bebek Takibi'],
+];
 function Momora() {
   const {state,update,addRecord,ready,storageError}=useDemoStore();
   const [page,setPage]=useState(null);const [sheet,setSheet]=useState(null);const [notice,setNotice]=useState('');
@@ -42,11 +50,11 @@ function Momora() {
       <View style={{flex:1}} key={active}>{renderPage()}</View>
       {active!=='onboarding'&&<View style={[s.nav,{paddingBottom:desktop?19:Math.max(12,insets.bottom)}]}>{[
         {label:'Bugün',icon:'home',selected:['pregnancy','postpartum'].includes(active),action:()=>setPage(state.mode||'pregnancy')},
-        {label:'Takip',icon:'track',selected:active==='baby',action:()=>active==='baby'?open('records'):setPage('baby')},
-        {label:'Keşfet',icon:'search',selected:active==='discover',action:()=>setPage('discover')},
+        {label:'Araçlar',icon:'track',selected:active==='tools',action:()=>setPage('tools')},
+        {label:'Kütüphane',icon:'book',selected:active==='discover',action:()=>setPage('discover')},
         {label:'Topluluk',icon:'community',selected:active==='assistant',action:()=>setPage('assistant')},
         {label:'Profil',icon:'profile',selected:false,action:()=>open('profile')},
-      ].map(tab=><Tap key={tab.label} label={tab.label} onPress={tab.action} accessibilityState={{selected:tab.selected}} style={s.navItem}><Icon name={tab.icon} size={22} color={tab.selected?'#5F4D7D':'#7C7E83'} fill={tab.selected&&tab.icon==='home'?'#5F4D7D':'none'}/><T style={[s.navLabel,tab.selected&&{color:'#5F4D7D',fontFamily:fonts.bold}]}>{tab.label}</T></Tap>)}</View>}
+      ].map(tab=><Tap key={tab.label} label={tab.label} onPress={tab.action} accessibilityState={{selected:tab.selected}} style={s.navItem}><Icon name={tab.icon} size={22} color={tab.selected?'#5F4D7D':'#7C7E83'} fill={tab.selected&&(tab.icon==='home'||tab.icon==='book')?'#5F4D7D':'none'}/><T style={[s.navLabel,tab.selected&&{color:'#5F4D7D',fontFamily:fonts.bold}]}>{tab.label}</T></Tap>)}</View>}
       {active==='onboarding'&&!desktop&&<View style={{height:insets.bottom}}/>}
       {!!notice&&<View style={s.toast}><T style={{color:'white',fontSize:14,textAlign:'center'}}>{notice}</T></View>}
     </View>

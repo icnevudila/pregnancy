@@ -38,7 +38,7 @@ export const articles = [
       {
         title: 'Beslenme Stratejileri',
         text: 'Büyük porsiyonlar yerine 2-3 saatte bir küçük atıştırmalıklar planlayın. Yağlı, kızartılmış ve ağır kokulu yemeklerden uzak durun. Soğuk veya oda sıcaklığındaki yiyecekler sıcak yemeklere göre daha az koku yaydığı için çok daha rahat tolere edilir.',
-        image: 'card_scale'
+        image: 'blog_healthy_breakfast', caption: 'Sabah bulantılarını dengeleyen protein ve lif zengini hafif tabak'
       },
       {
         title: 'Ne Zaman Doktora Başvurulmalı?',
@@ -66,7 +66,7 @@ export const articles = [
       {
         title: 'Detaylı Ultrasonun Amacı Nedir?',
         text: 'Genellikle 20 ile 22. haftalar arasında gerçekleştirilen bu muayene, perinatoloji uzmanı tarafından yüksek çözünürlüklü cihazlarla yapılır. Bebeğin organ gelişiminin gebelik haftasıyla uyumu, plasentanın rahim içindeki yerleşimi ve amniyon sıvısının derinliği detaylıca raporlanır.',
-        image: 'card_ultrasound_frame'
+        image: 'blog_ultrasound_memory', caption: '20. hafta detaylı perinatoloji anatomik ultrason taraması'
       },
       {
         title: 'İncelenen Temel Yapılar',
@@ -98,7 +98,7 @@ export const articles = [
       {
         title: 'İlk Hareketler Nasıl Hissedilir?',
         text: 'Annelerin "kelebek kanadı çırpınışı", "içeride patlayan baloncuk" veya "minik bir seğirme" olarak tarif ettiği ilk fetal hareketler, 16-20. haftalarda başlar. Plasentası ön duvarda (anterior) olan anneler bu hissi birkaç hafta daha geç fark edebilir.',
-        image: 'card_kick_counter'
+        image: 'blog_couple_bump', caption: 'Anne ve baba karnındaki bebeğin ilk ritmik tekmelerini dinlerken'
       },
       {
         title: '10 Tekme Kuralı Nasıl Uygulanır?',
@@ -183,7 +183,7 @@ export const articles = [
       {
         title: 'Yeşil Güç Smoothiesi (Demir & Folik Asit)',
         text: 'Malzemeler: 1 avuç körpe ıspanak, 1 adet muz, 1 bardak taze portakal suyu, 1 yemek kaşığı chia tohumu. Portakaldaki bol C vitamini ıspanaktaki bitkisel demirin anında kana karışmasını sağlar.',
-        image: 'card_vitamin'
+        image: 'blog_prenatal_smoothie', caption: 'Taze meyve, chia tohumu ve kefirle hazırlanan mineral zengini ferah smoothie'
       },
       {
         title: 'Mor Dinginlik (Probiyotik & Kalsiyum)',
@@ -271,7 +271,7 @@ export const articles = [
       {
         title: 'Neden Sırtüstü Yatmamalısınız?',
         text: '20. haftadan sonra sırtüstü yatıldığında ağırlaşan rahim, omurganın önündeki ana toplardamara (vena cava) baskı yapar. Bu durum annede tansiyon düşmesi, baş dönmesi ve bebeğe giden oksijende azalmaya neden olabilir.',
-        image: 'card_blood_pressure'
+        image: 'blog_sleeping_crib', caption: 'Sol yana yatış konforunu ve leğen kemiği dengesini sağlayan hamile yastığı'
       },
       {
         title: 'Hamile Yastığının Doğru Kullanımı',
@@ -301,7 +301,7 @@ export const articles = [
       {
         title: 'Anne İçin Olmazsa Olmazlar',
         text: '2 adet emzirme uyumlu gecelik veya pijama takımı, kalın tabanlı kaydırmaz terlik, 5 adet yüksek bel tek kullanımlık lohusa külodu, göğüs ucu kremi (lanolin), nemlendirici dudak balmı ve şarj aleti.',
-        image: 'card_hospital_bag'
+        image: 'blog_hospital_bag_pack', caption: 'Doğum anı, anne odası ve bebek eşyaları için eksiksiz hastane çantası'
       },
       {
         title: 'Bebek İçin Temel İhtiyaçlar',
@@ -329,7 +329,7 @@ export const articles = [
       {
         title: 'Güvenli Uyku Alanı Kuralları',
         text: 'Beşik parmaklıkları arasındaki mesafe 6 cm\'den geniş olmamalıdır. Yatak orta sertlikte olmalı ve beşik kenarına tam oturmalıdır. Yatak kenarlarındaki kalın kumaş koruyucular (bumper) boğulma riski nedeniyle önerilmez.',
-        image: 'ui_baby_crib'
+        image: 'blog_nursery_aesthetic', caption: 'Sakinleştirici pastel tonlar ve nefes alabilir pamuklu tekstillerle güvenli beşik'
       },
       {
         title: 'Aydınlatma ve Renk Psikolojisi',
@@ -386,7 +386,7 @@ export const articles = [
       {
         title: 'Asimetrik Kavrama Tekniği',
         text: 'Bebeğin burnunu meme ucunuzun karşısına hizalayın. Başını hafifçe geriye atmasına izin verin. Ağzını genişçe açtığında çenesi önce memeye değmeli, ardından alt dudağı dışa doğru balık dudağı gibi kıvrılarak memenin altını tamamen sarmalıdır.',
-        image: 'btn_nursing'
+        image: 'blog_breastfeeding_cozy', caption: 'Doğru asimetrik kavramayı ve tensel teması sağlayan rahat emzirme duruşu'
       },
       {
         title: 'Vakumu Nazikçe Bozun',
@@ -496,7 +496,7 @@ export const articles = [
       {
         title: 'Ortam Hazırlığı',
         text: 'Oda ısısı 24-26°C olmalıdır. Tüm havlular, bebek bezi ve temiz kıyafetler elinizin altında hazır bulunmalıdır. Bebeği asla bir saniyeliğine dahi su kenarında yalnız bırakmayın.',
-        image: 'cat_bath'
+        image: 'blog_baby_bath', caption: '37°C ılık su ve yumuşak havluyla yenidoğanın ilk huzurlu banyosu'
       },
       {
         title: 'Nazik Kurulama',
@@ -524,7 +524,7 @@ export const articles = [
       {
         title: 'Eğlenceli Hale Getirin',
         text: 'Bebeğin önüne siyah-beyaz kontrastlı kartlar veya kırılmaz bir ayna koyun. Yere onunla aynı göz hizasına uzanarak seslenin; sesinizi duymak için başını kaldırmak isteyecektir.',
-        image: 'btn_tummy_time'
+        image: 'blog_baby_tummy_time', caption: 'Boyun ve omuz kaslarını güçlendiren günlük eğlenceli karın üstü oyunu'
       },
       {
         title: 'Anne-Baba Göğsünde Tummy Time',
@@ -604,7 +604,7 @@ export const articles = [
       {
         title: 'Löşi Akıntısının Aşamaları',
         text: 'İlk 3-4 gün parlak kırmızı (Lochia rubra), 4-10. günler pembe-kahverengi (Lochia serosa) ve 10-28. günler sarı-beyaz (Lochia alba) akıntı normaldir. Saat başı kalın ped dolduracak kanamada doktora başvurulmalıdır.',
-        image: 'ui_postpartum_lotus'
+        image: 'blog_postpartum_selfcare', caption: 'Lohusalıkta annenin fiziksel ve ruhsal iyileşmesine alan açan şefkatli anlar'
       },
       {
         title: 'Kendine Şefkat Göster',
@@ -689,7 +689,7 @@ export const articles = [
       {
         title: 'Mevsimine Uygun Giydirme Kuralı',
         text: 'Genel kural: Kendi giydiğiniz katmandan tam 1 kat fazla pamuklu kıyafet giydirin. Aşırı giydirmek terlemeye ve huzursuzluğa neden olur; enseyi kontrol ederek sıcaklığı ölçebilirsiniz.',
-        image: 'ui_baby_stroller'
+        image: 'blog_baby_stroller_park', caption: 'Mevsimine uygun katmanlarla giydirilmiş bebekle parkta temiz hava gezintisi'
       }
     ]
   },
