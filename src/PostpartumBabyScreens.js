@@ -6,6 +6,7 @@ import { Icon } from './Icons';
 import { T, Tap, Card, Section, Progress } from './ui';
 import { secondsLabel, uid, localDay } from './domain.mjs';
 import { generatedAssets } from './generatedAssets';
+import { playSound, stopSound, setVolume as setEngineVolume, getCurrentSound, addSoundListener } from './soundEngine';
 
 // ─── EKRAN 22: EMZİRME & BİBERON SAYACI (NURSING & FEEDING TIMER) ─────────────
 export function NursingTimerScreen({ state, update, toast }) {
@@ -164,16 +165,59 @@ export function NursingTimerScreen({ state, update, toast }) {
 }
 
 // ─── EKRAN 23: BEBEK UYKU TAKİBİ & BEYAZ GÜRÜLTÜ (SLEEP & WHITE NOISE) ────────
+// ─── EKRAN 23: BEBEK UYKU TAKİBİ & BEYAZ GÜRÜLTÜ (SLEEP & WHITE NOISE) ────────
 export function SleepWhiteNoiseScreen({ state, update, toast }) {
   const [isAsleep, setIsAsleep] = useState(false);
   const [playingNoise, setPlayingNoise] = useState(null);
+  const [volume, setVolume] = useState(0.8);
+  const [timerMins, setTimerMins] = useState(30);
 
   const whiteNoises = [
-    { id: 'womb', name: 'Anne Karnı Sesi', icon: 'heart', desc: 'Ritmik kan akışı & amniyon' },
-    { id: 'hairdryer', name: 'Fön Makinesi', icon: 'milestone', desc: 'Klasik sakinleştirici uğultu' },
-    { id: 'rain', name: 'Ilık Yağmur', icon: 'drop', desc: 'Dingin doğa sesi' },
-    { id: 'vacuum', name: 'Süpürge Sesi', icon: 'bell', desc: 'Sürekli monoton frekans' },
+    { id: 'womb', name: 'Anne Karnı Sesi', icon: 'heart', desc: 'Ritmik kan akışı & amniyon uğultusu' },
+    { id: 'hairdryer', name: 'Fön Makinesi', icon: 'milestone', desc: 'Klasik sakinleştirici pembe gürültü' },
+    { id: 'rain', name: 'Ilık Yağmur', icon: 'drop', desc: 'Dingin ve rahatlatıcı doğa sesi' },
+    { id: 'vacuum', name: 'Süpürge Sesi', icon: 'bell', desc: 'Sürekli monoton motor frekansı' },
+    { id: 'lullaby', name: 'Müzik Kutusu & Ninni', icon: 'star', desc: 'Brahms kalimba uyku melodisi' },
+    { id: 'ocean', name: 'Okyanus Dalgaları', icon: 'water', desc: 'Kıyıya vuran huzurlu dalgalar' },
   ];
+
+  useEffect(() => {
+    const unsub = addSoundListener(({ soundId, isPlaying }) => {
+      setPlayingNoise(isPlaying ? soundId : null);
+    });
+    const current = getCurrentSound();
+    if (current.isPlaying) {
+      setPlayingNoise(current.soundId);
+    }
+    return () => {
+      unsub();
+      stopSound();
+    };
+  }, []);
+
+  function handlePlayToggle(id) {
+    if (playingNoise === id) {
+      stopSound();
+      toast && toast('⏹️ Ses durduruldu');
+    } else {
+      playSound(id, { volume, timerMinutes: timerMins });
+      const found = whiteNoises.find(w => w.id === id);
+      toast && toast(`🎵 ${found ? found.name : 'Ses'} çalınıyor (${timerMins ? timerMins + ' dk' : 'Sürekli'})`);
+    }
+  }
+
+  function handleVolumeChange(vol) {
+    setVolume(vol);
+    setEngineVolume(vol);
+  }
+
+  function handleTimerChange(mins) {
+    setTimerMins(mins);
+    if (playingNoise) {
+      playSound(playingNoise, { volume, timerMinutes: mins });
+      toast && toast(mins ? `⏱️ Zamanlayıcı: ${mins} dakika ayarlandı` : '⏱️ Sürekli çalma modu');
+    }
+  }
 
   function toggleSleep() {
     const nextState = !isAsleep;
@@ -189,6 +233,8 @@ export function SleepWhiteNoiseScreen({ state, update, toast }) {
     }));
     toast && toast(nextState ? '💤 Bebek uykuya kaydedildi' : '☀️ Bebek uyandı');
   }
+
+  const activeSoundObj = whiteNoises.find(w => w.id === playingNoise);
 
   return (
     <View style={pbs.container}>
@@ -219,9 +265,109 @@ export function SleepWhiteNoiseScreen({ state, update, toast }) {
         </View>
       </Card>
 
-      {/* Dâhili Beyaz Gürültü Çalar */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Section title="Sakinleştirici Beyaz Gürültü" />
+      {/* Aktif Çalan Ses Kontrol Paneli */}
+      {playingNoise && (
+        <Card style={{ padding: 16, backgroundColor: '#FAF3FB', borderColor: colors.purple, borderWidth: 1.5 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.purple, alignItems: 'center', justifyContent: 'center' }}>
+                <T style={{ fontSize: 18 }}>🔊</T>
+              </View>
+              <View style={{ flex: 1 }}>
+                <T bold style={{ fontSize: 15, color: colors.ink }}>{activeSoundObj ? activeSoundObj.name : 'Beyaz Gürültü'}</T>
+                <T style={{ fontSize: 11.5, color: colors.purple, marginTop: 2 }}>
+                  {timerMins ? `⏳ Kalan süre: ~${timerMins} dk` : '♾️ Kesintisiz Çalma'}
+                </T>
+              </View>
+            </View>
+
+            <Tap onPress={() => stopSound()} label="Sesi Durdur" style={{ backgroundColor: '#D8465C', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 }}>
+              <T bold style={{ color: 'white', fontSize: 12 }}>⏹️ Durdur</T>
+            </Tap>
+          </View>
+
+          {/* Animasyonlu Ses Dalgaları */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, height: 28, marginVertical: 12 }}>
+            {[14, 24, 18, 28, 12, 22, 16, 26, 20, 14, 24, 18].map((h, i) => (
+              <View
+                key={i}
+                style={{
+                  width: 3.5,
+                  height: h,
+                  backgroundColor: colors.purple,
+                  borderRadius: 2,
+                  opacity: 0.85,
+                }}
+              />
+            ))}
+          </View>
+
+          {/* Ses Seviyesi (Volume) */}
+          <View style={{ marginTop: 4 }}>
+            <T bold style={{ fontSize: 11, color: colors.muted, marginBottom: 6 }}>SES SEVİYESİ:</T>
+            <View style={{ flexDirection: 'row', gap: 6 }}>
+              {[
+                { label: 'Sessiz (%25)', val: 0.25 },
+                { label: 'Orta (%50)', val: 0.5 },
+                { label: 'İdeal (%80)', val: 0.8 },
+                { label: 'Yüksek (%100)', val: 1.0 },
+              ].map(v => (
+                <Tap
+                  key={v.val}
+                  onPress={() => handleVolumeChange(v.val)}
+                  label={v.label}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 5,
+                    alignItems: 'center',
+                    borderRadius: 10,
+                    backgroundColor: volume === v.val ? colors.purple : '#EFE8F2'
+                  }}
+                >
+                  <T bold={volume === v.val} style={{ fontSize: 10, color: volume === v.val ? 'white' : colors.ink }}>
+                    {v.label.split(' ')[0]}
+                  </T>
+                </Tap>
+              ))}
+            </View>
+          </View>
+
+          {/* Zamanlayıcı (Timer) */}
+          <View style={{ marginTop: 10 }}>
+            <T bold style={{ fontSize: 11, color: colors.muted, marginBottom: 6 }}>UYKU ZAMANLAYICISI:</T>
+            <View style={{ flexDirection: 'row', gap: 6 }}>
+              {[
+                { label: '15 dk', val: 15 },
+                { label: '30 dk', val: 30 },
+                { label: '45 dk', val: 45 },
+                { label: '60 dk', val: 60 },
+                { label: 'Sürekli', val: null },
+              ].map(t => (
+                <Tap
+                  key={String(t.val)}
+                  onPress={() => handleTimerChange(t.val)}
+                  label={t.label}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 5,
+                    alignItems: 'center',
+                    borderRadius: 10,
+                    backgroundColor: timerMins === t.val ? '#8A6D96' : '#EFE8F2'
+                  }}
+                >
+                  <T bold={timerMins === t.val} style={{ fontSize: 10, color: timerMins === t.val ? 'white' : colors.ink }}>
+                    {t.label}
+                  </T>
+                </Tap>
+              ))}
+            </View>
+          </View>
+        </Card>
+      )}
+
+      {/* Dâhili Beyaz Gürültü Çalar Listesi */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
+        <Section title="Sakinleştirici Beyaz Gürültü & Sesler" />
         {generatedAssets['ui_white_noise_headphones'] && (
           <Image source={generatedAssets['ui_white_noise_headphones']} style={{ width: 32, height: 32 }} resizeMode="contain" />
         )}
@@ -235,15 +381,15 @@ export function SleepWhiteNoiseScreen({ state, update, toast }) {
                 <Icon name={n.icon} size={20} color={isPlaying ? 'white' : colors.purple} />
               </View>
               <View style={{ flex: 1, marginLeft: 12 }}>
-                <T bold style={{ fontSize: 14, color: isPlaying ? colors.purple : colors.ink }}>{n.name}</T>
-                <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>{n.desc}</T>
+                <T bold style={{ fontSize: 14.5, color: isPlaying ? colors.purple : colors.ink }}>{n.name}</T>
+                <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2 }}>{n.desc}</T>
               </View>
               <Tap
-                onPress={() => setPlayingNoise(isPlaying ? null : n.id)}
+                onPress={() => handlePlayToggle(n.id)}
                 label={isPlaying ? 'Durdur' : 'Çal'}
                 style={[pbs.noisePlayBtn, isPlaying && { backgroundColor: '#E8D4E8' }]}
               >
-                <T style={{ fontSize: 15 }}>{isPlaying ? '⏸️' : '▶️'}</T>
+                <T style={{ fontSize: 16 }}>{isPlaying ? '⏸️' : '▶️'}</T>
               </Tap>
             </Card>
           );

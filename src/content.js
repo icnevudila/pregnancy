@@ -1,6 +1,7 @@
 // Momora İçerik Kütüphanesi, Magazin & Uzman Rehberleri
-// 25 Kapsamlı Pillar Makale, Zengin Görseller, Klinik İpuçları ve SSS Veritabanı
-export { faqCategories, pregnancyFaqs, searchFaqs, getFaqsByCategory } from './faqData';
+// 55+ Kapsamlı Editoryal Makale, Zengin Görseller, Klinik İpuçları ve SSS Veritabanı
+import { faqArticles } from './faqArticles.js';
+export { faqCategories, pregnancyFaqs, searchFaqs, getFaqsByCategory } from './faqData.js';
 
 export const topics = [
   { id: 'pregnancy', title: 'Hamilelik & Gelişim', image: 'blog_couple_bump', subtitle: 'Hafta hafta tıp ve mucize' },
@@ -12,7 +13,7 @@ export const topics = [
   { id: 'partner', title: 'Eş & Baba Rehberi', image: 'blog_father_baby_bond', subtitle: 'Birlikte ebeveyn olmak' },
 ];
 
-export const articles = [
+const baseArticles = [
   // ─── 1. HAMİLELİK & GELİŞİM ───
   {
     id: 'art-pregnant-morning',
@@ -1039,6 +1040,8 @@ export const articles = [
     ]
   }
 ];
+
+export const articles = [...baseArticles, ...faqArticles];
 
 export const articleById = id => articles.find(a => a.id === id);
 export const articlesByTopic = topicId => articles.filter(a => a.topic === topicId);

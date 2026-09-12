@@ -6,6 +6,7 @@ import { Icon } from './Icons';
 import { T, Tap, Card, Section } from './ui';
 import { generatedAssets } from './generatedAssets';
 import { articles, pregnancyFaqs, faqCategories, searchFaqs, getFaqsByCategory, searchArticles } from './content';
+import { playSound, stopSound } from './soundEngine';
 
 // ─── EKRAN 16: "YENEBİLİR Mİ / GÜVENLİ Mİ?" GIDA REHBERİ ────────────────────
 export const foodDatabase = [
@@ -125,42 +126,63 @@ export const topicCollections = [
 ];
 
 export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'articles' }) {
-  const [hubTab, setHubTab] = useState(initialTab); // 'articles' | 'food' | 'faq' | 'topics'
+  const [hubTab, setHubTab] = useState(initialTab); // 'articles' | 'food' | 'topics'
   const [articleQuery, setArticleQuery] = useState('');
-  const [articleTopic, setArticleTopic] = useState('Tümü');
-  const [faqQuery, setFaqQuery] = useState('');
-  const [faqCat, setFaqCat] = useState('Tümü');
-  const [expandedFaq, setExpandedFaq] = useState(null);
+  const [articleFilter, setArticleFilter] = useState('Tümü');
 
-  const topicFilters = ['Tümü', 'pregnancy', 'nutrition', 'wellbeing', 'birth', 'baby', 'postpartum', 'partner'];
-  const topicLabels = {
-    'Tümü': 'Tümü',
-    'pregnancy': 'Gelişim & Tıp',
-    'nutrition': 'Beslenme',
-    'wellbeing': 'İyi Hisset & Ruh',
-    'birth': 'Doğuma Hazırlık',
-    'baby': 'Bebek Bakımı',
-    'postpartum': 'Lohusalık',
-    'partner': 'Eş & Baba'
-  };
+  const topicFilters = [
+    'Tümü',
+    '1. Trimester',
+    '2. Trimester',
+    '3. Trimester',
+    'Beslenme',
+    'Gelişim & Tıp',
+    'Doğuma Hazırlık',
+    'Bebek & Yenidoğan',
+    'Lohusalık & İyileşme',
+    'İyi Hisset & Ruh',
+    'Eş & Baba'
+  ];
 
   const filteredArticles = articles.filter(a => {
-    const matchesSearch = !articleQuery || 
-      a.title.toLocaleLowerCase('tr').includes(articleQuery.toLocaleLowerCase('tr')) ||
-      a.subtitle.toLocaleLowerCase('tr').includes(articleQuery.toLocaleLowerCase('tr'));
-    const matchesTopic = articleTopic === 'Tümü' || a.topic === articleTopic;
-    return matchesSearch && matchesTopic;
+    const q = articleQuery.toLocaleLowerCase('tr');
+    const matchesSearch = !q || 
+      a.title.toLocaleLowerCase('tr').includes(q) ||
+      a.subtitle.toLocaleLowerCase('tr').includes(q) ||
+      (a.categoryName && a.categoryName.toLocaleLowerCase('tr').includes(q)) ||
+      (a.doctor && a.doctor.toLocaleLowerCase('tr').includes(q));
+
+    let matchesFilter = true;
+    if (articleFilter === '1. Trimester') {
+      matchesFilter = a.categoryName === '1. Trimester' || (a.weeks && a.weeks[0] <= 12);
+    } else if (articleFilter === '2. Trimester') {
+      matchesFilter = a.categoryName === '2. Trimester' || (a.weeks && a.weeks[0] >= 13 && a.weeks[0] <= 27);
+    } else if (articleFilter === '3. Trimester') {
+      matchesFilter = a.categoryName === '3. Trimester' || (a.weeks && a.weeks[0] >= 28);
+    } else if (articleFilter === 'Beslenme') {
+      matchesFilter = a.topic === 'nutrition' || (a.categoryName && a.categoryName.includes('Beslenme'));
+    } else if (articleFilter === 'Gelişim & Tıp') {
+      matchesFilter = a.topic === 'pregnancy' || (a.categoryName && (a.categoryName.includes('Gelişim') || a.categoryName.includes('Ultrason') || a.categoryName.includes('Tıp')));
+    } else if (articleFilter === 'Doğuma Hazırlık') {
+      matchesFilter = a.topic === 'birth' || (a.categoryName && (a.categoryName.includes('Doğum') || a.categoryName.includes('Hastane')));
+    } else if (articleFilter === 'Bebek & Yenidoğan') {
+      matchesFilter = a.topic === 'baby' || (a.categoryName && (a.categoryName.includes('Bebek') || a.categoryName.includes('Yenidoğan') || a.categoryName.includes('Emzirme')));
+    } else if (articleFilter === 'Lohusalık & İyileşme') {
+      matchesFilter = a.topic === 'postpartum' || (a.categoryName && a.categoryName.includes('Lohusa'));
+    } else if (articleFilter === 'İyi Hisset & Ruh') {
+      matchesFilter = a.topic === 'wellbeing' || (a.categoryName && a.categoryName.includes('Hisset'));
+    } else if (articleFilter === 'Eş & Baba') {
+      matchesFilter = a.topic === 'partner' || (a.categoryName && a.categoryName.includes('Baba'));
+    }
+
+    return matchesSearch && matchesFilter;
   });
 
   const featuredArticle = articles[0];
 
-  const displayedFaqs = faqQuery
-    ? searchFaqs(faqQuery).filter(f => faqCat === 'Tümü' || f.category === faqCat)
-    : getFaqsByCategory(faqCat);
-
   return (
     <View style={es.container}>
-      {/* Hub Üst Sekmeleri (Luxury Editorial Navigation) */}
+      {/* Hub Üst Sekmeleri (Luxury Editorial Navigation - 3 Ana Alan) */}
       <View style={es.hubTabRow}>
         <Tap
           onPress={() => setHubTab('articles')}
@@ -181,27 +203,18 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
           </T>
         </Tap>
         <Tap
-          onPress={() => setHubTab('faq')}
-          label="Sıkça Sorulan Sorular"
-          style={[es.hubTabBtn, hubTab === 'faq' && es.hubTabBtnActive]}
-        >
-          <T bold={hubTab === 'faq'} style={[es.hubTabText, hubTab === 'faq' && { color: 'white' }]}>
-            ❓ SSS ({pregnancyFaqs.length})
-          </T>
-        </Tap>
-        <Tap
           onPress={() => setHubTab('topics')}
           label="Koleksiyonlar"
           style={[es.hubTabBtn, hubTab === 'topics' && es.hubTabBtnActive]}
         >
           <T bold={hubTab === 'topics'} style={[es.hubTabText, hubTab === 'topics' && { color: 'white' }]}>
-            📚 Dosyalar
+            📚 Dosyalar & Koleksiyonlar
           </T>
         </Tap>
       </View>
 
       {hubTab === 'articles' ? (
-        /* 1. TÜM EDİTORYAL YAZILAR & MAGAZİN */
+        /* 1. TÜM EDİTORYAL YAZILAR & MAGAZİN FEED'İ (65 MAKALE) */
         <View style={{ gap: 14 }}>
           {/* Arama Barı */}
           <View style={es.searchBox}>
@@ -209,7 +222,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
             <TextInput
               value={articleQuery}
               onChangeText={setArticleQuery}
-              placeholder="Konu, belirti veya makale ara (Örn: bulantı, kordon)..."
+              placeholder="Konu, soru, belirti veya makale ara (Örn: bulantı, kordon, dikiş)..."
               placeholderTextColor={colors.muted}
               style={es.searchInput}
             />
@@ -220,24 +233,24 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
             ) : null}
           </View>
 
-          {/* Konu Filtreleri */}
+          {/* Kategori Filtre Hapları */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
             {topicFilters.map(t => (
               <Tap
                 key={t}
-                onPress={() => setArticleTopic(t)}
-                label={topicLabels[t]}
-                style={[es.catPill, articleTopic === t && es.catPillActive]}
+                onPress={() => setArticleFilter(t)}
+                label={t}
+                style={[es.catPill, articleFilter === t && es.catPillActive]}
               >
-                <T bold={articleTopic === t} style={{ fontSize: 12, color: articleTopic === t ? 'white' : colors.ink }}>
-                  {topicLabels[t]}
+                <T bold={articleFilter === t} style={{ fontSize: 12, color: articleFilter === t ? 'white' : colors.ink }}>
+                  {t === 'Tümü' ? `Tümü (${articles.length})` : t}
                 </T>
               </Tap>
             ))}
           </ScrollView>
 
           {/* Öne Çıkan Başyazı (Featured Lead Story) */}
-          {!articleQuery && articleTopic === 'Tümü' && featuredArticle && (
+          {!articleQuery && articleFilter === 'Tümü' && featuredArticle && (
             <Tap
               onPress={() => openArticle && openArticle(featuredArticle)}
               label="Öne Çıkan Başyazı"
@@ -251,7 +264,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                 style={StyleSheet.absoluteFill}
               />
               <View style={es.featuredHeroBadge}>
-                <T bold style={{ fontSize: 10, color: 'white', letterSpacing: 1 }}>🌟 GÜNÜN ÖNE ÇIKAN REHBERİ</T>
+                <T bold style={{ fontSize: 10, color: 'white', letterSpacing: 1 }}>🌟 GÜNÜN BAŞYAZISI</T>
               </View>
               <View style={es.featuredHeroContent}>
                 <T bold style={es.featuredHeroTitle}>{featuredArticle.title}</T>
@@ -264,10 +277,22 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
             </Tap>
           )}
 
-          {/* Makale Listesi (Magazine Feed) */}
+          {/* Makale Sayacı */}
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 2 }}>
+            <T bold style={{ fontSize: 13, color: colors.muted }}>
+              {filteredArticles.length} Editoryal Klinik Rehber
+            </T>
+            {articleFilter !== 'Tümü' && (
+              <Tap onPress={() => setArticleFilter('Tümü')} label="Filtreyi Temizle">
+                <T style={{ fontSize: 12, color: colors.purple }}>Tümünü Göster ↺</T>
+              </Tap>
+            )}
+          </View>
+
+          {/* Makale Kartları Listesi (Vogue / Flo Kalitesinde Görsel Kartlar) */}
           <View style={{ gap: 14 }}>
             {filteredArticles.map(a => {
-              const imgAsset = generatedAssets[a.image];
+              const imgAsset = generatedAssets[a.image] || generatedAssets['blog_pregnant_morning'];
               return (
                 <Tap
                   key={a.id}
@@ -275,18 +300,16 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                   label={a.title}
                   style={es.blogPostCard}
                 >
-                  {imgAsset && (
-                    <View style={es.blogPostImgBox}>
-                      <Image source={imgAsset} style={StyleSheet.absoluteFill} resizeMode="cover" />
-                      <View style={es.blogPostTimeTag}>
-                        <T style={{ fontSize: 10, color: 'white', fontWeight: 'bold' }}>⏱️ {a.minutes} dk</T>
-                      </View>
+                  <View style={es.blogPostImgBox}>
+                    <Image source={imgAsset} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                    <View style={es.blogPostTimeTag}>
+                      <T style={{ fontSize: 10, color: 'white', fontWeight: 'bold' }}>⏱️ {a.minutes} dk</T>
                     </View>
-                  )}
+                  </View>
                   <View style={{ padding: 16 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                       <View style={es.blogPostCategoryTag}>
-                        <T bold style={{ fontSize: 10, color: colors.purple }}>{a.categoryName || topicLabels[a.topic] || 'Rehber'}</T>
+                        <T bold style={{ fontSize: 10, color: colors.purple }}>{a.categoryName || 'Rehber'}</T>
                       </View>
                       {a.weeks && (
                         <T style={{ fontSize: 11, color: colors.muted }}>• Hafta {a.weeks[0]}-{a.weeks[1]}</T>
@@ -314,85 +337,8 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
       ) : hubTab === 'food' ? (
         /* 2. BESİN GÜVENLİĞİ KILAVUZU */
         <FoodSafetyChecker />
-      ) : hubTab === 'faq' ? (
-        /* 3. SIKÇA SORULAN SORULAR */
-        <View style={{ gap: 12 }}>
-          <View style={es.searchBox}>
-            <Icon name="search" size={20} color={colors.muted} />
-            <TextInput
-              value={faqQuery}
-              onChangeText={setFaqQuery}
-              placeholder="Soru veya konu ara (Örn: bulantı, kordon, dikiş)..."
-              placeholderTextColor={colors.muted}
-              style={es.searchInput}
-            />
-            {faqQuery ? (
-              <Tap onPress={() => setFaqQuery('')} label="Temizle">
-                <Icon name="close" size={16} color={colors.muted} />
-              </Tap>
-            ) : null}
-          </View>
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
-            {faqCategories.map(c => (
-              <Tap
-                key={c}
-                onPress={() => setFaqCat(c)}
-                label={c}
-                style={[es.catPill, faqCat === c && es.catPillActive]}
-              >
-                <T bold={faqCat === c} style={{ fontSize: 12, color: faqCat === c ? 'white' : colors.ink }}>
-                  {c}
-                </T>
-              </Tap>
-            ))}
-          </ScrollView>
-
-          <View style={{ gap: 11 }}>
-            {displayedFaqs.map(faq => {
-              const isOpen = expandedFaq === faq.id;
-              return (
-                <Card key={faq.id} style={{ padding: 15 }}>
-                  <Tap
-                    onPress={() => setExpandedFaq(isOpen ? null : faq.id)}
-                    label={faq.q}
-                    style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}
-                  >
-                    <View style={es.faqIcon}>
-                      <T style={{ fontSize: 15 }}>{isOpen ? '💬' : '❓'}</T>
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <T bold style={{ fontSize: 14.5, color: colors.ink, lineHeight: 21 }}>
-                        {faq.q}
-                      </T>
-                      <T style={{ fontSize: 11, color: colors.purple, marginTop: 4, fontWeight: '500' }}>
-                        {faq.category}
-                      </T>
-                    </View>
-                    <Icon name={isOpen ? 'close' : 'chevron'} size={18} color={colors.purple} />
-                  </Tap>
-
-                  {isOpen && (
-                    <View style={es.faqAnswerBox}>
-                      <T style={es.faqAnswerText}>
-                        {faq.a}
-                      </T>
-                      <View style={es.faqTagsRow}>
-                        {faq.tags.map(t => (
-                          <View key={t} style={es.faqTag}>
-                            <T style={{ fontSize: 11, color: '#77587B' }}>#{t}</T>
-                          </View>
-                        ))}
-                      </View>
-                    </View>
-                  )}
-                </Card>
-              );
-            })}
-          </View>
-        </View>
       ) : (
-        /* 4. TEMATİK DOSYALAR & KOLEKSİYONLAR */
+        /* 3. TEMATİK DOSYALAR & KOLEKSİYONLAR */
         <View style={{ gap: 12 }}>
           <Section title="Tematik Koleksiyon Dosyaları" />
           {topicCollections.map(col => (
@@ -509,7 +455,16 @@ export function EditorialArticleScreen({ article, toast }) {
       {/* 3. Momora Audio: Sesli Dinleme (Podcast Bar) */}
       <Card style={es.audioBar}>
         <Tap
-          onPress={() => setPlayingAudio(!playingAudio)}
+          onPress={() => {
+            const next = !playingAudio;
+            setPlayingAudio(next);
+            if (next) {
+              playSound('ocean', { volume: 0.4 });
+              toast && toast('🎵 Sakinleştirici fon sesi başlatıldı');
+            } else {
+              stopSound();
+            }
+          }}
           label="Sesli dinle"
           style={es.audioPlayBtn}
         >
