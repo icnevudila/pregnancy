@@ -217,7 +217,7 @@ const server = http.createServer((req, res) => {
 
     req.on('end', async () => {
       console.log(`[ASSET-RECEIVER] 📥 Alındı: ${filename} (Şeffaflaştırma: ${shouldMakeTransparent ? 'AÇIK' : 'KAPALI'})`);
-      if (shouldMakeTransparent) {
+      if (shouldMakeTransparent && !filename.endsWith('.glb')) {
         await makeTransparentPNG(dest);
       }
       updateGeneratedAssetsFile();

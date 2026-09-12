@@ -152,6 +152,7 @@
   <!-- Three.js r128 UMD CDN (Standard Browser Script Support) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/meshoptimizer@0.18.1/meshopt_decoder.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
 <body>
@@ -252,18 +253,22 @@
     function applyFetalMaterial(mesh) {
       mesh.traverse((child) => {
         if (child.isMesh) {
-          if (child.geometry) {
+          if (child.geometry && !child.geometry.attributes.normal) {
             child.geometry.computeVertexNormals();
           }
-          const hasVertexColors = child.geometry && child.geometry.attributes.color;
-          if (colorMode === 'original' && hasVertexColors) {
-            child.material = new THREE.MeshStandardMaterial({
-              vertexColors: true,
-              roughness: 0.4,
-              metalness: 0.05,
-              side: THREE.DoubleSide,
-              wireframe: isWireframe
-            });
+
+          if (!child.userData.originalMaterial) {
+            child.userData.originalMaterial = child.material.clone ? child.material.clone() : child.material;
+          }
+
+          if (colorMode === 'original') {
+            child.material = child.userData.originalMaterial;
+            child.material.wireframe = isWireframe;
+            child.material.side = THREE.DoubleSide;
+            const hasVertexColors = child.geometry && child.geometry.attributes.color;
+            if (hasVertexColors && !child.material.map) {
+              child.material.vertexColors = true;
+            }
           } else {
             child.material = new THREE.MeshStandardMaterial({
               color: colorMode === 'pink' ? 0xE58D9B : 0xEE924A,
@@ -304,10 +309,13 @@
       loadingEl.style.display = 'block';
       loadingMsg.innerText = (name || 'Model') + ' çözümleniyor...';
       const loader = new THREE.GLTFLoader();
+      if (typeof MeshoptDecoder !== 'undefined') {
+        loader.setMeshoptDecoder(MeshoptDecoder);
+      }
       loader.parse(arrayBuffer, '', (gltf) => {
         placeMeshInCenter(gltf.scene);
         if (name) {
-          document.getElementById('subText').innerText = name + ' · TripoSR 3D Mesh';
+          document.getElementById('subText').innerText = name + ' · Ultra Kalite PBR 3D Mesh';
         }
       }, (err) => {
         console.error("GLTF Parse Error:", err);
@@ -317,18 +325,19 @@
 
     function detectAndLoadModel() {
       const isHttp = window.location.protocol.startsWith('http');
-      const targetUrl = isHttp ? '/assets/fetus_w07.glb' : 'http://localhost:3456/assets/fetus_w07.glb';
+      const primaryUrl = isHttp ? '/assets/fetus_tripo_ultra.glb' : 'http://localhost:3456/assets/fetus_tripo_ultra.glb';
+      const fallbackUrl = isHttp ? '/assets/fetus_w07.glb' : 'http://localhost:3456/assets/fetus_w07.glb';
 
       loadingEl.style.display = 'block';
-      loadingMsg.innerHTML = "3D Fetüs Modeli yükleniyor...<br><span style='font-size:12px;opacity:0.7'>fetus_w07.glb (2.5 MB)</span>";
+      loadingMsg.innerHTML = "3D Fetüs Modeli yükleniyor...<br><span style='font-size:12px;opacity:0.7'>fetus_tripo_ultra.glb (11 MB)</span>";
 
-      fetch(targetUrl)
+      fetch(primaryUrl)
         .then(res => {
-          if (!res.ok) throw new Error('HTTP ' + res.status);
+          if (!res.ok) return fetch(fallbackUrl).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); });
           return res.arrayBuffer();
         })
         .then(buffer => {
-          parseGLBArrayBuffer(buffer, '7. Hafta (fetus_w07.glb)');
+          parseGLBArrayBuffer(buffer, 'Tripo 3.1 Ultra Fetüs & Plasenta');
         })
         .catch(err => {
           console.warn("Otomatik fetch başarısız oldu:", err);
