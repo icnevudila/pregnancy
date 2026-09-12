@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { defaultLists, extendedDefaults, migrateState } from './domain.mjs';
 
 const KEY = 'momora.local-demo.v1';
 export const initialState = {
@@ -7,6 +8,8 @@ export const initialState = {
   mood: null, postpartumMood: null, lastMoodDate: null, tasks: [true, true, false, false, false],
   appointment: { title: 'Doktor randevun', date: '16 Mayıs Cuma', time: '10:00' },
   notes: [], records: [], favorites: [], liked: false, messages: [],
+  // Extended state (tools & tracking)
+  ...extendedDefaults,
 };
 export function useDemoStore() {
   const [state, setState] = useState(initialState);
@@ -16,8 +19,8 @@ export function useDemoStore() {
     AsyncStorage.getItem(KEY).then(raw => {
       if (raw) {
         const saved = JSON.parse(raw);
-        if (saved && Array.isArray(saved.records) && Array.isArray(saved.notes)) {
-          setState({ ...initialState, ...saved });
+        if (saved && typeof saved === 'object') {
+          setState(migrateState(saved, initialState));
         }
       }
     }).catch(() => setStorageError('Önceki kayıtlar okunamadı. Bu oturumda devam edebilirsin.')).finally(() => setReady(true));

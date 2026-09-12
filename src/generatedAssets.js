@@ -2,6 +2,8 @@
 // Bu dosya yeni görseller indirildikçe otomatik olarak güncellenir.
 
 export const generatedAssets = {
+  'animal_bunny': require('../assets/animal_bunny.png'),
+  'animal_hamster': require('../assets/animal_hamster.png'),
   'baby': require('../assets/baby.png'),
   'banner_next_sleep': require('../assets/banner_next_sleep.png'),
   'blog_baby_bath': require('../assets/blog_baby_bath.png'),
@@ -95,6 +97,22 @@ export const generatedAssets = {
   'pregnancy': require('../assets/pregnancy.png'),
   'prod_baby_food': require('../assets/prod_baby_food.png'),
   'sleep': require('../assets/sleep.png'),
+  'sweet_macaron': require('../assets/sweet_macaron.png'),
+  'sweet_teacup': require('../assets/sweet_teacup.png'),
+  'topic_prenatal_nutrition': require('../assets/topic_prenatal_nutrition.png'),
+  'ui_baby_crib': require('../assets/ui_baby_crib.png'),
+  'ui_baby_name_blocks': require('../assets/ui_baby_name_blocks.png'),
+  'ui_baby_stroller': require('../assets/ui_baby_stroller.png'),
+  'ui_birth_plan_scroll': require('../assets/ui_birth_plan_scroll.png'),
+  'ui_contraction_pulse_button': require('../assets/ui_contraction_pulse_button.png'),
+  'ui_doctor_prep_notebook': require('../assets/ui_doctor_prep_notebook.png'),
+  'ui_doctor_verified_badge': require('../assets/ui_doctor_verified_badge.png'),
+  'ui_fetal_heart_3d': require('../assets/ui_fetal_heart_3d.png'),
+  'ui_hospital_bag_3d': require('../assets/ui_hospital_bag_3d.png'),
+  'ui_kick_foot_button': require('../assets/ui_kick_foot_button.png'),
+  'ui_medical_dna_test': require('../assets/ui_medical_dna_test.png'),
+  'ui_ultrasound_hdlive_20w': require('../assets/ui_ultrasound_hdlive_20w.png'),
+  'ui_weight_bmi_gauge': require('../assets/ui_weight_bmi_gauge.png'),
 };
 
 export function getAsset(name) {

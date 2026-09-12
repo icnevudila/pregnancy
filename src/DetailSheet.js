@@ -5,8 +5,20 @@ import { T, Tap, Card } from './ui';
 import { Icon, BrandMark, FruitArt, MoodFace } from './Icons';
 import { journeys, RecordList, sampleRecords } from './screens';
 import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel } from './weekData';
+import { KickCounter, ContractionTimer, HospitalBag } from './ToolScreens';
+import { WeightTracker, BirthPlanBuilder, DoctorQuestions, BabyNameMatcher } from './MoreToolScreens';
+import { ToolsHub } from './ToolsHub';
 
-const titles={journey:'Yolculuğun nerede?',profile:'Senin yolculuğun',appointment:'Doktor randevun',week:'Bu hafta ikiniz',log:'Yeni kayıt',records:'Günlük kayıtların',note:'Bugünü sakla',notes:'Sana ait notlar',article:'Güvenli bağ, küçük anlarla başlar',assistantAnswer:'Sorunu birlikte saklayalım',community:'Anneler birbirine iyi gelir',categories:'İhtiyacın olanı keşfet',sponsored:'Ürün önerileri',dailyMood:'Bugün nasıl hissediyorsun?'};
+const titles={
+  journey:'Yolculuğun nerede?',profile:'Senin yolculuğun',appointment:'Doktor randevun',
+  week:'Bu hafta ikiniz',log:'Yeni kayıt',records:'Günlük kayıtların',note:'Bugünü sakla',
+  notes:'Sana ait notlar',article:'Güvenli bağ, küçük anlarla başlar',assistantAnswer:'Sorunu birlikte saklayalım',
+  community:'Anneler birbirine iyi gelir',categories:'İhtiyacın olanı keşfet',sponsored:'Ürün önerileri',
+  dailyMood:'Bugün nasıl hissediyorsun?',
+  kickCounter:'Tekme Sayacı',contractionTimer:'Kasılma Sayacı',hospitalBag:'Doğum Çantası',
+  weight:'Kilo Takibi & BMI',birthPlan:'Doğum Planı',doctorQuestions:'Doktora Sorular',babyNames:'Bebek İsim Rehberi',
+  toolsHub:'Momora Araçlar',
+};
 export default function DetailSheet({ sheet, close, state, update, addRecord, choose, open, toast }) {
   const {kind,data={}}=sheet;
   const [text,setText]=useState(kind==='profile'?state.name:kind==='appointment'?state.appointment.title:'');
@@ -59,6 +71,38 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
             <T style={{fontSize:12,color:'#C4A8D0',marginTop:6}}>{wi.fruitName} büyüklüğünde</T>
           </View>
         </View>
+        {/* 3'lü Kıyaslama Şeridi */}
+        <View style={{flexDirection:'row',gap:8,marginTop:12,backgroundColor:'#F4EEF7',padding:10,borderRadius:14}}>
+          <View style={{flex:1,alignItems:'center'}}>
+            <T style={{fontSize:16}}>🍏</T>
+            <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:2}}>{wi.fruitName}</T>
+            <T style={{fontSize:9,color:'#8C709A'}}>Meyve</T>
+          </View>
+          <View style={{width:1,backgroundColor:'#E1D2E6'}}/>
+          <View style={{flex:1,alignItems:'center'}}>
+            <T style={{fontSize:16}}>{wi.animalEmoji || '🐾'}</T>
+            <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:2}}>{wi.animalName || 'Yavru'}</T>
+            <T style={{fontSize:9,color:'#8C709A'}}>Hayvan</T>
+          </View>
+          <View style={{width:1,backgroundColor:'#E1D2E6'}}/>
+          <View style={{flex:1,alignItems:'center'}}>
+            <T style={{fontSize:16}}>{wi.sweetEmoji || '🧁'}</T>
+            <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:2}}>{wi.sweetName || 'Tatlı'}</T>
+            <T style={{fontSize:9,color:'#8C709A'}}>Tatlı / Nesne</T>
+          </View>
+        </View>
+        {/* Ultrason Bilgisi */}
+        {!!wi.ultrasound && (
+          <View style={{marginTop:10,backgroundColor:'#FAF5FD',padding:12,borderRadius:14,borderWidth:1,borderColor:'#EBE0F2'}}>
+            <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+              <T bold style={{fontSize:12,color:'#5C396B'}}>🩺 {wi.ultrasound.scan}</T>
+              <View style={{backgroundColor:'#E8D5EB',paddingHorizontal:6,paddingVertical:2,borderRadius:8}}>
+                <T style={{fontSize:9,color:'#4A2860'}}>{wi.ultrasound.badge}</T>
+              </View>
+            </View>
+            <T style={{fontSize:11,color:'#6A4878',marginTop:4,lineHeight:16}}>{wi.ultrasound.milestone}</T>
+          </View>
+        )}
         {/* Bebek bu hafta */}
         <T bold style={{fontSize:16,marginTop:18,marginBottom:8}}>🍼 Bebeğinde bu hafta</T>
         {wi.baby.map((b,i)=><View key={i} style={ds.bulletRow}><View style={ds.dot}/><T style={ds.bulletText}>{b}</T></View>)}
@@ -117,6 +161,14 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
         </View>
       );
     })()}
+    {kind==='kickCounter'&&<KickCounter state={state} update={update} toast={toast} close={close}/>}
+    {kind==='contractionTimer'&&<ContractionTimer state={state} update={update} toast={toast} close={close}/>}
+    {kind==='hospitalBag'&&<HospitalBag state={state} update={update} toast={toast} close={close}/>}
+    {kind==='weight'&&<WeightTracker state={state} update={update} toast={toast} close={close}/>}
+    {kind==='birthPlan'&&<BirthPlanBuilder state={state} update={update} toast={toast} close={close}/>}
+    {kind==='doctorQuestions'&&<DoctorQuestions state={state} update={update} toast={toast} close={close}/>}
+    {kind==='babyNames'&&<BabyNameMatcher state={state} update={update} toast={toast} close={close}/>}
+    {kind==='toolsHub'&&<ToolsHub open={open} state={state} update={update} toast={toast} close={close}/>}
     {!!error&&<T accessibilityRole="alert" style={{color:'#A95769',marginTop:12}}>{error}</T>}
     </ScrollView></View></KeyboardAvoidingView></Modal>;
 }

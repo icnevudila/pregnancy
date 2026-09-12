@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Image } from 'react-native';
+import { View, Image, Text } from 'react-native';
 import Svg, {
   Path, Circle, Ellipse, Rect, Defs, LinearGradient, RadialGradient,
   Stop, G, Line,
@@ -39,6 +39,10 @@ const paths = {
   ruler: 'M2 5H22V19H2ZM6 5V10M10 5V8M14 5V10M18 5V8',
   scale: 'M12 3C8 3 5 6 5 10H19C19 6 16 3 12 3ZM5 10H19V13H5ZM8 13V20M16 13V20M5 20H19',
   milestone: 'M3 3H21V17H13L12 21L11 17H3ZM7 8H11M7 12H15M13 8H17',
+  timer: 'M12 2V5M9 2H15M19 8L20 7M12 7A8 8 0 1 0 20 15A8 8 0 0 0 12 7ZM12 11V15L15 17',
+  contraction: 'M2 12H6L9 4L13 20L16 10L18 14H22',
+  footprint: 'M11 9C9 9 7 11 7 14C7 17 9 21 12 21C15 21 17 17 17 14C17 11 15 9 13 9M9 5A1.5 1.5 0 1 0 9 2A1.5 1.5 0 0 0 9 5M12 4.5A1.3 1.3 0 1 0 12 2A1.3 1.3 0 0 0 12 4.5M15 5A1.2 1.2 0 1 0 15 2.5A1.2 1.2 0 0 0 15 5M17.5 6.5A1 1 0 1 0 17.5 4.5A1 1 0 0 0 17.5 6.5',
+  refresh: 'M20 11A8.1 8.1 0 0 0 4.5 9M4 5V9H8M4 13A8.1 8.1 0 0 0 19.5 15M20 19V15H16',
 };
 
 export function Icon({ name, size = 24, color = colors.ink, fill = 'none', strokeWidth = 1.55, ...props }) {
@@ -832,4 +836,74 @@ export function FruitArt({ type, size = 80, useReal = false }) {
       {def.render()}
     </Svg>
   );
+}
+
+/**
+ * ComparisonArt — 3'lü Kıyaslama (Meyve, Sevimli Hayvan, Tatlı/Nesne ve Ultrason)
+ */
+export function ComparisonArt({ mode = 'fruit', type, size = 80, emoji, info, useReal = false }) {
+  if (mode === 'fruit') {
+    return <FruitArt type={type} size={size} useReal={useReal} />;
+  }
+
+  if (mode === 'animal') {
+    const animalImg = generatedAssets[`animal_${type}`];
+    if (animalImg) {
+      return (
+        <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+          <Image source={animalImg} style={{ width: size, height: size }} resizeMode="contain" />
+        </View>
+      );
+    }
+    return (
+      <View style={{
+        width: size, height: size, borderRadius: size / 2,
+        backgroundColor: '#F3EBF4', alignItems: 'center', justifyContent: 'center',
+        shadowColor: '#7F5282', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 4 },
+        borderWidth: 2, borderColor: '#E8D5EB'
+      }}>
+        <Text style={{ fontSize: size * 0.52 }}>{emoji || '🐾'}</Text>
+      </View>
+    );
+  }
+
+  if (mode === 'sweet') {
+    const sweetImg = generatedAssets[`sweet_${type}`];
+    if (sweetImg) {
+      return (
+        <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+          <Image source={sweetImg} style={{ width: size, height: size }} resizeMode="contain" />
+        </View>
+      );
+    }
+    return (
+      <View style={{
+        width: size, height: size, borderRadius: size / 2,
+        backgroundColor: '#FFF2E8', alignItems: 'center', justifyContent: 'center',
+        shadowColor: '#D97736', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 4 },
+        borderWidth: 2, borderColor: '#FCE0CE'
+      }}>
+        <Text style={{ fontSize: size * 0.52 }}>{emoji || '🧁'}</Text>
+      </View>
+    );
+  }
+
+  if (mode === 'ultrasound') {
+    const usImg = generatedAssets['fetus'] || generatedAssets['card_ultrasound_frame'] || generatedAssets['blog_ultrasound_memory'];
+    return (
+      <View style={{
+        width: size, height: size, borderRadius: 16,
+        backgroundColor: '#1C1A24', alignItems: 'center', justifyContent: 'center',
+        borderWidth: 2, borderColor: '#695773', overflow: 'hidden'
+      }}>
+        {usImg ? (
+          <Image source={usImg} style={{ width: size * 0.85, height: size * 0.85, opacity: 0.92 }} resizeMode="contain" />
+        ) : (
+          <Text style={{ fontSize: size * 0.45 }}>🩺</Text>
+        )}
+      </View>
+    );
+  }
+
+  return <FruitArt type={type} size={size} />;
 }

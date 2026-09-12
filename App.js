@@ -7,10 +7,11 @@ import { colors, fonts } from './src/theme';
 import { Icon, BrandMark } from './src/Icons';
 import { T, Tap } from './src/ui';
 import { Onboarding, Pregnancy, Postpartum, Baby, Discover, Assistant } from './src/screens';
+import { ToolsHub } from './src/ToolsHub';
 import DetailSheet from './src/DetailSheet';
 import { useDemoStore } from './src/store';
 
-const previewScreens=[['onboarding','Başlangıç'],['pregnancy','Hamilelik'],['postpartum','Lohusalık'],['baby','Bebek takibi'],['discover','Keşfet'],['assistant','Asistan / Topluluk']];
+const previewScreens=[['onboarding','Başlangıç'],['pregnancy','Hamilelik'],['tools','Araçlar & Sayaçlar'],['postpartum','Lohusalık'],['baby','Bebek takibi'],['discover','Keşfet'],['assistant','Asistan / Topluluk']];
 function Momora() {
   const {state,update,addRecord,ready,storageError}=useDemoStore();
   const [page,setPage]=useState(null);const [sheet,setSheet]=useState(null);const [notice,setNotice]=useState('');
@@ -31,7 +32,7 @@ function Momora() {
     }
   },[ready,state.mode,state.lastMoodDate]);
   const props={state,update,addRecord,open};
-  const renderPage=()=>{switch(active){case'pregnancy':return <Pregnancy {...props}/>;case'postpartum':return <Postpartum {...props}/>;case'baby':return <Baby {...props}/>;case'discover':return <Discover {...props}/>;case'assistant':return <Assistant {...props}/>;default:return <Onboarding choose={choose}/>}};
+  const renderPage=()=>{switch(active){case'pregnancy':return <Pregnancy {...props}/>;case'tools':return <ToolsHub {...props} toast={setNotice}/>;case'postpartum':return <Postpartum {...props}/>;case'baby':return <Baby {...props}/>;case'discover':return <Discover {...props}/>;case'assistant':return <Assistant {...props}/>;default:return <Onboarding choose={choose}/>}};
   if(!ready)return <View style={s.loading}><BrandMark size={60}/><ActivityIndicator color={colors.purple}/></View>;
   return <View style={[s.root,desktop&&s.desktop]}>
     {desktop&&<View style={s.sidebar}><View style={s.desktopBrand}><BrandMark size={55}/><T style={s.desktopWordmark}>MOMORA</T></View><T style={s.desktopTag}>Her adımda, daha güçlü bir sen.</T><View style={{gap:8,marginTop:42}}>{previewScreens.map(([id,label],index)=><Tap key={id} onPress={()=>setPage(id)} label={'Ekran: '+label} accessibilityState={{selected:active===id}} style={[s.previewTab,active===id&&s.previewTabActive]}><T style={[s.previewNumber,active===id&&{color:colors.purple}]}>{String(index+1).padStart(2,'0')}</T><T bold={active===id} style={{fontSize:15}}>{label}</T><View style={{flex:1}}/>{active===id&&<Icon name="chevron" color={colors.purple} size={18}/>}</Tap>)}</View><View style={s.localBadge}><View style={s.dot}/><T style={{fontSize:12,color:colors.muted}}>Yerel demo · React Native / Expo Go</T></View></View>}

@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, Image, StyleSheet, TextInput, Keyboard, ScrollView, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { assets, colors, fonts, shadow } from './theme';
-import { Icon, BrandMark, ProductArt, FruitArt } from './Icons';
+import { Icon, BrandMark, ProductArt, FruitArt, ComparisonArt } from './Icons';
 import { generatedAssets } from './generatedAssets';
 import { T, Tap, Card, RoundButton, Section, Tabs, MoodPicker, Progress, SmallStat, Page } from './ui';
 import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel, pregnancyProgress, TOTAL_WEEKS } from './weekData';
@@ -26,47 +26,117 @@ export function Onboarding({ choose }) {
   </Page>;
 }
 
-// ─── Animasyonlu Meyve Hero ───────────────────────────────────────────────────
-function FruitHero({ week, info, onPress }) {
+// ─── 3'lü Kıyaslama & Ultrason Hero (Pregnancy+ Stili) ─────────────────────────
+function ComparisonHero({ week, info, onPress }) {
+  const [mode, setMode] = useState('fruit'); // 'fruit' | 'animal' | 'sweet' | 'ultrasound'
   const scale = usePulse(0.94, 1.06, 1800);
-  const fade  = useCrossFade(week, 280);
+  const fade  = useCrossFade(week + mode, 260);
   const progress = pregnancyProgress(week);
+
+  let compName = info.fruitName;
+  let compSub = 'büyüklüğünde';
+  let compType = info.fruit;
+  let compEmoji = '🍑';
+
+  if (mode === 'animal') {
+    compName = info.animalName || 'Sevimli Yavru';
+    compSub = 'kadar sevimli';
+    compType = info.animal || 'hamster';
+    compEmoji = info.animalEmoji || '🐾';
+  } else if (mode === 'sweet') {
+    compName = info.sweetName || 'Tatlı Nesne';
+    compSub = 'ağırlığında';
+    compType = info.sweet || 'macaron';
+    compEmoji = info.sweetEmoji || '🧁';
+  } else if (mode === 'ultrasound') {
+    compName = info.ultrasound?.scan || 'Ultrason';
+    compSub = info.ultrasound?.badge || '2D / 4D Doppler';
+    compType = 'ultrasound';
+    compEmoji = '🩺';
+  }
+
   return (
-    <Tap onPress={onPress} label="Bu haftaki gelişimi gör" style={s.fruitHero}>
-      <LinearGradient colors={['#6A4F7A22', 'transparent']} start={{x:0,y:0}} end={{x:1,y:0}} style={StyleSheet.absoluteFill} />
-      {/* Sol — sayısal bilgi */}
-      <View style={s.fruitHeroLeft}>
-        <T bold style={s.fruitWeekNum}>{week}. Hafta</T>
-        <T style={s.fruitMeta}>{monthLabel(info.month)} · {trimesterLabel(info.trimester)}</T>
-        <View style={s.fruitStats}>
-          <View style={s.fruitStat}>
-            <Icon name="ruler" size={14} color="#9A779A"/>
-            <T style={s.fruitStatVal}>{formatLength(info.lengthCm)}</T>
-          </View>
-          <View style={s.fruitStat}>
-            <Icon name="scale" size={14} color="#9A779A"/>
-            <T style={s.fruitStatVal}>{formatWeight(info.weightG)}</T>
-          </View>
-        </View>
-        {/* İlerleme çubuğu */}
-        <View style={{marginTop:10}}>
-          <T style={{fontSize:10,color:'#B89DC0',marginBottom:4}}>{progress}% tamamlandı</T>
-          <View style={s.progressTrack}>
-            <View style={[s.progressFill, {width: `${progress}%`}]} />
-          </View>
-        </View>
-        <View style={s.fruitHeroBtn}>
-          <T style={{fontSize:12,color:'#9A779A'}}>Detayları gör</T>
-          <Icon name="arrow" size={15} color="#9A779A"/>
-        </View>
+    <View style={s.compHeroCard}>
+      {/* 3'lü Kıyaslama Switcher (Pregnancy+ Stili) */}
+      <View style={s.compTabs}>
+        {[
+          { key: 'fruit', label: '🍏 Meyve' },
+          { key: 'animal', label: '🧸 Hayvan' },
+          { key: 'sweet', label: '🧁 Tatlı' },
+          { key: 'ultrasound', label: '🩺 Ultrason' },
+        ].map(t => (
+          <Tap
+            key={t.key}
+            onPress={() => setMode(t.key)}
+            label={t.label}
+            accessibilityState={{ selected: mode === t.key }}
+            style={[s.compTab, mode === t.key && s.compTabActive]}
+          >
+            <T style={[s.compTabLabel, mode === t.key && s.compTabLabelActive]}>{t.label}</T>
+          </Tap>
+        ))}
       </View>
-      {/* Sağ — animasyonlu meyve */}
-      <Animated.View style={[s.fruitRight, {transform:[{scale}], opacity: fade}]}>
-        <FruitArt type={info.fruit} size={108} />
-        <T style={s.fruitName}>{info.fruitName}</T>
-        <T style={s.fruitSub}>büyüklüğünde</T>
-      </Animated.View>
-    </Tap>
+
+      <Tap onPress={onPress} label="Bu haftaki gelişimi gör" style={s.fruitHero}>
+        <LinearGradient colors={['#6A4F7A22', 'transparent']} start={{x:0,y:0}} end={{x:1,y:0}} style={StyleSheet.absoluteFill} />
+        {/* Sol — sayısal bilgi */}
+        <View style={s.fruitHeroLeft}>
+          <View style={s.row}>
+            <T bold style={s.fruitWeekNum}>{week}. Hafta</T>
+            {mode === 'ultrasound' && (
+              <View style={s.usBadge}>
+                <T style={s.usBadgeText}>{info.ultrasound?.badge || 'Ultrason'}</T>
+              </View>
+            )}
+          </View>
+          <T style={s.fruitMeta}>{monthLabel(info.month)} · {trimesterLabel(info.trimester)}</T>
+
+          {mode === 'ultrasound' ? (
+            <View style={{ marginTop: 8, paddingRight: 4 }}>
+              <T style={{ fontSize: 11, color: '#6A4878', lineHeight: 15 }}>
+                {info.ultrasound?.milestone || 'Bebeğin organları ve yüz hatları inceleniyor.'}
+              </T>
+            </View>
+          ) : (
+            <View style={s.fruitStats}>
+              <View style={s.fruitStat}>
+                <Icon name="ruler" size={14} color="#9A779A"/>
+                <T style={s.fruitStatVal}>{formatLength(info.lengthCm)}</T>
+              </View>
+              <View style={s.fruitStat}>
+                <Icon name="scale" size={14} color="#9A779A"/>
+                <T style={s.fruitStatVal}>{formatWeight(info.weightG)}</T>
+              </View>
+            </View>
+          )}
+
+          {/* İlerleme çubuğu */}
+          <View style={{marginTop:10}}>
+            <T style={{fontSize:10,color:'#B89DC0',marginBottom:4}}>{progress}% tamamlandı</T>
+            <View style={s.progressTrack}>
+              <View style={[s.progressFill, {width: `${progress}%`}]} />
+            </View>
+          </View>
+          <View style={s.fruitHeroBtn}>
+            <T style={{fontSize:12,color:'#9A779A'}}>Detayları gör</T>
+            <Icon name="arrow" size={15} color="#9A779A"/>
+          </View>
+        </View>
+
+        {/* Sağ — animasyonlu kıyaslama görseli */}
+        <Animated.View style={[s.fruitRight, {transform:[{scale}], opacity: fade}]}>
+          <ComparisonArt
+            mode={mode}
+            type={compType}
+            size={mode === 'ultrasound' ? 96 : 108}
+            emoji={compEmoji}
+            info={info}
+          />
+          <T numberOfLines={1} style={s.fruitName}>{compName}</T>
+          <T style={s.fruitSub}>{compSub}</T>
+        </Animated.View>
+      </Tap>
+    </View>
   );
 }
 
@@ -104,8 +174,8 @@ export function Pregnancy({ state, update, open }) {
       ))}
     </ScrollView>
 
-    {/* Animasyonlu meyve hero */}
-    <FruitHero week={week} info={info} onPress={() => open('week', {week})} />
+    {/* 3'lü Kıyaslama ve Ultrason Hero */}
+    <ComparisonHero week={week} info={info} onPress={() => open('week', {week})} />
 
     {/* Bebek bu hafta — hızlı 3 madde */}
     <Card style={{padding:14}}>
@@ -168,6 +238,76 @@ export function Pregnancy({ state, update, open }) {
           </View>
         </LinearGradient>
       </Tap>
+    </View>
+
+    {/* Gebelik Araçları & Sayaçlar */}
+    <View style={{marginTop:6}}>
+      <Section title="Hazırlık & Sayaçlar" action="Tümü" onPress={()=>open('toolsHub')}/>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:10,paddingBottom:4}}>
+        <Tap
+          onPress={()=>open('kickCounter')}
+          label="Tekme sayacını aç"
+          style={{width:145,padding:14,borderRadius:18,backgroundColor:'#FAF1F5',borderWidth:1,borderColor:'#F0DFE8',...shadow}}
+        >
+          <View style={{width:38,height:38,borderRadius:19,backgroundColor:'white',alignItems:'center',justifyContent:'center',marginBottom:8}}>
+            {generatedAssets['card_kick_counter'] ? (
+              <Image source={generatedAssets['card_kick_counter']} style={{width:30,height:30}} resizeMode="contain"/>
+            ) : (
+              <Icon name="footprint" size={20} color="#9A5B80"/>
+            )}
+          </View>
+          <T bold style={{fontSize:13,color:'#632D4C'}}>Tekme Sayacı</T>
+          <T style={{fontSize:10,color:'#91637F',marginTop:2}}>10 tekme seansı</T>
+        </Tap>
+
+        <Tap
+          onPress={()=>open('contractionTimer')}
+          label="Kasılma sayacını aç"
+          style={{width:145,padding:14,borderRadius:18,backgroundColor:'#F0F6FB',borderWidth:1,borderColor:'#DDE9F3',...shadow}}
+        >
+          <View style={{width:38,height:38,borderRadius:19,backgroundColor:'white',alignItems:'center',justifyContent:'center',marginBottom:8}}>
+            {generatedAssets['card_contractions'] ? (
+              <Image source={generatedAssets['card_contractions']} style={{width:30,height:30}} resizeMode="contain"/>
+            ) : (
+              <Icon name="contraction" size={20} color="#4F79A1"/>
+            )}
+          </View>
+          <T bold style={{fontSize:13,color:'#274969'}}>Kasılma Sayacı</T>
+          <T style={{fontSize:10,color:'#567594',marginTop:2}}>5-1-1 kuralı</T>
+        </Tap>
+
+        <Tap
+          onPress={()=>open('hospitalBag')}
+          label="Hastane çantasını aç"
+          style={{width:145,padding:14,borderRadius:18,backgroundColor:'#F4EEF7',borderWidth:1,borderColor:'#E7DAED',...shadow}}
+        >
+          <View style={{width:38,height:38,borderRadius:19,backgroundColor:'white',alignItems:'center',justifyContent:'center',marginBottom:8}}>
+            {generatedAssets['card_hospital_bag'] ? (
+              <Image source={generatedAssets['card_hospital_bag']} style={{width:30,height:30}} resizeMode="contain"/>
+            ) : (
+              <Icon name="bag" size={20} color="#7C5292"/>
+            )}
+          </View>
+          <T bold style={{fontSize:13,color:'#452A56'}}>Doğum Çantası</T>
+          <T style={{fontSize:10,color:'#7A6588',marginTop:2}}>Anne, bebek & eş</T>
+        </Tap>
+
+        <Tap
+          onPress={()=>open('weight')}
+          label="Kilo takibini aç"
+          style={{width:145,padding:14,borderRadius:18,backgroundColor:'#EBF3EE',borderWidth:1,borderColor:'#D7E8DD',...shadow}}
+        >
+          <View style={{width:38,height:38,borderRadius:19,backgroundColor:'white',alignItems:'center',justifyContent:'center',marginBottom:8}}>
+            {generatedAssets['card_scale'] ? (
+              <Image source={generatedAssets['card_scale']} style={{width:30,height:30}} resizeMode="contain"/>
+            ) : (
+              <Icon name="scale" size={20} color="#4F8464"/>
+            )}
+          </View>
+          <T bold style={{fontSize:13,color:'#284F38'}}>Kilo & BMI</T>
+          <T style={{fontSize:10,color:'#567E67',marginTop:2}}>İdeal koridor</T>
+        </Tap>
+      </ScrollView>
     </View>
   </Page>;
 }
@@ -259,6 +399,15 @@ const s=StyleSheet.create({
   journey:{minHeight:145,borderRadius:25,overflow:'hidden',flexDirection:'row',alignItems:'center',paddingRight:14,borderWidth:1,borderColor:'#EDE1E2',...shadow},journeyPhoto:{position:'absolute',left:0,top:0,bottom:0,width:140,overflow:'hidden'},journeyImage:{width:230,height:154,position:'absolute',left:-12,top:0},journeyCopy:{marginLeft:132,flex:1,paddingVertical:20},journeyTitle:{fontSize:18,lineHeight:24},journeySub:{fontSize:13,lineHeight:20,marginTop:7},motto:{alignItems:'center',marginTop:30,gap:7},handwritten:{fontFamily:fonts.script,fontSize:23,lineHeight:25,color:'#9A8495',textAlign:'center'},
   subtitle:{color:'#8C6B94',fontSize:15,marginTop:5},iconHit:{width:42,height:42,justifyContent:'center',alignItems:'center'},pageTitle:{fontSize:25,letterSpacing:-0.5},
   weekStrip:{flexDirection:'row',gap:7,paddingBottom:4},weekPill:{minWidth:58,alignItems:'center',paddingVertical:8,paddingHorizontal:6,borderRadius:20,backgroundColor:'#EEE8E6'},weekActive:{backgroundColor:'#A28ABB',shadowColor:'#9A80B4',shadowOpacity:0.35,shadowRadius:6,shadowOffset:{width:0,height:2}},
+  // Comparison hero & tabs
+  compHeroCard:{gap:8},
+  compTabs:{flexDirection:'row',backgroundColor:'#EDE4F2',borderRadius:16,padding:3,gap:4},
+  compTab:{flex:1,paddingVertical:6,alignItems:'center',justifyContent:'center',borderRadius:13},
+  compTabActive:{backgroundColor:'#FFFFFF',shadowColor:'#6B4373',shadowOpacity:0.12,shadowRadius:4,shadowOffset:{width:0,height:2}},
+  compTabLabel:{fontSize:11,color:'#886E91',fontFamily:fonts.bold},
+  compTabLabelActive:{color:'#5A3366'},
+  usBadge:{marginLeft:8,backgroundColor:'#695773',paddingHorizontal:7,paddingVertical:2,borderRadius:10},
+  usBadgeText:{color:'#FFFFFF',fontSize:10,fontFamily:fonts.bold},
   // Fruit hero
   fruitHero:{borderRadius:24,overflow:'hidden',backgroundColor:'#F7F0FA',borderWidth:1,borderColor:'#EDE0EF',flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingLeft:18,paddingRight:8,paddingVertical:16,...shadow},
   fruitHeroLeft:{flex:1,paddingRight:8},
