@@ -4,6 +4,10 @@
 export const generatedAssets = {
   'baby': require('../assets/baby.png'),
   'banner_next_sleep': require('../assets/banner_next_sleep.png'),
+  'blog_healthy_breakfast': require('../assets/blog_healthy_breakfast.png'),
+  'blog_newborn_hand': require('../assets/blog_newborn_hand.png'),
+  'blog_nursery_aesthetic': require('../assets/blog_nursery_aesthetic.png'),
+  'blog_pregnant_morning': require('../assets/blog_pregnant_morning.png'),
   'bottle': require('../assets/bottle.png'),
   'btn_bottle': require('../assets/btn_bottle.png'),
   'btn_breast_pump': require('../assets/btn_breast_pump.png'),
@@ -53,6 +57,7 @@ export const generatedAssets = {
   'fruit_pear': require('../assets/fruit_pear.png'),
   'fruit_pineapple': require('../assets/fruit_pineapple.png'),
   'fruit_plum': require('../assets/fruit_plum.png'),
+  'fruit_pumpkin': require('../assets/fruit_pumpkin.png'),
   'fruit_raspberry': require('../assets/fruit_raspberry.png'),
   'fruit_seed': require('../assets/fruit_seed.png'),
   'fruit_squash': require('../assets/fruit_squash.png'),
