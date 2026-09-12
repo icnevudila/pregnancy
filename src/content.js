@@ -1,5 +1,5 @@
-// Momora İçerik Kütüphanesi, Magazin & Uzman Rehberleri
-// 55+ Kapsamlı Editoryal Makale, Zengin Görseller, Klinik İpuçları ve SSS Veritabanı
+// Momora İçerik Kütüphanesi, Magazin & Editoryal Rehberler
+// 55+ Kapsamlı Editoryal Makale, Zengin Görseller, Kaynak Notları ve SSS Veritabanı
 import { faqArticles } from './faqArticles.js';
 export { faqCategories, pregnancyFaqs, searchFaqs, getFaqsByCategory } from './faqData.js';
 
@@ -142,7 +142,7 @@ const baseArticles = [
     topic: 'nutrition',
     categoryName: 'Gebelik Beslenmesi',
     title: 'Gebelikte Şampiyon Kahvaltı Tabağı: Kolin, Demir ve Protein',
-    subtitle: 'Bebeğin zeka gelişimi ve annenin gün boyu enerjisi için ideal tabak dengesi.',
+    subtitle: 'Bebeğin zeka gelişimi ve annenin gün boyu enerjisi için dengeli tabak fikri.',
     image: 'blog_healthy_breakfast',
     minutes: 4,
     weeks: [4, 40],
@@ -827,7 +827,7 @@ const baseArticles = [
     doctor: 'Uzm. Dr. Kerem Arslan · Anestezi ve Reanimasyon Uzmanı',
     keyPoints: [
       'Epidural kateter ağrısız biçimde lokal anestezi sonrasında yerleştirilir.',
-      'Rahim ağzı 4 cm açıklığa ulaştığında yapılması doğum sürecini ideal hızlandırır.',
+      'Rahim ağzı 4 cm açıklığa ulaştığında yapılması doğum ekibinin uygun gördüğü zamanda planlanır.',
       'Yürüyen epidural (Walking Epidural) sayesinde anne bacaklarını hissedebilir ve ıkınabilir.'
     ],
     sections: [

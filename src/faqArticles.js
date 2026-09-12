@@ -5,7 +5,7 @@ export const faqArticles = [
     "topic": "pregnancy",
     "categoryName": "1. Trimester",
     "title": "Gebelikte Sabah Bulantıları ve Kusma: Bebeğe Zarar Verir mi?",
-    "subtitle": "hCG artışı, mide boşalması ve beslenememe endişesine klinik yanıtlar.",
+    "subtitle": "hCG artışı, mide boşalması ve beslenememe endişesine kaynak notları.",
     "image": "blog_pregnant_morning",
     "minutes": 4,
     "weeks": [
@@ -438,7 +438,7 @@ export const faqArticles = [
         "caption": "Momora tekme sayacı ile fetal seans kaydı"
       },
       {
-        "title": "Klinikte Neler Yapılır?",
+        "title": "Kontrolde Neler Konuşulur?",
         "text": "Hastanede hemen Non-Stres Testi (NST) bağlanır. Bebeğin kalp atışlarının hareketle hızlanıp hızlanmadığı (reaktivite) ve rahim kasılmaları 20 dakika boyunca izlenir. Gerekirse biyofizik profil ultrasonu çekilir.",
         "tip": "⚠️ Hissedilen belirgin hareket azalmasında randevu gününü beklemek tehlikelidir; 7/24 doğum acile başvurunuz."
       }
@@ -692,7 +692,7 @@ export const faqArticles = [
       },
       {
         "title": "Mide Bulantısı ve Soğuk Algınlığında Güvenli Çaylar",
-        "text": "Taze zencefil dilimiyle hazırlanan ılık çay, ilk trimester bulantılarında klinik olarak kanıtlanmış bir rahatlama sağlar. Soğuk algınlığında ise 1 fincan bal-limonlu ıhlamur boğazı yumuşatır.",
+        "text": "Taze zencefil dilimiyle hazırlanan ılık çay, ilk trimester bulantılarında bazı annelerde rahatlama sağlayabilir. Soğuk algınlığında ise 1 fincan bal-limonlu ıhlamur boğazı yumuşatır.",
         "image": "blog_herbal_tea_relax",
         "caption": "Limonlu ve zencefilli taze güvenli bitki çayı sunumu"
       },

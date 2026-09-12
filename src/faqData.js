@@ -1,5 +1,5 @@
 // Momora En Çok Sorulan Sorular (SSS) Veritabanı
-// Gebelik, Doğum, Lohusalık ve Yenidoğan Bakımında En Çok Merak Edilen 40+ Soru ve Kanıta Dayalı Uzman Yanıtları
+// Gebelik, Doğum, Lohusalık ve Yenidoğan Bakımında En Çok Merak Edilen 40+ Soru ve Kanıta Dayalı Kaynak Notları
 
 export const faqCategories = [
   'Tümü',

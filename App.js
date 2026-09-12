@@ -10,7 +10,7 @@ import { Onboarding, Pregnancy, Postpartum, Baby, Discover, Assistant } from './
 import { ToolsHub } from './src/ToolsHub';
 import DetailSheet from './src/DetailSheet';
 import { ProfileScreen } from './src/ProfileScreen';
-import { useDemoStore } from './src/store';
+import { useMomoraStore } from './src/store';
 
 const previewScreens=[
   ['onboarding','Başlangıç'],
@@ -23,7 +23,7 @@ const previewScreens=[
   ['baby','Bebek Takibi'],
 ];
 function Momora() {
-  const {state,update,addRecord,ready,storageError,cloudStatus,refreshFromCloud}=useDemoStore();
+  const {state,update,addRecord,ready,storageError,cloudStatus,refreshFromCloud}=useMomoraStore();
   const [page,setPage]=useState(null);const [sheet,setSheet]=useState(null);const [notice,setNotice]=useState('');
   const insets=useSafeAreaInsets();const {width,height}=useWindowDimensions();
   const desktop=Platform.OS==='web'&&width>=850;

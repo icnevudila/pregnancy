@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { defaultLists, extendedDefaults, migrateState } from './domain.mjs';
 import { loadCloudState, saveCloudState, saveTrackingEvent, cloudStatusLabel } from './backendSync';
 
-const KEY = 'momora.local-demo.v1';
+const KEY = 'momora.local.v1';
 export const initialState = {
   mode: 'pregnancy', name: 'Zeynep', partnerName: 'Mehmet', role: 'mother', partnerRole: 'father',
   babyName: 'Ada', babyGender: 'Kız', week: 24, day: 5, water: 4, vitamin: true,
@@ -24,7 +24,7 @@ export const initialState = {
   // Extended state (tools & tracking)
   ...extendedDefaults,
 };
-export function useDemoStore() {
+export function useMomoraStore() {
   const [state, setState] = useState(initialState);
   const [ready, setReady] = useState(false);
   const [storageError, setStorageError] = useState(null);
