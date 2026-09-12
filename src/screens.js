@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { assets, colors, fonts, shadow } from './theme';
 import { Icon, BrandMark, ProductArt, FruitArt, ComparisonArt } from './Icons';
 import { generatedAssets } from './generatedAssets';
-import { T, Tap, Card, RoundButton, Section, Tabs, MoodPicker, Progress, SmallStat, Page } from './ui';
+import { T, Tap, Card, RoundButton, Section, Tabs, MoodPicker, Progress, SmallStat, Page, ScreenHero } from './ui';
 import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel, pregnancyProgress, TOTAL_WEEKS } from './weekData';
 import { usePulse, useCrossFade } from './anim';
 import { articles, searchArticles, searchFaqs } from './content';
@@ -274,7 +274,7 @@ export function Pregnancy({ state, update, open }) {
     bugun: {
       baby: 'Bugün ilk hıçkırık refleksleri başlayabilir; bu durum diyafram kaslarını doğuma hazırlar!',
       mom: 'Kan hacminiz %40 arttı; hafif burun tıkanıklığı bu dönemde çok yaygındır.',
-      tip: 'Magnezyum ve kalsiyum açısından zengin bir avuç badem tüketmek kas kramplarını önler.',
+      tip: 'Magnezyum ve kalsiyum açısından zengin besinleri not etmek, randevuda beslenme düzenini konuşmayı kolaylaştırır.',
     },
     yarin: {
       baby: 'Yüz mimik kasları gülümseme ve kaş çatma hareketlerini denemeye devam ediyor.',
@@ -286,6 +286,8 @@ export function Pregnancy({ state, update, open }) {
   const tc = timelineContent[timelineDay];
 
   return <Page>
+    <ScreenHero kicker="BUGÜNÜN YOLCULUĞU" title={`${week}. hafta · ${state.babyName || 'Bebeğin'}`} body="Haftalık gelişim, günlük bakım ve hazırlık araçları aynı sakin akışta toplandı." icon="heart" asset="pregnancy" stat={`${Math.max(0, (40 - week) * 7)} gün kaldı`} tint={colors.purple} />
+
     {/* ─── 1. ÜST BAŞLIK & GERİ SAYIM ─── */}
     <View style={s.topline}>
       <View>
@@ -425,7 +427,7 @@ export function Pregnancy({ state, update, open }) {
           <T bold style={{ fontSize: 15, color: colors.ink }}>Bugünün Takip Günlüğü</T>
         </View>
         <Tap onPress={() => open('toolsHub')} style={{ padding: 4 }}>
-          <T bold style={{ fontSize: 11, color: colors.purple }}>Tüm Sayaçlar →</T>
+          <T bold style={{ fontSize: 11, color: colors.purple }}>Takip merkezi →</T>
         </Tap>
       </View>
 
@@ -449,7 +451,7 @@ export function Pregnancy({ state, update, open }) {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <T style={{ fontSize: 16 }}>💊</T>
             <View>
-              <T bold style={{ fontSize: 13 }}>Sabah Vitamini · Folik Asit & Demir</T>
+              <T bold style={{ fontSize: 13 }}>Vitamin Notu</T>
               <T style={{ fontSize: 11, color: state.vitamin ? '#3A8253' : colors.muted }}>
                 {state.vitamin ? 'Bugün alındı ✓' : 'Günlük doz bekleniyor'}
               </T>
@@ -467,8 +469,10 @@ export function Pregnancy({ state, update, open }) {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <T style={{ fontSize: 16 }}>🦶</T>
             <View>
-              <T bold style={{ fontSize: 13 }}>Tekme Sayımı · Fetal Hareket</T>
-              <T style={{ fontSize: 11, color: colors.muted }}>Son seans: 10 tekme · 18 dk</T>
+              <T bold style={{ fontSize: 13 }}>Hareket Seansı</T>
+              <T style={{ fontSize: 11, color: colors.muted }}>
+                {state.kickSessions?.[0] ? `Son: ${state.kickSessions[0].kicks ?? state.kickSessions[0].count} hareket` : 'İlk seansı başlat'}
+              </T>
             </View>
           </View>
           <Tap onPress={() => open('kickCounter')} style={{ backgroundColor: '#FAF1F5', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
@@ -481,8 +485,8 @@ export function Pregnancy({ state, update, open }) {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <T style={{ fontSize: 16 }}>⚖️</T>
             <View>
-              <T bold style={{ fontSize: 13 }}>Kilo Takibi · 65.4 kg</T>
-              <T style={{ fontSize: 11, color: '#3A8253' }}>+5.4 kg toplam · İdeal IOM koridoru</T>
+              <T bold style={{ fontSize: 13 }}>Kilo Takibi · {state.weights?.[0]?.value || state.startWeight || 60} kg</T>
+              <T style={{ fontSize: 11, color: '#3A8253' }}>Haftalık eğilimi güncelle</T>
             </View>
           </View>
           <Tap onPress={() => open('weight')} style={{ backgroundColor: '#EEF5F1', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
@@ -496,7 +500,7 @@ export function Pregnancy({ state, update, open }) {
             <T style={{ fontSize: 16 }}>🌸</T>
             <View>
               <T bold style={{ fontSize: 13 }}>Günün Ruh Hali: {moodLabels[state.mood ?? 0]}</T>
-              <T style={{ fontSize: 11, color: colors.muted }}>Pozitif enerji bebeğine yansıyor</T>
+              <T style={{ fontSize: 11, color: colors.muted }}>Bugünkü hissini kısa notla takip et</T>
             </View>
           </View>
           <Tap onPress={() => open('dailyMood')} style={{ backgroundColor: '#F3ECF5', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}>
@@ -506,7 +510,7 @@ export function Pregnancy({ state, update, open }) {
       </View>
     </Card>
 
-    {/* ─── 7. MEDİKAL İNCELEME & GELİŞİM ŞERİDİ ─── */}
+    {/* ─── 7. GELİŞİM VE KONTROL KISAYOLLARI ─── */}
     <View style={[s.row,{gap:8}]}>
       <Tap
         onPress={() => open('ultrasoundAtlas')}
@@ -530,7 +534,7 @@ export function Pregnancy({ state, update, open }) {
         style={{flex:1,padding:10,borderRadius:16,backgroundColor:'#EEF5F2',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#D8E8E0'}}
       >
         <T style={{fontSize:16}}>📅</T>
-        <T bold style={{fontSize:11,color:colors.ink,marginTop:3}}>Tıbbi Takvim</T>
+        <T bold style={{fontSize:11,color:colors.ink,marginTop:3}}>Kontrol Takvimi</T>
       </Tap>
     </View>
 
@@ -565,7 +569,7 @@ export function Pregnancy({ state, update, open }) {
 
     {/* ─── 10. GEBELİK SAYAÇLARI & ARAÇLAR ─── */}
     <View style={{marginTop:6}}>
-      <Section title="Hazırlık & Sayaçlar" action="Tümü" onPress={()=>open('toolsHub')}/>
+      <Section title="Sık kullanılan araçlar" action="Koleksiyonu aç" onPress={()=>open('toolsHub')}/>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:10,paddingBottom:4}}>
         <Tap
           onPress={()=>open('kickCounter')}
@@ -596,7 +600,7 @@ export function Pregnancy({ state, update, open }) {
             )}
           </View>
           <T bold style={{fontSize:13,color:'#274969'}}>Kasılma Sayacı</T>
-          <T style={{fontSize:10,color:'#567594',marginTop:2}}>5-1-1 kuralı</T>
+          <T style={{fontSize:10,color:'#567594',marginTop:2}}>Süre & aralık</T>
         </Tap>
 
         <Tap
@@ -612,7 +616,7 @@ export function Pregnancy({ state, update, open }) {
             )}
           </View>
           <T bold style={{fontSize:13,color:'#452A56'}}>Doğum Çantası</T>
-          <T style={{fontSize:10,color:'#7A6588',marginTop:2}}>Anne, bebek & eş</T>
+          <T style={{fontSize:10,color:'#7A6588',marginTop:2}}>Anne, bebek & refakatçi</T>
         </Tap>
 
         <Tap
@@ -627,15 +631,15 @@ export function Pregnancy({ state, update, open }) {
               <Icon name="scale" size={20} color="#4F8464"/>
             )}
           </View>
-          <T bold style={{fontSize:13,color:'#284F38'}}>Kilo & BMI</T>
-          <T style={{fontSize:10,color:'#567E67',marginTop:2}}>İdeal koridor</T>
+          <T bold style={{fontSize:13,color:'#284F38'}}>Kilo Takibi</T>
+          <T style={{fontSize:10,color:'#567E67',marginTop:2}}>Haftalık eğilim</T>
         </Tap>
       </ScrollView>
     </View>
 
     {/* ─── 11. HAFTANIN UZMAN REHBERLERİ ─── */}
     <View style={{marginTop:8}}>
-      <Section title="Haftanın Uzman Rehberleri" action="Tümünü gör" onPress={()=>open('topicHub')}/>
+      <Section title="Haftanın Seçilmiş Rehberleri" action="Tümünü gör" onPress={()=>open('topicHub')}/>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:12,paddingBottom:4}}>
         {articles.filter(a=>a.topic==='pregnancy'||a.topic==='nutrition'||a.topic==='wellbeing').slice(0,4).map(art=>(
           <Tap
@@ -667,7 +671,8 @@ export function Postpartum({state,update,open}) {
   const [tab,setTab]=useState('Bugün');
   const tasks=['Bol sıvı tüket','Hafif yürüyüş yap','Pelvik taban egzersizlerini yap','Kendine zaman ayır','Destek al, yalnız değilsin 💜'];
   return <Page>
-    <View style={s.topline}><View><T bold style={s.pageTitle}>Lohusalık · 12. gün</T><T style={s.subtitle}>İyileşiyorsun, harika gidiyorsun. 💜</T></View><RoundButton icon="down" label="Yolculuğunu değiştir" onPress={()=>open('journey')}/></View>
+    <ScreenHero kicker="LOHUSALIK AKIŞI" title="12. gün toparlanma" body="Ruh hali, iyileşme adımları ve günlük notlar aynı bakım ritminde kalsın." icon="leaf" asset="ui_postpartum_lotus" stat={`${state.tasks.filter(Boolean).length}/5 adım`} tint="#86518A" />
+    <View style={s.topline}><View><T bold style={s.pageTitle}>Lohusalık · 12. gün</T><T style={s.subtitle}>Bugünü küçük adımlarla toparlayalım.</T></View><RoundButton icon="down" label="Yolculuğunu değiştir" onPress={()=>open('journey')}/></View>
     <Tabs items={['Bugün','İyileşme','Ruh Halim','Notlar']} active={tab} onChange={setTab}/>
     {tab==='Bugün'||tab==='Ruh Halim'?<Card style={{padding:13}}><MoodPicker postpartum value={state.postpartumMood} onChange={postpartumMood=>update({postpartumMood})}/>{tab==='Bugün'&&<View style={[s.row,{gap:10,marginTop:16,paddingTop:12,borderTopWidth:1,borderColor:colors.line}]}><SmallStat title="Uyku" value="6 sa 20 dk" icon="moon" tint="#F0EAF5" onPress={()=>open('log',{type:'Uyku'})}/><SmallStat title="Su" value={`${state.water}/8 bardak`} icon="drop" tint="#E6F0F4" onPress={()=>update(old=>({water:Math.min(8,old.water+1)}))}/></View>}</Card>:null}
     {(tab==='Bugün'||tab==='İyileşme')&&<><Card style={{padding:13}}><T bold style={{fontSize:16}}>Bugün yapabileceklerin</T><T style={s.taskMeta}>{state.tasks.filter(Boolean).length}/5 tamamlandı</T>{tasks.map((task,i)=><Tap key={task} label={task} accessibilityRole="checkbox" accessibilityState={{checked:state.tasks[i]}} onPress={()=>update(old=>({tasks:old.tasks.map((v,n)=>n===i?!v:v)}))} style={s.task}><View style={[s.checkbox,state.tasks[i]&&{backgroundColor:colors.sage,borderColor:colors.sage}]}>{state.tasks[i]&&<Icon name="check" color="white" size={16}/>}</View><T style={s.taskText}>{task}</T><Icon name="chevron" size={18} color={colors.muted}/></Tap>)}</Card><Card style={{padding:14}}><View style={s.topline}><T bold>İyileşme yolculuğun</T><Icon name="leaf" color={colors.sage} fill="#9FB7A4" size={28}/></View><View style={[s.row,{gap:12,marginTop:10}]}><Progress value={state.tasks.filter(Boolean).length*20} style={{flex:1}}/><T style={{fontSize:13}}>%{state.tasks.filter(Boolean).length*20}</T></View><T style={{fontSize:12,color:colors.muted,marginTop:9}}>Her gün biraz daha güçleniyorsun.</T></Card></>}
@@ -686,7 +691,8 @@ export function RecordList({records}) {return <View>{records.map(r=>{const a=bab
 export function Baby({state,open}) {
   const records=[...state.records,...sampleRecords].slice(0,4);
   return <Page>
-    <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage}/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName} · 6 haftalık</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>Minik mutluluğumuz 💛</T></View></View><RoundButton icon="down" label="Yolculuğunu değiştir" onPress={()=>open('journey')}/></View>
+    <ScreenHero kicker="BEBEK BAKIMI" title={`${state.babyName} · 6 haftalık`} body="Beslenme, uyku, bez kayıtları ve bakım rehberleri tek günlük panelde birleşir." icon="baby" asset="baby" stat={`${records.length} kayıt`} tint="#6E5A96" />
+    <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage}/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName} · 6 haftalık</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>Bugünün bakım ritmi</T></View></View><RoundButton icon="down" label="Yolculuğunu değiştir" onPress={()=>open('journey')}/></View>
     <View style={s.babyGrid}>
       {babyActions.map(a=>(
         <Tap
@@ -749,10 +755,7 @@ export function Baby({state,open}) {
 
 export function Discover({state,update,open}) {
   return <Page contentStyle={{gap:12}}>
-    <View style={{marginTop:4,marginBottom:2}}>
-      <T bold style={s.pageTitle}>Kütüphane</T>
-      <T style={{fontSize:12.5,color:colors.muted,marginTop:2}}>65 Uzman onaylı editoryal rehber ve besin güvenliği</T>
-    </View>
+    <ScreenHero kicker="MOMORA KÜTÜPHANE" title="Seçilmiş rehberler" body="Haftalık içerik, besin güvenliği ve konu dosyaları aynı editoryal düzende toplandı." icon="book" asset="blog_pregnant_morning" stat="65 rehber" tint={colors.purple} />
 
     <TopicHubScreen
       openArticle={(article) => open('editorialArticle', { article })}
@@ -818,4 +821,3 @@ const s=StyleSheet.create({
   categories:{flexDirection:'row',flexWrap:'wrap',gap:10},category:{width:'48%',flexGrow:1,alignItems:'center',paddingVertical:6,borderRadius:14,borderWidth:1.5},product:{flex:1,borderWidth:1,borderColor:colors.line,borderRadius:16,padding:11,backgroundColor:'#FFFCF8',...shadow},productPlus:{position:'absolute',right:10,top:22,width:28,height:28,borderRadius:14,backgroundColor:'white',alignItems:'center',justifyContent:'center',...shadow},
   assistantHeader:{alignItems:'center',paddingTop:0,paddingBottom:7},assistantTitle:{fontSize:23,color:'#77518F',marginTop:5},bubble:{borderRadius:24,padding:17,backgroundColor:'#FEFBF8'},prompt:{borderWidth:1,borderColor:'#DED4D8',borderRadius:24,paddingVertical:12,paddingHorizontal:17,flexDirection:'row',alignItems:'center',backgroundColor:'#FCF9F5'},messageInput:{borderRadius:28,borderWidth:1,borderColor:'#DED5D5',flexDirection:'row',alignItems:'center',paddingLeft:17,paddingRight:6,minHeight:49,marginTop:11,backgroundColor:'#FFFCF9',...shadow},send:{height:33,width:33,borderRadius:20,backgroundColor:'#A0839E',alignItems:'center',justifyContent:'center'},sentMessage:{borderRadius:15,backgroundColor:'#F0E8F3',padding:12},smallAvatar:{width:32,height:32,borderRadius:16,overflow:'hidden'},postPhoto:{width:81,height:77,borderRadius:12,overflow:'hidden'},
 });
-

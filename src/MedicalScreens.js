@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, Image, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon, FruitArt } from './Icons';
-import { T, Tap, Card, Section } from './ui';
+import { T, Tap, Card, Section, ScreenHero } from './ui';
 import { getWeekInfo, formatLength, formatWeight, trimesterLabel } from './weekData';
 import { generatedAssets } from './generatedAssets';
 import { usePulse } from './anim';
@@ -16,6 +16,14 @@ export function SizeComparisonHub({ state, toast }) {
 
   return (
     <View style={ms.container}>
+      <ScreenHero kicker="HAFTA HAFTA BOYUT"
+        title="Bebeğinin ölçeğini hisset"
+        body="Meyve, hayvan veya tatlı metaforuyla aynı haftayı daha sıcak ve akılda kalıcı gör."
+        icon="melon"
+        asset="fruit_apple"
+        tint="#7B4C80"
+      />
+
       {/* 3'lü Segment Seçici */}
       <View style={ms.segRow}>
         {[
@@ -132,6 +140,14 @@ export function UltrasoundAtlas({ state }) {
 
   return (
     <View style={ms.container}>
+      <ScreenHero kicker="ULTRASON REHBERİ"
+        title={`${week}. hafta görüntü okuma`}
+        body="Görüntüde neye baktığını anlamana yardım eden sade, işaretli bir keşif ekranı."
+        icon="calendar"
+        asset="card_ultrasound_frame"
+        tint="#5D4F88"
+      />
+
       {/* 2D vs 3D/HDLive Sekme */}
       <View style={ms.segRow}>
         <Tap
@@ -140,7 +156,7 @@ export function UltrasoundAtlas({ state }) {
           style={[ms.segBtn, tab === '2d' && ms.segBtnActive]}
         >
           <T bold={tab === '2d'} style={[ms.segText, tab === '2d' && { color: 'white' }]}>
-            2D Klinik Ultrason
+            2D Ultrason Rehberi
           </T>
         </Tap>
         <Tap
@@ -208,11 +224,11 @@ export function UltrasoundAtlas({ state }) {
         )}
       </Card>
 
-      {/* Doktor Bu Hafta Neye Bakar? */}
+      {/* Bu Hafta Neye Bakılır? */}
       <Card style={{ padding: 14 }}>
-        <T bold style={{ fontSize: 15 }}>🩺 Bu Haftaki Ultrasonda Neler İncelenir?</T>
+        <T bold style={{ fontSize: 15 }}>Bu haftaki kontrolde neler konuşulur?</T>
         <T style={{ fontSize: 13, color: '#554D5A', marginTop: 6, lineHeight: 20 }}>
-          {info.ultrasound?.milestone || 'Bebeğin tüm organ gelişimi, amniyon sıvısı ve plasenta konumu kontrol edilir.'}
+          {info.ultrasound?.milestone || 'Gelişim ölçümleri, amniyon sıvısı, plasenta konumu ve bebeğin pozisyonu kontrol notlarına eklenebilir.'}
         </T>
       </Card>
     </View>
@@ -233,12 +249,13 @@ export const medicalMilestones = [
 export function MedicalTimeline() {
   return (
     <View style={ms.container}>
-      <Card style={{ padding: 14 }}>
-        <T bold style={{ fontSize: 16 }}>40 Haftalık Klinik Yol Haritası</T>
-        <T style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>
-          Gebeliğiniz boyunca karşılaşacağınız tüm rutin ve kritik testler.
-        </T>
-      </Card>
+      <ScreenHero kicker="KONTROL TAKVİMİ"
+        title="40 haftalık yol haritası"
+        body="Rutin kontrolleri ve yaklaşan başlıkları hafta hafta tek akışta gör."
+        icon="milestone"
+        asset="card_appointment"
+        tint="#915B38"
+      />
 
       {/* Dikey Metro Haritası */}
       <View style={ms.timeline}>
@@ -328,6 +345,14 @@ export function OrganDevelopment({ state }) {
 
   return (
     <View style={ms.container}>
+      <ScreenHero kicker="GELİŞİM ODAKLARI"
+        title="Organ gelişimini bölümlere ayır"
+        body="Kalp, beyin, duyular ve kemik gelişimini tek ekranda sade başlıklarla takip et."
+        icon="heart"
+        asset="ui_fetal_heart_3d"
+        tint="#A84D67"
+      />
+
       {/* Kalp Atış Simülatörü Kartı */}
       <Card style={ms.heartPlayerCard}>
         <LinearGradient

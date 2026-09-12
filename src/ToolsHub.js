@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Image, ScrollView } from 'react-native';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
-import { T, Tap, Card, Section } from './ui';
+import { T, Tap, Card, Section, ScreenHero } from './ui';
 import { generatedAssets } from './generatedAssets';
+import { secondsLabel } from './domain.mjs';
 
 export const allTools = [
   // ─── 1. SAYAÇLAR & TAKİP ───
   {
     id: 'kickCounter',
     cat: 'counters',
-    catTitle: 'Sayaçlar',
+    catTitle: 'Günlük Takip',
     title: 'Tekme Sayacı',
-    subtitle: '10 tekme fetal hareket seansı',
+    subtitle: 'Hareket düzenini sakince kaydet',
     icon: 'footprint',
     art: 'card_kick_counter',
     color: '#FBF2F6',
@@ -22,9 +23,9 @@ export const allTools = [
   {
     id: 'contractionTimer',
     cat: 'counters',
-    catTitle: 'Sayaçlar',
+    catTitle: 'Günlük Takip',
     title: 'Kasılma Sayacı',
-    subtitle: '5-1-1 kuralı ve doğum zamanı',
+    subtitle: 'Süre, aralık ve şiddet günlüğü',
     icon: 'contraction',
     art: 'card_contractions',
     color: '#F0F6FB',
@@ -34,9 +35,9 @@ export const allTools = [
   {
     id: 'weight',
     cat: 'counters',
-    catTitle: 'Sayaçlar',
-    title: 'Kilo Takibi & BMI',
-    subtitle: 'IOM standartlarında ideal kilo eğrisi',
+    catTitle: 'Günlük Takip',
+    title: 'Kilo Takibi',
+    subtitle: 'Haftalara göre kişisel kilo günlüğü',
     icon: 'scale',
     art: 'card_scale',
     color: '#EFF6F2',
@@ -44,11 +45,11 @@ export const allTools = [
     available: true,
   },
 
-  // ─── 2. GELİŞİM & MEDİKAL İNCELEME ───
+  // ─── 2. GELİŞİM & TAKİP ───
   {
     id: 'sizeGuide',
     cat: 'medical',
-    catTitle: 'Gelişim & Medikal',
+    catTitle: 'Gelişim & Takip',
     title: '3 Boyut Kıyaslama',
     subtitle: 'Meyve vs Hayvan vs Tatlı',
     icon: 'melon',
@@ -60,9 +61,9 @@ export const allTools = [
   {
     id: 'ultrasoundAtlas',
     cat: 'medical',
-    catTitle: 'Gelişim & Medikal',
+    catTitle: 'Gelişim & Takip',
     title: 'Ultrason Atlası',
-    subtitle: '2D ve 3D HDLive renkli taramalar',
+    subtitle: 'Hafta hafta ultrason okuma rehberi',
     icon: 'calendar',
     art: 'card_ultrasound_frame',
     color: '#F0EDF6',
@@ -72,9 +73,9 @@ export const allTools = [
   {
     id: 'medicalTimeline',
     cat: 'medical',
-    catTitle: 'Gelişim & Medikal',
-    title: 'Tıbbi Test Takvimi',
-    subtitle: 'Şeker yükleme, ikili test & NST',
+    catTitle: 'Gelişim & Takip',
+    title: 'Kontrol Takvimi',
+    subtitle: 'Kontrol ve test hatırlatma notları',
     icon: 'milestone',
     art: 'card_appointment',
     color: '#F8F1EB',
@@ -84,9 +85,9 @@ export const allTools = [
   {
     id: 'organDevelopment',
     cat: 'medical',
-    catTitle: 'Gelişim & Medikal',
+    catTitle: 'Gelişim & Takip',
     title: 'Organ Gelişimi & Kalp',
-    subtitle: '145 BPM fetal kalp sesi simülatörü',
+    subtitle: 'Organ gelişimi ve kalp ritmi notları',
     icon: 'heart',
     art: 'ui_fetal_heart_3d',
     color: '#FDF2F4',
@@ -112,7 +113,7 @@ export const allTools = [
     cat: 'prep',
     catTitle: 'Doğuma Hazırlık',
     title: 'Doğum Planı',
-    subtitle: 'Doktora özel tıbbi tercihler sihirbazı',
+    subtitle: 'Doğum tercihlerini düzenli notlara çevir',
     icon: 'book',
     art: 'ui_birth_plan_scroll',
     color: '#FAF4EB',
@@ -201,31 +202,25 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
 
   const categories = [
     { id: 'all', label: 'Tüm Araçlar' },
-    { id: 'counters', label: 'Sayaçlar' },
-    { id: 'medical', label: 'Gelişim & Tıp' },
+    { id: 'counters', label: 'Günlük Takip' },
+    { id: 'medical', label: 'Gelişim & Kontrol' },
     { id: 'prep', label: 'Doğuma Hazırlık' },
     { id: 'postpartum', label: 'Bebek & Lohusa' },
   ];
 
-  const displayedTools = catFilter === 'all'
-    ? allTools
-    : allTools.filter(t => t.cat === catFilter);
+  const groupedTools = categories
+    .filter(cat => cat.id !== 'all' && (catFilter === 'all' || cat.id === catFilter))
+    .map(cat => ({ ...cat, tools: allTools.filter(t => t.cat === cat.id) }))
+    .filter(group => group.tools.length);
 
-  // Canlı Takip Verileri
-  const kickSessions = (state.kickSessions && state.kickSessions.length) ? state.kickSessions : [
-    { id: 'ks1', count: 10, duration: 18 * 60, date: '12 Eylül 2026', time: '14:25', week: 24 },
-    { id: 'ks2', count: 10, duration: 22 * 60, date: '11 Eylül 2026', time: '20:10', week: 24 },
-  ];
-
-  const contractionSessions = (state.contractionSessions && state.contractionSessions.length) ? state.contractionSessions : [
-    { id: 'cs1', duration: 42, interval: 8 * 60, date: '12 Eylül 2026', time: '16:10', intensity: 'Hafif' },
-    { id: 'cs2', duration: 48, interval: 9 * 60, date: '12 Eylül 2026', time: '16:18', intensity: 'Orta' },
-  ];
-
-  const weights = (state.weights && state.weights.length) ? state.weights : [
-    { id: 'w1', value: 65.4, week: 24, date: '12 Eylül 2026', time: '08:30' },
-    { id: 'w2', value: 64.9, week: 23, date: '5 Eylül 2026', time: '08:45' },
-  ];
+  const kickSessions = state.kickSessions || [];
+  const contractionSessions = state.contractionSessions || [];
+  const weights = state.weights || [];
+  const bagItems = state.lists?.bag || [];
+  const bagDone = bagItems.filter(i => i.done).length;
+  const birthPlanDone = Object.values(state.birthPlan || {}).filter(Boolean).length;
+  const latestKick = kickSessions[0];
+  const latestContraction = contractionSessions[0];
 
   const Container = inSheet ? View : ScrollView;
   const containerProps = inSheet
@@ -237,13 +232,22 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
       {/* Başlık ve Kicker */}
       <View style={th.header}>
         <T style={{ fontSize: 11, letterSpacing: 1.5, color: colors.purple, fontWeight: '700' }}>
-          GÜNLÜK TAKİP & SAYAÇ MERKEZİ
+          KİŞİSEL TAKİP MERKEZİ
         </T>
-        <T bold style={th.title}>Momora Takip & Araçlar</T>
+        <T bold style={th.title}>Takipler ve Hazırlık</T>
         <T style={th.subtitle}>
-          Günlük sayaç kayıtlarınız, vücut takip geçmişiniz ve 15 akıllı medikal araç.
+          Günlük sayaçların, hazırlık listelerin ve kişisel takip kayıtların tek yerde düzenli kalsın.
         </T>
       </View>
+
+      <ScreenHero
+        kicker="BUGÜNÜN ODAĞI"
+        title={latestKick ? 'Kayıtların düzenli ilerliyor' : 'İlk kaydı oluştur'}
+        body="Önce günlük takiplerini tamamla; hazırlık, gelişim ve bebek araçları altta ayrı koleksiyonlar halinde duruyor."
+        icon="track"
+        stat={`${kickSessions.length + contractionSessions.length + weights.length} kayıt`}
+        tint={colors.purple}
+      />
 
       {/* ─── ÜST İKİLİ SEKME (TAKİP KAYITLARIM vs TÜM ARAÇLAR) ─── */}
       <View style={th.hubTabs}>
@@ -253,7 +257,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
           style={[th.hubTabBtn, hubTab === 'tracking' && th.hubTabBtnActive]}
         >
           <T bold={hubTab === 'tracking'} style={[th.hubTabLabel, hubTab === 'tracking' && th.hubTabLabelActive]}>
-            📊 Takiplerim & Kayıtlarım
+            📊 Günlük Kayıtlar
           </T>
         </Tap>
         <Tap
@@ -262,7 +266,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
           style={[th.hubTabBtn, hubTab === 'apps' && th.hubTabBtnActive]}
         >
           <T bold={hubTab === 'apps'} style={[th.hubTabLabel, hubTab === 'apps' && th.hubTabLabelActive]}>
-            🛠️ 15 Akıllı Araç
+            🛠️ Araç Kütüphanesi
           </T>
         </Tap>
       </View>
@@ -286,7 +290,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
               </View>
               <T bold style={{ fontSize: 14, color: '#632D4C' }}>Tekme Sayacı</T>
               <T style={{ fontSize: 11, color: '#91637F', marginTop: 2 }}>
-                Son: 10 tekme · 18 dk
+                {latestKick ? `Son: ${latestKick.kicks ?? latestKick.count} hareket · ${secondsLabel(latestKick.durationSecs ?? latestKick.duration ?? 0)}` : 'İlk seansı başlat'}
               </T>
             </Tap>
 
@@ -304,7 +308,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
               </View>
               <T bold style={{ fontSize: 14, color: '#274969' }}>Kasılma Sayacı</T>
               <T style={{ fontSize: 11, color: '#567594', marginTop: 2 }}>
-                5-1-1 kuralı alarmı
+                {latestContraction ? `Son: ${latestContraction.durationSecs ?? latestContraction.duration} sn · ${latestContraction.intensity || 'Not'}` : 'Süre ve aralık kaydet'}
               </T>
             </Tap>
           </View>
@@ -326,7 +330,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
                 <View key={ks.id} style={th.logRow}>
                   <View>
                     <T bold style={{ fontSize: 14, color: colors.ink }}>
-                      {ks.count} Tekme Tamamlandı ✓
+                      {ks.kicks ?? ks.count} hareket kaydedildi
                     </T>
                     <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
                       {ks.date} · {ks.time} · {ks.week ? (ks.week + '. Hafta') : 'Seans'}
@@ -334,7 +338,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
                   </View>
                   <View style={th.logBadge}>
                     <T bold style={{ fontSize: 11, color: colors.purple }}>
-                      {Math.floor(ks.duration / 60)} dk sürdü
+                      {secondsLabel(ks.durationSecs ?? ks.duration ?? 0)}
                     </T>
                   </View>
                 </View>
@@ -359,7 +363,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
                 <View key={cs.id} style={th.logRow}>
                   <View>
                     <T bold style={{ fontSize: 14, color: colors.ink }}>
-                      {cs.duration} saniye sürdü · {cs.intensity || 'Hafif Şiddet'}
+                      {cs.durationSecs ?? cs.duration} saniye sürdü · {cs.intensity || 'Şiddet notu yok'}
                     </T>
                     <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
                       {cs.date} · {cs.time}
@@ -367,7 +371,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
                   </View>
                   <View style={[th.logBadge, { backgroundColor: '#E9F1F9' }]}>
                     <T bold style={{ fontSize: 11, color: '#3A6A94' }}>
-                      {Math.floor((cs.interval || 480) / 60)} dk aralık
+                      {cs.intervalSecs || cs.interval ? `${Math.floor((cs.intervalSecs ?? cs.interval) / 60)} dk aralık` : 'ilk kayıt'}
                     </T>
                   </View>
                 </View>
@@ -417,7 +421,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
             >
               <T style={{ fontSize: 20 }}>🎒</T>
               <T bold style={{ fontSize: 13, color: '#572E65', marginTop: 4 }}>Hastane Çantası</T>
-              <T style={{ fontSize: 11, color: '#885899', marginTop: 2 }}>5/8 eşya hazır</T>
+              <T style={{ fontSize: 11, color: '#885899', marginTop: 2 }}>{bagDone}/{bagItems.length || 0} eşya hazır</T>
             </Tap>
 
             <Tap
@@ -427,7 +431,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
             >
               <T style={{ fontSize: 20 }}>📋</T>
               <T bold style={{ fontSize: 13, color: '#684520', marginTop: 4 }}>Doğum Tercihleri</T>
-              <T style={{ fontSize: 11, color: '#997042', marginTop: 2 }}>3 tercih belirlendi</T>
+              <T style={{ fontSize: 11, color: '#997042', marginTop: 2 }}>{birthPlanDone} tercih belirlendi</T>
             </Tap>
           </View>
         </View>
@@ -453,38 +457,49 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
             ))}
           </ScrollView>
 
-          {/* Araç Kartları Grid */}
-          <View style={th.grid}>
-            {displayedTools.map(tool => (
-              <Tap
-                key={tool.id}
-                onPress={() => {
-                  if (tool.available) {
-                    open(tool.id);
-                  } else {
-                    toast && toast(tool.title + ' sonraki güncellemede aktif olacak ✨');
-                  }
-                }}
-                label={tool.title}
-                style={[th.toolCard, { backgroundColor: tool.color }]}
-              >
-                <View style={th.toolTop}>
-                  <View style={[th.toolIconBox, { backgroundColor: tool.tint + '18' }]}>
-                    {tool.art && generatedAssets[tool.art] ? (
-                      <Image source={generatedAssets[tool.art]} style={{ width: 46, height: 46 }} resizeMode="contain" />
-                    ) : (
-                      <Icon name={tool.icon} size={28} color={tool.tint} />
-                    )}
-                  </View>
-                  <View style={th.categoryTag}>
-                    <T style={{ fontSize: 9.5, color: tool.tint, fontWeight: 'bold' }}>{tool.catTitle}</T>
-                  </View>
+          {groupedTools.map(group => (
+            <View key={group.id} style={{ gap: 10 }}>
+              <View style={th.groupHeader}>
+                <View>
+                  <T bold style={{ fontSize: 16, color: colors.ink }}>{group.label}</T>
+                  <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>{group.tools.length} araç · düzenli akış</T>
                 </View>
-                <T bold style={[th.toolTitle, { color: colors.ink }]}>{tool.title}</T>
-                <T style={th.toolSub}>{tool.subtitle}</T>
-              </Tap>
-            ))}
-          </View>
+                <T style={{ fontSize: 18 }}>{group.id === 'counters' ? '📊' : group.id === 'medical' ? '🗓️' : group.id === 'prep' ? '🧳' : '🍼'}</T>
+              </View>
+
+              <View style={th.grid}>
+                {group.tools.map(tool => (
+                  <Tap
+                    key={tool.id}
+                    onPress={() => {
+                      if (tool.available) {
+                        open(tool.id);
+                      } else {
+                        toast && toast(tool.title + ' sonraki güncellemede aktif olacak ✨');
+                      }
+                    }}
+                    label={tool.title}
+                    style={[th.toolCard, { backgroundColor: tool.color }]}
+                  >
+                    <View style={th.toolTop}>
+                      <View style={[th.toolIconBox, { backgroundColor: tool.tint + '18' }]}>
+                        {tool.art && generatedAssets[tool.art] ? (
+                          <Image source={generatedAssets[tool.art]} style={{ width: 46, height: 46 }} resizeMode="contain" />
+                        ) : (
+                          <Icon name={tool.icon} size={28} color={tool.tint} />
+                        )}
+                      </View>
+                      <View style={th.categoryTag}>
+                        <T style={{ fontSize: 9.5, color: tool.tint, fontWeight: 'bold' }}>{tool.catTitle}</T>
+                      </View>
+                    </View>
+                    <T bold style={[th.toolTitle, { color: colors.ink }]}>{tool.title}</T>
+                    <T style={th.toolSub}>{tool.subtitle}</T>
+                  </Tap>
+                ))}
+              </View>
+            </View>
+          ))}
         </View>
       )}
     </Container>
@@ -496,6 +511,10 @@ const th = StyleSheet.create({
   header: { marginBottom: 2 },
   title: { fontSize: 26, letterSpacing: -0.5, color: colors.ink, marginTop: 4 },
   subtitle: { fontSize: 13, color: colors.muted, marginTop: 4, lineHeight: 19 },
+  overline: { fontSize: 10, letterSpacing: 1.4, color: colors.purple, fontFamily: fonts.bold },
+  overviewTitle: { fontSize: 18, color: colors.ink, marginTop: 4 },
+  overviewText: { fontSize: 12, color: colors.muted, lineHeight: 18, marginTop: 4 },
+  overviewMetric: { width: 62, height: 62, borderRadius: 22, backgroundColor: '#F3EAF5', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E2D3E7' },
   hubTabs: { flexDirection: 'row', backgroundColor: '#EDE4EF', borderRadius: 16, padding: 4, gap: 4 },
   hubTabBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
   hubTabBtnActive: { backgroundColor: 'white', ...shadow },
@@ -506,6 +525,7 @@ const th = StyleSheet.create({
   quickHeroIcon: { width: 56, height: 56, borderRadius: 20, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', marginBottom: 8, ...shadow },
   catTab: { paddingVertical: 7, paddingHorizontal: 14, borderRadius: 16, backgroundColor: '#EFEAEF' },
   catTabActive: { backgroundColor: colors.purple },
+  groupHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 2 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 11, justifyContent: 'space-between' },
   toolCard: { width: '48%', borderRadius: 24, padding: 16, minHeight: 156, borderWidth: 1.2, borderColor: '#ECE1EC', ...shadow },
   toolTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },

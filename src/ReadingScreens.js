@@ -37,12 +37,8 @@ export function ArticleDetail({data,state,update,navigate,back,toast}) {
       <T style={f.body}>{a.subtitle}</T>
       {a.doctor && (
         <View style={[f.row,{gap:8,alignItems:'center',backgroundColor:'#F5EFF7',paddingHorizontal:12,paddingVertical:8,borderRadius:12,marginTop:2}]}>
-          {generatedAssets['ui_doctor_verified_badge'] ? (
-            <Image source={generatedAssets['ui_doctor_verified_badge']} style={{width:20,height:20}} resizeMode="contain"/>
-          ) : (
-            <Icon name="check" size={14} color={colors.purple}/>
-          )}
-          <T style={{fontSize:12,color:colors.purple,fontWeight:'600',flex:1}}>{a.doctor}</T>
+          <Icon name="book" size={16} color={colors.purple}/>
+          <T style={{fontSize:12,color:colors.purple,fontWeight:'600',flex:1}}>Kaynak: {a.doctor}</T>
         </View>
       )}
       <View style={[f.row,{justifyContent:'space-between',marginTop:4}]}>
@@ -54,7 +50,7 @@ export function ArticleDetail({data,state,update,navigate,back,toast}) {
       <Card style={{backgroundColor:'#FAF7F3',borderWidth:1,borderColor:'#EDE7E1',borderRadius:16,padding:14,gap:8,marginTop:10}}>
         <View style={[f.row,{gap:6,alignItems:'center'}]}>
           <Icon name="star" size={15} color={colors.purple}/>
-          <T bold style={{fontSize:12,color:colors.purple,letterSpacing:0.5}}>ÖNE ÇIKAN KLİNİK NOKTALAR</T>
+          <T bold style={{fontSize:12,color:colors.purple,letterSpacing:0.5}}>ÖNE ÇIKAN NOKTALAR</T>
         </View>
         {a.keyPoints.map((kp,idx)=>(
           <View key={idx} style={[f.row,{gap:8,alignItems:'flex-start'}]}>

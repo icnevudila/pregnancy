@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
-import { T, Tap, Card, Section, Progress } from './ui';
+import { T, Tap, Card, Section, Progress, ScreenHero } from './ui';
 import { generatedAssets } from './generatedAssets';
 import { babyLettersData, getBabyLetterForWeek, getPastBabyLetters } from './babyLettersData';
 
@@ -16,6 +16,8 @@ export function DailyBabyLetterScreen({ state, toast }) {
 
   return (
     <View style={ds.container}>
+      <ScreenHero kicker="GÜNLÜK BAĞ" title={`${currentWeek}. hafta mektubu`} body="Bebeğinin haftalık gelişimini daha duygusal, paylaşılabilir ve sakin bir dille sakla." icon="send" asset="ui_baby_letter_envelope" stat={`${archiveLetters.length} arşiv`} tint={colors.purple} />
+
       {/* Sekmeler: Bugünün Mektubu / Mektup Arşivi */}
       <View style={ds.segRow}>
         <Tap
@@ -131,7 +133,7 @@ export function DailyTimelineFeed() {
     bugun: {
       baby: 'Bugün ilk hıçkırık refleksleri başlayabilir; bu durum diyafram kaslarını doğuma hazırlar!',
       mom: 'Kan hacminiz %40 arttı; hafif burun tıkanıklığı bu dönemde çok yaygındır.',
-      tip: 'Magnezyum ve kalsiyum açısından zengin bir avuç badem tüketmek kas kramplarını önler.',
+      tip: 'Magnezyum ve kalsiyum açısından zengin besinleri not etmek, randevuda beslenme düzenini konuşmayı kolaylaştırır.',
     },
     yarin: {
       baby: 'Yüz mimik kasları gülümseme ve kaş çatma hareketlerini denemeye devam ediyor.',
@@ -144,6 +146,8 @@ export function DailyTimelineFeed() {
 
   return (
     <View style={ds.container}>
+      <ScreenHero kicker="GÜNLÜK AKIŞ" title="Bugünün ritmi" body="Bebek, beden ve bakım notlarını tek sırada oku; gün içinde nerede olduğunu hızlıca hatırla." icon="calendar" asset="ui_timeline_sun_moon" stat={selectedDay === 'bugun' ? 'bugün' : selectedDay} tint={colors.purple} />
+
       {/* Gün Seçici */}
       <View style={ds.segRow}>
         {days.map(d => (
@@ -224,6 +228,8 @@ export function WaterVitaminQuickModal({ state, update, toast }) {
 
   return (
     <View style={ds.container}>
+      <ScreenHero kicker="GÜNLÜK BAKIM" title="Su ve vitamin düzeni" body="Günlük küçük bakım kayıtlarını sade tut; ana akışta neyin tamamlandığını hızlı gör." icon="drop" asset="card_water" stat={`${waterGlasses}/8 bardak`} tint="#589FB8" />
+
       {/* Su Takip Kartı */}
       <Card style={ds.waterCard}>
         <View style={{ alignItems: 'center' }}>

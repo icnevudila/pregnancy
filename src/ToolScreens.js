@@ -3,7 +3,7 @@ import { View, Image, StyleSheet, TextInput, ScrollView, Animated } from 'react-
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
-import { T, Tap, Card, Section, Progress } from './ui';
+import { T, Tap, Card, Section, Progress, ScreenHero, InfoNote } from './ui';
 import { usePulse } from './anim';
 import { secondsLabel, uid, localDay } from './domain.mjs';
 import { generatedAssets } from './generatedAssets';
@@ -51,7 +51,7 @@ export function KickCounter({ state, update, toast }) {
     update(old => ({
       kickSessions: [newSession, ...(old.kickSessions || [])],
     }));
-    toast && toast(`🎉 10 tekme ${secondsLabel(finalSecs)} içinde kaydedildi!`);
+    toast && toast(`${finalKicks} hareket ${secondsLabel(finalSecs)} içinde kaydedildi.`);
     setKicks(0);
     setSeconds(0);
   }
@@ -63,9 +63,21 @@ export function KickCounter({ state, update, toast }) {
   }
 
   const pastSessions = state.kickSessions || [];
+  const latestSession = pastSessions[0];
+  const latestKicks = latestSession ? (latestSession.kicks ?? latestSession.count ?? 0) : 0;
+  const latestDuration = latestSession ? (latestSession.durationSecs ?? latestSession.duration ?? 0) : 0;
 
   return (
     <View style={ts.container}>
+      <ScreenHero asset="ui_kick_foot_button"
+        icon="footprint"
+        kicker="HAREKET SEANSI"
+        title="Bebeğinin ritmini kaydet"
+        body="Tek dokunuşla seans başlat, hareketleri say ve geçmiş seansları temiz bir günlükte tut."
+        stat={latestSession ? `${latestKicks} hareket · ${secondsLabel(latestDuration)}` : 'ilk seans hazır'}
+        tint="#9D5C80"
+      />
+
       {/* Üst Bilgi Kartı */}
       <View style={ts.metaRow}>
         <View style={ts.badge}>
@@ -74,6 +86,11 @@ export function KickCounter({ state, update, toast }) {
         </View>
         <T bold style={ts.timerDisplay}>{secondsLabel(seconds)}</T>
       </View>
+
+      <InfoNote icon="heart"
+        title={latestSession ? `Son kayıt: ${latestKicks} hareket · ${secondsLabel(latestDuration)}` : 'İlk hareket seansını başlat'}
+        body="Bu ekran tek seferlik karar vermek için değil, bebeğinin günlük hareket düzenini daha net hatırlamak için tasarlandı."
+      />
 
       {/* Büyük İnteraktif 3D Tekme Butonu */}
       <View style={ts.kickCenter}>
@@ -147,7 +164,7 @@ export function KickCounter({ state, update, toast }) {
       <View style={ts.warningBox}>
         <Icon name="bell" size={20} color="#9D6574" />
         <T style={ts.warningText}>
-          <T bold>Klinik İpucu:</T> 28. haftadan sonra bebeğin 2 saat içinde en az 10 belirgin hareket yapması beklenir. Belirgin bir azalma hissederseniz doktorunuza danışın.
+          <T bold>Hareket notu:</T> Bebeğinin kendine özgü düzenini tanımak önemlidir. Hareketlerde belirgin azalma, durma veya seni endişelendiren bir değişiklik hissedersen aynı gün sağlık ekibini ara.
         </T>
       </View>
 
@@ -158,20 +175,23 @@ export function KickCounter({ state, update, toast }) {
           <T style={{ color: colors.muted, fontSize: 13 }}>Henüz kayıtlı tekme seansı yok.</T>
         </Card>
       ) : (
-        pastSessions.slice(0, 5).map(s => (
+        pastSessions.slice(0, 5).map(s => {
+          const sessionKicks = s.kicks ?? s.count ?? 0;
+          const sessionDuration = s.durationSecs ?? s.duration ?? 0;
+          return (
           <View key={s.id} style={ts.historyRow}>
             <View style={ts.historyIcon}>
               <Icon name="footprint" size={18} color={colors.purple} />
             </View>
             <View style={{ flex: 1 }}>
-              <T bold style={{ fontSize: 14 }}>{s.kicks} Tekme · {secondsLabel(s.durationSecs)}</T>
+              <T bold style={{ fontSize: 14 }}>{sessionKicks} hareket · {secondsLabel(sessionDuration)}</T>
               <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>{s.date} · {s.time} ({s.week}. Hafta)</T>
             </View>
             <View style={ts.historyBadge}>
-              <T bold style={{ fontSize: 11, color: colors.sage }}>Sağlıklı ✓</T>
+              <T bold style={{ fontSize: 11, color: colors.sage }}>Kayıtlı</T>
             </View>
           </View>
-        ))
+        );})
       )}
     </View>
   );
@@ -195,6 +215,7 @@ export function ContractionTimer({ state, update, toast }) {
 
   const contractions = state.contractionSessions || [];
   const lastContraction = contractions[0];
+  const lastIntervalSecs = lastContraction ? (lastContraction.intervalSecs ?? lastContraction.interval ?? null) : null;
 
   function toggleContraction() {
     if (!active) {
@@ -228,48 +249,63 @@ export function ContractionTimer({ state, update, toast }) {
     }
   }
 
-  // 5-1-1 Kuralı Değerlendirmesi:
   let medicalStatus = {
     color: colors.sage,
-    badge: '🟢 Erken Evre',
-    text: 'Sancılar henüz düzensiz. Evinizde ılık bir duş alıp dinlenin.',
+    badge: 'Kayıt modu',
+    text: 'Kasılmaları süre, aralık ve şiddet olarak kaydet. Düzen, ağrı veya su gelmesi konusunda karar için doktorunun yönlendirmesini esas al.',
   };
 
   if (contractions.length >= 3) {
     const recent = contractions.slice(0, 3);
-    const avgDuration = recent.reduce((a, b) => a + b.durationSecs, 0) / 3;
-    const avgInterval = recent.filter(r => r.intervalSecs).reduce((a, b) => a + b.intervalSecs, 0) / (recent.filter(r => r.intervalSecs).length || 1);
+    const avgDuration = recent.reduce((a, b) => a + (b.durationSecs ?? b.duration ?? 0), 0) / 3;
+    const intervals = recent.map(r => r.intervalSecs ?? r.interval).filter(Boolean);
+    const avgInterval = intervals.reduce((a, b) => a + b, 0) / (intervals.length || 1);
 
     if (avgInterval <= 360 && avgDuration >= 45) {
       medicalStatus = {
         color: '#D1586E',
-        badge: '🔴 Hastaneye Gitme Zamanı · 5-1-1 Kuralı',
-        text: 'Kasılmalarınız her 5 dakikada bir geliyor ve yaklaşık 1 dakika sürüyor. Doktorunuzu arayın ve hastaneye geçin!',
+        badge: 'Sık ve uzun kasılma düzeni',
+        text: 'Son kayıtlar sıklaşan ve uzayan kasılmaları gösteriyor. Doktorunu veya doğum birimini arayıp kendi planına göre ilerle.',
       };
     } else if (avgInterval <= 600) {
       medicalStatus = {
         color: '#DFA354',
-        badge: '🟡 Aktif Evre Yaklaşıyor',
-        text: 'Kasılmalar sıklaşıyor. Doğum çantanızı hazır edin ve refakatçinizi bilgilendirin.',
+        badge: 'Düzen sıklaşıyor',
+        text: 'Kasılma aralıkları kısalıyor. Çantanı ve refakatçini hazır tut; endişen varsa sağlık ekibinle görüş.',
       };
     }
   }
 
   return (
     <View style={ts.container}>
+      <ScreenHero asset="ui_contraction_pulse_button"
+        icon="contraction"
+        kicker="SÜRE & ARALIK"
+        title="Kasılmaları düzenli takip et"
+        body="Başlat, durdur, şiddeti seç; son kayıtlar randevu veya doğum birimi görüşmesi için okunur kalır."
+        stat={contractions.length ? `${contractions.length} kayıt` : 'ilk kayıt hazır'}
+        tint="#4F79A1"
+      />
+
       {/* Tıbbi 5-1-1 Durum Göstergesi */}
       <View style={[ts.statusBanner, { borderColor: medicalStatus.color + '55', backgroundColor: medicalStatus.color + '15' }]}>
         <T bold style={{ color: medicalStatus.color, fontSize: 14 }}>{medicalStatus.badge}</T>
         <T style={{ fontSize: 12, color: colors.ink, marginTop: 4, lineHeight: 18 }}>{medicalStatus.text}</T>
       </View>
 
+      <InfoNote icon="contraction"
+        title={contractions.length ? `${contractions.length} kasılma kaydı tutuldu` : 'Kasılma düzenini anlaşılır kaydet'}
+        body="Süre, aralık ve şiddet aynı tabloda kaldığı için randevuda veya doğum birimini ararken elindeki bilgi daha düzenli olur."
+        tone="blue"
+      />
+
       {/* Canlı Sayaç Ekranı */}
       <View style={ts.counterBox}>
         <T style={ts.counterLabel}>{active ? 'KASILMA SÜRÜYOR' : 'SANCI DURUMU'}</T>
         <T bold style={ts.counterNumber}>{secondsLabel(duration)}</T>
-        {lastContraction?.intervalSecs && !active && (
+        {lastIntervalSecs && !active && (
           <T style={ts.counterSub}>
-            Son sancıdan bu yana: <T bold>{Math.round(lastContraction.intervalSecs / 60)} dk {lastContraction.intervalSecs % 60} sn</T>
+            Son sancıdan bu yana: <T bold>{Math.round(lastIntervalSecs / 60)} dk {lastIntervalSecs % 60} sn</T>
           </T>
         )}
       </View>
@@ -330,16 +366,19 @@ export function ContractionTimer({ state, update, toast }) {
             <T bold style={ts.thCol}>Aralık</T>
             <T bold style={ts.thCol}>Şiddet</T>
           </View>
-          {contractions.slice(0, 7).map((c, i) => (
+          {contractions.slice(0, 7).map((c, i) => {
+            const rowDuration = c.durationSecs ?? c.duration ?? 0;
+            const rowInterval = c.intervalSecs ?? c.interval ?? null;
+            return (
             <View key={c.id || i} style={ts.tableRow}>
               <T style={ts.tdCol}>{c.time}</T>
-              <T bold style={[ts.tdCol, { color: colors.purple }]}>{c.durationSecs} sn</T>
-              <T style={ts.tdCol}>{c.intervalSecs ? `${Math.round(c.intervalSecs / 60)} dk` : '—'}</T>
+              <T bold style={[ts.tdCol, { color: colors.purple }]}>{rowDuration} sn</T>
+              <T style={ts.tdCol}>{rowInterval ? `${Math.round(rowInterval / 60)} dk` : '—'}</T>
               <T style={[ts.tdCol, { color: c.intensity === 'Şiddetli' ? '#C25265' : colors.muted }]}>
                 {c.intensity || 'Orta'}
               </T>
             </View>
-          ))}
+          );})}
         </Card>
       )}
     </View>
@@ -390,6 +429,15 @@ export function HospitalBag({ state, update, toast }) {
 
   return (
     <View style={ts.container}>
+      <ScreenHero asset="ui_hospital_bag_3d"
+        icon="bag"
+        kicker="DOĞUMA HAZIRLIK"
+        title="Çantanı kontrollü hazırla"
+        body="Anne, bebek ve refakatçi ihtiyaçlarını ayrı tut; son hafta telaşını azalt."
+        stat={`%${percent} hazır`}
+        tint="#744E8A"
+      />
+
       {/* İlerleme ve Tamamlanma Özeti */}
       <Card style={ts.bagSummaryCard}>
         <View style={ts.bagSummaryHeader}>
@@ -407,6 +455,27 @@ export function HospitalBag({ state, update, toast }) {
         </View>
         <Progress value={percent} color={colors.purple} style={{ height: 9, marginTop: 14 }} />
       </Card>
+
+      <View style={ts.quickStats}>
+        <View style={ts.quickStat}>
+          <T bold style={ts.quickStatNum}>{bagItems.filter(i => i.group === 'Anne' && i.done).length}</T>
+          <T style={ts.quickStatLabel}>Anne</T>
+        </View>
+        <View style={ts.quickStat}>
+          <T bold style={ts.quickStatNum}>{bagItems.filter(i => i.group === 'Bebek' && i.done).length}</T>
+          <T style={ts.quickStatLabel}>Bebek</T>
+        </View>
+        <View style={ts.quickStat}>
+          <T bold style={ts.quickStatNum}>{bagItems.filter(i => i.group === 'Yolculuk' && i.done).length}</T>
+          <T style={ts.quickStatLabel}>Refakatçi</T>
+        </View>
+      </View>
+
+      <InfoNote icon="bag"
+        title={percent >= 80 ? 'Çanta neredeyse hazır' : 'Çantayı bölümlere ayır'}
+        body="Anne, bebek ve refakatçi kalemlerini ayrı takip etmek hastane girişinde aranan eşyayı daha hızlı bulmanı sağlar."
+        tone="rose"
+      />
 
       {/* 3 Sekmeli Gezinme (Anne / Bebek / Refakatçi) */}
       <View style={ts.tabsRow}>
@@ -529,6 +598,10 @@ const ts = StyleSheet.create({
   // Hospital Bag styles
   bagSummaryCard: { padding: 16 },
   bagSummaryHeader: { flexDirection: 'row', alignItems: 'center' },
+  quickStats: { flexDirection: 'row', gap: 8 },
+  quickStat: { flex: 1, alignItems: 'center', paddingVertical: 11, borderRadius: 18, backgroundColor: '#FFFDFA', borderWidth: 1, borderColor: '#F0EAE6', ...shadow },
+  quickStatNum: { fontSize: 18, color: colors.purple },
+  quickStatLabel: { fontSize: 11, color: colors.muted, marginTop: 2 },
   tabsRow: { flexDirection: 'row', gap: 8 },
   tabBtn: { flex: 1, paddingVertical: 10, paddingHorizontal: 6, borderRadius: 18, backgroundColor: '#F1ECE8', alignItems: 'center' },
   tabBtnActive: { backgroundColor: colors.purple },

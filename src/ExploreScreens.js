@@ -3,7 +3,7 @@ import { View, StyleSheet, TextInput, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
-import { T, Tap, Card, Section } from './ui';
+import { T, Tap, Card, Section, ScreenHero } from './ui';
 import { generatedAssets } from './generatedAssets';
 import { articles, pregnancyFaqs, faqCategories, searchFaqs, getFaqsByCategory, searchArticles } from './content';
 import { playSound, stopSound } from './soundEngine';
@@ -12,7 +12,7 @@ import { playSound, stopSound } from './soundEngine';
 export const foodDatabase = [
   { id: 'f1', name: 'Suşi & Çiğ Balık', cat: 'Deniz Ürünleri', status: 'avoid', badge: '🔴 Kaçınılmalı', reason: 'Çiğ deniz ürünlerinde bakteri ve parazit riski yüksektir.', alt: 'Pişmiş Somon veya Buharda Balık' },
   { id: 'f2', name: 'Konserve Ton Balığı', cat: 'Deniz Ürünleri', status: 'limit', badge: '🟡 Ölçülü Tüket', reason: 'Yüksek cıva içeriği nedeniyle haftada en fazla 1-2 porsiyon önerilir.', alt: 'Sardalya, Hamsi (Düşük cıvalı)' },
-  { id: 'f3', name: 'Pişmiş Somon Balığı', cat: 'Deniz Ürünleri', status: 'safe', badge: '🟢 Güvenli & Faydalı', reason: 'Omega-3 ve DHA zengini; bebeğin beyin ve göz gelişimini destekler.', alt: 'Haftada 2 porsiyon idealdir.' },
+  { id: 'f3', name: 'Pişmiş Somon Balığı', cat: 'Deniz Ürünleri', status: 'safe', badge: '🟢 Güvenli & Faydalı', reason: 'Omega-3 ve DHA zengini; bebeğin beyin ve göz gelişimini destekler.', alt: 'Haftada 1-2 porsiyon tercih edilebilir.' },
   { id: 'f4', name: 'Pastörize Edilmemiş Peynir · Rokfor, Brie', cat: 'Süt Ürünleri', status: 'avoid', badge: '🔴 Kaçınılmalı', reason: 'Listeria bakterisi riski taşır; erken doğum veya enfeksiyon yapabilir.', alt: 'Pastörize beyaz peynir veya kaşar' },
   { id: 'f5', name: 'Pastörize Yoğurt & Kefir', cat: 'Süt Ürünleri', status: 'safe', badge: '🟢 Güvenli & Faydalı', reason: 'Kalsiyum ve probiyotik deposu; sindirimi ve bağışıklığı güçlendirir.', alt: 'Günde 1-2 kase tüketilebilir.' },
   { id: 'f6', name: 'Türk Kahvesi & Filtre Kahve', cat: 'İçecekler', status: 'limit', badge: '🟡 Ölçülü Tüket', reason: 'Günlük kafein miktarı 200 mg (yaklaşık 1 fincan) ile sınırlandırılmalıdır.', alt: 'Kafeinsiz kahve veya ılık süt' },
@@ -41,12 +41,7 @@ export function FoodSafetyChecker({ toast }) {
 
   return (
     <View style={es.container}>
-      <Card style={{ padding: 16 }}>
-        <T bold style={{ fontSize: 17, color: colors.ink }}>Gebelikte Besin Güvenliği Kılavuzu</T>
-        <T style={{ fontSize: 13, color: colors.muted, marginTop: 5, lineHeight: 19 }}>
-          "Bunu yiyebilir miyim?" diye merak ettiğiniz tüm gıdaların klinik güvenilirlik durumunu sorgulayın.
-        </T>
-      </Card>
+      <ScreenHero kicker="BESİN GÜVENLİĞİ" title="Yenebilir mi?" body="Merak ettiğin gıdaları sade risk notları ve daha güvenli alternatiflerle incele." icon="bowl" asset="ui_food_safe_shield" stat={`${filtered.length} sonuç`} tint="#4F8464" />
 
       {/* Arama Kutusu */}
       <View style={es.searchBox}>
@@ -103,7 +98,7 @@ export function FoodSafetyChecker({ toast }) {
               </T>
 
               <View style={es.altBox}>
-                <T bold style={{ fontSize: 11, color: colors.purple, letterSpacing: 0.5 }}>ÖNERİLEN SAĞLIKLI ALTERNATİF:</T>
+                <T bold style={{ fontSize: 11, color: colors.purple, letterSpacing: 0.5 }}>DAHA GÜVENLİ ALTERNATİF:</T>
                 <T style={{ fontSize: 13, color: colors.ink, marginTop: 3 }}>{food.alt}</T>
               </View>
             </Card>
@@ -136,7 +131,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
     '2. Trimester',
     '3. Trimester',
     'Beslenme',
-    'Gelişim & Tıp',
+    'Gelişim & Kontrol',
     'Doğuma Hazırlık',
     'Bebek & Yenidoğan',
     'Lohusalık & İyileşme',
@@ -161,8 +156,8 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
       matchesFilter = a.categoryName === '3. Trimester' || (a.weeks && a.weeks[0] >= 28);
     } else if (articleFilter === 'Beslenme') {
       matchesFilter = a.topic === 'nutrition' || (a.categoryName && a.categoryName.includes('Beslenme'));
-    } else if (articleFilter === 'Gelişim & Tıp') {
-      matchesFilter = a.topic === 'pregnancy' || (a.categoryName && (a.categoryName.includes('Gelişim') || a.categoryName.includes('Ultrason') || a.categoryName.includes('Tıp')));
+    } else if (articleFilter === 'Gelişim & Kontrol') {
+      matchesFilter = a.topic === 'pregnancy' || (a.categoryName && (a.categoryName.includes('Gelişim') || a.categoryName.includes('Ultrason') || a.categoryName.includes('Kontrol')));
     } else if (articleFilter === 'Doğuma Hazırlık') {
       matchesFilter = a.topic === 'birth' || (a.categoryName && (a.categoryName.includes('Doğum') || a.categoryName.includes('Hastane')));
     } else if (articleFilter === 'Bebek & Yenidoğan') {
@@ -182,6 +177,8 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
 
   return (
     <View style={es.container}>
+      <ScreenHero kicker="EDİTORYAL MERKEZ" title="Rehberler ve dosyalar" body="Haftalık yazılar, besin güvenliği ve konu koleksiyonları tek okuma düzeninde." icon="book" asset="blog_pregnant_morning" stat={`${articles.length} rehber`} tint={colors.purple} />
+
       {/* Hub Üst Sekmeleri (Luxury Editorial Navigation - 3 Ana Alan) */}
       <View style={es.hubTabRow}>
         <Tap
@@ -280,7 +277,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
           {/* Makale Sayacı */}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 2 }}>
             <T bold style={{ fontSize: 13, color: colors.muted }}>
-              {filteredArticles.length} Editoryal Klinik Rehber
+              {filteredArticles.length} Editoryal Rehber
             </T>
             {articleFilter !== 'Tümü' && (
               <Tap onPress={() => setArticleFilter('Tümü')} label="Filtreyi Temizle">
@@ -321,9 +318,9 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
 
                     {a.doctor && (
                       <View style={es.blogPostDocRow}>
-                        <T style={{ fontSize: 14 }}>👩‍⚕️</T>
+                        <T style={{ fontSize: 14 }}>📚</T>
                         <T numberOfLines={1} style={{ fontSize: 11, color: colors.purple, flex: 1, fontWeight: '500' }}>
-                          {a.doctor}
+                          {`Kaynak: ${a.doctor}`}
                         </T>
                         <Icon name="chevron" size={16} color={colors.purple} />
                       </View>
@@ -356,7 +353,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
               )}
               <View style={es.colInfo}>
                 <T bold style={{ fontSize: 15, color: colors.ink, lineHeight: 21 }}>{col.title}</T>
-                <T style={{ fontSize: 12, color: colors.muted, marginTop: 5 }}>{col.count} uzman klinik rehberi</T>
+                <T style={{ fontSize: 12, color: colors.muted, marginTop: 5 }}>{col.count} derlenmiş rehber</T>
               </View>
               <Icon name="chevron" size={18} color={colors.purple} />
             </Tap>
@@ -374,7 +371,7 @@ export function EditorialArticleScreen({ article, toast }) {
 
   const defaultArticle = articles[0] || {
     title: '1. Trimester Sabah Bulantıları ve Yorgunlukla Başa Çıkma',
-    doctor: 'Uzm. Dr. Elif Kaya · Kadın Hastalıkları ve Doğum Uzmanı',
+    doctor: 'Momora editoryal kaynak dosyası',
     time: '4 dk okuma',
     minutes: 4,
     audioDuration: '3:45',
@@ -396,11 +393,13 @@ export function EditorialArticleScreen({ article, toast }) {
   const a = article || defaultArticle;
   const coverAsset = (a.image && generatedAssets[a.image]) || generatedAssets['blog_sleeping_crib'];
   const readingTime = a.time || (a.minutes ? `${a.minutes} dk okuma` : '4 dk okuma');
-  const doctorName = a.doctor || 'Dr. Zeynep Aydın · Kadın Hastalıkları ve Doğum Uzmanı';
+  const doctorName = a.doctor ? `Kaynak: ${a.doctor}` : 'Momora editoryal dosyası · kaynak kontrolü';
   const relatedArticles = articles.filter(other => other.id !== a.id && other.topic === a.topic).slice(0, 3);
 
   return (
     <View style={es.container}>
+      <ScreenHero kicker="OKUMA MODU" title={a.title} body={a.subtitle || 'Momora editoryal rehberi'} icon="book" asset={a.image || 'blog_pregnant_morning'} stat={readingTime} tint={colors.purple} />
+
       {/* 1. Büyük Editoryal Kapak (16:9 Hero Image with Vignette Gradient) */}
       <View style={es.articleCoverBox}>
         {coverAsset ? (
@@ -416,7 +415,7 @@ export function EditorialArticleScreen({ article, toast }) {
           <View style={es.coverBadgeRow}>
             <View style={es.categoryPill}>
               <T bold style={{ fontSize: 10, color: 'white', letterSpacing: 0.8 }}>
-                {a.categoryName ? a.categoryName.toLocaleUpperCase('tr') : 'UZMAN REHBERİ'}
+                {a.categoryName ? a.categoryName.toLocaleUpperCase('tr') : 'EDİTORYAL REHBER'}
               </T>
             </View>
             <View style={es.readingTimePill}>
@@ -428,14 +427,14 @@ export function EditorialArticleScreen({ article, toast }) {
         </View>
       </View>
 
-      {/* 2. Doktor Doğrulama Rozeti & Yer İmleri Butonu */}
+      {/* 2. Kaynak Notu & Yer İmleri Butonu */}
       <Card style={es.doctorCard}>
         <View style={es.docAvatar}>
-          <T style={{ fontSize: 22 }}>👩‍⚕️</T>
+          <T style={{ fontSize: 22 }}>📚</T>
         </View>
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-            <T bold style={{ fontSize: 13.5, color: colors.ink }}>Klinik Olarak Doğrulanmıştır</T>
+            <T bold style={{ fontSize: 13.5, color: colors.ink }}>Editoryal Kaynak Notu</T>
             <T style={{ fontSize: 12, color: colors.purple }}>✓</T>
           </View>
           <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2 }}>{doctorName}</T>
@@ -505,7 +504,7 @@ export function EditorialArticleScreen({ article, toast }) {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 }}>
             <T style={{ fontSize: 17 }}>✨</T>
             <T bold style={{ fontSize: 13.5, color: colors.purple, letterSpacing: 0.5 }}>
-              ÖZETLE: KLİNİK ÖNEMLİ NOKTALAR
+              ÖZETLE: ÖNE ÇIKAN NOKTALAR
             </T>
           </View>
           {a.keyPoints.map((kp, idx) => (
@@ -554,7 +553,7 @@ export function EditorialArticleScreen({ article, toast }) {
                   {sec.text}
                 </T>
 
-                {/* Klinik İpucu / Uyarı Kutusu */}
+                {/* Kaynak İpucu / Uyarı Kutusu */}
                 {sec.tip && (
                   <View style={[
                     es.clinicTipBox,

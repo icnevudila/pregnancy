@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, TextInput, ScrollView } from 'react-native';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
-import { T, Tap, Card, Section, Progress } from './ui';
+import { T, Tap, Card, Section, Progress, ScreenHero, InfoNote } from './ui';
 import { uid, localDay } from './domain.mjs';
 import { babyNamesList, nameThemes, nameOrigins } from './babyNamesData';
 
@@ -14,7 +14,7 @@ export function WeightTracker({ state, update, toast }) {
   const currentWeight = weights[0]?.value || startWeight;
   const totalGained = (currentWeight - startWeight).toFixed(1);
 
-  // Haftaya göre ideal kilo artışı (IOM standartları: ortalama 0.35 - 0.45 kg / hafta)
+  // Haftaya göre kişisel kilo eğrisi için sade görsel aralık.
   const week = state.week || 24;
   const minExpectedGain = Math.max(0, ((week - 12) * 0.35)).toFixed(1);
   const maxExpectedGain = Math.max(0.5, ((week - 12) * 0.50 + 2.0)).toFixed(1);
@@ -41,6 +41,15 @@ export function WeightTracker({ state, update, toast }) {
 
   return (
     <View style={ws.container}>
+      <ScreenHero asset="ui_weight_bmi_gauge"
+        icon="scale"
+        kicker="HAFTALIK EĞİLİM"
+        title="Kilo takip paneli"
+        body="Ölçümlerini tek çizgide tut; randevu öncesi değişimi hızlıca hatırla."
+        stat={`${weights.length} ölçüm`}
+        tint="#4F8464"
+      />
+
       {/* Kilo Özeti Kartı */}
       <Card style={ws.summaryCard}>
         <View style={ws.summaryRow}>
@@ -58,13 +67,18 @@ export function WeightTracker({ state, update, toast }) {
 
         <View style={ws.corridorBox}>
           <T bold style={{ fontSize: 12, color: colors.purple }}>
-            {week}. Hafta İdeal Artış Koridoru:
+            {week}. Hafta Takip Aralığı:
           </T>
           <T style={{ fontSize: 12, color: colors.ink, marginTop: 2 }}>
-            +{minExpectedGain} kg ile +{maxExpectedGain} kg arası (IOM Sağlık Standardı)
+            +{minExpectedGain} kg ile +{maxExpectedGain} kg arası kişisel izleme bandı
           </T>
         </View>
       </Card>
+
+      <InfoNote icon="scale"
+        title="Tek değere değil, eğriye bak"
+        body="Kilo takibi en iyi haftalık eğilimle okunur. Ani değişim, iştah, ödem veya endişe varsa notunu randevuda doktorunla paylaş."
+      />
 
       {/* Yeni Kilo Girişi */}
       <View style={ws.inputRow}>
@@ -86,7 +100,10 @@ export function WeightTracker({ state, update, toast }) {
       <Section title="Kilo Geçmişi" />
       {weights.length === 0 ? (
         <Card style={{ padding: 18, alignItems: 'center' }}>
-          <T style={{ color: colors.muted, fontSize: 13 }}>Henüz kaydedilmiş kilo verisi yok.</T>
+          <T bold style={{ color: colors.ink, fontSize: 14 }}>İlk ölçümü ekle</T>
+          <T style={{ color: colors.muted, fontSize: 12, textAlign: 'center', marginTop: 4 }}>
+            Aynı tartı ve benzer saatlerde kayıt almak eğilimi daha okunur yapar.
+          </T>
         </Card>
       ) : (
         weights.map(w => (
@@ -133,12 +150,34 @@ export function BirthPlanBuilder({ state, update, toast }) {
 
   return (
     <View style={ws.container}>
+      <ScreenHero asset="ui_birth_plan_scroll"
+        icon="book"
+        kicker="DOĞUM HAZIRLIĞI"
+        title="Tercihlerini tek sayfada topla"
+        body="Ortam, destek ve ilk temas tercihlerini sade, paylaşılabilir bir plana dönüştür."
+        stat={`${selectedCount}/8 tercih`}
+        tint="#946635"
+      />
+
       <Card style={{ padding: 16 }}>
-        <T bold style={{ fontSize: 16 }}>Doğum Tercihlerim</T>
-        <T style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>
-          {selectedCount} tercih belirlendi · Doğum ekibiniz ve doktorunuzla paylaşabilirsiniz.
-        </T>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
+          <View style={{ flex: 1 }}>
+            <T bold style={{ fontSize: 16 }}>Doğum Tercihlerim</T>
+            <T style={{ fontSize: 12, color: colors.muted, marginTop: 4, lineHeight: 18 }}>
+              {selectedCount} tercih belirlendi · Planı randevuda konuşmak için sade bir özet olarak kullan.
+            </T>
+          </View>
+          <View style={ws.scoreRing}>
+            <T bold style={{ fontSize: 18, color: colors.purple }}>{selectedCount}</T>
+            <T style={{ fontSize: 10, color: colors.muted }}>seçim</T>
+          </View>
+        </View>
       </Card>
+
+      <InfoNote icon="milestone"
+        title="Plan esnek olmalı"
+        body="Doğum planı kesin talimat değil; ekip, koşullar ve güvenlik önceliğine göre birlikte güncellenen bir tercih özeti gibi çalışır."
+      />
 
       <View style={{ gap: 10 }}>
         {defaultBirthPlanOptions.map(opt => {
@@ -196,18 +235,34 @@ export function DoctorQuestions({ state, update, toast }) {
 
   return (
     <View style={ws.container}>
+      <ScreenHero asset="ui_doctor_prep_notebook"
+        icon="chat"
+        kicker="KONTROL HAZIRLIĞI"
+        title="Randevuda unutma"
+        body="Soruları açık, yanıtlananları kapalı tut; sonraki kontrol için gündemin kendiliğinden oluşsun."
+        stat={`${questions.filter(q => !q.done).length} açık soru`}
+        tint="#7C5C96"
+      />
+
       <Card style={{ padding: 14 }}>
-        <T bold style={{ fontSize: 15 }}>Doktor Randevusu Hazırlığı</T>
-        <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
-          Muayene odasında aklınızdan çıkabilecek soruları önceden not edin.
-        </T>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View style={ws.proNoteIcon}>
+            <Icon name="chat" size={17} color={colors.purple} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <T bold style={{ fontSize: 15 }}>Randevu Soruları</T>
+            <T style={{ fontSize: 12, color: colors.muted, marginTop: 2, lineHeight: 18 }}>
+              {questions.filter(q => !q.done).length} açık soru · Muayene odasında aklından çıkabilecek başlıkları önceden sırala.
+            </T>
+          </View>
+        </View>
       </Card>
 
       <View style={ws.inputRow}>
         <TextInput
           value={newQ}
           onChangeText={setNewQ}
-          placeholder="Doktorunuza sormak istediğiniz soru..."
+          placeholder="Randevuda konuşmak istediğin soru..."
           placeholderTextColor={colors.muted}
           style={ws.input}
           onSubmitEditing={addQ}
@@ -234,6 +289,11 @@ export function DoctorQuestions({ state, update, toast }) {
           </Tap>
         ))}
       </View>
+
+      <InfoNote icon="check"
+        title="Randevu sonrası kapat"
+        body="Yanıt aldığın soruları işaretle; açık kalan konular bir sonraki kontrol için otomatik gündem gibi kalır."
+      />
     </View>
   );
 }
@@ -285,9 +345,19 @@ export function BabyNameMatcher({ state, update, toast }) {
   });
 
   const partnerMatchesCount = babyNamesList.filter(n => n.partnerMatch).length;
+  const originCount = Array.isArray(nameOrigins) ? nameOrigins.length : 0;
 
   return (
     <View style={ws.container}>
+      <ScreenHero asset="ui_baby_name_blocks"
+        icon="heart"
+        kicker="İSİM KEŞFİ"
+        title="Anlam, köken ve favoriler"
+        body="Filtrele, eşinle ortakları gör, beğendiklerini kısa listeye al."
+        stat={`${favNames.length} favori`}
+        tint="#9B4E76"
+      />
+
       {/* İstatistik & Bilgi Kartı */}
       <Card style={{ padding: 14, backgroundColor: '#FAF6FA', borderColor: '#EFE5F0' }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -316,6 +386,21 @@ export function BabyNameMatcher({ state, update, toast }) {
           </View>
         )}
       </Card>
+
+      <View style={ws.nameStatsRow}>
+        <View style={ws.nameStat}>
+          <T bold style={ws.nameStatNum}>{filtered.length}</T>
+          <T style={ws.nameStatLabel}>sonuç</T>
+        </View>
+        <View style={ws.nameStat}>
+          <T bold style={ws.nameStatNum}>{originCount}</T>
+          <T style={ws.nameStatLabel}>köken</T>
+        </View>
+        <View style={ws.nameStat}>
+          <T bold style={ws.nameStatNum}>{favNames.length}</T>
+          <T style={ws.nameStatLabel}>favori</T>
+        </View>
+      </View>
 
       {/* Arama Çubuğu */}
       <View style={ws.inputRow}>
@@ -428,6 +513,7 @@ export function BabyNameMatcher({ state, update, toast }) {
 
 const ws = StyleSheet.create({
   container: { gap: 14, paddingBottom: 20 },
+  proNoteIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#FFFDFA', alignItems: 'center', justifyContent: 'center' },
   summaryCard: { padding: 16 },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   label: { fontSize: 11, letterSpacing: 1.5, color: colors.muted },
@@ -439,6 +525,7 @@ const ws = StyleSheet.create({
   addBtn: { paddingHorizontal: 16, height: 46, borderRadius: 16, backgroundColor: colors.purple, alignItems: 'center', justifyContent: 'center' },
   historyRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderColor: colors.line },
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: '#F3EAF5' },
+  scoreRing: { width: 58, height: 58, borderRadius: 29, backgroundColor: '#F3EAF5', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E3D4E7' },
   planCard: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 16, backgroundColor: '#FFFDFA', borderWidth: 1, borderColor: '#F0EAE6', ...shadow },
   planCardActive: { borderColor: colors.purple, backgroundColor: '#FAF6FB' },
   planCheck: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: '#C8BAC9', alignItems: 'center', justifyContent: 'center' },
@@ -449,6 +536,10 @@ const ws = StyleSheet.create({
   themePill: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 14, backgroundColor: '#FAF4FA', borderWidth: 1, borderColor: '#EBDDEB' },
   themePillActive: { backgroundColor: '#F0E2F1', borderColor: colors.purple },
   matchBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, backgroundColor: '#FCEEF3' },
+  nameStatsRow: { flexDirection: 'row', gap: 8 },
+  nameStat: { flex: 1, alignItems: 'center', paddingVertical: 11, borderRadius: 18, backgroundColor: '#FFFDFA', borderWidth: 1, borderColor: '#F0EAE6', ...shadow },
+  nameStatNum: { fontSize: 17, color: colors.purple },
+  nameStatLabel: { fontSize: 11, color: colors.muted, marginTop: 2 },
   nameCard: { flexDirection: 'row', alignItems: 'center', padding: 14 },
   genderBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, backgroundColor: '#EFE5F3' },
   favBtn: { padding: 8 },

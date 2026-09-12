@@ -3,7 +3,7 @@ import { View, StyleSheet, TextInput, ScrollView, Image, Modal, KeyboardAvoiding
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon, BrandMark } from './Icons';
-import { T, Tap, Card, Section } from './ui';
+import { T, Tap, Card, Section, ScreenHero } from './ui';
 import { uid, localDay } from './domain.mjs';
 import { generatedAssets } from './generatedAssets';
 import { articles, searchFaqs } from './content';
@@ -18,10 +18,10 @@ export const initialCommunityPosts = [
     desc: 'Anadolu yakasında 20-22. hafta detaylı ultrasonu çektiren anneler, hekiminizden memnun kaldınız mı? Neye dikkat etmeliyim?',
     likes: 38,
     comments: 14,
-    cat: 'Doktor & Hastane',
+    cat: 'Kontrol & Hastane',
     verified: true,
-    verifiedBy: 'Ebe Ayşe Yılmaz · Uzman Ebe',
-    verifiedAnswer: 'Prof. Dr. Murat Demir ve Uzm. Dr. Elif Kaya alanlarında çok tecrübelidir. Bebeğin kalp ve omurga taraması için 20-22. hafta en ideal zamandır.',
+    verifiedBy: 'Momora Moderasyon Notu',
+    verifiedAnswer: 'Detaylı ultrason için randevu alırken hekimin deneyimini, cihaz bilgisini, rapor formatını ve takip eden doktorunun yönlendirmesini birlikte değerlendirmen iyi olur.',
     time: '2 saat önce',
   },
   {
@@ -47,8 +47,8 @@ export const initialCommunityPosts = [
     comments: 19,
     cat: 'Belirtiler & Aşerme',
     verified: true,
-    verifiedBy: 'Dr. Zeynep Aydın · Kadın Hastalıkları',
-    verifiedAnswer: 'Günde 2000 ml su tüketimi, yatmadan önce 10 dakika ılık duş ve magnezyum takviyesi krampları %80 oranında yatıştırır.',
+    verifiedBy: 'Momora Moderasyon Notu',
+    verifiedAnswer: 'Kramp notlarını saat, süre ve eşlik eden belirtilerle yazmak randevuda anlatmayı kolaylaştırır. Takviye ve ilaç kararını kendi doktorunla netleştirmen gerekir.',
     time: '5 saat önce',
   },
   {
@@ -73,8 +73,8 @@ export const initialCommunityPosts = [
     comments: 46,
     cat: 'Dertleşme',
     verified: true,
-    verifiedBy: 'Psk. Melis Akın · Perinatal Psikolog',
-    verifiedAnswer: 'Bu Lohusa Hüznü sürecidir; doğum sonrası ani hormon düşüşünün doğal biyolojik sonucudur. Yalnız değilsin, harika bir annesin ve bu günler geçecek.',
+    verifiedBy: 'Momora Destek Notu',
+    verifiedAnswer: 'Bu duyguyu not etmek, destek istemek ve güvendiğin bir sağlık profesyoneliyle paylaşmak değerli. Kendine yalnız kalmayacağın küçük bir destek planı kur.',
     time: '8 saat önce',
     blogRef: 'art-postpartum-rest',
   },
@@ -109,7 +109,7 @@ export function CommunityHub({ open, state, update, toast }) {
   const [newCat, setNewCat] = useState('Dertleşme');
   const [isAnon, setIsAnon] = useState(false);
 
-  const categories = ['Tümü', 'Doktor & Hastane', 'Doğum Hikayesi', 'Belirtiler & Aşerme', 'Bebek Alışverişi', 'Dertleşme'];
+  const categories = ['Tümü', 'Kontrol & Hastane', 'Doğum Hikayesi', 'Belirtiler & Aşerme', 'Bebek Alışverişi', 'Dertleşme'];
 
   const filteredPosts = posts.filter(p => {
     const matchesCat = filterCat === 'Tümü' || p.cat === filterCat;
@@ -162,7 +162,7 @@ export function CommunityHub({ open, state, update, toast }) {
         <View style={{ flex: 1 }}>
           <T bold style={cs.pageTitle}>Topluluk</T>
           <T style={cs.headerSub}>
-            Anneler ve uzman ebelerle samimi dayanışma çemberi 💕
+            Anne deneyimleri, sakin sorular ve moderasyon notları tek akışta.
           </T>
         </View>
         <Tap
@@ -173,6 +173,15 @@ export function CommunityHub({ open, state, update, toast }) {
           <T bold style={{ fontSize: 12.5, color: 'white' }}>+ Soru Sor</T>
         </Tap>
       </View>
+
+      <ScreenHero
+        kicker="GÜVENLİ PAYLAŞIM ALANI"
+        title={`${filteredPosts.length} aktif konu`}
+        body="Deneyim paylaş; sağlık kararı gerektiren başlıklarda kendi uzmanının yönlendirmesini merkeze al."
+        icon="chat"
+        stat="moderasyon notları"
+        tint={colors.purple}
+      />
 
       {/* Sade 2 Sekmeli Segment: Anne Sohbetleri / Doğum Kulübüm */}
       <View style={cs.hubTabs}>
@@ -255,7 +264,7 @@ export function CommunityHub({ open, state, update, toast }) {
                     </View>
                     {post.verified && (
                       <View style={cs.verifiedBadge}>
-                        <T bold style={{ fontSize: 10, color: '#2D754C' }}>✓ Ebe Yanıtı</T>
+                        <T bold style={{ fontSize: 10, color: '#2D754C' }}>✓ Moderasyon Notu</T>
                       </View>
                     )}
                   </View>
@@ -331,7 +340,7 @@ export function CommunityHub({ open, state, update, toast }) {
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingBottom: 20 }}>
               <T style={{ fontSize: 12.5, color: colors.muted }}>
-                Sorunu veya tecrübeni paylaş. Uzman ebelerimiz ve binlerce anne sana destek olsun.
+                Sorunu veya tecrübeni paylaş. Benzer süreçlerden geçen annelerden ve Momora kaynak notlarından destek al.
               </T>
 
               {/* Kategori Seçici */}
@@ -403,7 +412,7 @@ export function CommunityHub({ open, state, update, toast }) {
 
 export function BirthMonthClubScreen({ onOpenThread }) {
   const [filter, setFilter] = useState('Tümü');
-  const filters = ['Tümü', 'Doktor & Hastane', 'Belirtiler & Aşerme', 'Bebek Alışverişi', 'Dertleşme'];
+  const filters = ['Tümü', 'Kontrol & Hastane', 'Belirtiler & Aşerme', 'Bebek Alışverişi', 'Dertleşme'];
 
   const filtered = initialCommunityPosts.filter(p => filter === 'Tümü' || p.cat === filter);
 
@@ -463,7 +472,7 @@ export function BirthMonthClubScreen({ onOpenThread }) {
               </View>
               {post.verified && (
                 <View style={cs.verifiedBadge}>
-                  <T style={{ fontSize: 10, color: colors.purple }}>Uzman Yanıtı ✓</T>
+                  <T style={{ fontSize: 10, color: colors.purple }}>Moderasyon Notu ✓</T>
                 </View>
               )}
             </View>
@@ -499,9 +508,9 @@ export function CommunityThreadScreen({ post, toast }) {
     {
       id: 'c1',
       author: 'Ebe Ayşe Yılmaz',
-      role: 'Uzman Ebe & Doğum Koçu',
+      role: 'Momora Topluluk Rehberi',
       isExpert: true,
-      text: 'Magnezyum takviyesi ve yatmadan önce 10 dakika ılık duş bacak kramplarını belirgin şekilde azaltır. Ayrıca gün içinde kalsiyum alımınıza ve bol su tüketmeye dikkat edin.',
+      text: 'Kramp notlarını saat, süre ve eşlik eden belirtilerle yazmak randevuda anlatmayı kolaylaştırır. Ilık duş, nazik esneme ve su takibi bazı annelerde rahatlatıcı olabilir; takviye kararını kendi hekiminle netleştir.',
       time: '3 saat önce',
       helpful: 42,
     },
@@ -519,7 +528,7 @@ export function CommunityThreadScreen({ post, toast }) {
       author: 'Elif M.',
       role: '20. Hafta',
       isExpert: false,
-      text: 'Biz de aynı krampları yaşıyorduk, doktorumuz suda eriyen magnezyum şasesi yazdı ve 2 günde tamamen rahatladım.',
+      text: 'Biz de aynı krampları yaşıyorduk; not tutup kontrol randevusunda konuşunca neyi değiştireceğimizi daha net anladık.',
       time: '35 dk önce',
       helpful: 6,
     }
@@ -557,7 +566,7 @@ export function CommunityThreadScreen({ post, toast }) {
           </View>
           {p.verified && (
             <View style={cs.verifiedBadge}>
-              <T bold style={{ fontSize: 10, color: '#2D754C' }}>✓ Uzman Yanıtı</T>
+              <T bold style={{ fontSize: 10, color: '#2D754C' }}>✓ Moderasyon Notu</T>
             </View>
           )}
         </View>
@@ -596,7 +605,7 @@ export function CommunityThreadScreen({ post, toast }) {
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <View style={[cs.commentAvatar, c.isExpert && { backgroundColor: '#8E6E8E' }]}>
                 <T style={{ fontSize: 13, color: c.isExpert ? 'white' : colors.ink }}>
-                  {c.isExpert ? '🩺' : '💬'}
+                  {c.isExpert ? '✓' : '💬'}
                 </T>
               </View>
               <View style={{ flex: 1, marginLeft: 10 }}>
@@ -604,7 +613,7 @@ export function CommunityThreadScreen({ post, toast }) {
                   <T bold style={{ fontSize: 13.5 }}>{c.author}</T>
                   {c.isExpert ? (
                     <View style={cs.expertTag}>
-                      <T bold style={{ fontSize: 9.5, color: 'white' }}>UZMAN EBE</T>
+                      <T bold style={{ fontSize: 9.5, color: 'white' }}>REHBER NOTU</T>
                     </View>
                   ) : (
                     <T style={{ fontSize: 10.5, color: colors.muted }}>({c.role})</T>

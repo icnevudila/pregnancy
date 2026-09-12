@@ -1,8 +1,9 @@
 import React from 'react';
-import { Text, View, Pressable, StyleSheet, ScrollView } from 'react-native';
+import { Text, View, Pressable, StyleSheet, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon, MoodFace } from './Icons';
+import { generatedAssets } from './generatedAssets';
 
 export function T({ children, style, bold, ...props }) {
   return <Text {...props} style={[s.text, bold && { fontFamily: fonts.bold }, style]}>{children}</Text>;
@@ -11,6 +12,33 @@ export function Tap({ children, style, label, onPress, ...props }) {
   return <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={({ pressed }) => [style, pressed && { opacity: 0.7, transform: [{ scale: 0.985 }] }]} {...props}>{children}</Pressable>;
 }
 export function Card({ children, style, ...props }) { return <View style={[s.card, style]} {...props}>{children}</View>; }
+export function ScreenHero({ kicker, title, body, stat, icon = 'heart', asset, tint = colors.purple, style }) {
+  const art = asset ? generatedAssets[asset] : null;
+  return (
+    <Card style={[s.screenHero, style]}>
+      <View style={{ flex: 1 }}>
+        <T style={[s.heroKicker, { color: tint }]}>{kicker}</T>
+        <T bold style={s.heroTitle}>{title}</T>
+        <T style={s.heroBody}>{body}</T>
+        {stat ? <View style={[s.heroStat, { backgroundColor: tint + '18' }]}><T bold style={{ fontSize: 12, color: tint }}>{stat}</T></View> : null}
+      </View>
+      <View style={[s.heroArt, { backgroundColor: tint + '14' }]}>
+        {art ? <Image source={art} style={{ width: 74, height: 74 }} resizeMode="contain" /> : <Icon name={icon} size={36} color={tint} />}
+      </View>
+    </Card>
+  );
+}
+export function InfoNote({ icon = 'heart', title, body, tint = colors.purple, style }) {
+  return (
+    <View style={[s.infoNote, { borderColor: tint + '38', backgroundColor: tint + '10' }, style]}>
+      <View style={s.infoIcon}><Icon name={icon} size={17} color={tint} /></View>
+      <View style={{ flex: 1 }}>
+        <T bold style={{ fontSize: 13, color: tint }}>{title}</T>
+        <T style={{ fontSize: 12, color: '#5F5263', lineHeight: 18, marginTop: 3 }}>{body}</T>
+      </View>
+    </View>
+  );
+}
 export function RoundButton({ icon = 'chevron', onPress, label, style }) {
   return <Tap label={label} onPress={onPress} style={[s.round, style]}><Icon name={icon} size={17}/></Tap>;
 }
@@ -34,6 +62,14 @@ export function Page({ children, style, contentStyle, ...props }) {
 const s = StyleSheet.create({
   text: { fontFamily: fonts.regular, color: colors.ink, fontSize: 15 },
   card: { backgroundColor: '#FFFDFA', borderRadius: 20, padding: 15, borderWidth: 1, borderColor: '#F0EAE6', ...shadow },
+  screenHero: { flexDirection: 'row', gap: 14, alignItems: 'center', padding: 16, backgroundColor: '#FFFDFA', borderWidth: 1, borderColor: '#EDE3EA' },
+  heroKicker: { fontSize: 10, letterSpacing: 1.4, fontFamily: fonts.bold },
+  heroTitle: { fontSize: 20, color: colors.ink, marginTop: 4, letterSpacing: -0.3 },
+  heroBody: { fontSize: 12, color: colors.muted, lineHeight: 18, marginTop: 5 },
+  heroStat: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12, marginTop: 10 },
+  heroArt: { width: 88, height: 88, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
+  infoNote: { flexDirection: 'row', gap: 11, padding: 13, borderRadius: 18, borderWidth: 1 },
+  infoIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#FFFDFA', alignItems: 'center', justifyContent: 'center' },
   round: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#FFFCFA', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.line, ...shadow },
   section: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 11, marginTop: 18 },
   inline: { flexDirection: 'row', alignItems: 'center', gap: 3, minHeight: 30 },

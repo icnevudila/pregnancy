@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
-import { T, Tap, Card, Section, Progress } from './ui';
+import { T, Tap, Card, Section, Progress, ScreenHero } from './ui';
 import { secondsLabel, uid, localDay } from './domain.mjs';
 import { generatedAssets } from './generatedAssets';
 import { playSound, stopSound, setVolume as setEngineVolume, getCurrentSound, addSoundListener } from './soundEngine';
@@ -62,6 +62,8 @@ export function NursingTimerScreen({ state, update, toast }) {
 
   return (
     <View style={pbs.container}>
+      <ScreenHero kicker="BESLENME TAKİBİ" title="Emzirme ve biberon" body="Beslenme seanslarını zaman, taraf ve miktar olarak temiz bir kayıt akışına dönüştür." icon="nursing" asset="ui_nursing_dual_timer" stat={feedMode === 'breast' ? 'emzirme' : `${bottleMl} ml`} tint="#9B4E76" />
+
       {/* Sekmeler: Emzirme / Biberon */}
       <View style={pbs.segRow}>
         <Tap
@@ -238,6 +240,8 @@ export function SleepWhiteNoiseScreen({ state, update, toast }) {
 
   return (
     <View style={pbs.container}>
+      <ScreenHero kicker="UYKU RİTMİ" title="Uyku ve sakin sesler" body="Uyku durumunu kaydet, beyaz gürültüyü kontrollü zamanlayıcıyla yönet." icon="moon" asset="ui_white_noise_headphones" stat={isAsleep ? 'uykuda' : 'uyanık'} tint="#6E5A96" />
+
       {/* Uyku Durumu Kartı */}
       <Card style={[pbs.sleepStatusCard, isAsleep && { backgroundColor: '#201A28' }]}>
         <LinearGradient
@@ -418,10 +422,12 @@ export function DiaperTrackerScreen({ update, toast }) {
 
   return (
     <View style={pbs.container}>
+      <ScreenHero kicker="BAKIM KAYDI" title="Bez günlüğü" body="Islak, kirli ve karışık bez kayıtlarını tek dokunuşla günlük akışa ekle." icon="diaper" asset="ui_diaper_wet_drop" stat="hızlı kayıt" tint="#4896BC" />
+
       <Card style={{ padding: 16 }}>
         <T bold style={{ fontSize: 16 }}>Bez Değiştirme</T>
         <T style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>
-          Yenidoğanın yeterli beslenip beslenmediğini günde en az 5-6 ıslak bez gösterir.
+          Bez kayıtları günlük bakım ritmini görmene yardım eder; olağan dışı değişiklikleri sağlık ekibinle paylaş.
         </T>
       </Card>
 
@@ -460,6 +466,8 @@ export function PostpartumSelfCareScreen({ state, update, toast }) {
 
   return (
     <View style={pbs.container}>
+      <ScreenHero kicker="LOHUSA BAKIMI" title={`${day}. gün toparlanma`} body="İyileşme adımlarını küçük, takip edilebilir ve şefkatli bir günlük haline getir." icon="leaf" asset="ui_postpartum_lotus" stat="bugünkü adımlar" tint="#86518A" />
+
       {/* Lohusalık Gün Sayacı & Sevgi Notu */}
       <Card style={pbs.recoveryCard}>
         <LinearGradient

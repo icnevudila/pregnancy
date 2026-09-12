@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, TextInput, ScrollView, Switch, Platform } from 'react-native';
 import { colors, fonts, shadow } from './theme';
 import { Icon, BrandMark } from './Icons';
-import { T, Tap, Card, Section } from './ui';
+import { T, Tap, Card, Section, ScreenHero } from './ui';
 import { babyNamesList } from './babyNamesData';
+import { dateLabel, pregnancyAt } from './domain.mjs';
+import { isSupabaseConfigured, supabase } from './supabaseClient';
+import { signInWithEmail, signOut, cloudStatusLabel } from './backendSync';
 
-export function ProfileScreen({ state, update, open, toast, choose }) {
+export function ProfileScreen({ state, update, open, toast, choose, cloudStatus }) {
   const [activeTab, setActiveTab] = useState('family'); // 'family' | 'personal' | 'favorites' | 'settings'
 
   // Kişisel Form State'leri
@@ -14,9 +17,9 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
   const [babyName, setBabyName] = useState(state.babyName || 'Ada');
   const [babyGender, setBabyGender] = useState(state.babyGender || 'Kız');
   const [bloodType, setBloodType] = useState(state.bloodType || 'A Rh+');
-  const [doctor, setDoctor] = useState(state.doctor || 'Prof. Dr. Ayşe Yılmaz');
-  const [hospital, setHospital] = useState(state.hospital || 'Acıbadem Maslak');
-  const [dueDate, setDueDate] = useState(state.dueDate || '24 Temmuz 2026');
+  const [doctor, setDoctor] = useState(state.doctor || '');
+  const [hospital, setHospital] = useState(state.hospital || '');
+  const [dueDate, setDueDate] = useState(state.dueDate || '');
 
   // Mesajlaşma State'leri
   const [newPartnerMsg, setNewPartnerMsg] = useState('');
@@ -27,8 +30,24 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
   const [remindVitamin, setRemindVitamin] = useState(state.remindVitamin !== false);
   const [remindLetter, setRemindLetter] = useState(state.remindLetter !== false);
   const [remindPartner, setRemindPartner] = useState(state.remindPartner !== false);
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authMode, setAuthMode] = useState('signin');
+  const [cloudUser, setCloudUser] = useState(null);
+  const [authBusy, setAuthBusy] = useState(false);
 
   const currentRole = state.role || 'mother'; // 'mother' | 'father'
+  const journey = pregnancyAt(state);
+  const remainingLabel = journey.remaining >= 0 ? `${journey.remaining} Gün` : 'Tarih Geçti';
+
+  useEffect(() => {
+    if (!supabase) return undefined;
+    supabase.auth.getUser().then(({ data }) => setCloudUser(data.user || null));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setCloudUser(session?.user || null);
+    });
+    return () => listener.subscription.unsubscribe();
+  }, []);
 
   // Eşler Arası Varsayılan Mesajlar
   const defaultPartnerMessages = [
@@ -105,6 +124,25 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
     toast && toast('Bebeğine mektubun sevgiyle saklandı 💌');
   }
 
+  async function handleAuth() {
+    if (!authEmail.trim() || authPassword.length < 6) {
+      toast && toast('E-posta ve en az 6 karakter şifre yaz.');
+      return;
+    }
+    setAuthBusy(true);
+    const { error, data } = await signInWithEmail(authEmail.trim(), authPassword, authMode === 'signup');
+    setAuthBusy(false);
+    if (error) return toast && toast(error.message);
+    setCloudUser(data.user || data.session?.user || null);
+    toast && toast(authMode === 'signup' ? 'Hesap oluşturuldu. E-postanı doğrulaman gerekebilir.' : 'Bulut hesabına giriş yapıldı.');
+  }
+
+  async function handleSignOut() {
+    await signOut();
+    setCloudUser(null);
+    toast && toast('Bulut hesabından çıkıldı.');
+  }
+
   const bloodTypes = ['A Rh+', 'A Rh-', 'B Rh+', 'B Rh-', '0 Rh+', '0 Rh-', 'AB Rh+', 'AB Rh-'];
 
   // Favorilenen İsimleri Bul
@@ -112,6 +150,15 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
 
   return (
     <ScrollView contentContainerStyle={ps.container} showsVerticalScrollIndicator={false}>
+      <ScreenHero
+        kicker="AİLE PROFİLİ"
+        title={`${currentRole === 'mother' ? userName : partnerName} · ${journey.week}. hafta`}
+        body="Aile rolü, bebeğin bilgileri, favoriler ve eşitleme ayarları aynı merkezde düzenli kalır."
+        icon="profile"
+        stat={cloudStatusLabel(cloudStatus)}
+        tint={currentRole === 'mother' ? '#B84570' : '#396F9E'}
+      />
+
       {/* ─── 1. ÜST PROFİL HERO KARTI ─── */}
       <Card style={ps.heroCard}>
         <View style={ps.heroRow}>
@@ -131,7 +178,7 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
             
             {/* Bağlı Partner Bilgisi */}
             <View style={ps.partnerPill}>
-              <T style={{ fontSize: 11, color: '#3E7D52' }}>💚 Bağlı Eş: {currentRole === 'mother' ? partnerName : userName} (Aile Senkronize)</T>
+              <T style={{ fontSize: 11, color: '#3E7D52' }}>💚 Aile profili: {currentRole === 'mother' ? partnerName : userName} ile ortak alan hazır</T>
             </View>
           </View>
         </View>
@@ -147,12 +194,12 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
         {/* Hafta & Kalan Gün Özeti */}
         <View style={ps.statStrip}>
           <View style={ps.statCol}>
-            <T bold style={ps.statNum}>{state.week || 24}. Hafta</T>
+            <T bold style={ps.statNum}>{journey.week}. Hafta</T>
             <T style={ps.statLbl}>Hamilelik İlerlemesi</T>
           </View>
           <View style={ps.statDivider} />
           <View style={ps.statCol}>
-            <T bold style={ps.statNum}>{(40 - (state.week || 24)) * 7} Gün</T>
+            <T bold style={ps.statNum}>{remainingLabel}</T>
             <T style={ps.statLbl}>Kalan Süre</T>
           </View>
           <View style={ps.statDivider} />
@@ -209,7 +256,7 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
               </Tap>
             </View>
             <T style={{ fontSize: 12, color: '#66536C', marginTop: 8, lineHeight: 17 }}>
-              Anne ve baba aynı hesap üzerinden güncellemeleri anlık görebilir, doktor randevularını ve bebek mektuplarını ortak yönetebilir.
+              Aile hesabı için hazırlanan alan. Supabase bağlantısı tamamlandığında bu kod gerçek eşleştirme ve ortak kayıt akışına bağlanacak.
             </T>
           </Card>
 
@@ -335,7 +382,8 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
 
           <View style={ps.fieldGroup}>
             <T bold style={ps.fieldLabel}>Tahmini Doğum Tarihi</T>
-            <TextInput value={dueDate} onChangeText={setDueDate} placeholder="Örn: 24 Temmuz 2026" style={ps.fieldInput} />
+            <TextInput value={dueDate} onChangeText={setDueDate} placeholder="2026-07-24" style={ps.fieldInput} />
+            {!!dueDate && <T style={{ fontSize: 11, color: colors.muted, marginTop: 4 }}>{dateLabel(dueDate)}</T>}
           </View>
 
           <View style={ps.fieldGroup}>
@@ -354,7 +402,7 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
               ))}
             </View>
             <T style={{ fontSize: 11, color: colors.muted, marginTop: 4 }}>
-              * Rh uyuşmazlığı durumunda 28. hafta Anti-D koruma iğnesi planlanır.
+              Bu alan doktor görüşmelerinde hızlı hatırlama içindir; tıbbi karar yerine geçmez.
             </T>
           </View>
 
@@ -438,10 +486,40 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
         <Card style={{ padding: 18 }}>
           <T bold style={{ fontSize: 17, marginBottom: 14 }}>Bildirimler & Tercihler</T>
 
+          <Card style={{ padding: 14, backgroundColor: '#FAF6FA', borderColor: '#EDE0EE', marginBottom: 14 }}>
+            <T bold style={{ fontSize: 15, color: colors.ink }}>Bulut Hesabı</T>
+            <T style={{ fontSize: 12, color: colors.muted, lineHeight: 18, marginTop: 4 }}>
+              {cloudUser ? `Giriş yapıldı: ${cloudUser.email}` : (cloudStatus || cloudStatusLabel())}
+            </T>
+            {!isSupabaseConfigured && (
+              <T style={{ fontSize: 11, color: '#9A5B6D', lineHeight: 16, marginTop: 8 }}>
+                Supabase publishable key eklenince bu alan gerçek giriş ve eşitleme için aktif olur.
+              </T>
+            )}
+            {isSupabaseConfigured && !cloudUser && (
+              <View style={{ gap: 8, marginTop: 12 }}>
+                <TextInput value={authEmail} onChangeText={setAuthEmail} autoCapitalize="none" keyboardType="email-address" placeholder="E-posta" placeholderTextColor={colors.muted} style={ps.fieldInput} />
+                <TextInput value={authPassword} onChangeText={setAuthPassword} secureTextEntry placeholder="Şifre" placeholderTextColor={colors.muted} style={ps.fieldInput} />
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <Tap onPress={() => setAuthMode('signin')} style={[ps.genderPick, authMode === 'signin' && ps.genderPickActive]}><T bold={authMode === 'signin'} style={{ fontSize: 12, color: authMode === 'signin' ? colors.purple : colors.ink }}>Giriş</T></Tap>
+                  <Tap onPress={() => setAuthMode('signup')} style={[ps.genderPick, authMode === 'signup' && ps.genderPickActive]}><T bold={authMode === 'signup'} style={{ fontSize: 12, color: authMode === 'signup' ? colors.purple : colors.ink }}>Yeni Hesap</T></Tap>
+                </View>
+                <Tap disabled={authBusy} onPress={handleAuth} label="Bulut hesabı" style={ps.saveFullBtn}>
+                  <T bold style={{ color: 'white', fontSize: 14 }}>{authBusy ? 'Bağlanıyor...' : 'Devam Et'}</T>
+                </Tap>
+              </View>
+            )}
+            {isSupabaseConfigured && cloudUser && (
+              <Tap onPress={handleSignOut} label="Çıkış yap" style={[ps.secondaryBtn, { marginTop: 12 }]}>
+                <T bold style={{ fontSize: 13, color: colors.purple }}>Çıkış Yap</T>
+              </Tap>
+            )}
+          </Card>
+
           <View style={ps.switchRow}>
             <View style={{ flex: 1, paddingRight: 10 }}>
               <T bold style={{ fontSize: 14 }}>💧 Günlük Su Hatırlatıcısı</T>
-              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>Günde 8 bardak su için 2 saatte bir nazik bildirim</T>
+              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>Bildirim altyapısı bağlandığında günlük su hatırlatması al</T>
             </View>
             <Switch value={remindWater} onValueChange={v => { setRemindWater(v); update({ remindWater: v }); }} trackColor={{ true: colors.purple }} />
           </View>
@@ -449,7 +527,7 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
           <View style={ps.switchRow}>
             <View style={{ flex: 1, paddingRight: 10 }}>
               <T bold style={{ fontSize: 14 }}>💊 Sabah Vitamin Hatırlatıcısı</T>
-              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>Her sabah saat 09:00'da folik asit & demir alarmı</T>
+              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>Vitamin kaydını sabah akışında öne çıkar</T>
             </View>
             <Switch value={remindVitamin} onValueChange={v => { setRemindVitamin(v); update({ remindVitamin: v }); }} trackColor={{ true: colors.purple }} />
           </View>
@@ -457,7 +535,7 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
           <View style={ps.switchRow}>
             <View style={{ flex: 1, paddingRight: 10 }}>
               <T bold style={{ fontSize: 14 }}>💌 Bebeğin Günlük Mektubu</T>
-              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>Her sabah 08:30'da bebeğinin gelişim mektubu bildirimi</T>
+              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>Günün mektubunu ana akışta önceliklendir</T>
             </View>
             <Switch value={remindLetter} onValueChange={v => { setRemindLetter(v); update({ remindLetter: v }); }} trackColor={{ true: colors.purple }} />
           </View>
@@ -465,7 +543,7 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
           <View style={ps.switchRow}>
             <View style={{ flex: 1, paddingRight: 10 }}>
               <T bold style={{ fontSize: 14 }}>👨‍👩‍👧 Eş Sevgi Notu Bildirimleri</T>
-              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>Eşin sana mesaj veya bebek mektubu yazdığında anında haber ver</T>
+              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>Ortak aile hesabı bağlandığında eş notlarını öne çıkar</T>
             </View>
             <Switch value={remindPartner} onValueChange={v => { setRemindPartner(v); update({ remindPartner: v }); }} trackColor={{ true: colors.purple }} />
           </View>
@@ -480,9 +558,9 @@ export function ProfileScreen({ state, update, open, toast, choose }) {
           <View style={{ marginTop: 20, alignItems: 'center' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#48945A' }} />
-              <T style={{ fontSize: 12, color: colors.muted }}>Momora Bulut Eşitleme · Aktif</T>
+              <T style={{ fontSize: 12, color: colors.muted }}>Momora Bulut Eşitleme · {isSupabaseConfigured ? 'Hazır' : 'Hazırlanıyor'}</T>
             </View>
-            <T style={{ fontSize: 10, color: '#A092A3', marginTop: 4 }}>Versiyon 2.4.0 · 2026 Edition</T>
+            <T style={{ fontSize: 10, color: '#A092A3', marginTop: 4 }}>Yerel kayıtlar cihazda saklanıyor</T>
           </View>
         </Card>
       )}

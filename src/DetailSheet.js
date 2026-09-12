@@ -23,12 +23,12 @@ const titles={
   dailyMood:'Bugün nasıl hissediyorsun?',
   // Modül 1
   kickCounter:'Tekme Sayacı',contractionTimer:'Kasılma Sayacı',hospitalBag:'Doğum Çantası',
-  weight:'Kilo Takibi & BMI',birthPlan:'Doğum Planı',doctorQuestions:'Doktora Sorular',babyNames:'Bebek İsim Rehberi',
+  weight:'Kilo Takibi',birthPlan:'Doğum Planı',doctorQuestions:'Randevu Soruları',babyNames:'Bebek İsim Rehberi',
   toolsHub:'Momora Araçlar',
   // Modül 2
-  sizeGuide:'3’lü Boyut Kıyaslama',ultrasoundAtlas:'Ultrason Atlası',medicalTimeline:'Tıbbi Zaman Çizelgesi',organDevelopment:'Organ Gelişimi & Kalp Ritim',
+  sizeGuide:'3’lü Boyut Kıyaslama',ultrasoundAtlas:'Ultrason Atlası',medicalTimeline:'Kontrol Zaman Çizelgesi',organDevelopment:'Organ Gelişimi & Kalp Ritim',
   // Modül 3
-  foodSafety:'Besin Güvenliği Rehberi',topicHub:'Konu Koleksiyonları',editorialArticle:'Uzman Rehberi',
+  foodSafety:'Besin Güvenliği Rehberi',topicHub:'Konu Koleksiyonları',editorialArticle:'Editoryal Rehber',
   // Modül 4
   babyLetter:'Bebeğin Günlük Mektubu',timelineFeed:'Günlük Zaman Tüneli',waterVitamin:'Su & Vitamin Takibi',
   // Modül 5
@@ -69,9 +69,9 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
   return <Modal visible transparent animationType="fade" onRequestClose={close}><KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':undefined} style={s.backdrop}><Tap label="Pencereyi kapat" style={StyleSheet.absoluteFill} onPress={close}/><View style={s.sheet}><View style={s.handle}/><View style={s.heading}><View style={{flex:1}}><T style={s.kicker}>MOMORA · YANINDA</T><T bold style={s.title}>{kind==='log'?`${data.type} kaydı`:titles[kind]}</T></View><Tap onPress={close} label="Kapat" style={s.close}><Icon name="close" size={22}/></Tap></View><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{paddingBottom:28}} showsVerticalScrollIndicator={false}>
     {kind==='journey'&&journeys.map(j=><Tap key={j.key} onPress={()=>{choose(j.key);close()}} style={s.option}><T bold style={{flex:1}}>{j.title.replace('\n',' ')}</T><Icon name="chevron"/></Tap>)}
     {kind==='profile'&&<ProfileScreen state={state} update={update} open={open} toast={toast} choose={choose} close={close}/>}
-    {kind==='appointment'&&<>{input('Randevu adı',text,setText)}{input('Tarih',secondary,setSecondary,{placeholder:'16 Mayıs Cuma'})}{input('Saat',time,setTime,{placeholder:'10:00',maxLength:5})}{button('Randevuyu kaydet',save)}<T style={s.demo}>Randevu günlüğüne kaydedilir; bu demoda telefon bildirimi gönderilmez.</T></>}
+    {kind==='appointment'&&<>{input('Randevu adı',text,setText)}{input('Tarih',secondary,setSecondary,{placeholder:'16 Mayıs Cuma'})}{input('Saat',time,setTime,{placeholder:'10:00',maxLength:5})}{button('Randevuyu kaydet',save)}<T style={s.demo}>Randevu günlüğüne kaydedilir; bildirim ayarı bağlandığında hatırlatma olarak kullanılabilir.</T></>}
     {kind==='log'&&<><T style={s.body}>{data.type==='Bez'?'Alt değiştirme kaydını ekle.':'Küçük bir kayıt, günün akışını hatırlamana yardımcı olur.'}</T>{data.type==='Emzirme'&&<View style={s.chips}>{['Sağ meme','Sol meme'].map(v=><Tap key={v} onPress={()=>setSide(v)} style={[s.chip,side===v&&s.chipSelected]}><T>{v}</T></Tap>)}</View>}{data.type==='Bez'?<View style={s.chips}>{['Temiz','Islak','Kirli'].map(v=><Tap key={v} onPress={()=>setSide(v)} style={[s.chip,(side===v||v==='Temiz'&&side==='Sağ meme')&&s.chipSelected]}><T>{v}</T></Tap>)}</View>:input(data.type==='Biberon'?'Miktar (ml)':'Süre (dakika)',text,setText,{keyboardType:'decimal-pad',placeholder:data.type==='Biberon'?'120':'15'})}{button('Kaydet',save)}</>}
-    {kind==='records'&&<><T style={s.demo}>Yerel demo · Yeni kayıtların en üstte görünür.</T><RecordList records={[...state.records,...sampleRecords]}/></>}
+    {kind==='records'&&<><T style={s.demo}>Yeni kayıtların en üstte görünür. Bulut hesabı bağlandığında cihazlar arasında eşitlenir.</T><RecordList records={[...state.records,...sampleRecords]}/></>}
     {(kind==='note'||kind==='week')&&<>{kind==='week'&&(()=>{
       const wi=getWeekInfo(data.week||24);
       return <>
@@ -141,7 +141,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
         <Card style={{marginTop:12,padding:16,backgroundColor:'#FAF5FA',borderWidth:1,borderColor:'#EDE2EE'}}>
           <View style={{flexDirection:'row',alignItems:'center',gap:8,marginBottom:8}}>
             <T style={{fontSize:18}}>👩‍⚕️</T>
-            <T bold style={{fontSize:13,color:colors.purple}}>Uzman Klinik Rehberi</T>
+            <T bold style={{fontSize:13,color:colors.purple}}>Editoryal Kaynak Notu</T>
           </View>
           <T style={{fontSize:14,lineHeight:22,color:'#3E3643'}}>{data.answer}</T>
           {data.faq?.tags ? (
@@ -158,7 +158,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
     </View>}
     {kind==='community'&&<BirthMonthClubScreen onOpenThread={p=>open('communityThread',p)}/>}
     {kind==='categories'&&['Bebek bezi','Islak mendil','Beslenme','Banyo'].map(v=><View key={v} style={s.option}><T>{v}</T></View>)}
-    {kind==='sponsored'&&<T style={s.body}>Bu ürün kartları tasarım demosudur. Gerçek sponsor, satın alma bağlantısı veya ödeme işlemi yoktur. + düğmesiyle ürünleri yerel listene ekleyebilirsin.</T>}
+    {kind==='sponsored'&&<T style={s.body}>Bu alanda önerilen ürünleri kendi alışveriş listene ekleyebilir, satın alma kararını kendi tercihlerin ve ihtiyaçlarınla verebilirsin.</T>}
     {kind==='dailyMood'&&(()=>{
       const labels=['Harika','İyi','Normal','Yorgun','Zor'];
       const moodMessages=[
