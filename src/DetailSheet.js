@@ -155,7 +155,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
       {button('Notlarıma git',()=>open('notes'))}
       {button('Sıkça Sorulan Sorular Kütüphanesi',()=>open('topicHub'),true)}
     </View>}
-    {kind==='community'&&<><T style={s.body}>Buradaki paylaşım örnek veridir. Canlı topluluk Supabase bağlantısıyla birlikte açılacak.</T>{button('Kendime bir not bırak',()=>open('note'))}</>}
+    {kind==='community'&&<BirthMonthClubScreen onOpenThread={p=>open('communityThread',p)}/>}
     {kind==='categories'&&['Bebek bezi','Islak mendil','Beslenme','Banyo'].map(v=><View key={v} style={s.option}><T>{v}</T></View>)}
     {kind==='sponsored'&&<T style={s.body}>Bu ürün kartları tasarım demosudur. Gerçek sponsor, satın alma bağlantısı veya ödeme işlemi yoktur. + düğmesiyle ürünleri yerel listene ekleyebilirsin.</T>}
     {kind==='dailyMood'&&(()=>{

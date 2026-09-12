@@ -9,6 +9,7 @@ import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel, pr
 import { usePulse, useCrossFade } from './anim';
 import { articles, searchArticles, searchFaqs } from './content';
 import { TopicHubScreen } from './ExploreScreens';
+import { CommunityHub } from './CommunityScreens';
 
 export const journeys = [
   { key: 'pregnancy', title: 'Hamileyim', sub: 'Bebeğimle tanışmaya\nhazırlanıyorum', image: assets.pregnancy, tint: '#F5E7E8' },
@@ -511,26 +512,9 @@ export function Discover({state,update,open}) {
   </Page>;
 }
 
-export function Assistant({state,update,open}) {
-  const [message,setMessage]=useState('');
-  const prompts=['Mide bulantısı ne zaman geçer?','Bebeğimin tekmelerini ne zaman hissederim?','Kahve içebilir miyim?','Kordon dolanması tehlikeli mi?'];
-  function send(value) {
-    const clean=(value||message).trim();if(!clean)return;
-    const matchedFaqs = searchFaqs(clean);
-    const bestFaq = matchedFaqs.length > 0 ? matchedFaqs[0] : null;
-    update(old=>({messages:[...old.messages,{id:Date.now().toString(),text:clean}],notes:[...old.notes,{id:Date.now().toString(),text:clean}]}));
-    setMessage('');
-    Keyboard.dismiss();
-    open('assistantAnswer',{question:clean, answer: bestFaq ? bestFaq.a : null, faq: bestFaq});
-  }
-  function promptAction(p,i){send(p)}
-  return <Page contentStyle={{gap:11}}>
-    <View style={s.assistantHeader}><BrandMark size={51} outline/><T bold style={s.assistantTitle}>Momora Asistan</T><T style={{color:'#86668F',fontSize:15,marginTop:5}}>Sor, paylaş, birlikte düşünelim. 💜</T></View>
-    <Card style={s.bubble}><T style={{fontSize:16,lineHeight:23}}>Merhaba! Ben Momora Asistan.{ '\n' }Hamilelik, bebek bakımı, lohusalık ve günlük yaşamda aklına takılan konularda sana rehberlik etmek için buradayım. 🌿</T></Card>
-    <View style={{gap:9}}>{prompts.map((p,i)=><Tap key={p} onPress={()=>promptAction(p,i)} style={s.prompt}><T style={{fontSize:15,flex:1}}>{p}</T><Icon name="chevron" size={21}/></Tap>)}</View>
-    {state.messages.length>0&&<Tap onPress={()=>open('notes')} style={s.sentMessage}><T style={{fontSize:13}}>Son sorun: {state.messages[state.messages.length-1].text}</T></Tap>}
-    <View style={s.messageInput}><TextInput value={message} onChangeText={setMessage} onSubmitEditing={()=>send()} maxLength={600} placeholder="Bana bir şey sor..." placeholderTextColor="#928A92" style={[s.searchInput,{fontSize:14}]} accessibilityLabel="Asistana sor" returnKeyType="send"/><Tap label="Soruyu gönder" onPress={()=>send()} style={s.send}><Icon name="send" size={20} color="white"/></Tap></View>
-    <Card style={{padding:13,marginTop:5}}><Section title="Toplulukta neler var?" action="Tümünü gör" onPress={()=>open('community')}/><View style={[s.row,{gap:9}]}><View style={s.smallAvatar}><Image source={assets.pregnancy} style={{height:42,width:63}}/></View><View><T bold style={{fontSize:12}}>Elif K.</T><T style={{fontSize:10,color:colors.muted,marginTop:3}}>2 saat önce</T></View></View><View style={[s.row,{marginTop:8,gap:12}]}><T style={{fontSize:12,lineHeight:19,flex:1}}>6 haftalık bebeğim gece sık uyanıyor. Sizde normal mi? Nasıl başa çıktınız? 💛</T><View style={s.postPhoto}><Image source={assets.mother} style={{width:150,height:100}}/></View></View><View style={[s.row,{gap:20,marginTop:9}]}><Tap onPress={()=>update(old=>({liked:!old.liked}))} label="Paylaşımı beğen" style={[s.row,{gap:5}]}><Icon name="heart" size={17} color={state.liked?'#C58EA5':colors.muted} fill={state.liked?'#C58EA5':'none'}/><T style={{fontSize:11,color:colors.muted}}>{state.liked?25:24}</T></Tap><Tap onPress={()=>open('community')} label="Yorumları gör" style={[s.row,{gap:5}]}><Icon name="chat" size={17} color={colors.muted}/><T style={{fontSize:11,color:colors.muted}}>12</T></Tap></View></Card>
+export function Assistant({state,update,open,toast}) {
+  return <Page contentStyle={{paddingHorizontal:0}}>
+    <CommunityHub state={state} update={update} open={open} toast={toast} />
   </Page>;
 }
 
