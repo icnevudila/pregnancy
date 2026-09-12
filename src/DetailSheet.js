@@ -14,9 +14,10 @@ import { DailyBabyLetterScreen, DailyTimelineFeed, WaterVitaminQuickModal } from
 import { BirthMonthClubScreen, CommunityThreadScreen } from './CommunityScreens';
 import { NursingTimerScreen, SleepWhiteNoiseScreen, DiaperTrackerScreen, PostpartumSelfCareScreen } from './PostpartumBabyScreens';
 import { ProfileScreen } from './ProfileScreen';
+import { AuthModal } from './AuthScreens';
 
 const titles={
-  journey:'Yolculuğun nerede?',profile:'Senin yolculuğun',appointment:'Doktor randevun',
+  journey:'Yolculuğun nerede?',profile:'Senin yolculuğun',appointment:'Doktor randevun',auth:'Momora Hesabı & Giriş',
   week:'Bu hafta ikiniz',log:'Yeni kayıt',records:'Günlük kayıtların',note:'Bugünü sakla',
   notes:'Sana ait notlar',article:'Güvenli bağ, küçük anlarla başlar',assistantAnswer:'Sorunu birlikte saklayalım',
   community:'Anneler birbirine iyi gelir',categories:'İhtiyacın olanı keşfet',sponsored:'Ürün önerileri',
@@ -201,6 +202,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
         </View>
       );
     })()}
+    {kind==='auth'&&<AuthModal close={close} toast={toast} onAuthSuccess={u=>{update({user:u});if(u?.user_metadata?.full_name)update({name:u.user_metadata.full_name});}}/>}
     {kind==='kickCounter'&&<KickCounter state={state} update={update} toast={toast} close={close}/>}
     {kind==='contractionTimer'&&<ContractionTimer state={state} update={update} toast={toast} close={close}/>}
     {kind==='hospitalBag'&&<HospitalBag state={state} update={update} toast={toast} close={close}/>}

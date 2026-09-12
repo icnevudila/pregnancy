@@ -488,33 +488,47 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
         <Card style={{ padding: 18 }}>
           <T bold style={{ fontSize: 17, marginBottom: 14 }}>Bildirimler & Tercihler</T>
 
-          <Card style={{ padding: 14, backgroundColor: '#FAF6FA', borderColor: '#EDE0EE', marginBottom: 14 }}>
-            <T bold style={{ fontSize: 15, color: colors.ink }}>Bulut Hesabı</T>
-            <T style={{ fontSize: 12, color: colors.muted, lineHeight: 18, marginTop: 4 }}>
-              {cloudUser ? `Giriş yapıldı: ${cloudUser.email}` : (cloudStatus || cloudStatusLabel())}
-            </T>
-            {!isSupabaseConfigured && (
-              <T style={{ fontSize: 11, color: '#9A5B6D', lineHeight: 16, marginTop: 8 }}>
-                Supabase publishable key eklenince bu alan gerçek giriş ve eşitleme için aktif olur.
-              </T>
-            )}
-            {isSupabaseConfigured && !cloudUser && (
-              <View style={{ gap: 8, marginTop: 12 }}>
-                <TextInput value={authEmail} onChangeText={setAuthEmail} autoCapitalize="none" keyboardType="email-address" placeholder="E-posta" placeholderTextColor={colors.muted} style={ps.fieldInput} />
-                <TextInput value={authPassword} onChangeText={setAuthPassword} secureTextEntry placeholder="Şifre" placeholderTextColor={colors.muted} style={ps.fieldInput} />
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <Tap onPress={() => setAuthMode('signin')} style={[ps.genderPick, authMode === 'signin' && ps.genderPickActive]}><T bold={authMode === 'signin'} style={{ fontSize: 12, color: authMode === 'signin' ? colors.purple : colors.ink }}>Giriş</T></Tap>
-                  <Tap onPress={() => setAuthMode('signup')} style={[ps.genderPick, authMode === 'signup' && ps.genderPickActive]}><T bold={authMode === 'signup'} style={{ fontSize: 12, color: authMode === 'signup' ? colors.purple : colors.ink }}>Yeni Hesap</T></Tap>
+          <Card style={{ padding: 16, backgroundColor: '#FAF6FA', borderColor: '#EDE0EE', marginBottom: 14 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <BrandMark size={32} />
+                <View>
+                  <T bold style={{ fontSize: 15, color: colors.ink }}>Momora Bulut & Aile Hesabı</T>
+                  <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
+                    {cloudUser ? `Aktif: ${cloudUser.email}` : 'Cihazlar arası anlık eşitleme'}
+                  </T>
                 </View>
-                <Tap disabled={authBusy} onPress={handleAuth} label="Bulut hesabı" style={ps.saveFullBtn}>
-                  <T bold style={{ color: 'white', fontSize: 14 }}>{authBusy ? 'Bağlanıyor...' : 'Devam Et'}</T>
+              </View>
+              {cloudUser && (
+                <View style={{ backgroundColor: '#EDF7ED', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10 }}>
+                  <T bold style={{ fontSize: 11, color: '#2E7D32' }}>Bağlı</T>
+                </View>
+              )}
+            </View>
+
+            {cloudUser ? (
+              <View style={{ marginTop: 12, gap: 8 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderTopWidth: 1, borderColor: '#EFE5F0' }}>
+                  <T style={{ fontSize: 12, color: colors.muted }}>Rol</T>
+                  <T bold style={{ fontSize: 12, color: colors.purple }}>{currentRole === 'mother' ? 'Anne Hesabı' : 'Baba Hesabı'}</T>
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderTopWidth: 1, borderColor: '#EFE5F0' }}>
+                  <T style={{ fontSize: 12, color: colors.muted }}>Eşleşme Kodu</T>
+                  <T bold style={{ fontSize: 12, letterSpacing: 1, color: colors.ink }}>{state.familyCode || 'MOM-7829-TR'}</T>
+                </View>
+                <Tap onPress={handleSignOut} label="Çıkış yap" style={[ps.secondaryBtn, { marginTop: 6 }]}>
+                  <T bold style={{ fontSize: 13, color: '#B42318' }}>Oturumu Kapat</T>
                 </Tap>
               </View>
-            )}
-            {isSupabaseConfigured && cloudUser && (
-              <Tap onPress={handleSignOut} label="Çıkış yap" style={[ps.secondaryBtn, { marginTop: 12 }]}>
-                <T bold style={{ fontSize: 13, color: colors.purple }}>Çıkış Yap</T>
-              </Tap>
+            ) : (
+              <View style={{ marginTop: 12 }}>
+                <T style={{ fontSize: 12, color: '#5C5463', lineHeight: 18, marginBottom: 12 }}>
+                  Anne ve baba olarak aynı hesaba bağlanabilir, tüm verilerinizi ve eş notlarınızı güvenle senkronize edebilirsiniz.
+                </T>
+                <Tap onPress={() => open && open('auth')} style={ps.saveFullBtn}>
+                  <T bold style={{ color: 'white', fontSize: 14 }}>Giriş Yap / Hesap Oluştur 🌸</T>
+                </Tap>
+              </View>
             )}
           </Card>
 

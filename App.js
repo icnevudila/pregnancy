@@ -10,10 +10,12 @@ import { Onboarding, Pregnancy, Postpartum, Baby, Discover, Assistant } from './
 import { ToolsHub } from './src/ToolsHub';
 import DetailSheet from './src/DetailSheet';
 import { ProfileScreen } from './src/ProfileScreen';
+import { AuthModal } from './src/AuthScreens';
 import { useMomoraStore } from './src/store';
 
 const previewScreens=[
   ['onboarding','Başlangıç'],
+  ['auth','Giriş & Kayıt'],
   ['pregnancy','Bugün · Günlük Akış'],
   ['tools','Takip & Araçlar'],
   ['discover','Kütüphane & Magazin'],
@@ -42,7 +44,7 @@ function Momora() {
     }
   },[ready,state.mode,state.lastMoodDate]);
   const props={state,update,addRecord,open,cloudStatus,refreshFromCloud};
-  const renderPage=()=>{switch(active){case'pregnancy':return <Pregnancy {...props}/>;case'tools':return <ToolsHub {...props} toast={setNotice}/>;case'postpartum':return <Postpartum {...props}/>;case'baby':return <Baby {...props}/>;case'discover':return <Discover {...props}/>;case'assistant':return <Assistant {...props} toast={setNotice}/>;case'profile':return <ProfileScreen {...props} toast={setNotice} choose={choose}/>;default:return <Onboarding choose={choose} update={update} toast={setNotice}/>}};
+  const renderPage=()=>{switch(active){case'pregnancy':return <Pregnancy {...props}/>;case'tools':return <ToolsHub {...props} toast={setNotice}/>;case'postpartum':return <Postpartum {...props}/>;case'baby':return <Baby {...props}/>;case'discover':return <Discover {...props}/>;case'assistant':return <Assistant {...props} toast={setNotice}/>;case'profile':return <ProfileScreen {...props} toast={setNotice} choose={choose}/>;case'auth':return <AuthModal close={()=>setPage(state.mode||'pregnancy')} toast={setNotice} onAuthSuccess={u=>{update({user:u});if(u?.user_metadata?.full_name)update({name:u.user_metadata.full_name});setPage(state.mode||'pregnancy');}}/>;default:return <Onboarding choose={choose} update={update} toast={setNotice}/>}};
   if(!ready)return <View style={s.loading}><BrandMark size={60}/><ActivityIndicator color={colors.purple}/></View>;
   return <View style={[s.root,desktop&&s.desktop]}>
     {desktop&&<View style={s.sidebar}><View style={s.desktopBrand}><BrandMark size={55}/><T style={s.desktopWordmark}>MOMORA</T></View><T style={s.desktopTag}>Her adımda, daha güçlü bir sen.</T><View style={{gap:8,marginTop:42}}>{previewScreens.map(([id,label],index)=><Tap key={id} onPress={()=>setPage(id)} label={'Ekran: '+label} accessibilityState={{selected:active===id}} style={[s.previewTab,active===id&&s.previewTabActive]}><T style={[s.previewNumber,active===id&&{color:colors.purple}]}>{String(index+1).padStart(2,'0')}</T><T bold={active===id} style={{fontSize:15}}>{label}</T><View style={{flex:1}}/>{active===id&&<Icon name="chevron" color={colors.purple} size={18}/>}</Tap>)}</View><View style={s.localBadge}><View style={s.dot}/><T style={{fontSize:12,color:colors.muted}}>Geliştirme önizlemesi · Expo Go</T></View></View>}
