@@ -89,7 +89,7 @@ export const allTools = [
     title: 'Organ Gelişimi & Kalp',
     subtitle: 'Organ gelişimi ve kalp ritmi notları',
     icon: 'heart',
-    art: 'ui_fetal_heart_3d',
+    art: 'card_blood_pressure',
     color: '#FDF2F4',
     tint: '#A84D67',
     available: true,
@@ -103,7 +103,7 @@ export const allTools = [
     title: 'Hastane Çantası',
     subtitle: 'Anne, bebek & refakatçi listesi',
     icon: 'bag',
-    art: 'ui_hospital_bag_3d',
+    art: 'card_hospital_bag',
     color: '#F4EEF8',
     tint: '#744E8A',
     available: true,
@@ -115,7 +115,7 @@ export const allTools = [
     title: 'Doğum Planı',
     subtitle: 'Doğum tercihlerini düzenli notlara çevir',
     icon: 'book',
-    art: 'ui_birth_plan_scroll',
+    art: 'card_health_report',
     color: '#FAF4EB',
     tint: '#946635',
     available: true,
@@ -127,7 +127,7 @@ export const allTools = [
     title: 'Doktora Sorular',
     subtitle: 'Kontrol randevusu soru defteri',
     icon: 'chat',
-    art: 'ui_doctor_prep_notebook',
+    art: 'card_ask_doctor',
     color: '#F5EEF5',
     tint: '#844E86',
     available: true,
@@ -139,7 +139,7 @@ export const allTools = [
     title: 'Bebek İsimleri',
     subtitle: 'Kaydırarak eşle isim bulucu',
     icon: 'heart',
-    art: 'ui_baby_name_blocks',
+    art: 'baby',
     color: '#FDF2F5',
     tint: '#B8526F',
     available: true,
@@ -153,7 +153,7 @@ export const allTools = [
     title: 'Emzirme & Biberon',
     subtitle: 'Sol/Sağ meme kronometresi & ml takibi',
     icon: 'nursing',
-    art: 'ui_nursing_dual_timer',
+    art: 'btn_nursing',
     color: '#FBF1F5',
     tint: '#9E567B',
     available: true,
@@ -165,7 +165,7 @@ export const allTools = [
     title: 'Uyku & Beyaz Gürültü',
     subtitle: 'Fön, dalga, rahim içi sakinleştirici',
     icon: 'moon',
-    art: 'ui_white_noise_headphones',
+    art: 'btn_sleep',
     color: '#ECEEF7',
     tint: '#4C589C',
     available: true,
@@ -177,7 +177,7 @@ export const allTools = [
     title: 'Bez Değiştirme Günlüğü',
     subtitle: 'Islak, kirli ve temiz bez sayaçları',
     icon: 'diaper',
-    art: 'cat_diaper',
+    art: 'btn_diaper',
     color: '#EDF5F2',
     tint: '#437E65',
     available: true,
@@ -189,7 +189,7 @@ export const allTools = [
     title: 'Lohusa İyileşme Rehberi',
     subtitle: 'Fiziksel toparlanma & kendine şefkat',
     icon: 'leaf',
-    art: 'ui_postpartum_lotus',
+    art: 'mother-baby',
     color: '#F7EFF8',
     tint: '#86518A',
     available: true,
@@ -317,7 +317,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Image source={generatedAssets['ui_kick_foot_button']} style={{ width: 22, height: 22 }} resizeMode="contain" />
+                <Image source={generatedAssets['card_kick_counter']} style={{ width: 26, height: 26 }} resizeMode="contain" />
                 <T bold style={{ fontSize: 15, color: colors.ink }}>Tekme Seansları Geçmişi</T>
               </View>
               <Tap onPress={() => open('kickCounter')} style={{ padding: 4 }}>
@@ -350,7 +350,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Image source={generatedAssets['ui_contraction_pulse_button']} style={{ width: 22, height: 22 }} resizeMode="contain" />
+                <Image source={generatedAssets['card_contractions']} style={{ width: 26, height: 26 }} resizeMode="contain" />
                 <T bold style={{ fontSize: 15, color: colors.ink }}>Kasılma Kayıtları</T>
               </View>
               <Tap onPress={() => open('contractionTimer')} style={{ padding: 4 }}>
@@ -383,7 +383,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Image source={generatedAssets['ui_weight_bmi_gauge']} style={{ width: 22, height: 22 }} resizeMode="contain" />
+                <Image source={generatedAssets['card_scale']} style={{ width: 26, height: 26 }} resizeMode="contain" />
                 <T bold style={{ fontSize: 15, color: colors.ink }}>Kilo Takip Eğrisi & Ölçümler</T>
               </View>
               <Tap onPress={() => open('weight')} style={{ padding: 4 }}>
@@ -419,7 +419,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
               label="Hastane çantasını aç"
               style={[th.statMiniCard, { backgroundColor: '#FAF4FC' }]}
             >
-              <Image source={generatedAssets['ui_hospital_bag_3d']} style={{ width: 26, height: 26 }} resizeMode="contain" />
+              <Image source={generatedAssets['card_hospital_bag']} style={{ width: 32, height: 32 }} resizeMode="contain" />
               <T bold style={{ fontSize: 13, color: '#572E65', marginTop: 4 }}>Hastane Çantası</T>
               <T style={{ fontSize: 11, color: '#885899', marginTop: 2 }}>{bagDone}/{bagItems.length || 0} eşya hazır</T>
             </Tap>
@@ -429,7 +429,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close })
               label="Doğum planını aç"
               style={[th.statMiniCard, { backgroundColor: '#FDF7EE' }]}
             >
-              <Image source={generatedAssets['ui_birth_plan_scroll']} style={{ width: 26, height: 26 }} resizeMode="contain" />
+              <Image source={generatedAssets['card_health_report'] || generatedAssets['card_appointment']} style={{ width: 32, height: 32 }} resizeMode="contain" />
               <T bold style={{ fontSize: 13, color: '#684520', marginTop: 4 }}>Doğum Tercihleri</T>
               <T style={{ fontSize: 11, color: '#997042', marginTop: 2 }}>{birthPlanDone} tercih belirlendi</T>
             </Tap>

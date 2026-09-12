@@ -192,9 +192,9 @@ export function UltrasoundAtlas({ state }) {
             style={StyleSheet.absoluteFill}
           />
 
-          {generatedAssets['ui_ultrasound_hdlive_20w'] || generatedAssets['card_ultrasound_frame'] ? (
+          {generatedAssets['card_ultrasound_frame'] ? (
             <Image
-              source={tab === '3d' && generatedAssets['ui_ultrasound_hdlive_20w'] ? generatedAssets['ui_ultrasound_hdlive_20w'] : generatedAssets['card_ultrasound_frame']}
+              source={generatedAssets['card_ultrasound_frame']}
               style={ms.usgImage}
               resizeMode="contain"
             />
@@ -355,7 +355,7 @@ export function OrganDevelopment({ state }) {
         title="Organ gelişimini bölümlere ayır"
         body="Kalp, beyin, duyular ve kemik gelişimini tek ekranda sade başlıklarla takip et."
         icon="heart"
-        asset="ui_fetal_heart_3d"
+        asset="card_blood_pressure"
         tint="#A84D67"
       />
 
@@ -372,8 +372,8 @@ export function OrganDevelopment({ state }) {
               label="Kalp atışını dinle"
               style={ms.heartBtn}
             >
-              {generatedAssets['ui_fetal_heart_3d'] ? (
-                <Image source={generatedAssets['ui_fetal_heart_3d']} style={{ width: 44, height: 44 }} resizeMode="contain" />
+              {generatedAssets['card_blood_pressure'] ? (
+                <Image source={generatedAssets['card_blood_pressure']} style={{ width: 44, height: 44 }} resizeMode="contain" />
               ) : (
                 <Icon name="heart" size={38} color="#FF6E8F" fill={playing ? '#FF6E8F' : 'none'} />
               )}

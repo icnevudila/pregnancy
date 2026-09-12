@@ -886,9 +886,8 @@ export function ComparisonArt({ mode = 'fruit', type, size = 80, emoji, info, us
     const weekNum = week || info?.week;
     const weekKey = weekNum ? `fetus_w${String(weekNum).padStart(2, '0')}` : null;
     const usImg = (weekKey && generatedAssets[weekKey]) || 
-                  generatedAssets['ui_ultrasound_hdlive_20w'] || 
-                  generatedAssets['fetus'] || 
                   generatedAssets['card_ultrasound_frame'] || 
+                  generatedAssets['fetus'] || 
                   generatedAssets['blog_ultrasound_memory'];
     return (
       <View style={{

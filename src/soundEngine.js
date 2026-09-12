@@ -74,6 +74,34 @@ export function playSound(id, options = {}) {
         const tick = Math.exp(-Math.pow((t % 1.0 - 0.05) * 80, 2));
         data[i] = Math.sin(2 * Math.PI * 1200 * t) * tick * 0.7;
       }
+    } else if (id === 'lullaby') {
+      // Gentle music box pentatonic melody (C5, E5, G5, A5, C6)
+      const notes = [523.25, 659.25, 783.99, 880.00, 1046.50, 783.99];
+      const noteLen = 0.45;
+      for (let i = 0; i < bufferSize; i++) {
+        const t = i / ctx.sampleRate;
+        const noteIdx = Math.floor((t / noteLen) % notes.length);
+        const noteT = t % noteLen;
+        const freq = notes[noteIdx];
+        const envelope = Math.exp(-noteT * 7.5);
+        // Harmonic bell chime tone
+        const chime = Math.sin(2 * Math.PI * freq * t) + 0.3 * Math.sin(2 * Math.PI * freq * 2 * t);
+        data[i] = chime * envelope * 0.45;
+      }
+    } else if (id === 'hairdryer' || id === 'vacuum') {
+      // Warm, deep pink noise with gentle rumble
+      let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        b3 = 0.86650 * b3 + white * 0.3104856;
+        b4 = 0.55000 * b4 + white * 0.5329522;
+        b5 = -0.7616 * b5 - white * 0.0168980;
+        data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.085;
+        b6 = white * 0.115926;
+      }
     } else {
       for (let i = 0; i < bufferSize; i++) {
         data[i] = (Math.random() * 2 - 1) * 0.5;
@@ -90,7 +118,7 @@ export function playSound(id, options = {}) {
       filter.frequency.value = 220;
     } else if (id === 'vacuum') {
       filter.type = 'lowpass';
-      filter.frequency.value = 450;
+      filter.frequency.value = id === 'lullaby' ? 2400 : 550;
     } else if (id === 'rain' || id === 'waves' || id === 'ocean') {
       filter.type = 'lowpass';
       filter.frequency.value = 1200;

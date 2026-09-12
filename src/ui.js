@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Text, View, Pressable, StyleSheet, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Circle, Path, Line, Rect } from 'react-native-svg';
 import { colors, fonts, shadow } from './theme';
 import { Icon, MoodFace } from './Icons';
 import { generatedAssets, getAsset } from './generatedAssets';
@@ -70,6 +71,80 @@ export function SmallStat({ title, value, icon, tint, onPress }) {
 export function Page({ children, style, contentStyle, ...props }) {
   return <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} style={[{ flex: 1 }, style]} contentContainerStyle={[s.page, contentStyle]} {...props}>{children}</ScrollView>;
 }
+export function ProgressRing({ size = 70, strokeWidth = 6, progress = 0, color = colors.purple, bgColor = '#EDE6EF', children }) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (Math.min(100, Math.max(0, progress)) / 100) * circumference;
+
+  return (
+    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+      <Svg width={size} height={size} style={{ position: 'absolute', transform: [{ rotate: '-90deg' }] }}>
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={bgColor}
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={color}
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          fill="none"
+        />
+      </Svg>
+      {children}
+    </View>
+  );
+}
+export function MetricCard({ title, value, unit, subtext, icon, tint = colors.purple, style }) {
+  return (
+    <View style={[s.metricCard, { borderColor: tint + '22', backgroundColor: tint + '08' }, style]}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+        <T style={[s.metricTitle, { color: tint }]}>{title}</T>
+        {icon && <Icon name={icon} size={15} color={tint} />}
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 3 }}>
+        <T bold style={s.metricValue}>{value}</T>
+        {unit ? <T style={s.metricUnit}>{unit}</T> : null}
+      </View>
+      {subtext ? <T style={s.metricSubtext}>{subtext}</T> : null}
+    </View>
+  );
+}
+export function StatusCard({ level = 'info', title, body, icon, action, onAction, style }) {
+  const configs = {
+    safe: { bg: '#EDF7F1', border: '#BEE7CD', color: '#2B754B', icon: 'check' },
+    warning: { bg: '#FEF8EB', border: '#F6E0B4', color: '#996C26', icon: 'sparkle' },
+    alert: { bg: '#FDEEEF', border: '#F8C7CB', color: '#B53443', icon: 'heart' },
+    info: { bg: '#F5EFF9', border: '#E4D5EC', color: '#6A4482', icon: 'heart' },
+  };
+  const c = configs[level] || configs.info;
+  return (
+    <View style={[s.statusCard, { backgroundColor: c.bg, borderColor: c.border }, style]}>
+      <View style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>
+        <View style={[s.statusIconCircle, { backgroundColor: c.color + '22' }]}>
+          <Icon name={icon || c.icon} size={15} color={c.color} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <T bold style={{ fontSize: 13.5, color: c.color }}>{title}</T>
+          <T style={{ fontSize: 12, color: '#4B4252', lineHeight: 18, marginTop: 2 }}>{body}</T>
+          {action ? (
+            <Tap onPress={onAction} style={{ marginTop: 6, alignSelf: 'flex-start' }}>
+              <T bold style={{ fontSize: 12, color: c.color }}>{action} →</T>
+            </Tap>
+          ) : null}
+        </View>
+      </View>
+    </View>
+  );
+}
 const s = StyleSheet.create({
   text: { fontFamily: fonts.regular, color: colors.ink, fontSize: 15 },
   card: { backgroundColor: '#FFFDFA', borderRadius: 20, padding: 15, borderWidth: 1, borderColor: '#F0EAE6', ...shadow },
@@ -95,4 +170,11 @@ const s = StyleSheet.create({
   track: { height: 11, backgroundColor: '#EDE9E6', borderRadius: 10, overflow: 'hidden' },
   stat: { padding: 12, minHeight: 66, borderRadius: 15, flexDirection: 'row', alignItems: 'center', gap: 6 },
   page: { paddingHorizontal: 17, paddingTop: 15, paddingBottom: 20, gap: 12 },
+  metricCard: { flex: 1, padding: 12, borderRadius: 16, borderWidth: 1 },
+  metricTitle: { fontSize: 10.5, fontFamily: fonts.bold, letterSpacing: 0.6 },
+  metricValue: { fontSize: 20, color: colors.ink },
+  metricUnit: { fontSize: 12, color: colors.muted, marginLeft: 2 },
+  metricSubtext: { fontSize: 10.5, color: colors.muted, marginTop: 2 },
+  statusCard: { padding: 13, borderRadius: 16, borderWidth: 1 },
+  statusIconCircle: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
 });

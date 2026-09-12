@@ -62,7 +62,7 @@ export function NursingTimerScreen({ state, update, toast }) {
 
   return (
     <View style={pbs.container}>
-      <ScreenHero kicker="BESLENME TAKİBİ" title="Emzirme ve biberon" body="Beslenme seanslarını zaman, taraf ve miktar olarak temiz bir kayıt akışına dönüştür." icon="nursing" asset="ui_nursing_dual_timer" stat={feedMode === 'breast' ? 'emzirme' : `${bottleMl} ml`} tint="#9B4E76" />
+      <ScreenHero kicker="BESLENME TAKİBİ" title="Emzirme ve biberon" body="Beslenme seanslarını zaman, taraf ve miktar olarak temiz bir kayıt akışına dönüştür." icon="nursing" asset="btn_nursing" stat={feedMode === 'breast' ? 'emzirme' : `${bottleMl} ml`} tint="#9B4E76" />
 
       {/* Sekmeler: Emzirme / Biberon */}
       <View style={pbs.segRow}>
@@ -250,7 +250,7 @@ export function SleepWhiteNoiseScreen({ state, update, toast }) {
 
   return (
     <View style={pbs.container}>
-      <ScreenHero kicker="UYKU RİTMİ" title="Uyku ve sakin sesler" body="Uyku durumunu kaydet, beyaz gürültüyü kontrollü zamanlayıcıyla yönet." icon="moon" asset="ui_white_noise_headphones" stat={isAsleep ? 'uykuda' : 'uyanık'} tint="#6E5A96" />
+      <ScreenHero kicker="UYKU RİTMİ" title="Uyku ve sakin sesler" body="Uyku durumunu kaydet, beyaz gürültüyü kontrollü zamanlayıcıyla yönet." icon="moon" asset="btn_sleep" stat={isAsleep ? 'uykuda' : 'uyanık'} tint="#6E5A96" />
 
       {/* Uyku Durumu Kartı */}
       <Card style={[pbs.sleepStatusCard, isAsleep && { backgroundColor: '#201A28' }]}>
@@ -382,8 +382,8 @@ export function SleepWhiteNoiseScreen({ state, update, toast }) {
       {/* Dâhili Beyaz Gürültü Çalar Listesi */}
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
         <Section title="Sakinleştirici Beyaz Gürültü & Sesler" />
-        {generatedAssets['ui_white_noise_headphones'] && (
-          <Image source={generatedAssets['ui_white_noise_headphones']} style={{ width: 32, height: 32 }} resizeMode="contain" />
+        {generatedAssets['btn_sleep'] && (
+          <Image source={generatedAssets['btn_sleep']} style={{ width: 32, height: 32 }} resizeMode="contain" />
         )}
       </View>
       <View style={{ gap: 10 }}>
@@ -432,7 +432,7 @@ export function DiaperTrackerScreen({ update, toast }) {
 
   return (
     <View style={pbs.container}>
-      <ScreenHero kicker="BAKIM KAYDI" title="Bez günlüğü" body="Islak, kirli ve karışık bez kayıtlarını tek dokunuşla günlük akışa ekle." icon="diaper" asset="ui_diaper_wet_drop" stat="hızlı kayıt" tint="#4896BC" />
+      <ScreenHero kicker="BAKIM KAYDI" title="Bez günlüğü" body="Islak, kirli ve karışık bez kayıtlarını tek dokunuşla günlük akışa ekle." icon="diaper" asset="btn_diaper" stat="hızlı kayıt" tint="#4896BC" />
 
       <Card style={{ padding: 16 }}>
         <T bold style={{ fontSize: 16 }}>Bez Değiştirme</T>
@@ -444,8 +444,8 @@ export function DiaperTrackerScreen({ update, toast }) {
       {/* 3 Hızlı Dokunsal Seçici */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
         {[
-          { id: 'Islak', asset: 'ui_diaper_wet_drop', label: 'Islak Bez', tint: '#4896BC', bg: '#EDF6FA' },
-          { id: 'Kirli', asset: 'ui_diaper_dirty', label: 'Kirli Bez', tint: '#8A6840', bg: '#F9F4EE' },
+          { id: 'Islak', asset: 'cat_wipes', label: 'Islak Bez', tint: '#4896BC', bg: '#EDF6FA' },
+          { id: 'Kirli', asset: 'cat_diaper', label: 'Kirli Bez', tint: '#8A6840', bg: '#F9F4EE' },
           { id: 'Karışık', asset: 'btn_diaper', label: 'Karışık', tint: '#6E4D84', bg: '#F6EFF8' },
         ].map(item => (
           <Tap
@@ -478,7 +478,7 @@ export function PostpartumSelfCareScreen({ state, update, toast }) {
 
   return (
     <View style={pbs.container}>
-      <ScreenHero kicker="LOHUSA BAKIMI" title={`${day}. gün toparlanma`} body="İyileşme adımlarını küçük, takip edilebilir ve şefkatli bir günlük haline getir." icon="leaf" asset="ui_postpartum_lotus" stat="bugünkü adımlar" tint="#86518A" />
+      <ScreenHero kicker="LOHUSA BAKIMI" title={`${day}. gün toparlanma`} body="İyileşme adımlarını küçük, takip edilebilir ve şefkatli bir günlük haline getir." icon="leaf" asset="mother-baby" stat="bugünkü adımlar" tint="#86518A" />
 
       {/* Lohusalık Gün Sayacı & Sevgi Notu */}
       <Card style={pbs.recoveryCard}>
@@ -496,8 +496,8 @@ export function PostpartumSelfCareScreen({ state, update, toast }) {
               Mükemmel olmak zorunda değilsin; bebeğin için en güvenli liman senin sıcak kucağın. Kendine şefkat göster. 💜
             </T>
           </View>
-          {generatedAssets['ui_postpartum_lotus'] && (
-            <Image source={generatedAssets['ui_postpartum_lotus']} style={{ width: 75, height: 75 }} resizeMode="contain" />
+          {generatedAssets['mother-baby'] && (
+            <Image source={generatedAssets['mother-baby']} style={{ width: 75, height: 75, borderRadius: 20 }} resizeMode="cover" />
           )}
         </View>
       </Card>

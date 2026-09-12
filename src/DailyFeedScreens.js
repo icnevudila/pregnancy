@@ -16,7 +16,7 @@ export function DailyBabyLetterScreen({ state, toast }) {
 
   return (
     <View style={ds.container}>
-      <ScreenHero kicker="GÜNLÜK BAĞ" title={`${currentWeek}. hafta mektubu`} body="Bebeğinin haftalık gelişimini daha duygusal, paylaşılabilir ve sakin bir dille sakla." icon="send" asset="ui_baby_letter_envelope" stat={`${archiveLetters.length} arşiv`} tint={colors.purple} />
+      <ScreenHero kicker="GÜNLÜK BAĞ" title={`${currentWeek}. hafta mektubu`} body="Bebeğinin haftalık gelişimini daha duygusal, paylaşılabilir ve sakin bir dille sakla." icon="send" asset="card_ultrasound_frame" stat={`${archiveLetters.length} arşiv`} tint={colors.purple} />
 
       {/* Sekmeler: Bugünün Mektubu / Mektup Arşivi */}
       <View style={ds.segRow}>
@@ -26,7 +26,7 @@ export function DailyBabyLetterScreen({ state, toast }) {
           style={[ds.segBtn, tab === 'current' && ds.segBtnActive]}
         >
           <T bold={tab === 'current'} style={[ds.segText, tab === 'current' && { color: 'white' }]}>
-            💌 Bugünün Mektubu
+            Günün Mektubu
           </T>
         </Tap>
         <Tap
@@ -35,7 +35,7 @@ export function DailyBabyLetterScreen({ state, toast }) {
           style={[ds.segBtn, tab === 'archive' && ds.segBtnActive]}
         >
           <T bold={tab === 'archive'} style={[ds.segText, tab === 'archive' && { color: 'white' }]}>
-            📖 Mektup Arşivi ({archiveLetters.length})
+            Mektup Arşivi ({archiveLetters.length})
           </T>
         </Tap>
       </View>
@@ -46,10 +46,10 @@ export function DailyBabyLetterScreen({ state, toast }) {
           <Card style={ds.letterCard}>
             <View style={ds.letterHeader}>
               <View style={ds.letterSeal}>
-                {generatedAssets['ui_baby_letter_envelope'] ? (
-                  <Image source={generatedAssets['ui_baby_letter_envelope']} style={{ width: 36, height: 36 }} resizeMode="contain" />
+                {generatedAssets['card_ultrasound_frame'] ? (
+                  <Image source={generatedAssets['card_ultrasound_frame']} style={{ width: 36, height: 36 }} resizeMode="contain" />
                 ) : (
-                  <T style={{ fontSize: 18 }}>💌</T>
+                  <Icon name="heart" size={20} color={colors.purple} />
                 )}
               </View>
               <View style={{ flex: 1, marginLeft: 10 }}>
@@ -146,7 +146,7 @@ export function DailyTimelineFeed() {
 
   return (
     <View style={ds.container}>
-      <ScreenHero kicker="GÜNLÜK AKIŞ" title="Bugünün ritmi" body="Bebek, beden ve bakım notlarını tek sırada oku; gün içinde nerede olduğunu hızlıca hatırla." icon="calendar" asset="ui_timeline_sun_moon" stat={selectedDay === 'bugun' ? 'bugün' : selectedDay} tint={colors.purple} />
+      <ScreenHero kicker="GÜNLÜK AKIŞ" title="Bugünün ritmi" body="Bebek, beden ve bakım notlarını tek sırada oku; gün içinde nerede olduğunu hızlıca hatırla." icon="calendar" asset="card_appointment" stat={selectedDay === 'bugun' ? 'bugün' : selectedDay} tint={colors.purple} />
 
       {/* Gün Seçici */}
       <View style={ds.segRow}>

@@ -41,7 +41,7 @@ export function FoodSafetyChecker({ toast }) {
 
   return (
     <View style={es.container}>
-      <ScreenHero kicker="BESİN GÜVENLİĞİ" title="Yenebilir mi?" body="Merak ettiğin gıdaları sade risk notları ve daha güvenli alternatiflerle incele." icon="bowl" asset="ui_food_safe_shield" stat={`${filtered.length} sonuç`} tint="#4F8464" />
+      <ScreenHero kicker="BESİN GÜVENLİĞİ" title="Yenebilir mi?" body="Merak ettiğin gıdaları sade risk notları ve daha güvenli alternatiflerle incele." icon="bowl" asset="prod_baby_food" stat={`${filtered.length} sonuç`} tint="#4F8464" />
 
       {/* Arama Kutusu */}
       <View style={es.searchBox}>
@@ -212,6 +212,18 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
           </View>
         </Tap>
         <Tap
+          onPress={() => setHubTab('infographics')}
+          label="İnfografikler"
+          style={[es.hubTabBtn, hubTab === 'infographics' && es.hubTabBtnActive]}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Icon name="sparkle" size={14} color={hubTab === 'infographics' ? 'white' : colors.purple} />
+            <T bold={hubTab === 'infographics'} style={[es.hubTabText, hubTab === 'infographics' && { color: 'white' }]}>
+              İnfografikler
+            </T>
+          </View>
+        </Tap>
+        <Tap
           onPress={() => setHubTab('topics')}
           label="Koleksiyonlar"
           style={[es.hubTabBtn, hubTab === 'topics' && es.hubTabBtnActive]}
@@ -361,6 +373,115 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
               );
             })}
           </View>
+        </View>
+      ) : hubTab === 'infographics' ? (
+        /* 4. GÖRSEL İNFOGRAFİKLER & KLİNİK ŞABLONLAR */
+        <View style={{ gap: 16 }}>
+          <View style={{ gap: 4 }}>
+            <T bold style={{ fontSize: 18, color: colors.ink, letterSpacing: -0.4 }}>Görsel Sağlık & Yaşam İnfografikleri</T>
+            <T style={{ fontSize: 13, color: colors.muted }}>Karmaşık klinik ve bakım bilgilerini sade, görsel şablonlarla keşfedin.</T>
+          </View>
+
+          {[
+            {
+              id: 'info-1',
+              title: 'Gebelikte Şampiyon Anne Tabağı & Süper Besinler',
+              sub: 'Trimesterlar boyunca bebeğin beyin, kemik ve organ gelişimini hızlandıran optimal mikro besin dengesi.',
+              tag: 'BESLENME & MİKRO BESİN',
+              asset: 'infographic_trimester_nutrition',
+              fallback: 'blog_healthy_breakfast',
+              tint: '#4A7C59',
+              bullets: ['Kolin & DHA: Yumurta sarısı ve somon', 'Folat & Demir: Koyu yeşil yapraklılar', 'Kalsiyum: Probiyotik yoğurt ve kefir']
+            },
+            {
+              id: 'info-2',
+              title: 'Güvenli Bebek Uykusu Kılavuzu: ABC Kuralı',
+              sub: 'Ani Bebek Ölümü Sendromu (SIDS) riskini %80 azaltan Dünya Sağlık Örgütü onaylı güvenli uyku rehberi.',
+              tag: 'YENİDOĞAN GÜVENLİĞİ',
+              asset: 'infographic_safe_sleep_abc',
+              fallback: 'blog_sleeping_crib',
+              tint: '#58638A',
+              bullets: ['A - Alone: Yalnız, yastıksız ve oyuncaksız', 'B - Back: Her zaman sırtüstü yatış', 'C - Crib: Kendi bağımsız beşiğinde']
+            },
+            {
+              id: 'info-3',
+              title: 'Doğumun 3 Aşaması ve Bedenin Doğal Dönüşümü',
+              sub: 'İlk sancıdan plasentanın doğumuna ve ten tene temas saatine kadar doğum yolculuğunun anatomik evreleri.',
+              tag: 'DOĞUM REHBERİ',
+              asset: 'infographic_labor_stages',
+              fallback: 'blog_epidural_birth',
+              tint: '#8C4A60',
+              bullets: ['1. Evre: Rahim ağzının incelmesi ve 10 cm açılma', '2. Evre: Bebeğin inişi ve ıkınma aşaması', '3. Evre: Bebeğin kucaklaşması & Altın Saat']
+            },
+            {
+              id: 'info-4',
+              title: 'Fetal Tekme ve Hareket Takibi: 10 Sayım Kuralı',
+              sub: 'Bebeğinizin anne karnındaki ritmini, uyanıklık pencerelerini ve doktora bildirilmesi gereken sinyalleri öğrenin.',
+              tag: 'FETAL GELİŞİM',
+              asset: 'infographic_kick_counter_guide',
+              fallback: 'blog_couple_bump',
+              tint: '#9C6238',
+              bullets: ['Yemekten sonra 2 saat içinde 10 net hareket', 'Sol yan yatışta kan akışı maksimuma çıkar', 'Harekette belirgin azalma hekime iletilmelidir']
+            },
+            {
+              id: 'info-5',
+              title: 'Yenidoğan Açlık ve Ağlama Beden Dili',
+              sub: 'Bebek ağlamadan önceki ince beden dili işaretlerini çözün; beslenmeyi sakin ve stressiz tamamlayın.',
+              tag: 'BEBEK PSİKOLOJİSİ',
+              asset: 'infographic_baby_crying_cues',
+              fallback: 'blog_baby_first_food',
+              tint: '#6A5688',
+              bullets: ['Erken Sinyal: Ağzı arama, parmak emme, başı çevirme', 'Aktif Sinyal: Gerinme, hızlı nefes, kollarını sallama', 'Geç Sinyal: Kırmızı yüzle ağlama (Önce sakinleştirin)']
+            },
+            {
+              id: 'info-6',
+              title: 'Eksiksiz Doğum ve Hastane Çantası Görsel Şablonu',
+              sub: '32. haftada hazır bulunması gereken anne, bebek ve refakatçi temel gereksinimlerinin görsel yerleşimi.',
+              tag: 'HAZIRLIK REHBERİ',
+              asset: 'infographic_hospital_checklist',
+              fallback: 'blog_hospital_bag_pack',
+              tint: '#785A48',
+              bullets: ['Anne: Önden açılan gecelik, lohusa pedi, terlik', 'Bebek: 3 takım tulum, zıbın, müslin bez, pişik kremi', 'Evraklar: Kimlik, sigorta, doğum tercih planı']
+            }
+          ].map(info => {
+            const imgSource = generatedAssets[info.asset] || generatedAssets[info.fallback] || generatedAssets['blog_pregnant_morning'];
+            return (
+              <Card key={info.id} style={{ padding: 0, overflow: 'hidden', borderRadius: 24, borderWidth: 1, borderColor: '#E8DCE4' }}>
+                <View style={{ height: 210, width: '100%', backgroundColor: '#201525', overflow: 'hidden' }}>
+                  {imgSource && (
+                    <Image source={imgSource} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                  )}
+                  <LinearGradient
+                    colors={['rgba(25,12,30,0.1)', 'rgba(25,12,30,0.82)']}
+                    style={StyleSheet.absoluteFill}
+                  />
+                  <View style={{ position: 'absolute', top: 14, left: 14, backgroundColor: 'rgba(255,255,255,0.92)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 }}>
+                    <T bold style={{ fontSize: 10, color: info.tint, letterSpacing: 0.8 }}>{info.tag}</T>
+                  </View>
+                  <View style={{ position: 'absolute', bottom: 14, left: 16, right: 16 }}>
+                    <T bold style={{ fontSize: 18, color: 'white', lineHeight: 23, textShadowColor: 'rgba(0,0,0,0.5)', textShadowRadius: 3 }}>
+                      {info.title}
+                    </T>
+                  </View>
+                </View>
+
+                <View style={{ padding: 18, gap: 10, backgroundColor: '#FFFAF8' }}>
+                  <T style={{ fontSize: 13, color: colors.ink, lineHeight: 19 }}>
+                    {info.sub}
+                  </T>
+                  <View style={{ height: 1, backgroundColor: '#EFE7EE', marginVertical: 2 }} />
+                  <View style={{ gap: 6 }}>
+                    {info.bullets.map((b, bIdx) => (
+                      <View key={bIdx} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: info.tint }} />
+                        <T style={{ fontSize: 12, color: '#55485E', fontWeight: '500' }}>{b}</T>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              </Card>
+            );
+          })}
         </View>
       ) : hubTab === 'food' ? (
         /* 2. BESİN GÜVENLİĞİ KILAVUZU */

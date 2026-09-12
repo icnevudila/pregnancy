@@ -41,7 +41,7 @@ export function WeightTracker({ state, update, toast }) {
 
   return (
     <View style={ws.container}>
-      <ScreenHero asset="ui_weight_bmi_gauge"
+      <ScreenHero asset="card_scale"
         icon="scale"
         kicker="HAFTALIK EĞİLİM"
         title="Kilo takip paneli"
@@ -150,7 +150,7 @@ export function BirthPlanBuilder({ state, update, toast }) {
 
   return (
     <View style={ws.container}>
-      <ScreenHero asset="ui_birth_plan_scroll"
+      <ScreenHero asset="card_health_report"
         icon="book"
         kicker="DOĞUM HAZIRLIĞI"
         title="Tercihlerini tek sayfada topla"
@@ -235,7 +235,7 @@ export function DoctorQuestions({ state, update, toast }) {
 
   return (
     <View style={ws.container}>
-      <ScreenHero asset="ui_doctor_prep_notebook"
+      <ScreenHero asset="card_ask_doctor"
         icon="chat"
         kicker="KONTROL HAZIRLIĞI"
         title="Randevuda unutma"
@@ -349,7 +349,7 @@ export function BabyNameMatcher({ state, update, toast }) {
 
   return (
     <View style={ws.container}>
-      <ScreenHero asset="ui_baby_name_blocks"
+      <ScreenHero asset="baby"
         icon="heart"
         kicker="İSİM KEŞFİ"
         title="Anlam, köken ve favoriler"

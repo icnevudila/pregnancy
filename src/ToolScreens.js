@@ -1,20 +1,32 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Image, StyleSheet, TextInput, ScrollView, Animated } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TextInput,
+  ScrollView,
+  Animated,
+  Image,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
-import { T, Tap, Card, Section, Progress, ScreenHero, InfoNote } from './ui';
+import { T, Tap, Card, Section, Progress, ScreenHero, InfoNote, ProgressRing, MetricCard, StatusCard } from './ui';
+import { generatedAssets } from './generatedAssets';
 import { usePulse } from './anim';
 import { secondsLabel, uid, localDay } from './domain.mjs';
 import { saveKickSessionCloud, saveContractionSessionCloud } from './backendSync';
-import { generatedAssets } from './generatedAssets';
 
-// ─── 1. TEKME SAYACI (KICK COUNTER) ──────────────────────────────────────────
+// ─── 1. TEKME SAYACI (ADVANCED KICK COUNTER) ──────────────────────────────────
 export function KickCounter({ state, update, toast }) {
   const [sessionActive, setSessionActive] = useState(false);
   const [kicks, setKicks] = useState(0);
   const [seconds, setSeconds] = useState(0);
-  const pulse = usePulse(0.96, 1.04, 1400);
+  const [selectedType, setSelectedType] = useState('kick'); // 'kick' | 'flutter' | 'roll' | 'hiccup'
+  const [typeCounts, setTypeCounts] = useState({ kick: 0, flutter: 0, roll: 0, hiccup: 0 });
+  const [lastKickTime, setLastKickTime] = useState(null);
+  const [completedSummary, setCompletedSummary] = useState(null);
+
+  const pulse = usePulse(0.96, 1.04, 1200);
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -26,12 +38,25 @@ export function KickCounter({ state, update, toast }) {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [sessionActive]);
 
+  const movementTypes = [
+    { id: 'kick', label: 'Net Tekme', tint: '#9A5B80' },
+    { id: 'flutter', label: 'Kıpırtı', tint: '#B8789C' },
+    { id: 'roll', label: 'Dönüş & Dalga', tint: '#5C749A' },
+    { id: 'hiccup', label: 'Hıçkırık', tint: '#6B8E71' },
+  ];
+
   function handleKick() {
     if (!sessionActive) {
       setSessionActive(true);
     }
     const nextKicks = kicks + 1;
     setKicks(nextKicks);
+    setLastKickTime(new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }));
+
+    setTypeCounts(prev => ({
+      ...prev,
+      [selectedType]: (prev[selectedType] || 0) + 1,
+    }));
 
     if (nextKicks >= 10) {
       finishSession(nextKicks, seconds);
@@ -41,169 +66,250 @@ export function KickCounter({ state, update, toast }) {
   function finishSession(finalKicks = kicks, finalSecs = seconds) {
     setSessionActive(false);
     if (finalKicks === 0) return;
+
+    let activityRating = 'Normal Ritim';
+    if (finalSecs <= 1200) activityRating = 'Çok Aktif & Canlı';
+    else if (finalSecs <= 2700) activityRating = 'Sağlıklı Düzenli Ritim';
+    else activityRating = 'Sakin & Yavaş Seans';
+
     const newSession = {
       id: uid(),
       date: localDay(),
       time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
       kicks: finalKicks,
       durationSecs: finalSecs,
-      week: state.week || 28,
+      week: state?.week || 28,
+      rating: activityRating,
+      breakdown: { ...typeCounts, [selectedType]: (typeCounts[selectedType] || 0) + 1 },
     };
+
     update(old => ({
       kickSessions: [newSession, ...(old.kickSessions || [])],
     }));
-    saveKickSessionCloud({ durationSeconds: finalSecs, kickCount: finalKicks, week: state.week || 28 }).catch(() => {});
-    toast && toast(`${finalKicks} hareket ${secondsLabel(finalSecs)} içinde kaydedildi.`);
+
+    setCompletedSummary({
+      duration: finalSecs,
+      kicks: finalKicks,
+      rating: activityRating,
+    });
+
+    saveKickSessionCloud({
+      durationSeconds: finalSecs,
+      kickCount: finalKicks,
+      week: state?.week || 28,
+      notes: `Derece: ${activityRating}`,
+    }).catch(() => {});
+
+    toast && toast(`🌸 10 hareket ${secondsLabel(finalSecs)} içinde tamamlandı!`);
     setKicks(0);
     setSeconds(0);
+    setTypeCounts({ flutter: 0, kick: 0, roll: 0, hiccup: 0 });
   }
 
   function resetSession() {
     setSessionActive(false);
     setKicks(0);
     setSeconds(0);
+    setTypeCounts({ flutter: 0, kick: 0, roll: 0, hiccup: 0 });
+    setCompletedSummary(null);
   }
 
-  const pastSessions = state.kickSessions || [];
-  const latestSession = pastSessions[0];
-  const latestKicks = latestSession ? (latestSession.kicks ?? latestSession.count ?? 0) : 0;
-  const latestDuration = latestSession ? (latestSession.durationSecs ?? latestSession.duration ?? 0) : 0;
+  const pastSessions = state?.kickSessions || [];
+  const percent10 = Math.min(100, Math.round((kicks / 10) * 100));
 
   return (
     <View style={ts.container}>
-      <ScreenHero asset="ui_kick_foot_button"
+      <ScreenHero
+        asset="card_kick_counter"
         icon="footprint"
-        kicker="HAREKET SEANSI"
-        title="Bebeğinin ritmini kaydet"
-        body="Tek dokunuşla seans başlat, hareketleri say ve geçmiş seansları temiz bir günlükte tut."
-        stat={latestSession ? `${latestKicks} hareket · ${secondsLabel(latestDuration)}` : 'ilk seans hazır'}
+        kicker="FETAL HAREKET DÜZENİ"
+        title="Bebeğinin Ritmini Say"
+        body="ACOG kılavuzuna göre 2 saatte 10 hareket beklenir. Bebeğinin aktifleştiği saatlerde seans başlat."
+        stat={pastSessions[0] ? `Son: ${pastSessions[0].kicks} hareket (${secondsLabel(pastSessions[0].durationSecs || 0)})` : 'İlk seans hazır'}
         tint="#9D5C80"
       />
 
-      {/* Üst Bilgi Kartı */}
-      <View style={ts.metaRow}>
-        <View style={ts.badge}>
-          <Icon name="footprint" size={14} color={colors.purple} />
-          <T style={ts.badgeText}>Hafta {state.week || 28} · Seans</T>
-        </View>
-        <T bold style={ts.timerDisplay}>{secondsLabel(seconds)}</T>
-      </View>
-
-      <InfoNote icon="heart"
-        title={latestSession ? `Son kayıt: ${latestKicks} hareket · ${secondsLabel(latestDuration)}` : 'İlk hareket seansını başlat'}
-        body="Bu ekran tek seferlik karar vermek için değil, bebeğinin günlük hareket düzenini daha net hatırlamak için tasarlandı."
-      />
-
-      {/* Büyük İnteraktif 3D Tekme Butonu */}
-      <View style={ts.kickCenter}>
-        <Animated.View style={{ transform: [{ scale: sessionActive ? pulse : 1 }] }}>
-          <Tap
-            onPress={handleKick}
-            label="Bebeğin tekmesini kaydet"
-            style={ts.kickButton}
-          >
-            <LinearGradient
-              colors={['#F7E5EC', '#EFE0F0', '#DFCEE8']}
-              start={{ x: 0.1, y: 0.1 }}
-              end={{ x: 0.9, y: 0.9 }}
-              style={ts.kickButtonGradient}
-            >
-              {generatedAssets['ui_kick_foot_button'] || generatedAssets['card_kick_counter'] ? (
-                <Image source={generatedAssets['ui_kick_foot_button'] || generatedAssets['card_kick_counter']} style={{ width: 100, height: 100 }} resizeMode="contain" />
-              ) : (
-                <Icon name="footprint" size={68} color="#8A5A88" />
-              )}
-              <T bold style={ts.kickButtonLabel}>
-                {sessionActive ? 'TEKME HİSSETTİM' : 'BAŞLAMAK İÇİN DOKUN'}
+      {/* Seans Tamamlanma Başarı Kartı */}
+      {completedSummary && (
+        <Card style={ts.summaryBanner}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={ts.trophyBadge}>
+              <Icon name="sparkle" size={20} color={colors.purple} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <T bold style={{ fontSize: 15, color: colors.purple }}>Seans Başarıyla Tamamlandı! ✨</T>
+              <T style={{ fontSize: 12, color: colors.ink, marginTop: 2 }}>
+                10 hareket <T bold>{secondsLabel(completedSummary.duration)}</T> içinde kaydedildi. ({completedSummary.rating})
               </T>
-              <T style={ts.kickButtonSub}>Her vuruşta dokunun</T>
-            </LinearGradient>
-          </Tap>
-        </Animated.View>
+            </View>
+            <Tap onPress={() => setCompletedSummary(null)} style={{ padding: 6 }}>
+              <Icon name="close" size={16} color={colors.muted} />
+            </Tap>
+          </View>
+        </Card>
+      )}
+
+      {/* İkili Metrik Kartları */}
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        <MetricCard
+          title="SEANS SÜRESİ"
+          value={secondsLabel(seconds)}
+          unit=""
+          subtext={sessionActive ? "Sayaç aktif" : "Seans bekleniyor"}
+          icon="time"
+          tint="#9D5C80"
+        />
+        <MetricCard
+          title="SON HAREKET"
+          value={lastKickTime || '--:--'}
+          unit=""
+          subtext={lastKickTime ? "Ritmik algılandı" : "Henüz vuruş yok"}
+          icon="footprint"
+          tint="#6B8E71"
+        />
       </View>
 
-      {/* 10 Tekmelik İlerleme Segmentleri */}
-      <View style={ts.progressCard}>
-        <View style={ts.progressHeader}>
-          <T bold style={{ fontSize: 16 }}>10 Tekme Hedefi</T>
-          <T bold style={{ color: colors.purple, fontSize: 18 }}>{kicks} / 10</T>
+      {/* Hareket Türü Seçicisi (Canlı Sayaçlı) */}
+      <View style={ts.typeSelectorRow}>
+        {movementTypes.map(t => {
+          const isSelected = selectedType === t.id;
+          const count = typeCounts[t.id] || 0;
+          return (
+            <Tap
+              key={t.id}
+              onPress={() => setSelectedType(t.id)}
+              style={[ts.typePill, isSelected && { backgroundColor: t.tint, borderColor: t.tint }]}
+            >
+              <T bold={isSelected} style={[ts.typePillText, isSelected && { color: 'white' }]}>
+                {t.label} {count > 0 ? `(${count})` : ''}
+              </T>
+            </Tap>
+          );
+        })}
+      </View>
+
+      {/* MERKEZİ DOKUNSAL 3D TEKME ALANI (PROGRESS RING İLE) */}
+      <Card style={ts.kickInteractiveCard}>
+        <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 10 }}>
+          <ProgressRing
+            size={190}
+            strokeWidth={10}
+            progress={percent10}
+            color={colors.purple}
+            bgColor="#F2E6F2"
+          >
+            <Animated.View style={{ transform: [{ scale: sessionActive ? pulse : 1 }] }}>
+              <Tap
+                onPress={handleKick}
+                label="Tekme hissettim"
+                style={ts.kickCenterTap}
+              >
+                <LinearGradient
+                  colors={sessionActive ? ['#FAF0F6', '#F3DFEE', '#E9CDE3'] : ['#FAF6F9', '#F0E6F0', '#E5D6E6']}
+                  style={ts.kickCenterGradient}
+                >
+                  {generatedAssets['card_kick_counter'] ? (
+                    <Image
+                      source={generatedAssets['card_kick_counter']}
+                      style={{ width: 88, height: 88 }}
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <Icon name="footprint" size={54} color={colors.purple} />
+                  )}
+                  <T bold style={ts.kickBigCount}>{kicks} / 10</T>
+                  <T style={ts.kickSubPrompt}>
+                    {sessionActive ? 'Vuruşta Dokun' : 'Saymaya Başla'}
+                  </T>
+                </LinearGradient>
+              </Tap>
+            </Animated.View>
+          </ProgressRing>
         </View>
+
+        {/* 10 Adımlı Nokta İlerlemesi */}
         <View style={ts.dotGrid}>
           {Array.from({ length: 10 }).map((_, i) => (
             <View
               key={i}
               style={[
-                ts.kickDot,
-                i < kicks && ts.kickDotFilled,
-                i === kicks - 1 && ts.kickDotActive,
+                ts.dotItem,
+                i < kicks && ts.dotItemFilled,
+                i === kicks - 1 && ts.dotItemActive,
               ]}
             >
               {i < kicks ? (
-                <Icon name="check" size={13} color="white" />
+                <Icon name="check" size={12} color="white" />
               ) : (
-                <T style={ts.kickDotNum}>{i + 1}</T>
+                <T style={ts.dotItemNum}>{i + 1}</T>
               )}
             </View>
           ))}
         </View>
 
+        {/* Seans Kontrol Aksiyonları */}
         {sessionActive && (
           <View style={ts.sessionActions}>
-            <Tap onPress={() => setKicks(k => Math.max(0, k - 1))} label="Geri al" style={ts.miniAction}>
-              <T style={ts.miniActionText}>1 Geri Al</T>
+            <Tap onPress={() => setKicks(k => Math.max(0, k - 1))} style={ts.actionMiniBtn}>
+              <T style={{ fontSize: 12, color: colors.ink }}>↩ 1 Geri Al</T>
             </Tap>
-            <Tap onPress={() => finishSession()} label="Seansı bitir" style={[ts.miniAction, { backgroundColor: '#F0E5F3' }]}>
-              <T bold style={[ts.miniActionText, { color: colors.purple }]}>Kaydet ve Bitir</T>
+            <Tap onPress={() => finishSession(kicks, seconds)} style={[ts.actionMiniBtn, { backgroundColor: '#F0E4F2' }]}>
+              <T bold style={{ fontSize: 12, color: colors.purple }}>✓ Seansı Bitir</T>
             </Tap>
-            <Tap onPress={resetSession} label="Sıfırla" style={ts.miniAction}>
-              <T style={[ts.miniActionText, { color: '#B35E6D' }]}>İptal</T>
+            <Tap onPress={resetSession} style={ts.actionMiniBtn}>
+              <T style={{ fontSize: 12, color: '#B35E6D' }}>✕ Sıfırla</T>
             </Tap>
           </View>
         )}
-      </View>
+      </Card>
 
-      {/* Tıbbi Bilgi ve Acil Uyarı Notu */}
-      <View style={ts.warningBox}>
-        <Icon name="bell" size={20} color="#9D6574" />
-        <T style={ts.warningText}>
-          <T bold>Hareket notu:</T> Bebeğinin kendine özgü düzenini tanımak önemlidir. Hareketlerde belirgin azalma, durma veya seni endişelendiren bir değişiklik hissedersen aynı gün sağlık ekibini ara.
-        </T>
-      </View>
+      {/* ACOG Klinik Rehber Kartı */}
+      <StatusCard
+        level="info"
+        title="ACOG Tıbbi Tavsiyesi: 2 Saatte 10 Hareket"
+        body="Yemek yedikten sonra sol yanınıza uzanarak saymak bebeğin hareketlerini net hissetmenizi sağlar. Bebek uykudaysa bir bardak soğuk su için veya hafifçe karnınıza dokunun."
+        icon="heart"
+      />
 
-      {/* Geçmiş Seanslar */}
-      <Section title="Son Tekme Seansları" />
+      {/* Son Seans Kayıtları */}
+      <Section title="Son Seans Kayıtları" />
       {pastSessions.length === 0 ? (
-        <Card style={{ alignItems: 'center', padding: 18 }}>
-          <T style={{ color: colors.muted, fontSize: 13 }}>Henüz kayıtlı tekme seansı yok.</T>
+        <Card style={{ alignItems: 'center', padding: 20 }}>
+          <T style={{ color: colors.muted, fontSize: 13 }}>Henüz kaydedilmiş tekme seansı bulunmuyor.</T>
         </Card>
       ) : (
-        pastSessions.slice(0, 5).map(s => {
-          const sessionKicks = s.kicks ?? s.count ?? 0;
-          const sessionDuration = s.durationSecs ?? s.duration ?? 0;
-          return (
-          <View key={s.id} style={ts.historyRow}>
-            <View style={ts.historyIcon}>
-              <Icon name="footprint" size={18} color={colors.purple} />
+        pastSessions.slice(0, 5).map(s => (
+          <Card key={s.id} style={ts.historyItem}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={ts.historyBadge}>
+                  <Icon name="footprint" size={16} color={colors.purple} />
+                </View>
+                <View>
+                  <T bold style={{ fontSize: 14 }}>{s.kicks || 10} Hareket Tamamlandı</T>
+                  <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                    {s.date} · {s.time} · {s.week}. Hafta
+                  </T>
+                </View>
+              </View>
+              <View style={{ alignItems: 'flex-end' }}>
+                <T bold style={{ fontSize: 14, color: colors.purple }}>{secondsLabel(s.durationSecs || s.duration || 0)}</T>
+                <T style={{ fontSize: 10, color: '#4B7B56', marginTop: 2 }}>{s.rating || 'Normal Ritim'}</T>
+              </View>
             </View>
-            <View style={{ flex: 1 }}>
-              <T bold style={{ fontSize: 14 }}>{sessionKicks} hareket · {secondsLabel(sessionDuration)}</T>
-              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>{s.date} · {s.time} ({s.week}. Hafta)</T>
-            </View>
-            <View style={ts.historyBadge}>
-              <T bold style={{ fontSize: 11, color: colors.sage }}>Kayıtlı</T>
-            </View>
-          </View>
-        );})
+          </Card>
+        ))
       )}
     </View>
   );
 }
 
-// ─── 2. KASILMA & SANCI SAYACI (CONTRACTION TIMER) ───────────────────────────
+// ─── 2. KASILMA SAYACI & 5-1-1 MOTORU (ADVANCED CONTRACTION TIMER) ──────────────
 export function ContractionTimer({ state, update, toast }) {
   const [active, setActive] = useState(false);
   const [duration, setDuration] = useState(0);
-  const [intensity, setIntensity] = useState('Orta');
+  const [intensity, setIntensity] = useState('Orta'); // 'Hafif' | 'Orta' | 'Şiddetli'
+  const contractions = state?.contractionSessions || [];
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -215,9 +321,8 @@ export function ContractionTimer({ state, update, toast }) {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [active]);
 
-  const contractions = state.contractionSessions || [];
   const lastContraction = contractions[0];
-  const lastIntervalSecs = lastContraction ? (lastContraction.intervalSecs ?? lastContraction.interval ?? null) : null;
+  const lastIntervalSecs = lastContraction?.intervalSecs;
 
   function toggleContraction() {
     if (!active) {
@@ -236,8 +341,8 @@ export function ContractionTimer({ state, update, toast }) {
       const entry = {
         id: uid(),
         durationSecs: duration,
-        intervalSecs: intervalSecs,
-        intensity: intensity,
+        intervalSecs,
+        intensity,
         timestamp: now.getTime(),
         time: now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
         date: localDay(now),
@@ -246,63 +351,102 @@ export function ContractionTimer({ state, update, toast }) {
       update(old => ({
         contractionSessions: [entry, ...(old.contractionSessions || [])],
       }));
-      saveContractionSessionCloud({ durationSeconds: duration, intervalSeconds: intervalSecs, intensity, statusAlert: medicalStatus.badge }).catch(() => {});
+
+      saveContractionSessionCloud({
+        durationSeconds: duration,
+        intervalSeconds: intervalSecs,
+        intensity,
+        statusAlert: isFiveOneOneActive ? '5-1-1 Kuralı Karşılandı' : 'Normal Takip',
+      }).catch(() => {});
+
       toast && toast('Kasılma kaydedildi.');
       setDuration(0);
     }
   }
 
+  // 5-1-1 Kuralı Hesaplama Algoritması
+  let isFiveOneOneActive = false;
   let medicalStatus = {
-    color: colors.sage,
-    badge: 'Kayıt modu',
-    text: 'Kasılmaları süre, aralık ve şiddet olarak kaydet. Düzen, ağrı veya su gelmesi konusunda karar için doktorunun yönlendirmesini esas al.',
+    badge: 'Normal Takip',
+    color: '#4B7B56',
+    bg: '#EFF7F1',
+    border: '#C8E6D0',
+    text: 'Kasılmalarınızı süre, aralık ve şiddet olarak kaydedin. Düzenli hale geldiklerinde sistem sizi bilgilendirecektir.',
   };
 
   if (contractions.length >= 3) {
     const recent = contractions.slice(0, 3);
-    const avgDuration = recent.reduce((a, b) => a + (b.durationSecs ?? b.duration ?? 0), 0) / 3;
-    const intervals = recent.map(r => r.intervalSecs ?? r.interval).filter(Boolean);
-    const avgInterval = intervals.reduce((a, b) => a + b, 0) / (intervals.length || 1);
+    const avgDuration = recent.reduce((a, b) => a + (b.durationSecs || 0), 0) / 3;
+    const intervals = recent.map(r => r.intervalSecs).filter(Boolean);
+    const avgInterval = intervals.length ? (intervals.reduce((a, b) => a + b, 0) / intervals.length) : null;
 
-    if (avgInterval <= 360 && avgDuration >= 45) {
+    if (avgInterval && avgInterval <= 300 && avgDuration >= 50) {
+      isFiveOneOneActive = true;
       medicalStatus = {
-        color: '#D1586E',
-        badge: 'Sık ve uzun kasılma düzeni',
-        text: 'Son kayıtlar sıklaşan ve uzayan kasılmaları gösteriyor. Doktorunu veya doğum birimini arayıp kendi planına göre ilerle.',
+        badge: '🚨 5-1-1 KURALI: HASTANEYE GİTME VAKTİ!',
+        color: '#B42318',
+        bg: '#FEF3F2',
+        border: '#FECDCA',
+        text: 'Kasılmalarınız 5 dakikada bir veya daha sık geliyor ve en az 1 dakika sürüyor. Lütfen doktorunuzu veya doğum hastanenizi arayarak yola çıkın!',
       };
-    } else if (avgInterval <= 600) {
+    } else if (avgInterval && avgInterval <= 480) {
       medicalStatus = {
-        color: '#DFA354',
-        badge: 'Düzen sıklaşıyor',
-        text: 'Kasılma aralıkları kısalıyor. Çantanı ve refakatçini hazır tut; endişen varsa sağlık ekibinle görüş.',
+        badge: 'Kasılmalar Sıklaşıyor',
+        color: '#B54708',
+        bg: '#FFFAEB',
+        border: '#FEDF89',
+        text: 'Aralıklar 8 dakikanın altına indi. Hastane çantanızı kontrol edin ve refakatçinizi yanınızda bulundurun.',
       };
     }
   }
 
   return (
     <View style={ts.container}>
-      <ScreenHero asset="ui_contraction_pulse_button"
+      <ScreenHero
+        asset="card_contractions"
         icon="contraction"
-        kicker="SÜRE & ARALIK"
-        title="Kasılmaları düzenli takip et"
-        body="Başlat, durdur, şiddeti seç; son kayıtlar randevu veya doğum birimi görüşmesi için okunur kalır."
-        stat={contractions.length ? `${contractions.length} kayıt` : 'ilk kayıt hazır'}
+        kicker="DOĞUM SANCISI TAKİBİ"
+        title="Kasılma & Doğum Sayacı"
+        body="5-1-1 kuralı motoru ile sancı aralıklarınızı otomatik analiz edin. Hastaneye ne zaman gitmeniz gerektiğini öğrenin."
+        stat={contractions.length ? `${contractions.length} kayıt` : 'İlk kayıt hazır'}
         tint="#4F79A1"
       />
 
-      {/* Tıbbi 5-1-1 Durum Göstergesi */}
-      <View style={[ts.statusBanner, { borderColor: medicalStatus.color + '55', backgroundColor: medicalStatus.color + '15' }]}>
-        <T bold style={{ color: medicalStatus.color, fontSize: 14 }}>{medicalStatus.badge}</T>
+      {/* 5-1-1 Tıbbi Durum Bildirim Kartı */}
+      <View style={[ts.statusBanner, { backgroundColor: medicalStatus.bg, borderColor: medicalStatus.border }]}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: medicalStatus.color }} />
+          <T bold style={{ color: medicalStatus.color, fontSize: 13 }}>{medicalStatus.badge}</T>
+        </View>
         <T style={{ fontSize: 12, color: colors.ink, marginTop: 4, lineHeight: 18 }}>{medicalStatus.text}</T>
+
+        {isFiveOneOneActive && (
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
+            <Tap onPress={() => toast && toast('Acil arama yönlendiriliyor...')} style={[ts.callBtn, { backgroundColor: '#B42318' }]}>
+              <Icon name="bell" size={14} color="white" />
+              <T bold style={{ color: 'white', fontSize: 12 }}>Doktorumu / Hastaneyi Ara</T>
+            </Tap>
+          </View>
+        )}
       </View>
 
-      <InfoNote icon="contraction"
-        title={contractions.length ? `${contractions.length} kasılma kaydı tutuldu` : 'Kasılma düzenini anlaşılır kaydet'}
-        body="Süre, aralık ve şiddet aynı tabloda kaldığı için randevuda veya doğum birimini ararken elindeki bilgi daha düzenli olur."
-        tone="blue"
-      />
+      {/* Şiddet Seçimi */}
+      <View style={ts.intensityRow}>
+        <T bold style={{ fontSize: 12, color: colors.ink }}>Sancı Şiddeti:</T>
+        {['Hafif', 'Orta', 'Şiddetli'].map(lvl => (
+          <Tap
+            key={lvl}
+            onPress={() => setIntensity(lvl)}
+            style={[ts.intensityPill, intensity === lvl && ts.intensityPillActive]}
+          >
+            <T bold={intensity === lvl} style={[ts.intensityText, intensity === lvl && { color: 'white' }]}>
+              {lvl}
+            </T>
+          </Tap>
+        ))}
+      </View>
 
-      {/* Canlı Sayaç Ekranı */}
+      {/* Canlı Sayaç Kartı */}
       <View style={ts.counterBox}>
         <T style={ts.counterLabel}>{active ? 'KASILMA SÜRÜYOR' : 'SANCI DURUMU'}</T>
         <T bold style={ts.counterNumber}>{secondsLabel(duration)}</T>
@@ -316,210 +460,170 @@ export function ContractionTimer({ state, update, toast }) {
       {/* Başlat / Durdur Butonu */}
       <Tap
         onPress={toggleContraction}
-        label={active ? 'Sancıyı durdur' : 'Sancı başladı'}
-        style={[ts.contractionBtn, active && ts.contractionBtnActive]}
+        label={active ? 'Sancıyı Durdur' : 'Sancı Başladı'}
+        style={ts.contractionBtn}
       >
         <LinearGradient
-          colors={active ? ['#E8879E', '#CF5573'] : ['#8FABC8', '#7395BC']}
-          style={ts.contractionBtnGrad}
+          colors={active ? ['#E8879E', '#CF5573'] : ['#8FABC8', '#6289B5']}
+          style={ts.contractionGrad}
         >
           <Icon name="contraction" size={32} color="white" />
           <T bold style={ts.contractionBtnText}>
-            {active ? 'SANCIYI DURDUR' : 'SANCI BAŞLADI'}
+            {active ? 'Sancıyı Durdur ve Kaydet' : 'Sancı Başladı (Dokun)'}
           </T>
         </LinearGradient>
       </Tap>
 
-      {/* Şiddet Seçici */}
-      <View style={ts.intensityRow}>
-        <T style={{ fontSize: 13, color: colors.muted }}>Şiddet:</T>
-        {['Hafif', 'Orta', 'Şiddetli'].map(level => (
-          <Tap
-            key={level}
-            label={'Şiddet ' + level}
-            onPress={() => setIntensity(level)}
-            style={[
-              ts.intensityPill,
-              intensity === level && ts.intensityPillActive,
-            ]}
-          >
-            <T bold={intensity === level} style={{ fontSize: 12, color: intensity === level ? 'white' : colors.ink }}>
-              {level}
-            </T>
-          </Tap>
-        ))}
-      </View>
-
-      {/* Kasılma Geçmişi Tablosu */}
-      <Section
-        title="Son Kasılmalar"
-        action={contractions.length ? 'Temizle' : undefined}
-        onPress={() => update({ contractionSessions: [] })}
-      />
-
+      {/* Geçmiş Kayıtlar Tablosu */}
+      <Section title="Son Kasılma Kayıtları" />
       {contractions.length === 0 ? (
-        <Card style={{ padding: 18, alignItems: 'center' }}>
-          <T style={{ color: colors.muted, fontSize: 13 }}>Henüz kaydedilmiş kasılma yok.</T>
+        <Card style={{ alignItems: 'center', padding: 20 }}>
+          <T style={{ color: colors.muted, fontSize: 13 }}>Henüz kaydedilmiş kasılma bulunmuyor.</T>
         </Card>
       ) : (
-        <Card style={{ padding: 12 }}>
-          <View style={ts.tableHeader}>
-            <T bold style={ts.thCol}>Saat</T>
-            <T bold style={ts.thCol}>Süre</T>
-            <T bold style={ts.thCol}>Aralık</T>
-            <T bold style={ts.thCol}>Şiddet</T>
-          </View>
-          {contractions.slice(0, 7).map((c, i) => {
-            const rowDuration = c.durationSecs ?? c.duration ?? 0;
-            const rowInterval = c.intervalSecs ?? c.interval ?? null;
-            return (
-            <View key={c.id || i} style={ts.tableRow}>
-              <T style={ts.tdCol}>{c.time}</T>
-              <T bold style={[ts.tdCol, { color: colors.purple }]}>{rowDuration} sn</T>
-              <T style={ts.tdCol}>{rowInterval ? `${Math.round(rowInterval / 60)} dk` : '—'}</T>
-              <T style={[ts.tdCol, { color: c.intensity === 'Şiddetli' ? '#C25265' : colors.muted }]}>
-                {c.intensity || 'Orta'}
-              </T>
+        contractions.slice(0, 5).map(c => (
+          <Card key={c.id} style={ts.historyItem}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View>
+                <T bold style={{ fontSize: 14 }}>Süre: {secondsLabel(c.durationSecs || 0)}</T>
+                <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                  {c.date} · {c.time} · Şiddet: <T bold>{c.intensity || 'Orta'}</T>
+                </T>
+              </View>
+              <View style={{ alignItems: 'flex-end' }}>
+                <T bold style={{ fontSize: 13, color: '#3A688F' }}>
+                  {c.intervalSecs ? `${Math.round(c.intervalSecs / 60)} dk aralık` : 'İlk sancı'}
+                </T>
+              </View>
             </View>
-          );})}
-        </Card>
+          </Card>
+        ))
       )}
     </View>
   );
 }
 
-// ─── 3. DOĞUM & HASTANE ÇANTASI (HOSPITAL BAG CHECKLIST) ──────────────────────
+// ─── 3. HASTANE ÇANTASI (ADVANCED 4-CATEGORY HOSPITAL BAG) ─────────────────────
 export function HospitalBag({ state, update, toast }) {
-  const [tab, setTab] = useState('Anne');
-  const [newItemText, setNewItemText] = useState('');
+  const [activeTab, setActiveTab] = useState('mother'); // 'mother' | 'baby' | 'partner' | 'docs'
+  const [newItemName, setNewItemName] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
 
-  const bagItems = state.lists?.bag || [];
-  const currentItems = bagItems.filter(item => item.group === tab);
-  const totalCount = bagItems.length;
-  const doneCount = bagItems.filter(item => item.done).length;
-  const percent = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+  const defaultBag = {
+    mother: [
+      { id: 'm1', name: 'Önden düğmeli lohusa geceliği (2 adet)', done: true },
+      { id: 'm2', name: 'Emzirme sütyeni & atletleri (2 adet)', done: true },
+      { id: 'm3', name: 'Lohusa depend pedi & pamuklu iç çamaşırı', done: false },
+      { id: 'm4', name: 'Kaymayan rahat hastane terliği', done: false },
+      { id: 'm5', name: 'Meme ucu kremi (Lanolin saf)', done: true },
+      { id: 'm6', name: 'Dudak nemlendirici & saç bandı / toka', done: false },
+      { id: 'm7', name: 'Geniş şal / sabahlık', done: false },
+    ],
+    baby: [
+      { id: 'b1', name: 'Yenidoğan hastane çıkış seti (zıbın, tulum, şapka)', done: true },
+      { id: 'b2', name: 'Yenidoğan bebek bezi (1 paket - 1 numara)', done: true },
+      { id: 'b3', name: 'Pamuklu müslin örtüler & ağız mendilleri (4 adet)', done: false },
+      { id: 'b4', name: 'Saf su içerikli ıslak mendil & pişik önleyici', done: false },
+      { id: 'b5', name: 'Mevsime uygun bebek battaniyesi', done: true },
+      { id: 'b6', name: 'Hastane çıkışı için oto koltuğu / puset', done: false },
+    ],
+    partner: [
+      { id: 'p1', name: 'Yedek rahat tişört & eşofman', done: true },
+      { id: 'p2', name: 'Uzun kablolu telefon şarj aleti & powerbank', done: false },
+      { id: 'p3', name: 'Sağlıklı atıştırmalıklar (fındık, hurma, su)', done: false },
+      { id: 'p4', name: 'Otopark & otomat için bozuk para / nakit', done: false },
+    ],
+    docs: [
+      { id: 'd1', name: 'Anne ve baba kimlik kartları', done: true },
+      { id: 'd2', name: 'Tüm gebelik ultrason & tahlil dosyası', done: true },
+      { id: 'd3', name: 'Sağlık sigortası kartı / poliçe evrakları', done: false },
+      { id: 'd4', name: 'İmzalanmış doğum planı çıktısı', done: false },
+    ],
+  };
+
+  const bagData = state?.hospitalBag || defaultBag;
+  const currentItems = bagData[activeTab] || [];
+
+  // Toplam İlerleme Hesaplama
+  const allItems = [...(bagData.mother || []), ...(bagData.baby || []), ...(bagData.partner || []), ...(bagData.docs || [])];
+  const totalCount = allItems.length;
+  const packedCount = allItems.filter(i => i.done).length;
+  const totalPercent = totalCount ? Math.round((packedCount / totalCount) * 100) : 0;
 
   function toggleItem(id) {
-    const updated = bagItems.map(item =>
+    const updatedCategory = currentItems.map(item =>
       item.id === id ? { ...item, done: !item.done } : item
     );
-    update(old => ({
-      lists: { ...old.lists, bag: updated },
-    }));
+    const updatedBag = { ...bagData, [activeTab]: updatedCategory };
+    update({ hospitalBag: updatedBag });
+    toast && toast('Çanta listesi güncellendi.');
   }
 
-  function addItem() {
-    if (!newItemText.trim()) return;
+  function handleAddItem() {
+    if (!newItemName.trim()) return;
     const newItem = {
-      id: `custom-${uid()}`,
-      group: tab,
-      text: newItemText.trim(),
+      id: 'custom-' + Date.now(),
+      name: newItemName.trim(),
       done: false,
     };
-    update(old => ({
-      lists: { ...old.lists, bag: [...(old.lists?.bag || []), newItem] },
-    }));
-    setNewItemText('');
-    toast && toast('Eşya çantaya eklendi 🧳');
+    const updatedBag = {
+      ...bagData,
+      [activeTab]: [...(bagData[activeTab] || []), newItem],
+    };
+    update({ hospitalBag: updatedBag });
+    setNewItemName('');
+    setShowAddModal(false);
+    toast && toast('Yeni madde çantaya eklendi.');
   }
 
-  function deleteItem(id) {
-    const updated = bagItems.filter(item => item.id !== id);
-    update(old => ({
-      lists: { ...old.lists, bag: updated },
-    }));
-  }
+  const tabs = [
+    { id: 'mother', label: 'Anne' },
+    { id: 'baby', label: 'Bebek' },
+    { id: 'partner', label: 'Refakatçi' },
+    { id: 'docs', label: 'Evraklar' },
+  ];
 
   return (
     <View style={ts.container}>
-      <ScreenHero asset="ui_hospital_bag_3d"
+      <ScreenHero
+        asset="card_hospital_bag"
         icon="bag"
-        kicker="DOĞUMA HAZIRLIK"
-        title="Çantanı kontrollü hazırla"
-        body="Anne, bebek ve refakatçi ihtiyaçlarını ayrı tut; son hafta telaşını azalt."
-        stat={`%${percent} hazır`}
+        kicker="DOĞUM HAZIRLIĞI"
+        title="Hastane Çantası Listesi"
+        body="32-34. haftada hazır olması önerilen anne, bebek ve refakatçi gereksinimleri tek çatı altında."
+        stat={`%${totalPercent} Hazır (${packedCount}/${totalCount})`}
         tint="#744E8A"
       />
 
-      {/* İlerleme ve Tamamlanma Özeti */}
-      <Card style={ts.bagSummaryCard}>
-        <View style={ts.bagSummaryHeader}>
-          {generatedAssets['ui_hospital_bag_3d'] || generatedAssets['card_hospital_bag'] ? (
-            <Image source={generatedAssets['ui_hospital_bag_3d'] || generatedAssets['card_hospital_bag']} style={{ width: 64, height: 64 }} resizeMode="contain" />
-          ) : (
-            <Icon name="bag" size={42} color={colors.purple} />
-          )}
-          <View style={{ flex: 1, marginLeft: 12 }}>
-            <T bold style={{ fontSize: 17 }}>Doğum Çantası</T>
-            <T style={{ fontSize: 13, color: colors.muted, marginTop: 2 }}>
-              %{percent} Hazır ({doneCount}/{totalCount} eşya çantada)
-            </T>
-          </View>
+      {/* Genel İlerleme Barı */}
+      <Card style={ts.progressBox}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <T bold style={{ fontSize: 14 }}>Genel Hazırlık Durumu</T>
+          <T bold style={{ color: colors.purple, fontSize: 15 }}>%{totalPercent} Hazır</T>
         </View>
-        <Progress value={percent} color={colors.purple} style={{ height: 9, marginTop: 14 }} />
+        <Progress current={packedCount} total={totalCount} tint={colors.purple} height={8} />
+        <T style={{ fontSize: 11, color: colors.muted, marginTop: 6 }}>
+          {totalCount - packedCount === 0 ? 'Tebrikler! Hastane çantanız eksiksiz hazır.' : `Kalan: ${totalCount - packedCount} adet eşya`}
+        </T>
       </Card>
 
-      <View style={ts.quickStats}>
-        <View style={ts.quickStat}>
-          <T bold style={ts.quickStatNum}>{bagItems.filter(i => i.group === 'Anne' && i.done).length}</T>
-          <T style={ts.quickStatLabel}>Anne</T>
-        </View>
-        <View style={ts.quickStat}>
-          <T bold style={ts.quickStatNum}>{bagItems.filter(i => i.group === 'Bebek' && i.done).length}</T>
-          <T style={ts.quickStatLabel}>Bebek</T>
-        </View>
-        <View style={ts.quickStat}>
-          <T bold style={ts.quickStatNum}>{bagItems.filter(i => i.group === 'Yolculuk' && i.done).length}</T>
-          <T style={ts.quickStatLabel}>Refakatçi</T>
-        </View>
-      </View>
-
-      <InfoNote icon="bag"
-        title={percent >= 80 ? 'Çanta neredeyse hazır' : 'Çantayı bölümlere ayır'}
-        body="Anne, bebek ve refakatçi kalemlerini ayrı takip etmek hastane girişinde aranan eşyayı daha hızlı bulmanı sağlar."
-        tone="rose"
-      />
-
-      {/* 3 Sekmeli Gezinme (Anne / Bebek / Refakatçi) */}
-      <View style={ts.tabsRow}>
-        {['Anne', 'Bebek', 'Yolculuk'].map(category => {
-          const catLabel = category === 'Yolculuk' ? 'Refakatçi' : `${category} İçin`;
-          const count = bagItems.filter(i => i.group === category && i.done).length;
-          const total = bagItems.filter(i => i.group === category).length;
-          const isSel = tab === category;
-
+      {/* Kategori Sekmeleri */}
+      <View style={ts.bagTabRow}>
+        {tabs.map(t => {
+          const items = bagData[t.id] || [];
+          const done = items.filter(i => i.done).length;
           return (
             <Tap
-              key={category}
-              label={catLabel}
-              onPress={() => setTab(category)}
-              style={[ts.tabBtn, isSel && ts.tabBtnActive]}
+              key={t.id}
+              onPress={() => setActiveTab(t.id)}
+              style={[ts.bagTabBtn, activeTab === t.id && ts.bagTabBtnActive]}
             >
-              <T bold={isSel} style={[ts.tabBtnText, isSel && { color: 'white' }]}>
-                {catLabel}
-              </T>
-              <T style={[ts.tabBtnSub, isSel && { color: '#E8DCEB' }]}>
-                {count}/{total}
+              <T bold={activeTab === t.id} style={[ts.bagTabText, activeTab === t.id && { color: colors.purple }]}>
+                {t.label} ({done}/{items.length})
               </T>
             </Tap>
           );
         })}
-      </View>
-
-      {/* Eşya Ekleme Satırı */}
-      <View style={ts.addItemRow}>
-        <TextInput
-          value={newItemText}
-          onChangeText={setNewItemText}
-          placeholder={`Bu sekmeye yeni eşya ekle...`}
-          placeholderTextColor={colors.muted}
-          style={ts.addInput}
-          onSubmitEditing={addItem}
-          returnKeyType="done"
-        />
-        <Tap onPress={addItem} label="Eşyayı ekle" style={ts.addBtn}>
-          <Icon name="plus" size={18} color="white" />
-        </Tap>
       </View>
 
       {/* Eşya Listesi */}
@@ -528,94 +632,359 @@ export function HospitalBag({ state, update, toast }) {
           <Tap
             key={item.id}
             onPress={() => toggleItem(item.id)}
-            label={item.text}
-            style={[ts.checkItem, item.done && ts.checkItemDone]}
+            style={[ts.bagItemRow, item.done && ts.bagItemRowDone]}
           >
-            <View style={[ts.checkbox, item.done && ts.checkboxDone]}>
-              {item.done && <Icon name="check" size={14} color="white" />}
+            <View style={[ts.bagItemCheck, item.done && ts.bagItemCheckDone]}>
+              {item.done && <Icon name="check" size={13} color="white" />}
             </View>
-            <T
-              style={[
-                ts.checkText,
-                item.done && { textDecorationLine: 'line-through', color: colors.muted },
-              ]}
-            >
-              {item.text}
+            <T style={[ts.bagItemText, item.done && ts.bagItemTextDone]}>
+              {item.name}
             </T>
-            {item.id.startsWith('custom-') && (
-              <Tap onPress={() => deleteItem(item.id)} label="Sil" style={{ padding: 6 }}>
-                <Icon name="close" size={15} color={colors.muted} />
-              </Tap>
-            )}
           </Tap>
         ))}
+      </View>
+
+      {/* Yeni Madde Ekleme Alanı */}
+      <View style={ts.addItemRow}>
+        <TextInput
+          value={newItemName}
+          onChangeText={setNewItemName}
+          placeholder="Bu kategoriye özel bir eşya ekle..."
+          placeholderTextColor={colors.muted}
+          style={ts.addItemInput}
+          onSubmitEditing={handleAddItem}
+        />
+        <Tap onPress={handleAddItem} style={ts.addItemBtn}>
+          <Icon name="plus" size={16} color="white" />
+          <T bold style={{ color: 'white', fontSize: 12 }}>Ekle</T>
+        </Tap>
       </View>
     </View>
   );
 }
 
-// ─── STİLLER ────────────────────────────────────────────────────────────────
 const ts = StyleSheet.create({
-  container: { gap: 14, paddingBottom: 20 },
-  metaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  badge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#EFE5F3', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 },
-  badgeText: { fontSize: 12, color: colors.purple, fontFamily: fonts.bold },
-  timerDisplay: { fontSize: 24, letterSpacing: 1, color: colors.ink },
-  kickCenter: { alignItems: 'center', paddingVertical: 12 },
-  kickButton: { width: 190, height: 190, borderRadius: 95, overflow: 'hidden', ...shadow },
-  kickButtonGradient: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 14, borderWidth: 3, borderColor: '#FFF0F5', borderRadius: 95 },
-  kickButtonLabel: { fontSize: 13, color: '#5A3458', marginTop: 8, letterSpacing: 0.5, textAlign: 'center' },
-  kickButtonSub: { fontSize: 10, color: '#886788', marginTop: 3 },
-  progressCard: { backgroundColor: '#FFFDFA', borderRadius: 20, padding: 16, borderWidth: 1, borderColor: '#F0EAE6', ...shadow },
-  progressHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  dotGrid: { flexDirection: 'row', justifyContent: 'space-between', gap: 6 },
-  kickDot: { width: 28, height: 28, borderRadius: 14, borderWidth: 1.5, borderColor: '#DDD3DF', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FAF7F9' },
-  kickDotFilled: { backgroundColor: colors.purple, borderColor: colors.purple },
-  kickDotActive: { borderColor: '#E8879E', transform: [{ scale: 1.15 }] },
-  kickDotNum: { fontSize: 11, color: colors.muted },
-  sessionActions: { flexDirection: 'row', justifyContent: 'space-between', gap: 8, marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderColor: colors.line },
-  miniAction: { flex: 1, paddingVertical: 8, borderRadius: 12, backgroundColor: '#F3EEF4', alignItems: 'center', justifyContent: 'center' },
-  miniActionText: { fontSize: 12, color: colors.ink },
-  warningBox: { flexDirection: 'row', gap: 10, backgroundColor: '#FBF2F4', borderRadius: 16, padding: 14, borderLeftWidth: 3, borderLeftColor: '#C96D7F' },
-  warningText: { flex: 1, fontSize: 12, lineHeight: 18, color: '#68454D' },
-  historyRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderColor: colors.line },
-  historyIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#F3EAF5', alignItems: 'center', justifyContent: 'center' },
-  historyBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12, backgroundColor: '#EBF4EF' },
+  container: { gap: 14, paddingBottom: 24 },
+  summaryBanner: {
+    backgroundColor: '#FAF5FB',
+    borderWidth: 1.5,
+    borderColor: '#E6D2E9',
+    padding: 14,
+    borderRadius: 16,
+  },
+  trophyBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#EFE2F2',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  typeSelectorRow: {
+    flexDirection: 'row',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  typePill: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E6DED6',
+    backgroundColor: 'white',
+  },
+  typePillText: {
+    fontSize: 12,
+    color: colors.ink,
+  },
+  stopwatchBox: {
+    backgroundColor: '#F9F4F7',
+    padding: 16,
+    borderRadius: 18,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#EDE0E8',
+  },
+  stopwatchLabel: {
+    fontSize: 11,
+    color: colors.muted,
+    letterSpacing: 1,
+  },
+  stopwatchTime: {
+    fontSize: 34,
+    color: colors.ink,
+    marginVertical: 4,
+  },
+  lastKickText: {
+    fontSize: 11,
+    color: colors.purple,
+  },
+  touchButtonContainer: {
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+  bigKickButton: {
+    width: 170,
+    height: 170,
+    borderRadius: 85,
+    overflow: 'hidden',
+    ...shadow.soft,
+  },
+  bigKickGrad: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  bigKickCount: {
+    fontSize: 22,
+    color: 'white',
+  },
+  bigKickSub: {
+    fontSize: 11,
+    color: '#FFECF4',
+  },
+  segmentCard: {
+    backgroundColor: 'white',
+    padding: 16,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#ECE3EC',
+    ...shadow.soft,
+  },
+  segmentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  dotGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 4,
+  },
+  dotItem: {
+    flex: 1,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#F5ECF5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dotItemFilled: {
+    backgroundColor: colors.purple,
+  },
+  dotItemActive: {
+    borderWidth: 2,
+    borderColor: '#4A2352',
+  },
+  dotItemNum: {
+    fontSize: 11,
+    color: colors.muted,
+  },
+  sessionActions: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 14,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderColor: '#F0E5F0',
+  },
+  actionMiniBtn: {
+    flex: 1,
+    paddingVertical: 9,
+    borderRadius: 10,
+    backgroundColor: '#F3EBF3',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  infoBanner: {
+    flexDirection: 'row',
+    gap: 10,
+    backgroundColor: '#FAF2F5',
+    padding: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#EEDCE3',
+  },
+  infoBannerText: {
+    flex: 1,
+    fontSize: 12,
+    color: '#5C3C4A',
+    lineHeight: 18,
+  },
+  historyItem: {
+    padding: 14,
+    borderRadius: 14,
+  },
+  historyBadge: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#F6ECF6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   // Contraction styles
-  statusBanner: { padding: 14, borderRadius: 16, borderWidth: 1.5 },
-  counterBox: { alignItems: 'center', paddingVertical: 10 },
-  counterLabel: { fontSize: 11, letterSpacing: 2, color: colors.muted },
-  counterNumber: { fontSize: 44, letterSpacing: 1, color: colors.ink, marginVertical: 4 },
-  counterSub: { fontSize: 12, color: colors.muted },
-  contractionBtn: { height: 60, borderRadius: 22, overflow: 'hidden', ...shadow },
-  contractionBtnActive: { transform: [{ scale: 1.02 }] },
-  contractionBtnGrad: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 },
-  contractionBtnText: { color: 'white', fontSize: 15, letterSpacing: 0.5 },
-  intensityRow: { flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'center', marginTop: 4 },
-  intensityPill: { paddingVertical: 6, paddingHorizontal: 14, borderRadius: 16, backgroundColor: '#EFEAEF' },
-  intensityPillActive: { backgroundColor: colors.purple },
-  tableHeader: { flexDirection: 'row', paddingBottom: 8, borderBottomWidth: 1, borderColor: colors.line },
-  tableRow: { flexDirection: 'row', paddingVertical: 8, borderBottomWidth: 1, borderColor: '#F5EFF4' },
-  thCol: { flex: 1, fontSize: 12, color: colors.muted },
-  tdCol: { flex: 1, fontSize: 13, color: colors.ink },
+  statusBanner: {
+    padding: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+  },
+  callBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 10,
+  },
+  intensityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  intensityPill: {
+    flex: 1,
+    paddingVertical: 7,
+    borderRadius: 10,
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#E2DBE2',
+    alignItems: 'center',
+  },
+  intensityPillActive: {
+    backgroundColor: '#4F79A1',
+    borderColor: '#4F79A1',
+  },
+  intensityText: {
+    fontSize: 12,
+    color: colors.ink,
+  },
+  counterBox: {
+    backgroundColor: '#F3F7FA',
+    padding: 16,
+    borderRadius: 18,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#DCE6EE',
+  },
+  counterLabel: {
+    fontSize: 11,
+    color: colors.muted,
+    letterSpacing: 1,
+  },
+  counterNumber: {
+    fontSize: 36,
+    color: colors.ink,
+    marginVertical: 4,
+  },
+  counterSub: {
+    fontSize: 12,
+    color: '#4B7396',
+  },
+  contractionBtn: {
+    borderRadius: 18,
+    overflow: 'hidden',
+    height: 56,
+    ...shadow.soft,
+  },
+  contractionGrad: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  contractionBtnText: {
+    fontSize: 15,
+    color: 'white',
+  },
   // Hospital Bag styles
-  bagSummaryCard: { padding: 16 },
-  bagSummaryHeader: { flexDirection: 'row', alignItems: 'center' },
-  quickStats: { flexDirection: 'row', gap: 8 },
-  quickStat: { flex: 1, alignItems: 'center', paddingVertical: 11, borderRadius: 18, backgroundColor: '#FFFDFA', borderWidth: 1, borderColor: '#F0EAE6', ...shadow },
-  quickStatNum: { fontSize: 18, color: colors.purple },
-  quickStatLabel: { fontSize: 11, color: colors.muted, marginTop: 2 },
-  tabsRow: { flexDirection: 'row', gap: 8 },
-  tabBtn: { flex: 1, paddingVertical: 10, paddingHorizontal: 6, borderRadius: 18, backgroundColor: '#F1ECE8', alignItems: 'center' },
-  tabBtnActive: { backgroundColor: colors.purple },
-  tabBtnText: { fontSize: 13 },
-  tabBtnSub: { fontSize: 10, color: colors.muted, marginTop: 2 },
-  addItemRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  addInput: { flex: 1, height: 44, borderRadius: 16, borderWidth: 1, borderColor: '#DDD3DF', paddingHorizontal: 14, backgroundColor: '#FFFDFA', fontSize: 13, color: colors.ink },
-  addBtn: { width: 44, height: 44, borderRadius: 16, backgroundColor: colors.purple, alignItems: 'center', justifyContent: 'center' },
-  checkItem: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: 16, backgroundColor: '#FFFDFA', borderWidth: 1, borderColor: '#F0EAE6', ...shadow },
-  checkItemDone: { backgroundColor: '#FBF8FA', opacity: 0.8 },
-  checkbox: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: '#C8BAC9', alignItems: 'center', justifyContent: 'center' },
-  checkboxDone: { backgroundColor: colors.sage, borderColor: colors.sage },
-  checkText: { flex: 1, fontSize: 14, color: colors.ink },
+  progressBox: {
+    padding: 16,
+    backgroundColor: 'white',
+    borderRadius: 16,
+  },
+  bagTabRow: {
+    flexDirection: 'row',
+    backgroundColor: '#EAE2DC',
+    borderRadius: 14,
+    padding: 4,
+  },
+  bagTabBtn: {
+    flex: 1,
+    paddingVertical: 9,
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  bagTabBtnActive: {
+    backgroundColor: 'white',
+    ...shadow.soft,
+  },
+  bagTabText: {
+    fontSize: 12,
+    color: colors.muted,
+  },
+  bagItemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 14,
+    backgroundColor: 'white',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#EAE1D9',
+  },
+  bagItemRowDone: {
+    backgroundColor: '#F9F7F5',
+    borderColor: '#ECE5DE',
+    opacity: 0.75,
+  },
+  bagItemCheck: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    borderColor: '#C6B9C7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bagItemCheckDone: {
+    backgroundColor: colors.purple,
+    borderColor: colors.purple,
+  },
+  bagItemText: {
+    flex: 1,
+    fontSize: 14,
+    color: colors.ink,
+  },
+  bagItemTextDone: {
+    textDecorationLine: 'line-through',
+    color: colors.muted,
+  },
+  addItemRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 6,
+  },
+  addItemInput: {
+    flex: 1,
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#E2DBD5',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 13,
+    color: colors.ink,
+  },
+  addItemBtn: {
+    backgroundColor: colors.purple,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+  },
 });
