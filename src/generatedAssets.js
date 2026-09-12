@@ -35,6 +35,7 @@ export const generatedAssets = {
   'fruit_grape': require('../assets/fruit_grape.png'),
   'fruit_kumquat': require('../assets/fruit_kumquat.png'),
   'fruit_pea': require('../assets/fruit_pea.png'),
+  'fruit_peach': require('../assets/fruit_peach.png'),
   'fruit_raspberry': require('../assets/fruit_raspberry.png'),
   'fruit_seed': require('../assets/fruit_seed.png'),
   'mother-baby': require('../assets/mother-baby.png'),
