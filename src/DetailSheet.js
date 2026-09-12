@@ -2,17 +2,19 @@ import React, { useState } from 'react';
 import { Modal, View, StyleSheet, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { colors, fonts } from './theme';
 import { T, Tap, Card } from './ui';
-import { Icon, BrandMark, FruitArt } from './Icons';
+import { Icon, BrandMark, FruitArt, MoodFace } from './Icons';
 import { journeys, RecordList, sampleRecords } from './screens';
 import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel } from './weekData';
 
-const titles={journey:'Yolculuğun nerede?',profile:'Senin yolculuğun',appointment:'Doktor randevun',week:'Bu hafta ikiniz',log:'Yeni kayıt',records:'Günlük kayıtların',note:'Bugünü sakla',notes:'Sana ait notlar',article:'Güvenli bağ, küçük anlarla başlar',assistantAnswer:'Sorunu birlikte saklayalım',community:'Anneler birbirine iyi gelir',categories:'İhtiyacın olanı keşfet',sponsored:'Ürün önerileri'};
+const titles={journey:'Yolculuğun nerede?',profile:'Senin yolculuğun',appointment:'Doktor randevun',week:'Bu hafta ikiniz',log:'Yeni kayıt',records:'Günlük kayıtların',note:'Bugünü sakla',notes:'Sana ait notlar',article:'Güvenli bağ, küçük anlarla başlar',assistantAnswer:'Sorunu birlikte saklayalım',community:'Anneler birbirine iyi gelir',categories:'İhtiyacın olanı keşfet',sponsored:'Ürün önerileri',dailyMood:'Bugün nasıl hissediyorsun?'};
 export default function DetailSheet({ sheet, close, state, update, addRecord, choose, open, toast }) {
   const {kind,data={}}=sheet;
   const [text,setText]=useState(kind==='profile'?state.name:kind==='appointment'?state.appointment.title:'');
   const [secondary,setSecondary]=useState(kind==='profile'?state.babyName:kind==='appointment'?state.appointment.date:'');
   const [time,setTime]=useState(state.appointment.time);
   const [side,setSide]=useState('Sağ meme');
+  const [selectedMood,setSelectedMood]=useState(state.mood??0);
+  const [moodNote,setMoodNote]=useState('');
   const [error,setError]=useState('');
   function save(){
     if(kind==='profile'){if(!text.trim())return setError('Adını yazabilir misin?');update({name:text.trim(),babyName:secondary.trim()||'Ada'});}
@@ -21,6 +23,16 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
       if(data.type==='Bez')addRecord(data.type,side==='Sağ meme'?'Temiz':side);
       else {const number=Number(text.replace(',','.'));if(!Number.isFinite(number)||number<=0||number>(data.type==='Biberon'?1000:1440))return setError('Geçerli bir miktar gir.');addRecord(data.type,data.type==='Biberon'?`${number} ml`:data.type==='Emzirme'?`${side} • ${number} dk`:`${number} dk`);}
     }else if(kind==='note'||kind==='week') {if(!text.trim())return setError('Önce küçük bir not yaz.');update(old=>({notes:[{id:Date.now().toString(),text:text.trim()},...old.notes]}));}
+    else if(kind==='dailyMood') {
+      const todayStr=new Date().toISOString().slice(0,10);
+      const labels=['Harika','İyi','Normal','Yorgun','Zor'];
+      update(old=>{
+        const patch={mood:selectedMood,lastMoodDate:todayStr};
+        if(moodNote.trim())patch.notes=[{id:Date.now().toString(),text:`[${labels[selectedMood]}] ${moodNote.trim()}`},...old.notes];
+        return patch;
+      });
+      close();return toast('Günün kaydedildi 🌸');
+    }
     close();toast('Kaydın saklandı');
   }
   const input=(label,value,onChange,props={})=><View style={{marginTop:16}}><T bold style={s.label}>{label}</T><TextInput accessibilityLabel={label} value={value} onChangeText={onChange} placeholderTextColor="#A79AA7" style={[s.input,props.multiline&&{minHeight:100,textAlignVertical:'top'}]} maxLength={props.multiline?1000:80} {...props}/></View>;
@@ -64,6 +76,47 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
     {kind==='community'&&<><T style={s.body}>Buradaki paylaşım örnek veridir. Canlı topluluk Supabase bağlantısıyla birlikte açılacak.</T>{button('Kendime bir not bırak',()=>open('note'))}</>}
     {kind==='categories'&&['Bebek bezi','Islak mendil','Beslenme','Banyo'].map(v=><View key={v} style={s.option}><T>{v}</T></View>)}
     {kind==='sponsored'&&<T style={s.body}>Bu ürün kartları tasarım demosudur. Gerçek sponsor, satın alma bağlantısı veya ödeme işlemi yoktur. + düğmesiyle ürünleri yerel listene ekleyebilirsin.</T>}
+    {kind==='dailyMood'&&(()=>{
+      const labels=['Harika','İyi','Normal','Yorgun','Zor'];
+      const moodMessages=[
+        'Enerjin daim olsun! Bebeğinle harika bir gün seni bekliyor. ✨',
+        'Huzurun ve dinginliğin hiç eksilmesin, harika gidiyorsun. 💛',
+        'Her günün bir ritmi var; sakin ve dengeli anlar çok kıymetlidir. 🌿',
+        'Bedenin mucizevi bir süreçten geçiyor, lütfen bugün kendine dinlenmek için alan aç. 🛌',
+        'Yalnız değilsin; her duygunun bir yeri var. Sana sarılıyoruz, bugün kendine şefkat göster. 💜'
+      ];
+      return (
+        <View style={{marginTop:6}}>
+          <T style={s.body}>Günün ritmine başlamadan önce kendine bir an ayır. Bedenin ve kalbin bugün nasıl hissediyor?</T>
+          <View style={[s.chips,{justifyContent:'space-between',marginVertical:18,gap:4}]}>
+            {labels.map((label,idx)=>(
+              <Tap
+                key={label}
+                label={'Ruh hali: '+label}
+                onPress={()=>setSelectedMood(idx)}
+                style={[
+                  {alignItems:'center',paddingVertical:10,paddingHorizontal:6,borderRadius:18,borderWidth:1.5,borderColor:'transparent'},
+                  selectedMood===idx&&{backgroundColor:'#F6EDF7',borderColor:'#BFA4C2'}
+                ]}
+              >
+                <MoodFace index={idx} size={46}/>
+                <T bold={selectedMood===idx} style={{fontSize:12,marginTop:6,color:selectedMood===idx?colors.purple:colors.ink}}>{label}</T>
+              </Tap>
+            ))}
+          </View>
+          <Card style={{backgroundColor:'#FAF5FA',padding:14,borderRadius:16,borderColor:'#EDE2EE',marginBottom:6}}>
+            <T style={{fontSize:13,lineHeight:20,color:'#664770',textAlign:'center'}}>
+              {moodMessages[selectedMood]||moodMessages[0]}
+            </T>
+          </Card>
+          {input('Bugüne dair küçük bir not (opsiyonel)',moodNote,setMoodNote,{multiline:true,placeholder:'İçinden geçen bir his ya da an...'})}
+          {button('Günüme Devam Et 🌸',save)}
+          <Tap onPress={()=>{update({lastMoodDate:new Date().toISOString().slice(0,10)});close();}} style={{alignItems:'center',marginTop:14,padding:8}}>
+            <T style={{fontSize:13,color:colors.muted}}>Şimdilik atla</T>
+          </Tap>
+        </View>
+      );
+    })()}
     {!!error&&<T accessibilityRole="alert" style={{color:'#A95769',marginTop:12}}>{error}</T>}
     </ScrollView></View></KeyboardAvoidingView></Modal>;
 }

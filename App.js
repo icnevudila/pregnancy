@@ -22,6 +22,14 @@ function Momora() {
   useEffect(()=>{if(notice){const timer=setTimeout(()=>setNotice(''),2700);return()=>clearTimeout(timer)}},[notice]);
   useEffect(()=>{if(storageError)setNotice(storageError)},[storageError]);
   useEffect(()=>{const sub=BackHandler.addEventListener('hardwareBackPress',()=>{if(sheet){setSheet(null);return true}if(page&&page!==state.mode){setPage(state.mode);return true}return false});return()=>sub.remove()},[sheet,page,state.mode]);
+  useEffect(()=>{
+    if(!ready||!state.mode||state.mode==='onboarding')return;
+    const todayStr=new Date().toISOString().slice(0,10);
+    if(state.lastMoodDate!==todayStr&&!sheet){
+      const timer=setTimeout(()=>{open('dailyMood');},1100);
+      return()=>clearTimeout(timer);
+    }
+  },[ready,state.mode,state.lastMoodDate]);
   const props={state,update,addRecord,open};
   const renderPage=()=>{switch(active){case'pregnancy':return <Pregnancy {...props}/>;case'postpartum':return <Postpartum {...props}/>;case'baby':return <Baby {...props}/>;case'discover':return <Discover {...props}/>;case'assistant':return <Assistant {...props}/>;default:return <Onboarding choose={choose}/>}};
   if(!ready)return <View style={s.loading}><BrandMark size={60}/><ActivityIndicator color={colors.purple}/></View>;

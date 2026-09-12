@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const KEY = 'momora.local-demo.v1';
 export const initialState = {
   mode: null, name: 'Zeynep', babyName: 'Ada', week: 24, water: 3, vitamin: false,
-  mood: null, postpartumMood: null, tasks: [true, true, false, false, false],
+  mood: null, postpartumMood: null, lastMoodDate: null, tasks: [true, true, false, false, false],
   appointment: { title: 'Doktor randevun', date: '16 Mayıs Cuma', time: '10:00' },
   notes: [], records: [], favorites: [], liked: false, messages: [],
 };
