@@ -749,19 +749,9 @@ export function Baby({state,open}) {
 
 export function Discover({state,update,open}) {
   return <Page contentStyle={{gap:12}}>
-    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginTop:4}}>
-      <View>
-        <T style={{fontSize:11,letterSpacing:1.5,color:colors.purple,fontWeight:'700'}}>EDİTORYAL DERGİ & ARŞİV</T>
-        <T bold style={s.pageTitle}>Momora Kütüphane</T>
-      </View>
-      <Tap
-        onPress={() => open('foodSafety')}
-        label="Gıda Güvenliği"
-        style={{flexDirection:'row',alignItems:'center',gap:6,backgroundColor:'#EAF3ED',paddingHorizontal:12,paddingVertical:8,borderRadius:14}}
-      >
-        <T style={{fontSize:13}}>🥗</T>
-        <T bold style={{fontSize:11,color:'#2D754C'}}>Gıda Sorgula</T>
-      </Tap>
+    <View style={{marginTop:4,marginBottom:2}}>
+      <T bold style={s.pageTitle}>Kütüphane</T>
+      <T style={{fontSize:12.5,color:colors.muted,marginTop:2}}>65 Uzman onaylı editoryal rehber ve besin güvenliği</T>
     </View>
 
     <TopicHubScreen
