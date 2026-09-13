@@ -463,14 +463,16 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
   const isEn = lang === 'en';
   const [timelineDay, setTimelineDay] = useState('bugun'); // 'dun' | 'bugun' | 'yarin'
   const journey = resolveJourneyState(state);
-  const week = journey.week ?? state.week ?? 24;
+  const currentWeek = state.week || journey.week || 24;
+  const [selectedWeek, setSelectedWeek] = useState(null);
+  const week = selectedWeek ?? currentWeek;
   const currentDay = journey.day ?? 3;
   const info = getWeekInfo(week, lang);
   const letter = getBabyLetterForWeek(week, lang);
 
-  // Hafta şeridi: mevcut hafta ±5, tüm geçerli hafta aralığında
+  // Hafta şeridi: Kullanıcının tüm gebelik haftalarını (4-40) kaydırıp seçebilmesi
   const strip = [];
-  for (let w = Math.max(4, week - 4); w <= Math.min(TOTAL_WEEKS, week + 5); w++) strip.push(w);
+  for (let w = 4; w <= TOTAL_WEEKS; w++) strip.push(w);
 
   const moodLabels = isEn
     ? ['Great ✨', 'Good 💛', 'Normal 🌿', 'Tired 🛌', 'Hard 💜']
@@ -559,7 +561,7 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
     {/* ─── 2. HAFTA ŞERİDİ ─── */}
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.weekStrip}>
       {strip.map(n => (
-        <Tap key={n} label={n + (isEn ? ' week' : '. hafta')} onPress={() => update({week:n})}
+        <Tap key={n} label={n + (isEn ? ' week' : '. hafta')} onPress={() => { setSelectedWeek(n); update({ week: n }); }}
           accessibilityState={{selected: week === n}}
           style={[s.weekPill, week === n && s.weekActive]}>
           <T style={[{fontSize:13}, week === n && {color:'white',fontFamily:fonts.bold}]}>{n}</T>
