@@ -439,6 +439,7 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
   const [lastSavedEntry, setLastSavedEntry] = useState(null);
   const [undoCountdown, setUndoCountdown] = useState(8);
   const [showWaterNotice, setShowWaterNotice] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   const timerRef = useRef(null);
   const startedAtRef = useRef(initialStartedAt);
@@ -539,11 +540,19 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
       startedAtRef.current = Date.now();
       setDuration(0);
       setLastSavedEntry(null);
+      if (soundEnabled) {
+        playBreathCue('inhale');
+        try { Vibration.vibrate(100); } catch (e) {}
+      }
       update({ activeContraction: { startedAt: startedAtRef.current } });
     } else {
       // STOP CONTRACTION
       setActive(false);
       const now = new Date();
+      if (soundEnabled) {
+        playNotificationChime();
+        try { Vibration.vibrate([0, 100, 50, 100]); } catch (e) {}
+      }
       const finalDuration = startedAtRef.current
         ? Math.max(1, Math.round((now.getTime() - startedAtRef.current) / 1000))
         : Math.max(1, duration);
@@ -654,6 +663,30 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
         icon="contraction"
         lang={lang}
       />
+
+      {/* Sesli Geri Bildirim Kontrolü */}
+      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginBottom: 2 }}>
+        <Tap
+          onPress={() => setSoundEnabled(s => !s)}
+          label={soundEnabled ? (isEn ? 'Sound cues on' : 'Sesli geri bildirim açık') : (isEn ? 'Sound cues off' : 'Sesli geri bildirim kapalı')}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            backgroundColor: soundEnabled ? '#F1E6F5' : '#F4EFF5',
+            paddingVertical: 5,
+            paddingHorizontal: 12,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: soundEnabled ? '#C8ABCF' : '#E2D8E5',
+          }}
+        >
+          <T style={{ fontSize: 13 }}>{soundEnabled ? '🔔' : '🔕'}</T>
+          <T bold style={{ fontSize: 11, color: soundEnabled ? colors.purple : colors.muted }}>
+            {soundEnabled ? (isEn ? 'Sound Cues ON' : 'Sesli Geri Bildirim Açık') : (isEn ? 'Muted' : 'Sessiz')}
+          </T>
+        </Tap>
+      </View>
 
       {/* Anında Kayıt ve 8 sn Geri Al (Undo) */}
       {lastSavedEntry && (
@@ -1282,7 +1315,8 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
   const [cycles, setCycles] = useState(0);
   const [running, setRunning] = useState(false);
   const [totalSecs, setTotalSecs] = useState(0);
-  const [guidanceType, setGuidanceType] = useState('visual'); // 'visual' | 'voice' | 'haptic'
+  const [guidanceType, setGuidanceType] = useState('chime'); // 'chime' | 'voice' | 'silent'
+  const [ambientSound, setAmbientSound] = useState('lofi'); // 'lofi' | 'waves' | 'rain' | 'silent'
 
   const circleScale = useRef(new Animated.Value(1)).current;
   const circleOpacity = useRef(new Animated.Value(0.5)).current;
@@ -1318,6 +1352,7 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
       if (cycleRef.current) clearInterval(cycleRef.current);
       if (timerRef.current) clearInterval(timerRef.current);
       stopSpeech();
+      stopSound();
     };
   }, []);
 
@@ -1326,6 +1361,9 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
     isRunning.current = true;
     setCycles(0);
     setTotalSecs(0);
+    if (ambientSound !== 'silent') {
+      playSound(ambientSound, { volume: 0.32 });
+    }
     runPhase('inhale', customInhale);
   }
 
@@ -1336,6 +1374,9 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
     setCountdown(0);
     if (cycleRef.current) clearInterval(cycleRef.current);
     stopSpeech();
+    if (ambientSound !== 'silent') {
+      stopSound();
+    }
     Animated.parallel([
       Animated.timing(circleScale, { toValue: 1, duration: 400, useNativeDriver: false }),
       Animated.timing(circleOpacity, { toValue: 0.5, duration: 400, useNativeDriver: false }),
@@ -1364,6 +1405,11 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
     setPhase(targetPhase);
     setCountdown(secondsRemaining);
 
+    // Harmonic acoustic breath cue (Inhale rising tone / Hold bell / Exhale release)
+    if (guidanceType !== 'silent') {
+      playBreathCue(targetPhase);
+    }
+
     // Voice cue
     if (guidanceType === 'voice') {
       if (targetPhase === 'inhale') speakText(isEn ? 'Breathe in' : 'Nefes al');
@@ -1371,13 +1417,11 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
       else if (targetPhase === 'exhale') speakText(isEn ? 'Breathe out' : 'Yavaşça ver');
     }
 
-    // Haptic cue (Spec: haptic guidance)
-    if (guidanceType === 'haptic') {
-      try {
-        if (targetPhase === 'hold') Vibration.vibrate(50);
-        else Vibration.vibrate([0, 80, 40, 80]);
-      } catch (e) {}
-    }
+    // Haptic cue (always on for tactile grounding)
+    try {
+      if (targetPhase === 'hold') Vibration.vibrate(40);
+      else Vibration.vibrate([0, 70, 35, 70]);
+    } catch (e) {}
 
     // Organic scale animation: grows on inhale, softens on exhale (reduceMotion fallback supported)
     if (reduceMotion) {
@@ -1493,13 +1537,61 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
         ))}
       </View>
 
-      {/* 3. Rehberlik Seçimi & Ayar Çubuğu */}
+      {/* 3. Arka Plan Lofi Radyo & Sakin Sesler */}
+      <View style={{ gap: 6, marginTop: 4, marginBottom: 2 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <T bold style={{ fontSize: 11, color: colors.muted, letterSpacing: 0.6, textTransform: 'uppercase' }}>
+            {isEn ? 'CALM AMBIENT RADIO' : 'SAKİN LOFİ RADYOSU & SESLER'}
+          </T>
+          {running && ambientSound !== 'silent' && (
+            <T style={{ fontSize: 10.5, color: activeMode.color, fontWeight: '700' }}>
+              {isEn ? '● Radio Playing' : '● Çalıyor 🎵'}
+            </T>
+          )}
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, paddingVertical: 2 }}>
+          {[
+            { id: 'lofi', label: isEn ? '📻 Lofi Radio' : '📻 Lofi Radyo' },
+            { id: 'waves', label: isEn ? '🌊 Ocean Waves' : '🌊 Dalgalar' },
+            { id: 'rain', label: isEn ? '🌧️ Warm Rain' : '🌧️ Ilık Yağmur' },
+            { id: 'silent', label: isEn ? '🤫 Off' : '🤫 Sessiz' },
+          ].map(s => {
+            const isActive = ambientSound === s.id;
+            return (
+              <Tap
+                key={s.id}
+                onPress={() => {
+                  setAmbientSound(s.id);
+                  if (running) {
+                    if (s.id === 'silent') stopSound();
+                    else playSound(s.id, { volume: 0.32 });
+                  }
+                }}
+                style={{
+                  paddingHorizontal: 11,
+                  paddingVertical: 6,
+                  borderRadius: 12,
+                  backgroundColor: isActive ? activeMode.color : '#F3EDF5',
+                  borderWidth: 1,
+                  borderColor: isActive ? activeMode.color : '#E5DCE8',
+                }}
+              >
+                <T bold={isActive} style={{ fontSize: 11.5, color: isActive ? 'white' : colors.ink }}>
+                  {s.label}
+                </T>
+              </Tap>
+            );
+          })}
+        </ScrollView>
+      </View>
+
+      {/* 4. Nefes Ses Cümleleri & Ritim Ayarları */}
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginVertical: 6 }}>
         <View style={{ flexDirection: 'row', gap: 6 }}>
           {[
-            { id: 'visual', label: isEn ? '👁️ Silent' : '👁️ Sessiz' },
+            { id: 'chime', label: isEn ? '🔔 Chimes' : '🔔 Çan & Ses' },
             { id: 'voice', label: isEn ? '🗣️ Voice' : '🗣️ Sesli' },
-            { id: 'haptic', label: isEn ? '📳 Haptic' : '📳 Titreşim' },
+            { id: 'silent', label: isEn ? '🤫 Off' : '🤫 Sessiz' },
           ].map(opt => (
             <Tap
               key={opt.id}
@@ -1594,6 +1686,22 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
             ]}
           />
 
+          {/* Dış Işık Halesi (Glowing Aura Ring) */}
+          <Animated.View
+            style={[
+              {
+                position: 'absolute',
+                width: 230,
+                height: 230,
+                borderRadius: 115,
+                borderWidth: 1.5,
+                borderColor: activeMode.ring,
+                transform: [{ scale: circleScale }],
+                opacity: Animated.multiply(circleOpacity, 0.4),
+              },
+            ]}
+          />
+
           <View style={bs.circleCenterContent}>
             {running ? (
               <>
@@ -1601,11 +1709,18 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
                   {phase === 'inhale'
                     ? (isEn ? 'Breathe In' : 'Nefes Al')
                     : phase === 'hold'
-                    ? (isEn ? 'Soft Hold' : 'Sakin Kal')
+                    ? (isEn ? 'Soft Hold' : 'Nazikçe Tut')
                     : (isEn ? 'Breathe Out' : 'Yavaşça Ver')}
                 </T>
                 <T bold style={[bs.countdownBig, { color: activeMode.color }]}>
                   {countdown}
+                </T>
+                <T style={{ fontSize: 11.5, color: colors.muted, textAlign: 'center', marginBottom: 3 }}>
+                  {phase === 'inhale'
+                    ? (isEn ? 'Fill belly & chest gently' : 'Karnını ve göğsünü sakince doldur')
+                    : phase === 'hold'
+                    ? (isEn ? 'Relax shoulders & soften jaw' : 'Omuzlarını ve çeneni serbest bırak')
+                    : (isEn ? 'Release tension smoothly' : 'Tüm gerginliği sakince üfle')}
                 </T>
                 <T style={bs.cycleCountText}>
                   {isEn ? `Cycle ${cycles + 1}` : `${cycles + 1}. Döngü`}

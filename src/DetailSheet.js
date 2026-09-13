@@ -40,8 +40,22 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     else if(kind==='dailyMood') {
       const todayStr=new Date().toISOString().slice(0,10);
       const labels=isEn ? ['Great','Good','Normal','Tired','Hard'] : ['Harika','İyi','Normal','Yorgun','Zor'];
+      const todayLabel = isEn ? 'Today' : 'Bugün';
       update(old=>{
-        const patch={mood:selectedMood,lastMoodDate:todayStr};
+        const curHist = old.postpartumMoodHistory ? [...old.postpartumMoodHistory] : [];
+        const lastIdx = curHist.length - 1;
+        if (lastIdx >= 0 && (curHist[lastIdx].day === 'Today' || curHist[lastIdx].day === 'Bugün' || curHist[lastIdx].date === todayStr)) {
+          curHist[lastIdx] = { ...curHist[lastIdx], mood: selectedMood, day: todayLabel, date: todayStr };
+        } else if (curHist.length > 0) {
+          curHist.push({ day: todayLabel, mood: selectedMood, date: todayStr });
+          if (curHist.length > 7) curHist.shift();
+        }
+        const patch={
+          mood: selectedMood,
+          postpartumMood: selectedMood,
+          lastMoodDate: todayStr,
+          ...(curHist.length ? { postpartumMoodHistory: curHist } : {}),
+        };
         if(moodNote.trim())patch.notes=[{id:Date.now().toString(),text:`🌸 ${labels[selectedMood]} · ${moodNote.trim()}`},...old.notes];
         return patch;
       });
@@ -51,7 +65,10 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
   }
   const input=(label,value,onChange,props={})=><View style={{marginTop:16}}><T bold style={s.label}>{label}</T><TextInput accessibilityLabel={label} value={value} onChangeText={onChange} placeholderTextColor="#A79AA7" style={[s.input,props.multiline&&{minHeight:100,textAlignVertical:'top'}]} maxLength={props.multiline?1000:80} {...props}/></View>;
   const button=(label,onPress,secondary=false)=><Tap onPress={onPress} style={[s.button,secondary&&s.secondary]}><T bold style={{color:secondary?colors.purple:'white',fontSize:16}}>{label}</T></Tap>;
-  const sheetTitle = t('sheets.titles.' + kind, lang) || (kind === 'log' ? (isEn ? `${data.type} entry` : `${data.type} kaydı`) : kind);
+  const rawTitle = t('sheets.titles.' + kind, lang);
+  const sheetTitle = (rawTitle && rawTitle !== 'sheets.titles.' + kind)
+    ? rawTitle
+    : (kind === 'log' ? (isEn ? `${data.type} entry` : `${data.type} kaydı`) : (kind === 'breathingGuide' ? (isEn ? 'Labor Breathing Guide' : 'Doğum Nefes & Gevşeme Rehberi') : kind));
 
   const premiumSheetIntro = {
     journey: [isEn ? 'Choose the right journey' : 'Doğru yolculuğu seç', isEn ? ['Pick pregnancy, postpartum, or baby care.', 'Momora adjusts daily cards and tools.', 'You can change it later from profile.'] : ['Hamilelik, lohusalık veya bebek bakımını seç.', 'Momora günlük kartları ve araçları buna göre ayarlar.', 'Sonra profilden değiştirebilirsin.'], 'onboarding_fetal_journey', '#8A5BA4'],

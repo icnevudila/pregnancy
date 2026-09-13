@@ -368,22 +368,46 @@ export function UltrasoundAtlas({ state, lang = 'tr', initialWeek }) {
         </ScrollView>
       </View>
 
-      {/* 40 Hafta Kaydırıcı Şerit */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, paddingVertical: 4 }}>
-        {Array.from({ length: 37 }, (_, i) => i + 4).map(w => (
-          <Tap
-            key={w}
-            label={isEn ? `Week ${w}` : `${w}. Hafta`}
-            onPress={() => setWeek(w)}
-            style={[ms.weekPill, week === w && ms.weekPillActive]}
-          >
-            <T bold={week === w} style={{ fontSize: 12, color: week === w ? 'white' : colors.ink }}>
-              {w}
-            </T>
-            <T style={{ fontSize: 9, color: week === w ? '#EDE0EF' : colors.muted }}>{isEn ? 'wk' : 'hf'}</T>
-          </Tap>
-        ))}
-      </ScrollView>
+      {/* Şık Hafta Adımlayıcı (Week Navigator) */}
+      <View style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: '#F5EEF8',
+        borderRadius: 14,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        marginVertical: 4,
+        borderWidth: 1,
+        borderColor: '#E8DCEB'
+      }}>
+        <Tap
+          label={isEn ? 'Previous week' : 'Önceki hafta'}
+          onPress={() => setWeek(w => Math.max(4, w - 1))}
+          style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, backgroundColor: week <= 4 ? '#EFE9F2' : '#E5D6EB' }}
+          disabled={week <= 4}
+        >
+          <T bold style={{ fontSize: 13, color: week <= 4 ? colors.muted : colors.purple }}>‹ {isEn ? 'Prev' : 'Önceki'}</T>
+        </Tap>
+
+        <View style={{ alignItems: 'center' }}>
+          <T bold style={{ fontSize: 14, color: '#3E2552' }}>
+            {isEn ? `Week ${week} Fetal Scan` : `${week}. Hafta Taraması`}
+          </T>
+          <T style={{ fontSize: 10.5, color: colors.muted, marginTop: 1 }}>
+            {details.milestone ? (isEn ? details.milestone.titleEn : details.milestone.titleTr) : (isEn ? 'Ultrasound View' : 'Ultrason Görünümü')}
+          </T>
+        </View>
+
+        <Tap
+          label={isEn ? 'Next week' : 'Sonraki hafta'}
+          onPress={() => setWeek(w => Math.min(40, w + 1))}
+          style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, backgroundColor: week >= 40 ? '#EFE9F2' : '#E5D6EB' }}
+          disabled={week >= 40}
+        >
+          <T bold style={{ fontSize: 13, color: week >= 40 ? colors.muted : colors.purple }}>{isEn ? 'Next' : 'Sonraki'} ›</T>
+        </Tap>
+      </View>
 
       {/* 4'lü Görünüm Sekmesi (3D HDLive | 2D B-Mod | Doppler | Rapor Tercümanı) */}
       <View style={ms.segRow}>

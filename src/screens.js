@@ -1533,7 +1533,7 @@ export function Postpartum({ state, update, open, toast, lang = 'tr' }) {
             </View>
             <View style={[s.row, { gap: 10 }]}>
               <SmallStat
-                title={isEn ? 'Water' : 'Sıvı / Su'}
+                title={isEn ? 'Water' : 'Su'}
                 value={`${state.water || 4}/8 ${isEn ? 'gls' : 'bardak'}`}
                 icon="drop"
                 tint="#E6F0F4"
@@ -1544,8 +1544,8 @@ export function Postpartum({ state, update, open, toast, lang = 'tr' }) {
                 }}
               />
               <SmallStat
-                title={isEn ? 'Rest / Sleep' : 'Dinlenme / Uyku'}
-                value={isEn ? '6 h 20 m' : '6 sa 20 dk'}
+                title={isEn ? 'Sleep' : 'Uyku'}
+                value={isEn ? '6h 20m' : '6 sa 20 dk'}
                 icon="moon"
                 tint="#F0EAF5"
                 onPress={() => open('sleepWhiteNoise')}
@@ -1898,12 +1898,31 @@ export function Postpartum({ state, update, open, toast, lang = 'tr' }) {
               postpartum
               value={state.postpartumMood}
               onChange={postpartumMood => {
+                const todayStr = new Date().toISOString().slice(0, 10);
+                const todayLabel = isEn ? 'Today' : 'Bugün';
+                const curHist = state.postpartumMoodHistory
+                  ? [...state.postpartumMoodHistory]
+                  : [
+                      { day: isEn ? 'Mon' : 'Pzt', mood: 1 },
+                      { day: isEn ? 'Tue' : 'Sal', mood: 2 },
+                      { day: isEn ? 'Wed' : 'Çar', mood: 0 },
+                      { day: isEn ? 'Thu' : 'Per', mood: 3 },
+                      { day: isEn ? 'Fri' : 'Cum', mood: 1 },
+                      { day: isEn ? 'Sat' : 'Cmt', mood: 0 },
+                      { day: todayLabel, mood: postpartumMood, date: todayStr },
+                    ];
+                const lastIdx = curHist.length - 1;
+                if (lastIdx >= 0 && (curHist[lastIdx].day === 'Today' || curHist[lastIdx].day === 'Bugün' || curHist[lastIdx].date === todayStr)) {
+                  curHist[lastIdx] = { ...curHist[lastIdx], mood: postpartumMood, day: todayLabel, date: todayStr };
+                } else {
+                  curHist.push({ day: todayLabel, mood: postpartumMood, date: todayStr });
+                  if (curHist.length > 7) curHist.shift();
+                }
                 update({
                   postpartumMood,
-                  postpartumMoodHistory: [
-                    ...(state.postpartumMoodHistory || []).slice(0, 6),
-                    { day: isEn ? 'Today' : 'Bugün', mood: postpartumMood },
-                  ],
+                  mood: postpartumMood,
+                  lastMoodDate: todayStr,
+                  postpartumMoodHistory: curHist,
                 });
                 toast && toast(isEn ? 'Mood reflected gently 🌸' : 'Ruh halin şefkatle kaydedildi 🌸');
               }}
