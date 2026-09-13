@@ -733,8 +733,10 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
   const info = getWeekInfo(week, lang);
   const letter = getBabyLetterForWeek(week, lang);
   const weekScrollRef = useRef(null);
+  const didPositionWeekStrip = useRef(false);
 
   useEffect(() => {
+    if (didPositionWeekStrip.current) return;
     if (weekScrollRef.current) {
       const pillWidth = 65;
       const targetX = Math.max(0, (week - 4) * pillWidth - 120);
@@ -748,8 +750,9 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
           weekScrollRef.current.scrollTo({ x: targetX, animated: true });
         }
       } catch (e) {}
+      didPositionWeekStrip.current = true;
     }
-  }, [week]);
+  }, []);
 
   function scrollWeeks(delta) {
     if (weekScrollRef.current) {
