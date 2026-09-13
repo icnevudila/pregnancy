@@ -1153,11 +1153,13 @@
       "prompt": "High-end 3D claymorphic cute golden retriever puppy sitting attentively with floppy ears, soft caramel porcelain clay, isolated on pure solid white background, cut out style, 8k render, no text.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "processing",
-      "attempts": 1,
+      "status": "error",
+      "attempts": 2,
       "createdAt": 1789250674100,
-      "startedAt": 1789265860739,
-      "platform": "unknown"
+      "startedAt": 1789283513653,
+      "platform": "unknown",
+      "updatedAt": 1789283513987,
+      "error": "Prompt input failed"
     },
     {
       "id": "job_1789250674100_y6sf8",
@@ -1165,9 +1167,13 @@
       "prompt": "High-end 3D claymorphic cute adorable baby raccoon sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789250674100
+      "status": "error",
+      "attempts": 1,
+      "createdAt": 1789250674100,
+      "startedAt": 1789283518672,
+      "platform": "unknown",
+      "updatedAt": 1789283550151,
+      "error": "Capture timeout"
     },
     {
       "id": "job_1789250674100_furex",
@@ -1175,9 +1181,13 @@
       "prompt": "High-end 3D claymorphic cute adorable baby sloth sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789250674100
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789250674100,
+      "startedAt": 1789283551902,
+      "platform": "unknown",
+      "updatedAt": 1789283564230,
+      "thumb": "blob:https://gemini.google.com/2f3c0dda-8eb9-425d-bd7d-bf232db00c2c"
     },
     {
       "id": "job_1789250674100_w26ey",
@@ -1185,9 +1195,13 @@
       "prompt": "High-end 3D claymorphic cute adorable baby badger sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789250674100
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789250674100,
+      "startedAt": 1789283566577,
+      "platform": "unknown",
+      "updatedAt": 1789283579195,
+      "thumb": "blob:https://gemini.google.com/3506deb0-15a9-4df9-b56f-e02283c6c039"
     },
     {
       "id": "job_1789250674100_a0lxa",
@@ -1195,9 +1209,13 @@
       "prompt": "High-end 3D claymorphic cute adorable baby fennec sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789250674100
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789250674100,
+      "startedAt": 1789283579901,
+      "platform": "unknown",
+      "updatedAt": 1789283617969,
+      "thumb": "blob:https://gemini.google.com/5acb9b02-ea85-40a8-9439-54992c1618cc"
     },
     {
       "id": "job_1789250674100_lfre5",
@@ -1205,9 +1223,13 @@
       "prompt": "High-end 3D claymorphic cute adorable baby kangaroo sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789250674100
+      "status": "error",
+      "attempts": 1,
+      "createdAt": 1789250674100,
+      "startedAt": 1789283618580,
+      "platform": "unknown",
+      "updatedAt": 1789283678185,
+      "error": "Capture timeout"
     },
     {
       "id": "job_1789250674100_4nwyg",
@@ -1215,9 +1237,13 @@
       "prompt": "High-end 3D claymorphic cute emperor penguin chick with soft gray downy feathers and sweet baby eyes, smooth porcelain, isolated on pure solid white background, cut out style, 8k render, no text.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789250674100
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789250674100,
+      "startedAt": 1789283694250,
+      "platform": "unknown",
+      "updatedAt": 1789283734309,
+      "thumb": "blob:https://gemini.google.com/7ee591b0-e23b-4ea5-8183-a5d9c84f1a19"
     },
     {
       "id": "job_1789250674100_hs0eo",
@@ -1225,9 +1251,13 @@
       "prompt": "High-end 3D claymorphic cute adorable baby beaver sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789250674100
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789250674100,
+      "startedAt": 1789283737583,
+      "platform": "unknown",
+      "updatedAt": 1789283935828,
+      "thumb": "blob:https://gemini.google.com/faf36e71-fc9b-47fd-ac85-8a9d3d417e48"
     },
     {
       "id": "job_1789250674100_l6rdp",
@@ -1235,9 +1265,11 @@
       "prompt": "High-end 3D claymorphic cute adorable baby skunk sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789250674100
+      "status": "processing",
+      "attempts": 1,
+      "createdAt": 1789250674100,
+      "startedAt": 1789283937024,
+      "platform": "unknown"
     },
     {
       "id": "job_1789250674100_y18ve",

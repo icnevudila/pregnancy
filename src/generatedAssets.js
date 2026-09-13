@@ -3,6 +3,8 @@
 
 export const generatedAssets = {
   'animal_ant': require('../assets/animal_ant.png'),
+  'animal_badger': require('../assets/animal_badger.png'),
+  'animal_beaver': require('../assets/animal_beaver.png'),
   'animal_bee': require('../assets/animal_bee.png'),
   'animal_bunny': require('../assets/animal_bunny.png'),
   'animal_caterpillar': require('../assets/animal_caterpillar.png'),
@@ -11,6 +13,7 @@ export const generatedAssets = {
   'animal_chinchilla': require('../assets/animal_chinchilla.png'),
   'animal_dragonfly': require('../assets/animal_dragonfly.png'),
   'animal_duckling': require('../assets/animal_duckling.png'),
+  'animal_fennec': require('../assets/animal_fennec.png'),
   'animal_ferret': require('../assets/animal_ferret.png'),
   'animal_fish': require('../assets/animal_fish.png'),
   'animal_grasshopper': require('../assets/animal_grasshopper.png'),
@@ -22,6 +25,8 @@ export const generatedAssets = {
   'animal_lion_cub': require('../assets/animal_lion_cub.png'),
   'animal_otter': require('../assets/animal_otter.png'),
   'animal_parakeet': require('../assets/animal_parakeet.png'),
+  'animal_penguin': require('../assets/animal_penguin.png'),
+  'animal_sloth': require('../assets/animal_sloth.png'),
   'animal_snail': require('../assets/animal_snail.png'),
   'animal_sparrow': require('../assets/animal_sparrow.png'),
   'animal_squirrel': require('../assets/animal_squirrel.png'),

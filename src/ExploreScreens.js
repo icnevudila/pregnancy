@@ -320,12 +320,12 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
             <TextInput
               value={articleQuery}
               onChangeText={setArticleQuery}
-              placeholder="Konu, soru, belirti veya makale ara..."
+              placeholder={isEn ? "Search topic, question, symptom or article..." : "Konu, soru, belirti veya makale ara..."}
               placeholderTextColor={colors.muted}
               style={es.searchInput}
             />
             {articleQuery ? (
-              <Tap onPress={() => setArticleQuery('')} label="Temizle">
+              <Tap onPress={() => setArticleQuery('')} label={isEn ? "Clear" : "Temizle"}>
                 <Icon name="close" size={16} color={colors.muted} />
               </Tap>
             ) : null}
@@ -335,23 +335,23 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
             {topicFilters.map(t => (
               <Tap
-                key={t}
-                onPress={() => setArticleFilter(t)}
-                label={t}
-                style={[es.catPill, articleFilter === t && es.catPillActive]}
+                key={t.id}
+                onPress={() => setArticleFilter(t.id)}
+                label={t.label}
+                style={[es.catPill, articleFilter === t.id && es.catPillActive]}
               >
-                <T bold={articleFilter === t} style={{ fontSize: 12, color: articleFilter === t ? 'white' : colors.ink }}>
-                  {t}
+                <T bold={articleFilter === t.id} style={{ fontSize: 12, color: articleFilter === t.id ? 'white' : colors.ink }}>
+                  {t.label}
                 </T>
               </Tap>
             ))}
           </ScrollView>
 
           {/* Öne Çıkan Başyazı (Featured Lead Story) */}
-          {!articleQuery && articleFilter === 'Tümü' && featuredArticle && (
+          {!articleQuery && articleFilter === 'all' && featuredArticle && (
             <Tap
               onPress={() => openArticle && openArticle(featuredArticle)}
-              label="Öne Çıkan Başyazı"
+              label={isEn ? "Featured Lead Story" : "Öne Çıkan Başyazı"}
               style={es.featuredHeroCard}
             >
               {(() => {
@@ -367,7 +367,9 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
               <View style={es.featuredHeroBadge}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                   <Icon name="sparkle" size={11} color="white" />
-                  <T bold style={{ fontSize: 10, color: 'white', letterSpacing: 0.8 }}>GÜNÜN BAŞYAZISI</T>
+                  <T bold style={{ fontSize: 10, color: 'white', letterSpacing: 0.8 }}>
+                    {isEn ? "TODAY'S LEAD STORY" : "GÜNÜN BAŞYAZISI"}
+                  </T>
                 </View>
               </View>
               <View style={es.featuredHeroContent}>
@@ -376,9 +378,9 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                 <View style={es.featuredHeroMeta}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                     <Icon name="clock" size={12} color="#E4D6E6" />
-                    <T style={{ fontSize: 11, color: '#E4D6E6' }}>{featuredArticle.minutes} dk okuma</T>
+                    <T style={{ fontSize: 11, color: '#E4D6E6' }}>{featuredArticle.minutes} {isEn ? 'min read' : 'dk okuma'}</T>
                   </View>
-                  <T style={{ fontSize: 11, color: '#E4D6E6' }}>• {featuredArticle.doctor ? featuredArticle.doctor.split('·')[0] : 'Klinik Ekip'}</T>
+                  <T style={{ fontSize: 11, color: '#E4D6E6' }}>• {featuredArticle.doctor ? featuredArticle.doctor.split('·')[0] : (isEn ? 'Clinical Team' : 'Klinik Ekip')}</T>
                 </View>
               </View>
             </Tap>
@@ -387,11 +389,11 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
           {/* Makale Sayacı */}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 2 }}>
             <T bold style={{ fontSize: 13, color: colors.muted }}>
-              {filteredArticles.length} Editoryal Rehber
+              {filteredArticles.length} {isEn ? 'Editorial Guides' : 'Editoryal Rehber'}
             </T>
-            {articleFilter !== 'Tümü' && (
-              <Tap onPress={() => setArticleFilter('Tümü')} label="Filtreyi Temizle">
-                <T style={{ fontSize: 12, color: colors.purple }}>Tümünü Göster ↺</T>
+            {articleFilter !== 'all' && (
+              <Tap onPress={() => setArticleFilter('all')} label={isEn ? "Clear Filter" : "Filtreyi Temizle"}>
+                <T style={{ fontSize: 12, color: colors.purple }}>{isEn ? "Show All ↺" : "Tümünü Göster ↺"}</T>
               </Tap>
             )}
           </View>
@@ -416,17 +418,17 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                     <View style={es.blogPostTimeTag}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                         <Icon name="clock" size={11} color="white" />
-                        <T style={{ fontSize: 10, color: 'white', fontWeight: 'bold' }}>{a.minutes} dk</T>
+                        <T style={{ fontSize: 10, color: 'white', fontWeight: 'bold' }}>{a.minutes} {isEn ? 'min' : 'dk'}</T>
                       </View>
                     </View>
                   </View>
                   <View style={{ padding: 16 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                       <View style={es.blogPostCategoryTag}>
-                        <T bold style={{ fontSize: 10, color: colors.purple }}>{a.categoryName || 'Rehber'}</T>
+                        <T bold style={{ fontSize: 10, color: colors.purple }}>{a.categoryName || (isEn ? 'Guide' : 'Rehber')}</T>
                       </View>
                       {a.weeks && (
-                        <T style={{ fontSize: 11, color: colors.muted }}>• Hafta {a.weeks[0]}-{a.weeks[1]}</T>
+                        <T style={{ fontSize: 11, color: colors.muted }}>• {isEn ? `Week ${a.weeks[0]}-${a.weeks[1]}` : `Hafta ${a.weeks[0]}-${a.weeks[1]}`}</T>
                       )}
                     </View>
 
@@ -437,7 +439,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                       <View style={es.blogPostDocRow}>
                         <Icon name="check" size={13} color={colors.purple} />
                         <T numberOfLines={1} style={{ fontSize: 11, color: colors.purple, flex: 1, fontWeight: '600' }}>
-                          {`Kaynak: ${a.doctor}`}
+                          {isEn ? `Source: ${a.doctor}` : `Kaynak: ${a.doctor}`}
                         </T>
                         <Icon name="chevron" size={16} color={colors.purple} />
                       </View>
@@ -452,70 +454,86 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
         /* 4. GÖRSEL İNFOGRAFİKLER & KLİNİK ŞABLONLAR */
         <View style={{ gap: 16 }}>
           <View style={{ gap: 4 }}>
-            <T bold style={{ fontSize: 18, color: colors.ink, letterSpacing: -0.4 }}>Görsel Sağlık & Yaşam İnfografikleri</T>
-            <T style={{ fontSize: 13, color: colors.muted }}>Karmaşık klinik ve bakım bilgilerini sade, görsel şablonlarla keşfedin.</T>
+            <T bold style={{ fontSize: 18, color: colors.ink, letterSpacing: -0.4 }}>
+              {isEn ? 'Visual Health & Wellness Infographics' : 'Görsel Sağlık & Yaşam İnfografikleri'}
+            </T>
+            <T style={{ fontSize: 13, color: colors.muted }}>
+              {isEn ? 'Explore complex clinical and care guidance through clean visual cards.' : 'Karmaşık klinik ve bakım bilgilerini sade, görsel şablonlarla keşfedin.'}
+            </T>
           </View>
 
           {[
             {
               id: 'info-1',
-              title: 'Gebelikte Şampiyon Anne Tabağı & Süper Besinler',
-              sub: 'Trimesterlar boyunca bebeğin beyin, kemik ve organ gelişimini hızlandıran optimal mikro besin dengesi.',
-              tag: 'BESLENME & MİKRO BESİN',
+              title: isEn ? 'Champion Mom Plate & Superfoods in Pregnancy' : 'Gebelikte Şampiyon Anne Tabağı & Süper Besinler',
+              sub: isEn ? 'Optimal micronutrient balance accelerating baby brain, bone, and organ development across trimesters.' : 'Trimesterlar boyunca bebeğin beyin, kemik ve organ gelişimini hızlandıran optimal mikro besin dengesi.',
+              tag: isEn ? 'NUTRITION & MICRONUTRIENTS' : 'BESLENME & MİKRO BESİN',
               asset: 'infographic_trimester_nutrition',
               fallback: 'blog_healthy_breakfast',
               tint: '#4A7C59',
-              bullets: ['Kolin & DHA: Yumurta sarısı ve somon', 'Folat & Demir: Koyu yeşil yapraklılar', 'Kalsiyum: Probiyotik yoğurt ve kefir']
+              bullets: isEn
+                ? ['Choline & DHA: Egg yolks and wild salmon', 'Folate & Iron: Dark leafy greens & lentils', 'Calcium: Probiotic yogurt and kefir']
+                : ['Kolin & DHA: Yumurta sarısı ve somon', 'Folat & Demir: Koyu yeşil yapraklılar', 'Kalsiyum: Probiyotik yoğurt ve kefir']
             },
             {
               id: 'info-2',
-              title: 'Güvenli Bebek Uykusu Kılavuzu: ABC Kuralı',
-              sub: 'Ani Bebek Ölümü Sendromu (SIDS) riskini %80 azaltan Dünya Sağlık Örgütü onaylı güvenli uyku rehberi.',
-              tag: 'YENİDOĞAN GÜVENLİĞİ',
+              title: isEn ? 'Safe Baby Sleep Guide: ABC Rule' : 'Güvenli Bebek Uykusu Kılavuzu: ABC Kuralı',
+              sub: isEn ? 'WHO-approved safe sleep guidelines reducing SIDS risk by up to 80%.' : 'Ani Bebek Ölümü Sendromu (SIDS) riskini %80 azaltan Dünya Sağlık Örgütü onaylı güvenli uyku rehberi.',
+              tag: isEn ? 'NEWBORN SAFETY' : 'YENİDOĞAN GÜVENLİĞİ',
               asset: 'infographic_safe_sleep_abc',
               fallback: 'blog_sleeping_crib',
               tint: '#58638A',
-              bullets: ['A - Alone: Yalnız, yastıksız ve oyuncaksız', 'B - Back: Her zaman sırtüstü yatış', 'C - Crib: Kendi bağımsız beşiğinde']
+              bullets: isEn
+                ? ['A - Alone: Alone, no pillow, no toys', 'B - Back: Always on their back', 'C - Crib: In their own separate crib']
+                : ['A - Alone: Yalnız, yastıksız ve oyuncaksız', 'B - Back: Her zaman sırtüstü yatış', 'C - Crib: Kendi bağımsız beşiğinde']
             },
             {
               id: 'info-3',
-              title: 'Doğumun 3 Aşaması ve Bedenin Doğal Dönüşümü',
-              sub: 'İlk sancıdan plasentanın doğumuna ve ten tene temas saatine kadar doğum yolculuğunun anatomik evreleri.',
-              tag: 'DOĞUM REHBERİ',
+              title: isEn ? '3 Stages of Labor & The Body\'s Natural Transformation' : 'Doğumun 3 Aşaması ve Bedenin Doğal Dönüşümü',
+              sub: isEn ? 'Anatomical stages from first contraction through delivery of placenta and skin-to-skin golden hour.' : 'İlk sancıdan plasentanın doğumuna ve ten tene temas saatine kadar doğum yolculuğunun anatomik evreleri.',
+              tag: isEn ? 'BIRTH GUIDE' : 'DOĞUM REHBERİ',
               asset: 'infographic_labor_stages',
               fallback: 'blog_epidural_birth',
               tint: '#8C4A60',
-              bullets: ['1. Evre: Rahim ağzının incelmesi ve 10 cm açılma', '2. Evre: Bebeğin inişi ve ıkınma aşaması', '3. Evre: Bebeğin kucaklaşması & Altın Saat']
+              bullets: isEn
+                ? ['Stage 1: Cervix effacement and 10 cm dilation', 'Stage 2: Descent of baby and pushing stage', 'Stage 3: Baby embrace & Golden Hour']
+                : ['1. Evre: Rahim ağzının incelmesi ve 10 cm açılma', '2. Evre: Bebeğin inişi ve ıkınma aşaması', '3. Evre: Bebeğin kucaklaşması & Altın Saat']
             },
             {
               id: 'info-4',
-              title: 'Fetal Tekme ve Hareket Takibi: 10 Sayım Kuralı',
-              sub: 'Bebeğinizin anne karnındaki ritmini, uyanıklık pencerelerini ve doktora bildirilmesi gereken sinyalleri öğrenin.',
-              tag: 'FETAL GELİŞİM',
+              title: isEn ? 'Fetal Kick & Movement Tracking: Rule of 10' : 'Fetal Tekme ve Hareket Takibi: 10 Sayım Kuralı',
+              sub: isEn ? 'Learn your baby\'s active rhythm, wake windows, and signals that warrant doctor notification.' : 'Bebeğinizin anne karnındaki ritmini, uyanıklık pencerelerini ve doktora bildirilmesi gereken sinyalleri öğrenin.',
+              tag: isEn ? 'FETAL DEVELOPMENT' : 'FETAL GELİŞİM',
               asset: 'infographic_kick_counter_guide',
               fallback: 'blog_couple_bump',
               tint: '#9C6238',
-              bullets: ['Yemekten sonra 2 saat içinde 10 net hareket', 'Sol yan yatışta kan akışı maksimuma çıkar', 'Harekette belirgin azalma hekime iletilmelidir']
+              bullets: isEn
+                ? ['10 clear movements within 2 hours after a meal', 'Blood flow peaks when lying on left side', 'Significant drops in movement require clinical consultation']
+                : ['Yemekten sonra 2 saat içinde 10 net hareket', 'Sol yan yatışta kan akışı maksimuma çıkar', 'Harekette belirgin azalma hekime iletilmelidir']
             },
             {
               id: 'info-5',
-              title: 'Yenidoğan Açlık ve Ağlama Beden Dili',
-              sub: 'Bebek ağlamadan önceki ince beden dili işaretlerini çözün; beslenmeyi sakin ve stressiz tamamlayın.',
-              tag: 'BEBEK PSİKOLOJİSİ',
+              title: isEn ? 'Newborn Hunger & Crying Body Language' : 'Yenidoğan Açlık ve Ağlama Beden Dili',
+              sub: isEn ? 'Decode subtle body signals before crying begins; keep feeding calm and peaceful.' : 'Bebek ağlamadan önceki ince beden dili işaretlerini çözün; beslenmeyi sakin ve stressiz tamamlayın.',
+              tag: isEn ? 'BABY PSYCHOLOGY' : 'BEBEK PSİKOLOJİSİ',
               asset: 'infographic_baby_crying_cues',
               fallback: 'blog_baby_first_food',
               tint: '#6A5688',
-              bullets: ['Erken Sinyal: Ağzı arama, parmak emme, başı çevirme', 'Aktif Sinyal: Gerinme, hızlı nefes, kollarını sallama', 'Geç Sinyal: Kırmızı yüzle ağlama (Önce sakinleştirin)']
+              bullets: isEn
+                ? ['Early Cue: Rooting, sucking fingers, turning head', 'Active Cue: Stretching, faster breathing, waving arms', 'Late Cue: Crying with red face (Soothe first)']
+                : ['Erken Sinyal: Ağzı arama, parmak emme, başı çevirme', 'Aktif Sinyal: Gerinme, hızlı nefes, kollarını sallama', 'Geç Sinyal: Kırmızı yüzle ağlama (Önce sakinleştirin)']
             },
             {
               id: 'info-6',
-              title: 'Eksiksiz Doğum ve Hastane Çantası Görsel Şablonu',
-              sub: '32. haftada hazır bulunması gereken anne, bebek ve refakatçi temel gereksinimlerinin görsel yerleşimi.',
-              tag: 'HAZIRLIK REHBERİ',
+              title: isEn ? 'Complete Birth & Hospital Bag Visual Checklist' : 'Eksiksiz Doğum ve Hastane Çantası Görsel Şablonu',
+              sub: isEn ? 'Visual layout of essentials for mom, baby, and birth partner ready by week 32.' : '32. haftada hazır bulunması gereken anne, bebek ve refakatçi temel gereksinimlerinin görsel yerleşimi.',
+              tag: isEn ? 'PREPARATION GUIDE' : 'HAZIRLIK REHBERİ',
               asset: 'infographic_hospital_checklist',
               fallback: 'blog_hospital_bag_pack',
               tint: '#785A48',
-              bullets: ['Anne: Önden açılan gecelik, lohusa pedi, terlik', 'Bebek: 3 takım tulum, zıbın, müslin bez, pişik kremi', 'Evraklar: Kimlik, sigorta, doğum tercih planı']
+              bullets: isEn
+                ? ['Mom: Front-opening gown, maternity pads, slippers', 'Baby: 3 sets of onesies, swaddles, diaper cream', 'Documents: ID, insurance, birth preferences plan']
+                : ['Anne: Önden açılan gecelik, lohusa pedi, terlik', 'Bebek: 3 takım tulum, zıbın, müslin bez, pişik kremi', 'Evraklar: Kimlik, sigorta, doğum tercih planı']
             }
           ].map(info => {
             const imgSource = generatedAssets[info.asset] || generatedAssets[info.fallback] || generatedAssets['blog_pregnant_morning'];
@@ -559,15 +577,16 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
         </View>
       ) : hubTab === 'food' ? (
         /* 2. BESİN GÜVENLİĞİ KILAVUZU */
-        <FoodSafetyChecker />
+        <FoodSafetyChecker lang={lang} />
       ) : (
         /* 3. TEMATİK DOSYALAR & KOLEKSİYONLAR */
         <View style={{ gap: 12 }}>
-          <Section title="Tematik Koleksiyon Dosyaları" />
+          <Section title={isEn ? "Thematic Collection Dossiers" : "Tematik Koleksiyon Dosyaları"} />
           {topicCollections.map(col => {
             const colImg = (col.art && (generatedAssets[col.art] || getAsset(col.art))) ||
                            (col.image && (generatedAssets[col.image] || getAsset(col.image))) ||
                            generatedAssets['blog_pregnant_morning'];
+            const colTitle = isEn && col.titleEn ? col.titleEn : col.title;
             return (
               <Tap
                 key={col.id}
@@ -575,15 +594,15 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                   const match = articles.find(a => a.topic === col.id) || articles[0];
                   openArticle && openArticle(match);
                 }}
-                label={col.title}
+                label={colTitle}
                 style={[es.collectionCard, { backgroundColor: col.color }]}
               >
                 {colImg && (
                   <Image source={colImg} style={es.colImg} resizeMode="cover" />
                 )}
                 <View style={es.colInfo}>
-                  <T bold style={{ fontSize: 15, color: colors.ink, lineHeight: 21 }}>{col.title}</T>
-                  <T style={{ fontSize: 12, color: colors.muted, marginTop: 5 }}>{col.count} derlenmiş rehber</T>
+                  <T bold style={{ fontSize: 15, color: colors.ink, lineHeight: 21 }}>{colTitle}</T>
+                  <T style={{ fontSize: 12, color: colors.muted, marginTop: 5 }}>{col.count} {isEn ? 'curated guides' : 'derlenmiş rehber'}</T>
                 </View>
                 <Icon name="chevron" size={18} color={colors.purple} />
               </Tap>
@@ -596,7 +615,8 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
 }
 
 // ─── EKRAN 15: MAKALE DETAY EKRANI (LUXURY MAGAZINE EDITORIAL READER) ────────
-export function EditorialArticleScreen({ article, toast }) {
+export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [playingAudio, setPlayingAudio] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
 
@@ -623,8 +643,8 @@ export function EditorialArticleScreen({ article, toast }) {
 
   const a = article || defaultArticle;
   const coverAsset = (a.image && (generatedAssets[a.image] || getAsset(a.image))) || generatedAssets['blog_sleeping_crib'];
-  const readingTime = a.time || (a.minutes ? `${a.minutes} dk okuma` : '4 dk okuma');
-  const doctorName = a.doctor ? `Kaynak: ${a.doctor}` : 'Momora editoryal dosyası · kaynak kontrolü';
+  const readingTime = isEn ? `${a.minutes || 4} min read` : (a.time || (a.minutes ? `${a.minutes} dk okuma` : '4 dk okuma'));
+  const doctorName = a.doctor ? (isEn ? `Source: ${a.doctor}` : `Kaynak: ${a.doctor}`) : (isEn ? 'Momora editorial archive · fact-checked' : 'Momora editoryal dosyası · kaynak kontrolü');
   const relatedArticles = articles.filter(other => other.id !== a.id && other.topic === a.topic).slice(0, 3);
 
   return (
@@ -644,7 +664,7 @@ export function EditorialArticleScreen({ article, toast }) {
           <View style={es.coverBadgeRow}>
             <View style={es.categoryPill}>
               <T bold style={{ fontSize: 10, color: 'white', letterSpacing: 0.8 }}>
-                {a.categoryName ? a.categoryName.toLocaleUpperCase('tr') : 'EDİTORYAL REHBER'}
+                {isEn ? (a.categoryNameEn || a.categoryName || 'EDITORIAL GUIDE') : (a.categoryName ? a.categoryName.toLocaleUpperCase('tr') : 'EDİTORYAL REHBER')}
               </T>
             </View>
             <View style={es.readingTimePill}>
@@ -663,7 +683,7 @@ export function EditorialArticleScreen({ article, toast }) {
         </View>
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-            <T bold style={{ fontSize: 13.5, color: colors.ink }}>Editoryal Kaynak Notu</T>
+            <T bold style={{ fontSize: 13.5, color: colors.ink }}>{isEn ? 'Editorial Source Note' : 'Editoryal Kaynak Notu'}</T>
             <T style={{ fontSize: 12, color: colors.purple }}>✓</T>
           </View>
           <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2 }}>{doctorName}</T>
@@ -671,9 +691,9 @@ export function EditorialArticleScreen({ article, toast }) {
         <Tap
           onPress={() => {
             setBookmarked(!bookmarked);
-            toast && toast(bookmarked ? 'Yer imlerinden kaldırıldı' : 'Makale kaydedildi 🔖');
+            toast && toast(bookmarked ? (isEn ? 'Removed from bookmarks' : 'Yer imlerinden kaldırıldı') : (isEn ? 'Article bookmarked 🔖' : 'Makale kaydedildi 🔖'));
           }}
-          label="Kaydet"
+          label={isEn ? "Bookmark" : "Kaydet"}
           style={es.bookmarkBtn}
         >
           <Icon name="book" size={20} color={bookmarked ? colors.purple : colors.muted} />
@@ -688,20 +708,20 @@ export function EditorialArticleScreen({ article, toast }) {
             setPlayingAudio(next);
             if (next) {
               playSound('ocean', { volume: 0.4 });
-              toast && toast('🎵 Sakinleştirici fon sesi başlatıldı');
+              toast && toast(isEn ? '🎵 Soothing background ambiance started' : '🎵 Sakinleştirici fon sesi başlatıldı');
             } else {
               stopSound();
             }
           }}
-          label="Sesli dinle"
+          label={isEn ? "Listen to audio" : "Sesli dinle"}
           style={es.audioPlayBtn}
         >
           <T style={{ fontSize: 15 }}>{playingAudio ? '⏸️' : '▶️'}</T>
         </Tap>
         <View style={{ flex: 1, marginLeft: 14 }}>
-          <T bold style={{ fontSize: 13, color: colors.ink }}>Momora Sesli Dinleme</T>
+          <T bold style={{ fontSize: 13, color: colors.ink }}>{isEn ? 'Momora Audio Listening' : 'Momora Sesli Dinleme'}</T>
           <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-            {playingAudio ? 'Yazı seslendiriliyor...' : `${a.audioDuration || '3:45'} · Sakinleştirici ses`}
+            {playingAudio ? (isEn ? 'Playing article audio...' : 'Yazı seslendiriliyor...') : `${a.audioDuration || '3:45'} · ${isEn ? 'Calming voice' : 'Sakinleştirici ses'}`}
           </T>
           {/* Dalga Formu / Waveform Görselleştirmesi */}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 6 }}>
@@ -719,8 +739,8 @@ export function EditorialArticleScreen({ article, toast }) {
           </View>
         </View>
         <Tap
-          onPress={() => toast && toast('Makale bağlantısı kopyalandı 🔗')}
-          label="Paylaş"
+          onPress={() => toast && toast(isEn ? 'Article link copied 🔗' : 'Makale bağlantısı kopyalandı 🔗')}
+          label={isEn ? "Share" : "Paylaş"}
           style={{ padding: 8 }}
         >
           <Icon name="heart" size={19} color={colors.purple} />
@@ -733,7 +753,7 @@ export function EditorialArticleScreen({ article, toast }) {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 }}>
             <Icon name="sparkle" size={16} color={colors.purple} />
             <T bold style={{ fontSize: 13.5, color: colors.purple, letterSpacing: 0.5 }}>
-              ÖZETLE: ÖNE ÇIKAN NOKTALAR
+              {isEn ? 'IN BRIEF: KEY TAKEAWAYS' : 'ÖZETLE: ÖNE ÇIKAN NOKTALAR'}
             </T>
           </View>
           {a.keyPoints.map((kp, idx) => (
@@ -771,7 +791,7 @@ export function EditorialArticleScreen({ article, toast }) {
                     <View style={es.inlineCaptionRow}>
                       <Icon name="search" size={12} color="#7E6D82" style={{ marginRight: 5 }} />
                       <T style={es.inlineCaptionText}>
-                        {sec.caption || `${sec.title} görsel rehberi`}
+                        {sec.caption || (isEn ? `${sec.title} visual guide` : `${sec.title} görsel rehberi`)}
                       </T>
                     </View>
                   </View>
@@ -811,11 +831,11 @@ export function EditorialArticleScreen({ article, toast }) {
       {/* 6. Benzer Rehberler */}
       {relatedArticles.length > 0 && (
         <View style={{ marginTop: 14, gap: 11 }}>
-          <Section title="Konuyla İlgili Diğer Rehberler" />
+          <Section title={isEn ? "Related Guides" : "Konuyla İlgili Diğer Rehberler"} />
           {relatedArticles.map(rel => (
             <Tap
               key={rel.id}
-              onPress={() => toast && toast(`"${rel.title}" açılıyor...`)}
+              onPress={() => toast && toast(isEn ? `Opening "${rel.title}"...` : `"${rel.title}" açılıyor...`)}
               label={rel.title}
               style={es.relatedCard}
             >
@@ -824,7 +844,7 @@ export function EditorialArticleScreen({ article, toast }) {
               )}
               <View style={{ flex: 1 }}>
                 <T bold numberOfLines={1} style={{ fontSize: 13.5, color: colors.ink }}>{rel.title}</T>
-                <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 4 }}>⏱️ {rel.minutes} dk okuma</T>
+                <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 4 }}>⏱️ {rel.minutes} {isEn ? 'min read' : 'dk okuma'}</T>
               </View>
               <Icon name="chevron" size={16} color={colors.purple} />
             </Tap>

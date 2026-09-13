@@ -15,90 +15,128 @@ export const initialCommunityPosts = [
     id: 'p1',
     user: 'Merve B.',
     week: '24. Hafta',
+    weekEn: 'Week 24',
     title: 'Ayrıntılı ultrason için Anadolu yakasında perinatolog önerisi olan var mı?',
+    titleEn: 'Anyone have a perinatologist recommendation for detailed ultrasound on the Anatolian side?',
     desc: 'Anadolu yakasında 20-22. hafta detaylı ultrasonu çektiren anneler, hekiminizden memnun kaldınız mı? Neye dikkat etmeliyim?',
+    descEn: 'Moms who had their 20-22 week anomaly scan on the Anatolian side, were you pleased with your physician? What should I pay attention to?',
     likes: 38,
     comments: 14,
     cat: 'Kontrol & Hastane',
+    catEn: 'Visits & Hospital',
     verified: true,
     verifiedBy: 'Momora Moderasyon Notu',
+    verifiedByEn: 'Momora Moderator Note',
     verifiedAnswer: 'Detaylı ultrason için randevu alırken hekimin deneyimini, cihaz bilgisini, rapor formatını ve takip eden doktorunun yönlendirmesini birlikte değerlendirmen iyi olur.',
+    verifiedAnswerEn: 'When booking a detailed ultrasound, evaluate physician experience, imaging capabilities, report format, and your attending physician\'s guidance together.',
     time: '2 saat önce',
+    timeEn: '2 hours ago',
   },
   {
     id: 'p2',
     user: 'Deniz K.',
     week: '32. Hafta',
+    weekEn: 'Week 32',
     title: 'İlk gebeliğimde normal doğum korkumu nasıl yendim? · Umut olsun diye yazıyorum 💕',
+    titleEn: 'How I overcame my fear of vaginal birth in my first pregnancy · Sharing to inspire hope 💕',
     desc: 'Başlarda doğum kelimesi bile kalbimi çarptırıyordu. Doğum nefesi egzersizleri, perine masajı ve eşimin desteğiyle korkularım güvene dönüştü. Kimse korkmasın!',
+    descEn: 'At first even the word labor made my heart race. With breathing exercises, perineal massage, and my partner\'s support, fears turned into confidence. Don\'t be afraid!',
     likes: 84,
     comments: 29,
     cat: 'Doğum Hikayesi',
+    catEn: 'Birth Story',
     verified: false,
     time: '4 saat önce',
+    timeEn: '4 hours ago',
     blogRef: 'art-skin-to-skin',
   },
   {
     id: 'p3',
     user: 'Gözde S. · Anonim',
+    userEn: 'Gözde S. · Anonymous',
     week: '18. Hafta',
+    weekEn: 'Week 18',
     title: 'Geceleri şiddetli bacak krampları yaşayan var mı?',
+    titleEn: 'Does anyone else experience severe leg cramps at night?',
     desc: 'Uykudan uyandıran kramplar başladı. Doktorum magnezyum önerdi, siz nasıl rahatladınız? Bitkisel bir çözümü var mı?',
+    descEn: 'Waking up with painful cramps has started. My doctor recommended magnesium, how did you find relief? Any natural remedies?',
     likes: 42,
     comments: 19,
     cat: 'Belirtiler & Aşerme',
+    catEn: 'Symptoms & Cravings',
     verified: true,
     verifiedBy: 'Momora Moderasyon Notu',
+    verifiedByEn: 'Momora Moderator Note',
     verifiedAnswer: 'Kramp notlarını saat, süre ve eşlik eden belirtilerle yazmak randevuda anlatmayı kolaylaştırır. Takviye ve ilaç kararını kendi doktorunla netleştirmen gerekir.',
+    verifiedAnswerEn: 'Logging cramps with time, duration, and accompanying symptoms helps when explaining to your physician. Discuss any supplement choices with your doctor.',
     time: '5 saat önce',
+    timeEn: '5 hours ago',
   },
   {
     id: 'p4',
     user: 'Selin T.',
     week: '30. Hafta',
+    weekEn: 'Week 30',
     title: 'Bebek arabası seçimi: Travel sistem mi, kabin boy mu?',
+    titleEn: 'Stroller selection: Travel system or cabin size?',
     desc: 'Apartmanda asansör var ama araba bagajımız küçük. Şehir içi pratik kullanım için hangisini tavsiye edersiniz? Deneyimlerinize çok ihtiyacım var.',
+    descEn: 'Our building has an elevator but our car trunk is compact. Which do you recommend for practical city use? I would love your advice.',
     likes: 56,
     comments: 34,
     cat: 'Bebek Alışverişi',
+    catEn: 'Baby Shopping',
     verified: false,
     time: '7 saat önce',
+    timeEn: '7 hours ago',
   },
   {
     id: 'p5',
     user: 'Burcu A.',
     week: '14. Gün Lohusa',
+    weekEn: 'Day 14 Postpartum',
     title: 'Sürekli ağlama isteği ve yetersizlik hissi normal mi? Yalnız hissetmek istemiyorum...',
+    titleEn: 'Is crying frequently and feeling inadequate normal? I don\'t want to feel alone...',
     desc: 'Bebeğime yetemediğimi düşünüyorum, eşim destek olsa da sebepsiz gözyaşlarım durmuyor. Bu geçici mi, siz ne zaman toparlandınız? 🌸',
+    descEn: 'I feel like I am not enough for my baby, and even with my partner\'s support tears keep coming. Is this temporary, when did you feel better? 🌸',
     likes: 92,
     comments: 46,
     cat: 'Dertleşme',
+    catEn: 'Heart-to-Heart',
     verified: true,
     verifiedBy: 'Momora Destek Notu',
+    verifiedByEn: 'Momora Support Note',
     verifiedAnswer: 'Bu duyguyu not etmek, destek istemek ve güvendiğin bir sağlık profesyoneliyle paylaşmak değerli. Kendine yalnız kalmayacağın küçük bir destek planı kur.',
+    verifiedAnswerEn: 'Acknowledging this feeling, asking for support, and sharing with a trusted health professional is invaluable. Set up a gentle support plan so you are not alone.',
     time: '8 saat önce',
+    timeEn: '8 hours ago',
     blogRef: 'art-postpartum-rest',
   },
   {
     id: 'p6',
     user: 'Ezgi Y.',
     week: '26. Hafta',
+    weekEn: 'Week 26',
     title: 'Momora\'daki "Sol Yana Yatış" yazısını okuduktan sonra hamile yastığı aldım, hayatım değişti!',
+    titleEn: 'After reading the "Sleeping on the Left Side" article on Momora, I bought a pregnancy pillow and my life changed!',
     desc: 'Kütüphanedeki uyku rehberi gerçekten çok açıklayıcı olmuş. Bel batmalarım bitti, bebeğin hareketlerini de çok daha rahat hissediyorum.',
+    descEn: 'The sleep guide in the library is so clear. My lower back pain vanished, and I feel baby\'s movements much more comfortably.',
     likes: 67,
     comments: 21,
     cat: 'Blog & Deneyim',
+    catEn: 'Blog & Experience',
     verified: false,
     time: '12 saat önce',
+    timeEn: '12 hours ago',
     blogRef: 'art-safe-sleeping',
   }
 ];
 
 // ─── TOPLULUK & FORUM ANA EKRANI (COMMUNITY HUB) ─────────────────────────────
 // ─── TOPLULUK & FORUM ANA EKRANI (COMMUNITY HUB - SADE VE HUZURLU) ─────────────
-export function CommunityHub({ open, state, update, toast }) {
+export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [activeTab, setActiveTab] = useState('forum'); // 'forum' | 'club'
-  const [filterCat, setFilterCat] = useState('Tümü');
+  const [filterCat, setFilterCat] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [posts, setPosts] = useState(initialCommunityPosts);
   const [likedPosts, setLikedPosts] = useState({});
@@ -110,14 +148,14 @@ export function CommunityHub({ open, state, update, toast }) {
         const mapped = res.data.map(p => ({
           id: p.id,
           user: p.author_name,
-          week: p.week_label || 'Anne',
+          week: p.week_label || (isEn ? 'Mom' : 'Anne'),
           title: p.title,
           desc: p.body,
           likes: p.likes_count || 0,
           comments: p.comments_count || 0,
           cat: p.category,
           verified: false,
-          time: new Date(p.created_at).toLocaleDateString('tr-TR'),
+          time: new Date(p.created_at).toLocaleDateString(isEn ? 'en-US' : 'tr-TR'),
         }));
         setPosts(prev => {
           const existingIds = new Set(prev.map(x => x.id));
@@ -126,7 +164,7 @@ export function CommunityHub({ open, state, update, toast }) {
         });
       }
     }).catch(() => {});
-  }, []);
+  }, [isEn]);
 
   // Yeni gönderi formu
   const [newTitle, setNewTitle] = useState('');
@@ -134,38 +172,64 @@ export function CommunityHub({ open, state, update, toast }) {
   const [newCat, setNewCat] = useState('Dertleşme');
   const [isAnon, setIsAnon] = useState(false);
 
-  const categories = ['Tümü', 'Kontrol & Hastane', 'Doğum Hikayesi', 'Belirtiler & Aşerme', 'Bebek Alışverişi', 'Dertleşme'];
+  const categories = isEn ? [
+    { id: 'all', label: 'All' },
+    { id: 'Kontrol & Hastane', label: 'Visits & Hospital' },
+    { id: 'Doğum Hikayesi', label: 'Birth Story' },
+    { id: 'Belirtiler & Aşerme', label: 'Symptoms & Cravings' },
+    { id: 'Bebek Alışverişi', label: 'Baby Shopping' },
+    { id: 'Dertleşme', label: 'Heart-to-Heart' },
+  ] : [
+    { id: 'all', label: 'Tümü' },
+    { id: 'Kontrol & Hastane', label: 'Kontrol & Hastane' },
+    { id: 'Doğum Hikayesi', label: 'Doğum Hikayesi' },
+    { id: 'Belirtiler & Aşerme', label: 'Belirtiler & Aşerme' },
+    { id: 'Bebek Alışverişi', label: 'Bebek Alışverişi' },
+    { id: 'Dertleşme', label: 'Dertleşme' },
+  ];
+
+  const catMap = {
+    'Kontrol & Hastane': 'Visits & Hospital',
+    'Doğum Hikayesi': 'Birth Story',
+    'Belirtiler & Aşerme': 'Symptoms & Cravings',
+    'Bebek Alışverişi': 'Baby Shopping',
+    'Dertleşme': 'Heart-to-Heart',
+    'Blog & Deneyim': 'Blog & Experience',
+  };
 
   const filteredPosts = posts.filter(p => {
-    const matchesCat = filterCat === 'Tümü' || p.cat === filterCat;
-    const matchesSearch = !searchQuery || 
-      p.title.toLocaleLowerCase('tr').includes(searchQuery.toLocaleLowerCase('tr')) ||
-      p.desc.toLocaleLowerCase('tr').includes(searchQuery.toLocaleLowerCase('tr'));
+    const matchesCat = filterCat === 'all' || p.cat === filterCat;
+    const q = searchQuery.toLowerCase();
+    const matchesSearch = !q || 
+      (p.title && p.title.toLowerCase().includes(q)) ||
+      (p.titleEn && p.titleEn.toLowerCase().includes(q)) ||
+      (p.desc && p.desc.toLowerCase().includes(q)) ||
+      (p.descEn && p.descEn.toLowerCase().includes(q));
     return matchesCat && matchesSearch;
   });
 
   function handleCreatePost() {
     if (!newTitle.trim() || !newDesc.trim()) {
-      toast && toast('Lütfen konu başlığı ve açıklama yazın.');
+      toast && toast(isEn ? 'Please enter a title and details.' : 'Lütfen konu başlığı ve açıklama yazın.');
       return;
     }
     const created = {
       id: uid(),
-      user: isAnon ? 'Anonim Anne' : (state.name || 'Ben'),
-      week: state.week ? `${state.week}. Hafta` : 'Anne',
+      user: isAnon ? (isEn ? 'Anonymous Mom' : 'Anonim Anne') : (state.name || (isEn ? 'Me' : 'Ben')),
+      week: state.week ? (isEn ? `Week ${state.week}` : `${state.week}. Hafta`) : (isEn ? 'Mom' : 'Anne'),
       title: newTitle.trim(),
       desc: newDesc.trim(),
       likes: 1,
       comments: 0,
       cat: newCat,
       verified: false,
-      time: 'Az önce',
+      time: isEn ? 'Just now' : 'Az önce',
     };
     setPosts([created, ...posts]);
     setNewTitle('');
     setNewDesc('');
     setNewPostModal(false);
-    toast && toast('🌸 Sorun topluluk akışında paylaşıldı!');
+    toast && toast(isEn ? '🌸 Your question was published in the community feed!' : '🌸 Sorun topluluk akışında paylaşıldı!');
   }
 
   function toggleLike(postId) {
@@ -177,7 +241,7 @@ export function CommunityHub({ open, state, update, toast }) {
       }
       return p;
     }));
-    toast && toast(isLiked ? 'Beğeni geri alındı' : 'Beğenildi 💛');
+    toast && toast(isLiked ? (isEn ? 'Like removed' : 'Beğeni geri alındı') : (isEn ? 'Liked 💛' : 'Beğenildi 💛'));
   }
 
   return (
@@ -185,27 +249,27 @@ export function CommunityHub({ open, state, update, toast }) {
       {/* Sade & Şık Başlık Çubuğu */}
       <View style={cs.headerRow}>
         <View style={{ flex: 1 }}>
-          <T bold style={cs.pageTitle}>Topluluk</T>
+          <T bold style={cs.pageTitle}>{isEn ? 'Community' : 'Topluluk'}</T>
           <T style={cs.headerSub}>
-            Anne deneyimleri, sakin sorular ve moderasyon notları tek akışta.
+            {isEn ? 'Mother experiences, calm questions and moderation notes in one feed.' : 'Anne deneyimleri, sakin sorular ve moderasyon notları tek akışta.'}
           </T>
         </View>
         <Tap
           onPress={() => setNewPostModal(true)}
-          label="Yeni Soru Sor"
+          label={isEn ? "Ask New Question" : "Yeni Soru Sor"}
           style={cs.newPostBtn}
         >
-          <T bold style={{ fontSize: 12.5, color: 'white' }}>+ Soru Sor</T>
+          <T bold style={{ fontSize: 12.5, color: 'white' }}>{isEn ? '+ Ask Question' : '+ Soru Sor'}</T>
         </Tap>
       </View>
 
       <ScreenHero
-        kicker="GÜVENLİ PAYLAŞIM ALANI"
-        title={`${filteredPosts.length} aktif konu`}
-        body="Deneyim paylaş; sağlık kararı gerektiren başlıklarda kendi uzmanının yönlendirmesini merkeze al."
+        kicker={isEn ? "SAFE SHARING SPACE" : "GÜVENLİ PAYLAŞIM ALANI"}
+        title={isEn ? `${filteredPosts.length} active topics` : `${filteredPosts.length} aktif konu`}
+        body={isEn ? "Share experiences; always prioritize your attending healthcare provider's guidance for medical decisions." : "Deneyim paylaş; sağlık kararı gerektiren başlıklarda kendi uzmanının yönlendirmesini merkeze al."}
         icon="chat"
         asset="ui_community_mothers_circle"
-        stat="moderasyon notları"
+        stat={isEn ? "moderation notes" : "moderasyon notları"}
         tint={colors.purple}
       />
 
@@ -213,20 +277,20 @@ export function CommunityHub({ open, state, update, toast }) {
       <View style={cs.hubTabs}>
         <Tap
           onPress={() => setActiveTab('forum')}
-          label="Anne Sohbetleri"
+          label={isEn ? "Mom Chats" : "Anne Sohbetleri"}
           style={[cs.hubTab, activeTab === 'forum' && cs.hubTabActive]}
         >
           <T bold={activeTab === 'forum'} style={[cs.hubTabText, activeTab === 'forum' && { color: 'white' }]}>
-            💬 Anne Sohbetleri
+            {isEn ? '💬 Mom Chats' : '💬 Anne Sohbetleri'}
           </T>
         </Tap>
         <Tap
           onPress={() => setActiveTab('club')}
-          label="Doğum Kulübüm"
+          label={isEn ? "Birth Club" : "Doğum Kulübüm"}
           style={[cs.hubTab, activeTab === 'club' && cs.hubTabActive]}
         >
           <T bold={activeTab === 'club'} style={[cs.hubTabText, activeTab === 'club' && { color: 'white' }]}>
-            🌸 Doğum Kulübüm
+            {isEn ? '🌸 My Birth Club' : '🌸 Doğum Kulübüm'}
           </T>
         </Tap>
       </View>
@@ -239,12 +303,12 @@ export function CommunityHub({ open, state, update, toast }) {
             <TextInput
               value={searchQuery}
               onChangeText={setSearchQuery}
-              placeholder="Konularda veya sorularda ara..."
+              placeholder={isEn ? "Search topics or questions..." : "Konularda veya sorularda ara..."}
               placeholderTextColor={colors.muted}
               style={cs.searchInput}
             />
             {searchQuery ? (
-              <Tap onPress={() => setSearchQuery('')} label="Temizle">
+              <Tap onPress={() => setSearchQuery('')} label={isEn ? "Clear" : "Temizle"}>
                 <Icon name="close" size={16} color={colors.muted} />
               </Tap>
             ) : null}
@@ -254,13 +318,13 @@ export function CommunityHub({ open, state, update, toast }) {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 7, paddingVertical: 2 }}>
             {categories.map(c => (
               <Tap
-                key={c}
-                onPress={() => setFilterCat(c)}
-                label={c}
-                style={[cs.filterPill, filterCat === c && cs.filterPillActive]}
+                key={c.id}
+                onPress={() => setFilterCat(c.id)}
+                label={c.label}
+                style={[cs.filterPill, filterCat === c.id && cs.filterPillActive]}
               >
-                <T bold={filterCat === c} style={{ fontSize: 11.5, color: filterCat === c ? 'white' : colors.ink }}>
-                  {c}
+                <T bold={filterCat === c.id} style={{ fontSize: 11.5, color: filterCat === c.id ? 'white' : colors.ink }}>
+                  {c.label}
                 </T>
               </Tap>
             ))}
@@ -270,6 +334,12 @@ export function CommunityHub({ open, state, update, toast }) {
           <View style={{ gap: 11 }}>
             {filteredPosts.map(post => {
               const isLiked = !!likedPosts[post.id];
+              const pTitle = (isEn && post.titleEn) ? post.titleEn : post.title;
+              const pDesc = (isEn && post.descEn) ? post.descEn : post.desc;
+              const pWeek = (isEn && post.weekEn) ? post.weekEn : post.week;
+              const pCat = (isEn && (post.catEn || catMap[post.cat])) ? (post.catEn || catMap[post.cat]) : post.cat;
+              const pTime = (isEn && post.timeEn) ? post.timeEn : post.time;
+              const pUser = (isEn && post.userEn) ? post.userEn : post.user;
               return (
                 <Card key={post.id} style={cs.postCard}>
                   {/* Başlık ve Yazar Bilgisi */}
@@ -279,37 +349,39 @@ export function CommunityHub({ open, state, update, toast }) {
                     </View>
                     <View style={{ flex: 1, marginLeft: 9 }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                        <T bold style={{ fontSize: 13, color: colors.ink }}>{post.user}</T>
+                        <T bold style={{ fontSize: 13, color: colors.ink }}>{pUser}</T>
                         <View style={cs.weekTag}>
-                          <T style={{ fontSize: 10, color: colors.purple, fontWeight: '600' }}>{post.week}</T>
+                          <T style={{ fontSize: 10, color: colors.purple, fontWeight: '600' }}>{pWeek}</T>
                         </View>
                       </View>
                       <T style={{ fontSize: 10.5, color: colors.muted, marginTop: 1 }}>
-                        {post.time} · {post.cat}
+                        {pTime} · {pCat}
                       </T>
                     </View>
                     {post.verified && (
                       <View style={cs.verifiedBadge}>
-                        <T bold style={{ fontSize: 10, color: '#2D754C' }}>✓ Moderasyon Notu</T>
+                        <T bold style={{ fontSize: 10, color: '#2D754C' }}>
+                          {isEn ? '✓ Moderator Note' : '✓ Moderasyon Notu'}
+                        </T>
                       </View>
                     )}
                   </View>
 
                   {/* Soru / Konu İçeriği */}
                   <Tap
-                    onPress={() => open && open('communityThread', post)}
-                    label={post.title}
+                    onPress={() => open && open('communityThread', { ...post, lang })}
+                    label={pTitle}
                     style={{ marginTop: 10 }}
                   >
-                    <T bold style={cs.postTitle}>{post.title}</T>
-                    <T numberOfLines={2} style={cs.postDesc}>{post.desc}</T>
+                    <T bold style={cs.postTitle}>{pTitle}</T>
+                    <T numberOfLines={2} style={cs.postDesc}>{pDesc}</T>
                   </Tap>
 
                   {/* Etkileşim Satırı */}
                   <View style={cs.postFooter}>
                     <Tap
                       onPress={() => toggleLike(post.id)}
-                      label="Beğen"
+                      label={isEn ? "Like" : "Beğen"}
                       style={cs.actionItem}
                     >
                       <Icon
@@ -324,22 +396,26 @@ export function CommunityHub({ open, state, update, toast }) {
                     </Tap>
 
                     <Tap
-                      onPress={() => open && open('communityThread', post)}
-                      label="Yanıtlar"
+                      onPress={() => open && open('communityThread', { ...post, lang })}
+                      label={isEn ? "Replies" : "Yanıtlar"}
                       style={cs.actionItem}
                     >
                       <Icon name="chat" size={16} color={colors.muted} />
-                      <T style={{ fontSize: 11.5, color: colors.muted }}>{post.comments} yanıt</T>
+                      <T style={{ fontSize: 11.5, color: colors.muted }}>
+                        {post.comments} {isEn ? 'replies' : 'yanıt'}
+                      </T>
                     </Tap>
 
                     <View style={{ flex: 1 }} />
 
                     <Tap
-                      onPress={() => open && open('communityThread', post)}
-                      label="Yanıtla"
+                      onPress={() => open && open('communityThread', { ...post, lang })}
+                      label={isEn ? "Reply" : "Yanıtla"}
                       style={{ paddingVertical: 4 }}
                     >
-                      <T bold style={{ fontSize: 11.5, color: colors.purple }}>Sohbete Katıl →</T>
+                      <T bold style={{ fontSize: 11.5, color: colors.purple }}>
+                        {isEn ? 'Join Discussion →' : 'Sohbete Katıl →'}
+                      </T>
                     </Tap>
                   </View>
                 </Card>
@@ -349,7 +425,7 @@ export function CommunityHub({ open, state, update, toast }) {
         </View>
       ) : (
         /* ─── DOĞUM AYI KULÜBÜ (TEMMUZ 2026 ANNELERİ) ─────────────── */
-        <BirthMonthClubScreen onOpenThread={p => open && open('communityThread', p)} />
+        <BirthMonthClubScreen onOpenThread={p => open && open('communityThread', { ...p, lang })} lang={lang} />
       )}
 
       {/* YENİ GÖNDERİ PAYLAŞMA MODALİ */}
@@ -358,50 +434,60 @@ export function CommunityHub({ open, state, update, toast }) {
           <View style={cs.modalSheet}>
             <View style={cs.modalHandle} />
             <View style={cs.modalHead}>
-              <T bold style={{ fontSize: 17, color: colors.ink }}>Topluluğa Soru Sor ✍️</T>
-              <Tap onPress={() => setNewPostModal(false)} label="Kapat" style={{ padding: 6 }}>
+              <T bold style={{ fontSize: 17, color: colors.ink }}>
+                {isEn ? 'Ask the Community ✍️' : 'Topluluğa Soru Sor ✍️'}
+              </T>
+              <Tap onPress={() => setNewPostModal(false)} label={isEn ? "Close" : "Kapat"} style={{ padding: 6 }}>
                 <Icon name="close" size={20} color={colors.muted} />
               </Tap>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingBottom: 20 }}>
               <T style={{ fontSize: 12.5, color: colors.muted }}>
-                Sorunu veya tecrübeni paylaş. Benzer süreçlerden geçen annelerden ve Momora kaynak notlarından destek al.
+                {isEn
+                  ? 'Share your question or experience. Get support from fellow mothers and Momora reference notes.'
+                  : 'Sorunu veya tecrübeni paylaş. Benzer süreçlerden geçen annelerden ve Momora kaynak notlarından destek al.'}
               </T>
 
               {/* Kategori Seçici */}
-              <T bold style={{ fontSize: 12.5, marginTop: 4 }}>Konu Kategorisi:</T>
+              <T bold style={{ fontSize: 12.5, marginTop: 4 }}>
+                {isEn ? 'Topic Category:' : 'Konu Kategorisi:'}
+              </T>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
-                {categories.filter(c => c !== 'Tümü').map(c => (
+                {categories.filter(c => c.id !== 'all').map(c => (
                   <Tap
-                    key={c}
-                    onPress={() => setNewCat(c)}
-                    label={c}
-                    style={[cs.modalCatPill, newCat === c && cs.modalCatPillActive]}
+                    key={c.id}
+                    onPress={() => setNewCat(c.id)}
+                    label={c.label}
+                    style={[cs.modalCatPill, newCat === c.id && cs.modalCatPillActive]}
                   >
-                    <T bold={newCat === c} style={{ fontSize: 11, color: newCat === c ? 'white' : colors.ink }}>
-                      {c}
+                    <T bold={newCat === c.id} style={{ fontSize: 11, color: newCat === c.id ? 'white' : colors.ink }}>
+                      {c.label}
                     </T>
                   </Tap>
                 ))}
               </ScrollView>
 
               {/* Başlık Girişi */}
-              <T bold style={{ fontSize: 12.5, marginTop: 4 }}>Soru veya Konu Başlığı:</T>
+              <T bold style={{ fontSize: 12.5, marginTop: 4 }}>
+                {isEn ? 'Question or Topic Title:' : 'Soru veya Konu Başlığı:'}
+              </T>
               <TextInput
                 value={newTitle}
                 onChangeText={setNewTitle}
-                placeholder="Örn: 20. hafta detaylı ultrason için önerileriniz var mı?"
+                placeholder={isEn ? "E.g. Any recommendations for 20th week detailed scan?" : "Örn: 20. hafta detaylı ultrason için önerileriniz var mı?"}
                 placeholderTextColor={colors.muted}
                 style={cs.modalInput}
               />
 
               {/* Açıklama Girişi */}
-              <T bold style={{ fontSize: 12.5, marginTop: 4 }}>Detaylar:</T>
+              <T bold style={{ fontSize: 12.5, marginTop: 4 }}>
+                {isEn ? 'Details:' : 'Detaylar:'}
+              </T>
               <TextInput
                 value={newDesc}
                 onChangeText={setNewDesc}
-                placeholder="Aklına takılanları, belirtilerini veya merak ettiklerini buraya yazabilirsin..."
+                placeholder={isEn ? "Write what is on your mind, symptoms, or what you are curious about..." : "Aklına takılanları, belirtilerini veya merak ettiklerini buraya yazabilirsin..."}
                 placeholderTextColor={colors.muted}
                 multiline
                 numberOfLines={4}
@@ -411,22 +497,26 @@ export function CommunityHub({ open, state, update, toast }) {
               {/* Anonim Seçeneği */}
               <Tap
                 onPress={() => setIsAnon(!isAnon)}
-                label="Anonim olarak paylaş"
+                label={isEn ? "Share anonymously" : "Anonim olarak paylaş"}
                 style={cs.anonRow}
               >
                 <View style={[cs.checkbox, isAnon && cs.checkboxActive]}>
                   {isAnon && <T style={{ color: 'white', fontSize: 13, fontWeight: 'bold' }}>✓</T>}
                 </View>
-                <T style={{ fontSize: 12.5, color: colors.ink }}>İsmimi gizle · Anonim Anne olarak yayınla</T>
+                <T style={{ fontSize: 12.5, color: colors.ink }}>
+                  {isEn ? 'Hide my name · Publish as Anonymous Mom' : 'İsmimi gizle · Anonim Anne olarak yayınla'}
+                </T>
               </Tap>
 
               {/* Paylaş Butonu */}
               <Tap
                 onPress={handleCreatePost}
-                label="Paylaşımı Gönder"
+                label={isEn ? "Submit Post" : "Paylaşımı Gönder"}
                 style={cs.submitPostBtn}
               >
-                <T bold style={{ color: 'white', fontSize: 14 }}>Paylaşımı Yayınla ✨</T>
+                <T bold style={{ color: 'white', fontSize: 14 }}>
+                  {isEn ? 'Publish Post ✨' : 'Paylaşımı Yayınla ✨'}
+                </T>
               </Tap>
             </ScrollView>
           </View>
@@ -436,11 +526,31 @@ export function CommunityHub({ open, state, update, toast }) {
   );
 }
 
-export function BirthMonthClubScreen({ onOpenThread }) {
-  const [filter, setFilter] = useState('Tümü');
-  const filters = ['Tümü', 'Kontrol & Hastane', 'Belirtiler & Aşerme', 'Bebek Alışverişi', 'Dertleşme'];
+export function BirthMonthClubScreen({ onOpenThread, lang = 'tr' }) {
+  const isEn = lang === 'en';
+  const [filter, setFilter] = useState('all');
+  const filters = isEn ? [
+    { id: 'all', label: 'All' },
+    { id: 'Kontrol & Hastane', label: 'Visits & Hospital' },
+    { id: 'Belirtiler & Aşerme', label: 'Symptoms & Cravings' },
+    { id: 'Bebek Alışverişi', label: 'Baby Shopping' },
+    { id: 'Dertleşme', label: 'Heart-to-Heart' }
+  ] : [
+    { id: 'all', label: 'Tümü' },
+    { id: 'Kontrol & Hastane', label: 'Kontrol & Hastane' },
+    { id: 'Belirtiler & Aşerme', label: 'Belirtiler & Aşerme' },
+    { id: 'Bebek Alışverişi', label: 'Bebek Alışverişi' },
+    { id: 'Dertleşme', label: 'Dertleşme' }
+  ];
 
-  const filtered = initialCommunityPosts.filter(p => filter === 'Tümü' || p.cat === filter);
+  const catMap = {
+    'Kontrol & Hastane': 'Visits & Hospital',
+    'Belirtiler & Aşerme': 'Symptoms & Cravings',
+    'Bebek Alışverişi': 'Baby Shopping',
+    'Dertleşme': 'Heart-to-Heart',
+  };
+
+  const filtered = initialCommunityPosts.filter(p => filter === 'all' || p.cat === filter);
 
   return (
     <View style={{ gap: 14 }}>
@@ -455,9 +565,11 @@ export function BirthMonthClubScreen({ onOpenThread }) {
             <T style={{ fontSize: 24 }}>🌸</T>
           </View>
           <View style={{ flex: 1, marginLeft: 12 }}>
-            <T bold style={{ color: 'white', fontSize: 17 }}>Temmuz 2026 Anneleri</T>
+            <T bold style={{ color: 'white', fontSize: 17 }}>
+              {isEn ? 'July 2026 Moms' : 'Temmuz 2026 Anneleri'}
+            </T>
             <T style={{ color: '#E8D5E8', fontSize: 12, marginTop: 2 }}>
-              4.280 Anne · Aynı ayda kavuşuyoruz 💕
+              {isEn ? '4,280 Moms · Meeting in the same month 💕' : '4.280 Anne · Aynı ayda kavuşuyoruz 💕'}
             </T>
           </View>
         </View>
@@ -467,13 +579,13 @@ export function BirthMonthClubScreen({ onOpenThread }) {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
         {filters.map(f => (
           <Tap
-            key={f}
-            onPress={() => setFilter(f)}
-            label={f}
-            style={[cs.filterPill, filter === f && cs.filterPillActive]}
+            key={f.id}
+            onPress={() => setFilter(f.id)}
+            label={f.label}
+            style={[cs.filterPill, filter === f.id && cs.filterPillActive]}
           >
-            <T bold={filter === f} style={{ fontSize: 12, color: filter === f ? 'white' : colors.ink }}>
-              {f}
+            <T bold={filter === f.id} style={{ fontSize: 12, color: filter === f.id ? 'white' : colors.ink }}>
+              {f.label}
             </T>
           </Tap>
         ))}
@@ -481,56 +593,97 @@ export function BirthMonthClubScreen({ onOpenThread }) {
 
       {/* Gönderi Kartları */}
       <View style={{ gap: 12 }}>
-        {filtered.map(post => (
-          <Tap
-            key={post.id}
-            onPress={() => onOpenThread && onOpenThread(post)}
-            label={post.title}
-            style={cs.postCard}
-          >
-            <View style={cs.postHeader}>
-              <View style={cs.avatar}>
-                <T style={{ fontSize: 13 }}>👩</T>
-              </View>
-              <View style={{ flex: 1, marginLeft: 10 }}>
-                <T bold style={{ fontSize: 13 }}>{post.user}</T>
-                <T style={{ fontSize: 10, color: colors.muted }}>{post.week} · {post.cat}</T>
-              </View>
-              {post.verified && (
-                <View style={cs.verifiedBadge}>
-                  <T style={{ fontSize: 10, color: colors.purple }}>Moderasyon Notu ✓</T>
+        {filtered.map(post => {
+          const pTitle = (isEn && post.titleEn) ? post.titleEn : post.title;
+          const pDesc = (isEn && post.descEn) ? post.descEn : post.desc;
+          const pWeek = (isEn && post.weekEn) ? post.weekEn : post.week;
+          const pCat = (isEn && (post.catEn || catMap[post.cat])) ? (post.catEn || catMap[post.cat]) : post.cat;
+          const pUser = (isEn && post.userEn) ? post.userEn : post.user;
+          return (
+            <Tap
+              key={post.id}
+              onPress={() => onOpenThread && onOpenThread({ ...post, lang })}
+              label={pTitle}
+              style={cs.postCard}
+            >
+              <View style={cs.postHeader}>
+                <View style={cs.avatar}>
+                  <T style={{ fontSize: 13 }}>👩</T>
                 </View>
-              )}
-            </View>
-
-            <T bold style={{ fontSize: 14, color: colors.ink, marginTop: 8, lineHeight: 20 }}>
-              {post.title}
-            </T>
-            <T style={{ fontSize: 12, color: '#554A5A', marginTop: 4, lineHeight: 18 }}>
-              {post.desc}
-            </T>
-
-            <View style={cs.postFooter}>
-              <View style={cs.statRow}>
-                <Icon name="heart" size={15} color={colors.muted} />
-                <T style={{ fontSize: 12, color: colors.muted }}>{post.likes}</T>
+                <View style={{ flex: 1, marginLeft: 10 }}>
+                  <T bold style={{ fontSize: 13 }}>{pUser}</T>
+                  <T style={{ fontSize: 10, color: colors.muted }}>{pWeek} · {pCat}</T>
+                </View>
+                {post.verified && (
+                  <View style={cs.verifiedBadge}>
+                    <T style={{ fontSize: 10, color: colors.purple }}>
+                      {isEn ? 'Moderator Note ✓' : 'Moderasyon Notu ✓'}
+                    </T>
+                  </View>
+                )}
               </View>
-              <View style={cs.statRow}>
-                <Icon name="chat" size={15} color={colors.muted} />
-                <T style={{ fontSize: 12, color: colors.muted }}>{post.comments} yanıt</T>
+
+              <T bold style={{ fontSize: 14, color: colors.ink, marginTop: 8, lineHeight: 20 }}>
+                {pTitle}
+              </T>
+              <T style={{ fontSize: 12, color: '#554A5A', marginTop: 4, lineHeight: 18 }}>
+                {pDesc}
+              </T>
+
+              <View style={cs.postFooter}>
+                <View style={cs.statRow}>
+                  <Icon name="heart" size={15} color={colors.muted} />
+                  <T style={{ fontSize: 12, color: colors.muted }}>{post.likes}</T>
+                </View>
+                <View style={cs.statRow}>
+                  <Icon name="chat" size={15} color={colors.muted} />
+                  <T style={{ fontSize: 12, color: colors.muted }}>
+                    {post.comments} {isEn ? 'replies' : 'yanıt'}
+                  </T>
+                </View>
               </View>
-            </View>
-          </Tap>
-        ))}
+            </Tap>
+          );
+        })}
       </View>
     </View>
   );
 }
 
 // ─── EKRAN 21: TOPLULUK TARTIŞMA & SOHBET DETAY EKRANI ───────────────────────
-export function CommunityThreadScreen({ post, toast }) {
+export function CommunityThreadScreen({ post, toast, lang: propLang }) {
+  const lang = propLang || post?.lang || 'tr';
+  const isEn = lang === 'en';
   const [commentText, setCommentText] = useState('');
-  const [comments, setComments] = useState([
+  const [comments, setComments] = useState(isEn ? [
+    {
+      id: 'c1',
+      author: 'Midwife Ayşe Yılmaz',
+      role: 'Momora Community Guide',
+      isExpert: true,
+      text: 'Logging cramps with time, duration, and accompanying symptoms makes discussions at visits much easier. Warm showers, gentle stretches, and hydration tracking can help; confirm any supplement choices with your own physician.',
+      time: '3 hours ago',
+      helpful: 42,
+    },
+    {
+      id: 'c2',
+      author: 'Deniz K.',
+      role: 'Week 26',
+      isExpert: false,
+      text: 'I increased banana intake and placed a rolled towel under my legs while sleeping, it made a huge difference!',
+      time: '1 hour ago',
+      helpful: 12,
+    },
+    {
+      id: 'c3',
+      author: 'Elif M.',
+      role: 'Week 20',
+      isExpert: false,
+      text: 'We experienced the exact same cramps; taking notes and discussing them at our checkup clarified what to adjust.',
+      time: '35 min ago',
+      helpful: 6,
+    }
+  ] : [
     {
       id: 'c1',
       author: 'Ebe Ayşe Yılmaz',
@@ -561,21 +714,27 @@ export function CommunityThreadScreen({ post, toast }) {
   ]);
 
   const p = post || initialCommunityPosts[0];
+  const pTitle = (isEn && p.titleEn) ? p.titleEn : p.title;
+  const pDesc = (isEn && p.descEn) ? p.descEn : p.desc;
+  const pWeek = (isEn && p.weekEn) ? p.weekEn : p.week;
+  const pCat = (isEn && p.catEn) ? p.catEn : p.cat;
+  const pTime = (isEn && p.timeEn) ? p.timeEn : p.time;
+  const pUser = (isEn && p.userEn) ? p.userEn : p.user;
 
   function addComment() {
     if (!commentText.trim()) return;
     const newC = {
       id: uid(),
-      author: 'Sen',
-      role: '24. Hafta',
+      author: isEn ? 'You' : 'Sen',
+      role: isEn ? 'Week 24' : '24. Hafta',
       isExpert: false,
       text: commentText.trim(),
-      time: 'Az önce',
+      time: isEn ? 'Just now' : 'Az önce',
       helpful: 0,
     };
     setComments([...comments, newC]);
     setCommentText('');
-    toast && toast('🌸 Yanıtınız topluluk sohbetine eklendi!');
+    toast && toast(isEn ? '🌸 Your reply was added to the community chat!' : '🌸 Yanıtınız topluluk sohbetine eklendi!');
   }
 
   return (
@@ -587,36 +746,42 @@ export function CommunityThreadScreen({ post, toast }) {
             <T style={{ fontSize: 16 }}>👩</T>
           </View>
           <View style={{ flex: 1, marginLeft: 10 }}>
-            <T bold style={{ fontSize: 14.5, color: colors.ink }}>{p.user}</T>
-            <T style={{ fontSize: 11, color: colors.muted }}>{p.week} · {p.cat} · {p.time}</T>
+            <T bold style={{ fontSize: 14.5, color: colors.ink }}>{pUser}</T>
+            <T style={{ fontSize: 11, color: colors.muted }}>{pWeek} · {pCat} · {pTime}</T>
           </View>
           {p.verified && (
             <View style={cs.verifiedBadge}>
-              <T bold style={{ fontSize: 10, color: '#2D754C' }}>✓ Moderasyon Notu</T>
+              <T bold style={{ fontSize: 10, color: '#2D754C' }}>
+                {isEn ? '✓ Moderator Note' : '✓ Moderasyon Notu'}
+              </T>
             </View>
           )}
         </View>
 
         <T bold style={{ fontSize: 17, color: colors.ink, marginTop: 12, lineHeight: 23 }}>
-          {p.title}
+          {pTitle}
         </T>
         <T style={{ fontSize: 14, color: '#4E4453', marginTop: 8, lineHeight: 22 }}>
-          {p.desc}
+          {pDesc}
         </T>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginTop: 14, paddingTop: 10, borderTopWidth: 1, borderColor: '#F2E8F2' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
             <Icon name="heart" size={16} color="#C75B7A" fill="#C75B7A" />
-            <T bold style={{ fontSize: 12, color: '#C75B7A' }}>{p.likes} Anne beğendi</T>
+            <T bold style={{ fontSize: 12, color: '#C75B7A' }}>
+              {p.likes} {isEn ? 'Mothers liked this' : 'Anne beğendi'}
+            </T>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
             <Icon name="chat" size={16} color={colors.purple} />
-            <T bold style={{ fontSize: 12, color: colors.purple }}>{comments.length} Katılımcı Yanıtı</T>
+            <T bold style={{ fontSize: 12, color: colors.purple }}>
+              {comments.length} {isEn ? 'Participant Replies' : 'Katılımcı Yanıtı'}
+            </T>
           </View>
         </View>
       </Card>
 
-      <Section title={`Sohbet & Yanıtlar (${comments.length})`} />
+      <Section title={isEn ? `Chat & Replies (${comments.length})` : `Sohbet & Yanıtlar (${comments.length})`} />
 
       {/* Yanıtlar Akışı */}
       <View style={{ gap: 11 }}>
@@ -639,7 +804,9 @@ export function CommunityThreadScreen({ post, toast }) {
                   <T bold style={{ fontSize: 13.5 }}>{c.author}</T>
                   {c.isExpert ? (
                     <View style={cs.expertTag}>
-                      <T bold style={{ fontSize: 9.5, color: 'white' }}>REHBER NOTU</T>
+                      <T bold style={{ fontSize: 9.5, color: 'white' }}>
+                        {isEn ? 'GUIDE NOTE' : 'REHBER NOTU'}
+                      </T>
                     </View>
                   ) : (
                     <T style={{ fontSize: 10.5, color: colors.muted }}>({c.role})</T>
@@ -661,12 +828,12 @@ export function CommunityThreadScreen({ post, toast }) {
         <TextInput
           value={commentText}
           onChangeText={setCommentText}
-          placeholder="Düşünceni, tavsiyeni veya deneyimini paylaş..."
+          placeholder={isEn ? "Share your thought, advice, or experience..." : "Düşünceni, tavsiyeni veya deneyimini paylaş..."}
           placeholderTextColor={colors.muted}
           style={cs.replyInput}
           onSubmitEditing={addComment}
         />
-        <Tap onPress={addComment} label="Gönder" style={cs.replySend}>
+        <Tap onPress={addComment} label={isEn ? "Send" : "Gönder"} style={cs.replySend}>
           <Icon name="send" size={17} color="white" />
         </Tap>
       </View>

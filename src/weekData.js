@@ -644,9 +644,10 @@ export function getWeekInfo(week) {
 }
 
 /** Ağırlığı okunabilir formata çevirir */
-export function formatWeight(g) {
-  if (g < 1) return '< 1 gr';
-  if (g < 1000) return `~${g} gr`;
+export function formatWeight(g, lang = 'tr') {
+  const isEn = lang === 'en';
+  if (g < 1) return isEn ? '< 1 g' : '< 1 gr';
+  if (g < 1000) return isEn ? `~${g} g` : `~${g} gr`;
   return `~${(g / 1000).toFixed(1)} kg`;
 }
 
@@ -656,13 +657,19 @@ export function formatLength(cm) {
   return `~${cm} cm`;
 }
 
-/** Hangi trimester olduğunu Türkçe döner */
-export function trimesterLabel(t) {
+/** Hangi trimester olduğunu döner */
+export function trimesterLabel(t, lang = 'tr') {
+  if (lang === 'en') {
+    return ['', '1st Trimester', '2nd Trimester', '3rd Trimester'][t] || '';
+  }
   return [``, '1. Trimester', '2. Trimester', '3. Trimester'][t] || '';
 }
 
 /** Kaçıncı ayda olduğunu döner */
-export function monthLabel(m) {
+export function monthLabel(m, lang = 'tr') {
+  if (lang === 'en') {
+    return `Month ${m}`;
+  }
   return `${m}. Ay`;
 }
 

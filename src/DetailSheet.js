@@ -64,20 +64,19 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
         <View style={ds.weekFruitBox}>
           <FruitArt type={wi.fruit} size={130}/>
           <View style={ds.weekFruitInfo}>
-            <T bold style={{fontSize:22,color:'#4A2860'}}>{data.week||24}. Hafta</T>
-            <T style={{fontSize:13,color:'#9A779A',marginTop:3}}>{monthLabel(wi.month)} · {trimesterLabel(wi.trimester)}</T>
+            <T bold style={{fontSize:22,color:'#4A2860'}}>{isEn ? `Week ${data.week||24}` : `${data.week||24}. Hafta`}</T>
+            <T style={{fontSize:13,color:'#9A779A',marginTop:3}}>{monthLabel(wi.month, lang)} · {trimesterLabel(wi.trimester, lang)}</T>
             <View style={{flexDirection:'row',gap:16,marginTop:10}}>
               <View style={ds.weekStat}><Icon name="ruler" size={14} color="#9A779A"/><T style={ds.weekStatVal}>{formatLength(wi.lengthCm)}</T></View>
-              <View style={ds.weekStat}><Icon name="scale" size={14} color="#9A779A"/><T style={ds.weekStatVal}>{formatWeight(wi.weightG)}</T></View>
+              <View style={ds.weekStat}><Icon name="scale" size={14} color="#9A779A"/><T style={ds.weekStatVal}>{formatWeight(wi.weightG, lang)}</T></View>
             </View>
-            <T style={{fontSize:12,color:'#C4A8D0',marginTop:6}}>{wi.fruitName} büyüklüğünde</T>
+            <T style={{fontSize:12,color:'#C4A8D0',marginTop:6}}>{isEn ? `Size of a ${wi.fruitName}` : `${wi.fruitName} büyüklüğünde`}</T>
           </View>
         </View>
         {/* 3'lü Kıyaslama Şeridi */}
         <View style={{flexDirection:'row',gap:8,marginTop:12,backgroundColor:'#F4EEF7',padding:10,borderRadius:14}}>
           <View style={{flex:1,alignItems:'center'}}>
             <T style={{fontSize:16}}>🍏</T>
-            <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:2}}>{wi.fruitName}</T>
             <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:2}}>{wi.fruitName}</T>
             <T style={{fontSize:9,color:'#8C709A'}}>{isEn ? 'Fruit' : 'Meyve'}</T>
           </View>
