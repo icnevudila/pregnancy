@@ -134,6 +134,19 @@ export function getAllTools(lang = 'tr') {
       tint: '#B8507D',
       available: true,
     },
+    {
+      id: 'breathingGuide',
+      cat: 'prep',
+      catTitle: isEn ? 'Birth Prep' : 'Doğuma Hazırlık',
+      title: isEn ? 'Labor Breathing Guide' : 'Doğum Nefes Rehberi',
+      subtitle: isEn ? '4-7-8, Lamaze & Box breathing' : '4-7-8, Lamaze & Kutu nefesi teknikleri',
+      icon: 'leaf',
+      art: 'card_contractions',
+      color: '#EEF4FA',
+      tint: '#5B84AA',
+      available: true,
+    },
+
 
     // ─── 4. BEBEK & LOHUSALIK ───
     {
@@ -182,6 +195,30 @@ export function getAllTools(lang = 'tr') {
       art: 'ui_postpartum_lotus',
       color: '#FBF2F3',
       tint: '#B85265',
+      available: true,
+    },
+    {
+      id: 'milkStash',
+      cat: 'postpartum',
+      catTitle: isEn ? 'Baby & Postpartum' : 'Bebek & Lohusalık',
+      title: isEn ? 'Milk Freezer Stash' : 'Süt Stoğu & Dondurucu',
+      subtitle: isEn ? 'FIFO inventory for pumped milk' : 'Sağılmış süt poşeti envanteri',
+      icon: 'bottle',
+      art: 'btn_breast_pump',
+      color: '#FAF2F7',
+      tint: '#9B4E76',
+      available: true,
+    },
+    {
+      id: 'partnerTasks',
+      cat: 'prep',
+      catTitle: isEn ? 'Birth Prep' : 'Doğuma Hazırlık',
+      title: isEn ? 'Partner Task Board' : 'Eş Görev Panosu',
+      subtitle: isEn ? 'Household errands & hospital prep' : 'Ev lojistiği ve hastane hazırlığı',
+      icon: 'community',
+      art: 'topic_partner_guide',
+      color: '#F0F5FA',
+      tint: '#4F79A1',
       available: true,
     },
   ];

@@ -395,7 +395,7 @@ export const weekDataEn = {
   30: {
     fruitName: 'Large Cabbage',
     animalName: 'Sleepy Koala',
-    sweetName: 'Gift Basket',
+    sweetName: 'Lemon Cheesecake',
     ultrasound: { scan: 'Biometry & Growth', milestone: 'Weight ~1.3 kg; bone marrow fully producing cells', badge: 'Biometry' },
     baby: [
       'Red blood cell production is entirely managed by bone marrow',
@@ -440,7 +440,7 @@ export const weekDataEn = {
   33: {
     fruitName: 'Large Pineapple',
     animalName: 'Baby Penguin',
-    sweetName: 'Porcelain Teapot',
+    sweetName: 'Honey Berry Waffle',
     ultrasound: { scan: 'Amniotic Fluid Peak', milestone: 'Amniotic fluid index (AFI) at maximum volume', badge: 'AFI Check' },
     baby: [
       'Antibodies are passing from mom to baby via placenta',
@@ -515,7 +515,7 @@ export const weekDataEn = {
   38: {
     fruitName: 'Giant Watermelon',
     animalName: 'Baby Seal',
-    sweetName: 'Picnic Basket',
+    sweetName: 'Pecan Caramel Pie',
     ultrasound: { scan: 'Grasp & Reflexes', milestone: 'Grasp reflex peak; fingers firmly clench', badge: '4D Ultrasound' },
     baby: [
       'Organ systems are completely mature and self-sustaining',
@@ -530,7 +530,7 @@ export const weekDataEn = {
   39: {
     fruitName: 'Giant Watermelon',
     animalName: 'Baby Bear Cub',
-    sweetName: 'Celebration Bouquet',
+    sweetName: 'Birthday Cake',
     ultrasound: { scan: 'Full Term Milestone', milestone: 'Ready for the outside world, room air, and milk', badge: 'Full Term' },
     baby: [
       'Full Term! Baby is fully prepared to meet you.',
@@ -545,7 +545,7 @@ export const weekDataEn = {
   40: {
     fruitName: 'Pumpkin',
     animalName: 'Little Lion',
-    sweetName: 'Grand Gift Box',
+    sweetName: 'Luxury Chocolate Box',
     ultrasound: { scan: 'The Grand Meeting', milestone: 'Umbilical Doppler and amniotic fluid check', badge: 'Birth Day 🌸' },
     baby: [
       '💜 Meeting time is here!',

@@ -7,6 +7,8 @@ import { T, Tap, Card, Section, Progress, ScreenHero, MetricCard, StatusCard, Pr
 import { secondsLabel, uid, localDay } from './domain.mjs';
 import { generatedAssets } from './generatedAssets';
 import { playSound, stopSound, setVolume as setEngineVolume, getCurrentSound, addSoundListener } from './soundEngine';
+import { offlineSyncQueue } from './services/offlineSyncQueue';
+import { createTrackerEvent } from './domain/types';
 
 // ─── EKRAN 22: EMZİRME & BİBERON SAYACI (NURSING & FEEDING TIMER) ─────────────
 export function NursingTimerScreen({ state, update, toast, lang = 'tr' }) {
@@ -19,40 +21,98 @@ export function NursingTimerScreen({ state, update, toast, lang = 'tr' }) {
   const [bottleType, setBottleType] = useState('Anne Sütü'); // 'Anne Sütü' | 'Formül Mama'
   const [pumpMl, setPumpMl] = useState(80);
   const [feedMode, setFeedMode] = useState('breast'); // 'breast' | 'bottle' | 'pump'
+  const [justSavedEntry, setJustSavedEntry] = useState(null);
+  const [undoCountdown, setUndoCountdown] = useState(8);
   const timerRef = useRef(null);
+  const leftStartedAtRef = useRef(null);
+  const rightStartedAtRef = useRef(null);
+  const undoTimerRef = useRef(null);
+
+  useEffect(() => {
+    if (justSavedEntry) {
+      setUndoCountdown(8);
+      if (undoTimerRef.current) clearInterval(undoTimerRef.current);
+      undoTimerRef.current = setInterval(() => {
+        setUndoCountdown(c => {
+          if (c <= 1) {
+            clearInterval(undoTimerRef.current);
+            setJustSavedEntry(null);
+            return 0;
+          }
+          return c - 1;
+        });
+      }, 1000);
+    }
+    return () => { if (undoTimerRef.current) clearInterval(undoTimerRef.current); };
+  }, [justSavedEntry]);
 
   useEffect(() => {
     if (activeSide === 'left') {
-      timerRef.current = setInterval(() => setLeftSecs(s => s + 1), 1000);
+      leftStartedAtRef.current = Date.now() - (leftSecs * 1000);
+      timerRef.current = setInterval(() => {
+        if (leftStartedAtRef.current) {
+          setLeftSecs(Math.floor((Date.now() - leftStartedAtRef.current) / 1000));
+        }
+      }, 500);
     } else if (activeSide === 'right') {
-      timerRef.current = setInterval(() => setRightSecs(s => s + 1), 1000);
+      rightStartedAtRef.current = Date.now() - (rightSecs * 1000);
+      timerRef.current = setInterval(() => {
+        if (rightStartedAtRef.current) {
+          setRightSecs(Math.floor((Date.now() - rightStartedAtRef.current) / 1000));
+        }
+      }, 500);
     } else {
       if (timerRef.current) clearInterval(timerRef.current);
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [activeSide]);
 
+  function handleUndoFeed() {
+    if (!justSavedEntry) return;
+    const targetId = justSavedEntry.id;
+    update(old => ({
+      records: (old.records || []).filter(r => r.id !== targetId),
+    }));
+    setJustSavedEntry(null);
+    if (undoTimerRef.current) clearInterval(undoTimerRef.current);
+    toast && toast(isEn ? 'Feeding record undone.' : 'Beslenme kaydı geri alındı.');
+  }
+
   function saveNursing() {
-    const chosenSide = rightSecs > leftSecs ? (isEn ? 'Right Breast' : 'Sağ Meme') : (isEn ? 'Left Breast' : 'Sol Meme');
+    const finalLeft = leftStartedAtRef.current ? Math.floor((Date.now() - leftStartedAtRef.current) / 1000) : leftSecs;
+    const finalRight = rightStartedAtRef.current ? Math.floor((Date.now() - rightStartedAtRef.current) / 1000) : rightSecs;
+    const chosenSide = finalRight > finalLeft ? (isEn ? 'Right Breast' : 'Sağ Meme') : (isEn ? 'Left Breast' : 'Sol Meme');
     setActiveSide(null);
+    leftStartedAtRef.current = null;
+    rightStartedAtRef.current = null;
     setLastSide(chosenSide);
-    const totalMins = Math.max(1, Math.round((leftSecs + rightSecs) / 60));
-    const sideText = leftSecs > 0 && rightSecs > 0
-      ? (isEn ? `Left ${Math.round(leftSecs / 60)} min + Right ${Math.round(rightSecs / 60)} min` : `Sol ${Math.round(leftSecs / 60)} dk + Sağ ${Math.round(rightSecs / 60)} dk`)
-      : leftSecs > 0
+    const totalMins = Math.max(1, Math.round((finalLeft + finalRight) / 60));
+    const sideText = finalLeft > 0 && finalRight > 0
+      ? (isEn ? `Left ${Math.round(finalLeft / 60)} min + Right ${Math.round(finalRight / 60)} min` : `Sol ${Math.round(finalLeft / 60)} dk + Sağ ${Math.round(finalRight / 60)} dk`)
+      : finalLeft > 0
       ? (isEn ? `Left breast • ${totalMins} min` : `Sol meme • ${totalMins} dk`)
       : (isEn ? `Right breast • ${totalMins} min` : `Sağ meme • ${totalMins} dk`);
 
+    const newRecord = {
+      id: uid(),
+      type: 'Emzirme',
+      value: sideText,
+      time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
+      createdAt: new Date().toISOString(),
+    };
+
     update(old => ({
       lastNursingSide: chosenSide,
-      records: [{
-        id: uid(),
-        type: 'Emzirme',
-        value: sideText,
-        time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
-        createdAt: new Date().toISOString(),
-      }, ...(old.records || [])],
+      records: [newRecord, ...(old.records || [])],
     }));
+
+    setJustSavedEntry(newRecord);
+
+    offlineSyncQueue.enqueue(createTrackerEvent({
+      type: 'breastfeeding',
+      metadata: { side: chosenSide, leftSecs: finalLeft, rightSecs: finalRight, sideText },
+    })).catch(() => {});
+
     toast && toast(isEn ? `🍼 Nursing logged: ${totalMins} minutes` : `🍼 Emzirme kaydedildi: ${totalMins} dakika`);
     setLeftSecs(0);
     setRightSecs(0);
@@ -60,28 +120,48 @@ export function NursingTimerScreen({ state, update, toast, lang = 'tr' }) {
 
   function saveBottle() {
     const bottleTypeDisplay = (bottleType === 'Anne Sütü' && isEn) ? 'Breast Milk' : (bottleType === 'Formül Mama' && isEn) ? 'Formula' : bottleType;
+    const newRecord = {
+      id: uid(),
+      type: 'Biberon',
+      value: `${bottleMl} ml ${bottleTypeDisplay}`,
+      time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
+      createdAt: new Date().toISOString(),
+    };
+
     update(old => ({
-      records: [{
-        id: uid(),
-        type: 'Biberon',
-        value: `${bottleMl} ml ${bottleTypeDisplay}`,
-        time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
-        createdAt: new Date().toISOString(),
-      }, ...(old.records || [])],
+      records: [newRecord, ...(old.records || [])],
     }));
+
+    setJustSavedEntry(newRecord);
+
+    offlineSyncQueue.enqueue(createTrackerEvent({
+      type: 'bottle',
+      metadata: { ml: bottleMl, bottleType: bottleTypeDisplay },
+    })).catch(() => {});
+
     toast && toast(isEn ? `🍼 Bottle logged: ${bottleMl} ml (${bottleTypeDisplay})` : `🍼 Biberon kaydedildi: ${bottleMl} ml (${bottleType})`);
   }
 
   function savePump() {
+    const newRecord = {
+      id: uid(),
+      type: 'Süt Sağma',
+      value: isEn ? `${pumpMl} ml breast milk expressed` : `${pumpMl} ml anne sütü sağıldı`,
+      time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
+      createdAt: new Date().toISOString(),
+    };
+
     update(old => ({
-      records: [{
-        id: uid(),
-        type: 'Süt Sağma',
-        value: isEn ? `${pumpMl} ml breast milk expressed` : `${pumpMl} ml anne sütü sağıldı`,
-        time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
-        createdAt: new Date().toISOString(),
-      }, ...(old.records || [])],
+      records: [newRecord, ...(old.records || [])],
     }));
+
+    setJustSavedEntry(newRecord);
+
+    offlineSyncQueue.enqueue(createTrackerEvent({
+      type: 'pumping',
+      metadata: { ml: pumpMl },
+    })).catch(() => {});
+
     toast && toast(isEn ? `✨ Pumping logged: ${pumpMl} ml` : `✨ Süt sağma kaydedildi: ${pumpMl} ml`);
   }
 
@@ -101,6 +181,23 @@ export function NursingTimerScreen({ state, update, toast, lang = 'tr' }) {
         tint="#9B4E76"
       />
       <ToolExperienceCard lang={lang} title={isEn ? 'Log feeding without friction' : 'Beslenmeyi zahmetsiz kaydet'} steps={isEn ? ['Pick breast or bottle mode.', 'Track side, duration, or amount.', 'Save one clean entry.'] : ['Meme veya biberon modunu seç.', 'Taraf, süre ya da miktarı izle.', 'Tek temiz kayıt olarak sakla.']} outcome={isEn ? 'A daily feeding rhythm emerges over time.' : 'Zamanla günlük beslenme ritmi oluşur.'} asset="ui_nursing_dual_timer" tint="#C75B7A" />
+
+      {/* 10_FOREGROUND_INTERACTION_RULES: Anında Kayıt ve 8 sn Geri Al (Undo) */}
+      {justSavedEntry && (
+        <Card style={{ backgroundColor: '#EEF7EE', borderColor: '#84B886', borderWidth: 1.5, padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ flex: 1, gap: 2 }}>
+            <T bold style={{ fontSize: 13.5, color: '#2D6632' }}>
+              {isEn ? '✓ Feeding Logged' : '✓ Beslenme Kaydedildi'} · {justSavedEntry.value}
+            </T>
+            <T style={{ fontSize: 11, color: '#4E8855' }}>
+              {isEn ? `Tap Undo to cancel (${undoCountdown}s)` : `Geri almak için dokun (${undoCountdown} sn)`}
+            </T>
+          </View>
+          <Tap onPress={handleUndoFeed} style={{ backgroundColor: '#2D6632', paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10 }}>
+            <T bold style={{ fontSize: 12, color: 'white' }}>{isEn ? 'Undo' : 'Geri Al'}</T>
+          </Tap>
+        </Card>
+      )}
 
       {/* Metrik Göstergeleri */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -660,16 +757,39 @@ export function SleepWhiteNoiseScreen({ state, update, toast, lang = 'tr' }) {
 // ─── EKRAN 24: BEZ DEĞİŞTİRME GÜNLÜĞÜ (DIAPER TRACKER) ───────────────────────
 export function DiaperTrackerScreen({ state, update, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
+  const [justSavedDiaper, setJustSavedDiaper] = useState(null);
+  const [undoCountdown, setUndoCountdown] = useState(8);
+  const [selectedStoolColor, setSelectedStoolColor] = useState(null);
+  const undoTimerRef = useRef(null);
+
+  useEffect(() => {
+    if (justSavedDiaper) {
+      setUndoCountdown(8);
+      if (undoTimerRef.current) clearInterval(undoTimerRef.current);
+      undoTimerRef.current = setInterval(() => {
+        setUndoCountdown(c => {
+          if (c <= 1) {
+            clearInterval(undoTimerRef.current);
+            setJustSavedDiaper(null);
+            return 0;
+          }
+          return c - 1;
+        });
+      }, 1000);
+    }
+    return () => { if (undoTimerRef.current) clearInterval(undoTimerRef.current); };
+  }, [justSavedDiaper]);
+
   const stoolColorGuide = isEn ? [
-    { day: 'Days 1-2', name: 'Meconium', desc: 'Dark black / tarry green, sticky texture. The first natural postpartum clearing.', color: '#2B2E28' },
-    { day: 'Days 3-4', name: 'Transitional Stool', desc: 'Greenish brown, looser consistency. Marks transition from colostrum to mature milk.', color: '#65683F' },
-    { day: 'Day 5+', name: 'Mature Breast Milk Stool', desc: 'Golden mustard yellow, seedy/curdy texture. Ideal and healthy digestion.', color: '#D4A017' },
-    { day: 'Warning', name: 'When to Consult a Doctor', desc: 'Consult your pediatrician immediately if stool is chalky white/clay-colored or contains bright red blood.', color: '#D9534F' },
+    { id: 'meconium', day: 'Days 1-2', name: 'Meconium', desc: 'Dark black / tarry green, sticky texture. The first natural postpartum clearing.', color: '#2B2E28' },
+    { id: 'transitional', day: 'Days 3-4', name: 'Transitional Stool', desc: 'Greenish brown, looser consistency. Marks transition from colostrum to mature milk.', color: '#65683F' },
+    { id: 'mustard', day: 'Day 5+', name: 'Mature Breast Milk Stool', desc: 'Golden mustard yellow, seedy/curdy texture. Ideal and healthy digestion.', color: '#D4A017' },
+    { id: 'warning', day: 'Warning', name: 'When to Consult a Doctor', desc: 'Consult your pediatrician immediately if stool is chalky white/clay-colored or contains bright red blood.', color: '#D9534F' },
   ] : [
-    { day: '1-2. Gün', name: 'Mekonyum', desc: 'Koyu siyah / katran yeşili, yapışkan kıvam. Doğum sonrası ilk doğal temizlik.', color: '#2B2E28' },
-    { day: '3-4. Gün', name: 'Geçiş Dışkısı', desc: 'Yeşilimsi kahverengi, gevşek kıvam. Kolostrumdan olgun süte geçiş belirtisi.', color: '#65683F' },
-    { day: '5+ Gün', name: 'Olgun Anne Sütü Kakası', desc: 'Altın hardal sarısı, hafif taneli/pütürlü. İdeal ve çok sağlıklı sindirim.', color: '#D4A017' },
-    { day: 'Uyarı', name: 'Dikkat Edilmesi Gerekenler', desc: 'Kireç beyazı/kil rengi veya parlak kırmızı kan izi durumunda derhal hekime danışın.', color: '#D9534F' },
+    { id: 'meconium', day: '1-2. Gün', name: 'Mekonyum', desc: 'Koyu siyah / katran yeşili, yapışkan kıvam. Doğum sonrası ilk doğal temizlik.', color: '#2B2E28' },
+    { id: 'transitional', day: '3-4. Gün', name: 'Geçiş Dışkısı', desc: 'Yeşilimsi kahverengi, gevşek kıvam. Kolostrumdan olgun süte geçiş belirtisi.', color: '#65683F' },
+    { id: 'mustard', day: '5+ Gün', name: 'Olgun Anne Sütü Kakası', desc: 'Altın hardal sarısı, hafif taneli/pütürlü. İdeal ve çok sağlıklı sindirim.', color: '#D4A017' },
+    { id: 'warning', day: 'Uyarı', name: 'Dikkat Edilmesi Gerekenler', desc: 'Kireç beyazı/kil rengi veya parlak kırmızı kan izi durumunda derhal hekime danışın.', color: '#D9534F' },
   ];
 
   const records = state?.records || [];
@@ -679,19 +799,43 @@ export function DiaperTrackerScreen({ state, update, toast, lang = 'tr' }) {
   const wetPercent = Math.min(100, Math.round((wetCount / targetWet) * 100));
 
   function saveDiaper(typeId) {
+    const colorSuffix = selectedStoolColor ? ` (${selectedStoolColor})` : '';
     const valText = isEn
-      ? `${typeId === 'Islak' ? 'Wet' : typeId === 'Kirli' ? 'Dirty' : 'Mixed'} diaper`
-      : `${typeId} bez`;
+      ? `${typeId === 'Islak' ? 'Wet' : typeId === 'Kirli' ? 'Dirty' : 'Mixed'} diaper${colorSuffix}`
+      : `${typeId} bez${colorSuffix}`;
+    
+    const newRecord = {
+      id: uid(),
+      type: 'Bez',
+      value: valText,
+      time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
+      createdAt: new Date().toISOString(),
+    };
+
     update(old => ({
-      records: [{
-        id: uid(),
-        type: 'Bez',
-        value: valText,
-        time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
-        createdAt: new Date().toISOString(),
-      }, ...(old.records || [])],
+      records: [newRecord, ...(old.records || [])],
     }));
+
+    setJustSavedDiaper(newRecord);
+
+    offlineSyncQueue.enqueue(createTrackerEvent({
+      type: 'diaper',
+      metadata: { type: typeId, color: selectedStoolColor, valText },
+    })).catch(() => {});
+
     toast && toast(isEn ? `✨ ${typeId === 'Islak' ? 'Wet' : typeId === 'Kirli' ? 'Dirty' : 'Mixed'} diaper logged` : `✨ ${typeId} bez kaydedildi`);
+    setSelectedStoolColor(null);
+  }
+
+  function handleUndoDiaper() {
+    if (!justSavedDiaper) return;
+    const targetId = justSavedDiaper.id;
+    update(old => ({
+      records: (old.records || []).filter(r => r.id !== targetId),
+    }));
+    setJustSavedDiaper(null);
+    if (undoTimerRef.current) clearInterval(undoTimerRef.current);
+    toast && toast(isEn ? 'Diaper log undone.' : 'Bez kaydı geri alındı.');
   }
 
   return (
@@ -736,6 +880,23 @@ export function DiaperTrackerScreen({ state, update, toast, lang = 'tr' }) {
           </ProgressRing>
         </View>
       </Card>
+
+      {/* 10_FOREGROUND_INTERACTION_RULES: Anında Kayıt ve 8 sn Geri Al (Undo) */}
+      {justSavedDiaper && (
+        <Card style={{ backgroundColor: '#EEF7EE', borderColor: '#84B886', borderWidth: 1.5, padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ flex: 1, gap: 2 }}>
+            <T bold style={{ fontSize: 13.5, color: '#2D6632' }}>
+              {isEn ? '✓ Diaper Logged' : '✓ Bez Kaydedildi'} · {justSavedDiaper.value}
+            </T>
+            <T style={{ fontSize: 11, color: '#4E8855' }}>
+              {isEn ? `Tap Undo to cancel (${undoCountdown}s)` : `Geri almak için dokun (${undoCountdown} sn)`}
+            </T>
+          </View>
+          <Tap onPress={handleUndoDiaper} style={{ backgroundColor: '#2D6632', paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10 }}>
+            <T bold style={{ fontSize: 12, color: 'white' }}>{isEn ? 'Undo' : 'Geri Al'}</T>
+          </Tap>
+        </Card>
+      )}
 
       {/* 3 Hızlı Dokunsal Seçici */}
       <View style={{ flexDirection: 'row', gap: 10 }}>

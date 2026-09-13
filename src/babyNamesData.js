@@ -825,15 +825,15 @@ export const babyNamesList = [...initialBabyNames, ...extraFromCatalog];
 
 export const nameThemes = [
   'Tümü',
-  '💕 Ortak Eşleşmeler',
-  '🌿 Doğa & Çiçek',
-  '🏛️ Tarihi & Göktürk',
-  '💎 Modern & Kısa',
-  "📖 Kuran'da Geçen",
-  '👑 Güç & Asalet',
-  '✨ Zarafet & Sanat',
-  '🌟 Özgün & Nadir',
-  '⏳ Zamansız Klasik',
+  'Ortak Eşleşmeler',
+  'Doğa & Çiçek',
+  'Tarihi & Göktürk',
+  'Modern & Kısa',
+  "Kuran'da Geçen",
+  'Güç & Asalet',
+  'Zarafet & Sanat',
+  'Özgün & Nadir',
+  'Zamansız Klasik',
 ];
 
 const tagMapEn = {

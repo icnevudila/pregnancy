@@ -5,7 +5,7 @@ import { T, Tap, Card, ToolExperienceCard } from './ui';
 import { Icon, BrandMark, FruitArt, ComparisonArt, MoodFace } from './Icons';
 import { journeys, RecordList, sampleRecords } from './screens';
 import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel } from './weekData';
-import { KickCounter, ContractionTimer, HospitalBag } from './ToolScreens';
+import { KickCounter, ContractionTimer, HospitalBag, LaborBreathingGuide } from './ToolScreens';
 import { WeightTracker, BirthPlanBuilder, DoctorQuestions, BabyNameMatcher } from './MoreToolScreens';
 import { ToolsHub } from './ToolsHub';
 import { SizeComparisonHub, UltrasoundAtlas, MedicalTimeline, OrganDevelopment } from './MedicalScreens';
@@ -16,6 +16,7 @@ import { NursingTimerScreen, SleepWhiteNoiseScreen, DiaperTrackerScreen, Postpar
 import { ProfileScreen } from './ProfileScreen';
 import { AuthModal } from './AuthScreens';
 import { NotificationSettingsScreen } from './NotificationSettingsScreen';
+import { MilkStashTrackerScreen, PartnerTaskBoardScreen } from './ExtraToolScreens';
 import { t } from './i18n/index.js';
 
 export default function DetailSheet({ sheet, close, state, update, addRecord, choose, open, toast, lang: propLang }) {
@@ -236,6 +237,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
     {kind==='kickCounter'&&<KickCounter state={state} update={update} toast={toast} close={close} lang={lang}/>}
     {kind==='contractionTimer'&&<ContractionTimer state={state} update={update} toast={toast} close={close} lang={lang}/>}
     {kind==='hospitalBag'&&<HospitalBag state={state} update={update} toast={toast} close={close} lang={lang}/>}
+    {kind==='breathingGuide'&&<LaborBreathingGuide state={state} update={update} toast={toast} close={close} lang={lang}/>}
     {kind==='weight'&&<WeightTracker state={state} update={update} toast={toast} close={close} lang={lang}/>}
     {kind==='birthPlan'&&<BirthPlanBuilder state={state} update={update} toast={toast} close={close} lang={lang}/>}
     {kind==='doctorQuestions'&&<DoctorQuestions state={state} update={update} toast={toast} close={close} lang={lang}/>}
@@ -261,6 +263,8 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
     {kind==='sleepWhiteNoise'&&<SleepWhiteNoiseScreen state={state} update={update} toast={toast} lang={lang}/>}
     {kind==='diaperTracker'&&<DiaperTrackerScreen update={update} toast={toast} lang={lang}/>}
     {kind==='postpartumCare'&&<PostpartumSelfCareScreen state={state} update={update} toast={toast} lang={lang}/>}
+    {kind==='milkStash'&&<MilkStashTrackerScreen state={state} update={update} toast={toast} lang={lang}/>}
+    {kind==='partnerTasks'&&<PartnerTaskBoardScreen state={state} update={update} toast={toast} lang={lang}/>}
     {kind==='notifications'&&<NotificationSettingsScreen toast={toast} lang={lang} week={state.week||24} close={close}/>}
     {!!error&&<T accessibilityRole="alert" style={{color:'#A95769',marginTop:12}}>{error}</T>}
     </ScrollView></View></KeyboardAvoidingView></Modal>;

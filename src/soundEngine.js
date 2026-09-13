@@ -68,6 +68,18 @@ export function playSound(id, options = {}) {
         const rumble = Math.sin(2 * Math.PI * 55 * t) * (beat1 + beat2);
         data[i] = rumble * 0.8;
       }
+    } else if (id === 'fetalHeartbeat') {
+      // 145 BPM rapid rhythmic fetal doppler heartbeat (lub-dub with acoustic whoosh)
+      const period = 0.414; // ~145 BPM
+      for (let i = 0; i < bufferSize; i++) {
+        const t = i / ctx.sampleRate;
+        const phase = t % period;
+        const s1 = Math.exp(-Math.pow((phase - 0.05) * 46, 2));
+        const s2 = Math.exp(-Math.pow((phase - 0.15) * 46, 2)) * 0.68;
+        const thump = Math.sin(2 * Math.PI * 72 * t) * (s1 + s2);
+        const hiss = (Math.random() * 2 - 1) * (s1 * 0.22 + s2 * 0.14);
+        data[i] = (thump + hiss) * 0.92;
+      }
     } else if (id === 'clock') {
       for (let i = 0; i < bufferSize; i++) {
         const t = i / ctx.sampleRate;
@@ -116,6 +128,10 @@ export function playSound(id, options = {}) {
     if (id === 'womb') {
       filter.type = 'lowpass';
       filter.frequency.value = 220;
+    } else if (id === 'fetalHeartbeat') {
+      filter.type = 'bandpass';
+      filter.frequency.value = 260;
+      filter.Q.value = 1.4;
     } else if (id === 'vacuum') {
       filter.type = 'lowpass';
       filter.frequency.value = id === 'lullaby' ? 2400 : 550;

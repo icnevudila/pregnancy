@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Image, Animated } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, Image, Animated, TextInput } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon, FruitArt, ComparisonArt } from './Icons';
@@ -7,6 +7,8 @@ import { T, Tap, Card, Section, ScreenHero, ToolExperienceCard } from './ui';
 import { getWeekInfo, formatLength, formatWeight, trimesterLabel } from './weekData';
 import { generatedAssets } from './generatedAssets';
 import { usePulse } from './anim';
+import { playSound, stopSound } from './soundEngine';
+import { getUltrasoundDetails, decodeBiometryReport, ULTRASOUND_MILESTONES, HADLOCK_BIOMETRY_NORMS } from './ultrasoundData';
 
 // ─── EKRAN 10: 3'LÜ BOYUT KIYASLAMA REHBERİ (SIZE GUIDE HUB) ─────────────────
 export function SizeComparisonHub({ state, toast, lang = 'tr' }) {

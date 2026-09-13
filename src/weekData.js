@@ -453,7 +453,7 @@ export const weekData = {
   30: {
     fruit: 'cabbage', fruitName: 'Büyük Lahana',
     animal: 'koala', animalName: 'Uykucu Koala', animalEmoji: '🐨',
-    sweet: 'basket', sweetName: 'Hediye Sepeti', sweetEmoji: '🎁',
+    sweet: 'cheesecake', sweetName: 'Limonlu Cheesecake', sweetEmoji: '🍰',
     ultrasound: {"scan":"Büyüme & Kilo Takibi","milestone":"Ağırlık ~1.3 kg; kemik iliği tam aktif","badge":"Biyometri"},
     lengthCm: 39.9, weightG: 1300,
     month: 8, trimester: 3,
@@ -504,7 +504,7 @@ export const weekData = {
   33: {
     fruit: 'pineapple', fruitName: 'Büyük Ananas',
     animal: 'penguin', animalName: 'Yavru Penguen', animalEmoji: '🐧',
-    sweet: 'teapot', sweetName: 'Porselen Demlik', sweetEmoji: '🫖',
+    sweet: 'waffle', sweetName: 'Ballı Meyveli Waffle', sweetEmoji: '🧇',
     ultrasound: {"scan":"Amniyotik Sıvı Zirvesi","milestone":"Amniyotik sıvı miktarı en yüksek hacimde","badge":"AFI Ölçümü"},
     lengthCm: 43.7, weightG: 1900,
     month: 9, trimester: 3,
@@ -589,7 +589,7 @@ export const weekData = {
   38: {
     fruit: 'watermelon', fruitName: 'Dev Karpuz',
     animal: 'seal', animalName: 'Yavru Fok', animalEmoji: '🦭',
-    sweet: 'picnic_hamper', sweetName: 'Piknik Sepeti', sweetEmoji: '🧺',
+    sweet: 'pecan_pie', sweetName: 'Fındıklı Karamel Turta', sweetEmoji: '🥧',
     ultrasound: {"scan":"Güçlü Kavrama","milestone":"Kavrama refleksi: Parmaklarını sımsıkı kenetler","badge":"4D Ultrason"},
     lengthCm: 49.8, weightG: 3080,
     month: 9, trimester: 3,
@@ -606,7 +606,7 @@ export const weekData = {
   39: {
     fruit: 'watermelon', fruitName: 'Dev Karpuz',
     animal: 'bear_cub', animalName: 'Yavru Ayıcık', animalEmoji: '🐻',
-    sweet: 'balloon_bouquet', sweetName: 'Kutlama Buketi', sweetEmoji: '🎈',
+    sweet: 'birthdaycake', sweetName: 'Doğum Günü Pastası', sweetEmoji: '🎂',
     ultrasound: {"scan":"Tam Dönem (Full Term)","milestone":"Tüm organlar dış dünya havasına ve sütüne hazır","badge":"Full Term"},
     lengthCm: 50.7, weightG: 3290,
     month: 9, trimester: 3,
@@ -623,7 +623,7 @@ export const weekData = {
   40: {
     fruit: 'pumpkin', fruitName: 'Balkabağı',
     animal: 'lion_cub', animalName: 'Minik Aslan', animalEmoji: '🦁',
-    sweet: 'gift_box', sweetName: 'Büyük Hediye Paketi', sweetEmoji: '🎁',
+    sweet: 'chocobox', sweetName: 'Lüks Çikolata Kutusu', sweetEmoji: '🍫',
     ultrasound: {"scan":"Büyük Buluşma","milestone":"Kordon kan akımı ve amniyotik sıvı kontrolü","badge":"Doğum Anı 🌸"},
     lengthCm: 51.2, weightG: 3400,
     month: 9, trimester: 3,

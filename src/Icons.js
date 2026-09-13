@@ -54,6 +54,10 @@ const paths = {
   ultrasound: 'M3 12A9 9 0 0 1 12 3M3 16A13 13 0 0 1 16 3M3 8A5 5 0 0 1 8 3M3 20A17 17 0 0 1 20 3',
   paw: 'M12 13C10.5 13 9 14.5 9 16.5C9 18.5 10.5 20 12 20C13.5 20 15 18.5 15 16.5C15 14.5 13.5 13 12 13ZM6 13A1.5 1.5 0 1 0 6 10A1.5 1.5 0 0 0 6 13ZM18 13A1.5 1.5 0 1 0 18 10A1.5 1.5 0 0 0 18 13ZM9 7A1.5 1.5 0 1 0 9 4A1.5 1.5 0 0 0 9 7ZM15 7A1.5 1.5 0 1 0 15 4A1.5 1.5 0 0 0 15 7Z',
   cupcake: 'M5 11L7 21H17L19 11M3 11C3 8 7 7 12 7C17 7 21 8 21 11ZM12 7V3M10 3H14',
+  doppler: 'M3 12H7L9 6L12 18L15 8L17 14L19 12H21M7 16A6 6 0 0 1 7 8M17 16A6 6 0 0 0 17 8',
+  caliper: 'M4 6V18M20 6V18M4 12H20M4 9L7 12L4 15M20 9L17 12L20 15',
+  soundwave: 'M3 10V14M7 7V17M11 4V20M15 8V16M19 6V18M22 11V13',
+  probe: 'M14 3H10C8.9 3 8 3.9 8 5V12C8 14.2 9.8 16 12 16C14.2 16 16 14.2 16 12V5C16 3.9 15.1 3 14 3ZM12 16V21M9 21H15',
 };
 
 export function Icon({ name, size = 24, color = colors.ink, fill = 'none', strokeWidth = 1.55, ...props }) {
@@ -899,15 +903,28 @@ export function ComparisonArt({ mode = 'fruit', type, size = 80, emoji, info, us
                   generatedAssets['blog_ultrasound_memory'];
     return (
       <View style={{
-        width: size, height: size, borderRadius: 16,
-        backgroundColor: '#1C1A24', alignItems: 'center', justifyContent: 'center',
-        borderWidth: 2, borderColor: '#695773', overflow: 'hidden'
+        width: size, height: size, borderRadius: Math.max(16, size * 0.16),
+        backgroundColor: '#16141D', alignItems: 'center', justifyContent: 'center',
+        borderWidth: 1.5, borderColor: '#5C4869', overflow: 'hidden',
+        shadowColor: '#2C1D38', shadowOpacity: 0.28, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }
       }}>
         {usImg ? (
           <Image source={usImg} style={{ width: size, height: size }} resizeMode="cover" />
         ) : (
-          <Text style={{ fontSize: size * 0.45 }}>🩺</Text>
+          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="ultrasound" size={size * 0.45} color="#D4A7E0" />
+          </View>
         )}
+        {/* Subtle Sonography Badge in corner */}
+        <View style={{
+          position: 'absolute', bottom: 4, right: 6,
+          backgroundColor: '#0F0D15AA', paddingHorizontal: 5, paddingVertical: 1.5,
+          borderRadius: 6, borderWidth: 0.5, borderColor: '#6E527D88'
+        }}>
+          <Text style={{ fontSize: Math.max(7, size * 0.08), color: '#E4CFEF', fontWeight: '700', letterSpacing: 0.5 }}>
+            {weekNum ? `${weekNum}w` : 'HD'}
+          </Text>
+        </View>
       </View>
     );
   }

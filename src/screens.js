@@ -128,7 +128,7 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
             <View style={s.obRolePhotoBox}>
               <Image
                 source={generatedAssets['blog_pregnant_morning'] || generatedAssets['pregnancy']}
-                style={s.fitImage}
+                style={StyleSheet.absoluteFill}
                 resizeMode="contain"
               />
             </View>
@@ -154,7 +154,7 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
             <View style={s.obRolePhotoBox}>
               <Image
                 source={generatedAssets['blog_father_baby_bond'] || generatedAssets['blog_couple_bump']}
-                style={s.fitImage}
+                style={StyleSheet.absoluteFill}
                 resizeMode="contain"
               />
             </View>
@@ -277,7 +277,7 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
                 style={[s.obStageCard, isSelected && s.obStageCardActive]}
               >
                 <View style={s.obStagePhotoBox}>
-                  <Image source={st.photo} style={s.fitImage} resizeMode="contain" />
+                  <Image source={st.photo} style={StyleSheet.absoluteFill} resizeMode="contain" />
                 </View>
                 <View style={s.obStageContent}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>

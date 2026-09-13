@@ -1660,10 +1660,13 @@
       "prompt": "High-end 3D claymorphic bunch of pastel chrome balloons tied with a golden string, floating gently, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674104,
-      "updatedAt": 1789290274151
+      "updatedAt": 1789302661126,
+      "startedAt": 1789302603046,
+      "platform": "gemini",
+      "thumb": "blob:https://gemini.google.com/c2a58a0f-083b-4e09-83a6-a31d61961d93"
     },
     {
       "id": "job_1789250674104_faslp",
@@ -1671,7 +1674,7 @@
       "prompt": "High-end 3D claymorphic large luxury celebration gift box wrapped in dusty rose paper with grand golden bow, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
       "createdAt": 1789250674104,
       "updatedAt": 1789290274151
@@ -2049,6 +2052,122 @@
       "attempts": 0,
       "createdAt": 1789285005343,
       "updatedAt": 1789290274146
+    },
+    {
+      "id": "job_usg_1789302625543_w08",
+      "filename": "usg_2d_w08_gestational_sac.png",
+      "prompt": "Clinical obstetric 2D B-mode ultrasound sonogram of an early 8-week intrauterine pregnancy, showing a clear anechoic dark fluid gestational sac implanted in the uterine endometrium, visible circular yolk sac and embryonic fetal pole with CRL measurement calipers, genuine medical ultrasound texture with acoustic grain, acoustic shadowing, dark background, hospital ultrasound monitor screen, clinical medical photography, high contrast black and white sonography, no watermark, no text overlay.",
+      "transparent": false,
+      "status": "processing",
+      "attempts": 1,
+      "createdAt": 1789302625543,
+      "preferredPlatform": "chatgpt",
+      "startedAt": 1789302722449,
+      "platform": "chatgpt"
+    },
+    {
+      "id": "job_usg_1789302625543_w12",
+      "filename": "usg_2d_w12_nt_crl.png",
+      "prompt": "Clinical obstetric 2D B-mode ultrasound sonogram of a 12-week fetus in mid-sagittal profile, showing the full crown-rump length (CRL), fetal profile with visible nasal bone, distinct nuchal translucency (NT) fluid pocket behind the fetal neck with dual caliper crosshairs measuring translucency, authentic ultrasound speckle and acoustic shading, hospital clinical monitor sonogram, monochrome medical sonography, high resolution, no text.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789302625543,
+      "preferredPlatform": "chatgpt"
+    },
+    {
+      "id": "job_usg_1789302625543_w20_lvl2",
+      "filename": "usg_2d_w20_level2_anatomy.png",
+      "prompt": "Clinical Level II detailed anatomy 2D B-mode ultrasound sonogram of a 20-week human fetus, showing a clear transverse view of the fetal spine vertebrae, ribs, and abdominal contour with amniotic fluid pocket, authentic hospital sonography monitor texture, genuine ultrasound grayscale contrast and acoustic grain, professional medical sonogram, monochrome, no text, no watermark.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789302625543,
+      "preferredPlatform": "chatgpt"
+    },
+    {
+      "id": "job_usg_1789302625543_w20_heart",
+      "filename": "usg_2d_w20_four_chamber_heart.png",
+      "prompt": "Clinical 2D B-mode fetal echocardiography ultrasound scan of a 20-week fetus showing the apical four-chamber view of the heart (4CV), clear left and right ventricles, atria, and interventricular septum, cardiac valves, true medical ultrasound sonogram with acoustic noise and contrast, hospital diagnostic screen, black and white grayscale, no text, no watermark.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789302625543,
+      "preferredPlatform": "chatgpt"
+    },
+    {
+      "id": "job_usg_1789302625543_w20_prof",
+      "filename": "usg_2d_w20_fetal_profile.png",
+      "prompt": "Clinical 2D B-mode ultrasound sonogram of a 20-week fetal facial profile, displaying the forehead, distinct nasal bone, upper and lower lips, and micrognathia check chin, surrounded by dark anechoic amniotic fluid, authentic medical sonography monitor output, acoustic speckle texture, monochrome grayscale, hospital ultrasound scan, no text, no watermark.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789302625543,
+      "preferredPlatform": "chatgpt"
+    },
+    {
+      "id": "job_usg_1789302625543_w28_bpd",
+      "filename": "usg_2d_w28_growth_bpd.png",
+      "prompt": "Clinical obstetric 2D B-mode ultrasound sonogram of a 28-week fetal head at the level of the biparietal diameter (BPD) and head circumference (HC), showing the oval skull bone symmetry, cavum septi pellucidi, thalami, and caliper marker crosses across the parietal bones, genuine ultrasound scan monitor texture, monochrome grayscale, high resolution clinical sonography, no text.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789302625543,
+      "preferredPlatform": "chatgpt"
+    },
+    {
+      "id": "job_usg_1789302625543_w36_ceph",
+      "filename": "usg_2d_w36_cephalic_presentation.png",
+      "prompt": "Clinical obstetric 2D B-mode ultrasound sonogram of a late third trimester 36-week fetus in cephalic presentation, showing the fetal skull engaged toward the cervix, anterior placental tissue with mature grade texture, and amniotic fluid pocket, authentic hospital sonogram monitor capture, monochrome acoustic grayscale, no watermark, no text.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789302625543,
+      "preferredPlatform": "chatgpt"
+    },
+    {
+      "id": "job_usg_1789302625543_dop_cord",
+      "filename": "usg_doppler_umbilical_flow.png",
+      "prompt": "Clinical obstetric color Doppler ultrasound sonogram of the umbilical cord and fetal circulation, displaying vibrant red and blue directional blood flow velocities inside the umbilical arteries and vein, set against an authentic dark grayscale sonographic background, medical Doppler velocimetry diagnostic screen, no text, no watermark.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789302625543,
+      "preferredPlatform": "chatgpt"
+    },
+    {
+      "id": "job_usg_1789302625543_dop_heart",
+      "filename": "usg_doppler_cardiac_flow.png",
+      "prompt": "Clinical fetal echocardiogram with color Doppler flow mapping over the fetal heart chambers and aortic arch, showing distinct red and blue jet streams through the atrioventricular valves, medical sonography monitor, hospital ultrasound diagnostic visualization, dark background, no text, no watermark.",
+      "transparent": false,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789302625543,
+      "preferredPlatform": "chatgpt"
+    },
+    {
+      "id": "job_usg_1789302625543_caliper_icon",
+      "filename": "ui_ultrasound_biometry_caliper.png",
+      "prompt": "Premium 3D claymorphic icon of an elegant clinical ultrasound caliper and digital biometry measuring gauge, soft pastel lilac and sage accents, subtle glass reflections, pristine studio lighting, isolated on solid white background, luxury editorial app icon style, 8k render, no text, no watermark.",
+      "transparent": true,
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789302625543,
+      "preferredPlatform": "gemini",
+      "startedAt": 1789302662447,
+      "platform": "gemini",
+      "updatedAt": 1789302721097,
+      "thumb": "blob:https://gemini.google.com/c8da96c3-9e90-4f03-b229-10738841d0da"
+    },
+    {
+      "id": "job_usg_1789302625543_probe_icon",
+      "filename": "ui_ultrasound_console_badge.png",
+      "prompt": "Premium 3D claymorphic icon of a modern sleek medical sonography probe with gentle glowing ultrasound soundwaves, soft lavender and warm cream porcelain finish, studio lighting, isolated on solid white background, luxury app design, 8k render, no text.",
+      "transparent": true,
+      "status": "pending",
+      "attempts": 0,
+      "createdAt": 1789302625543,
+      "preferredPlatform": "gemini"
     }
   ]
 }
