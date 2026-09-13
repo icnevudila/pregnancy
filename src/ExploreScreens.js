@@ -101,6 +101,17 @@ export function FoodSafetyChecker({ toast, lang = 'tr' }) {
         tint="#4F8464"
       />
 
+      <ToolExperienceCard
+        title={isEn ? 'Decide in under a minute' : 'Bir dakikadan kısa sürede karar ver'}
+        steps={isEn
+          ? ['Search the food or open a category.', 'Read the risk color and plain reason.', 'Choose the safer alternative if needed.']
+          : ['Besini ara veya kategoriden aç.', 'Risk rengini ve sade sebebi oku.', 'Gerekiyorsa güvenli alternatifi seç.']}
+        outcome={isEn ? 'Food choices feel clear at the market, cafe, or home.' : 'Market, kafe veya evde besin kararı netleşir.'}
+        asset="ui_food_safe_shield"
+        tint="#7A7E45"
+        lang={lang}
+      />
+
       {/* Arama Kutusu */}
       <View style={es.searchBox}>
         <Icon name="search" size={20} color={colors.muted} />
@@ -312,6 +323,17 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
         </Tap>
       </View>
 
+
+      <ToolExperienceCard
+        title={isEn ? 'Open with a purpose' : 'Kütüphaneyi amaçla aç'}
+        steps={isEn
+          ? ['Pick today: article, food, infographic, or topic.', 'Save one useful answer for later.', 'Come back when a symptom, craving, or plan changes.']
+          : ['Bugünün ihtiyacını seç: makale, besin, infografik veya konu.', 'İşe yarayan bir cevabı sonra için kaydet.', 'Belirti, aşerme veya plan değişince tekrar dön.']}
+        outcome={isEn ? 'The library becomes a daily decision tool.' : 'Kütüphane günlük karar aracına dönüşür.'}
+        asset="topic_prenatal_nutrition"
+        tint="#7C5B3F"
+        lang={lang}
+      />
       {hubTab === 'articles' ? (
         /* 1. TÜM EDİTORYAL YAZILAR & MAGAZİN FEED'İ (65 MAKALE) */
         <View style={{ gap: 14 }}>

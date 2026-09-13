@@ -3,7 +3,7 @@ import { View, StyleSheet, TextInput, ScrollView, Image, Modal, KeyboardAvoiding
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon, BrandMark } from './Icons';
-import { T, Tap, Card, Section, ScreenHero } from './ui';
+import { T, Tap, Card, Section, ScreenHero, ToolExperienceCard } from './ui';
 import { uid, localDay } from './domain.mjs';
 import { generatedAssets } from './generatedAssets';
 import { articles, searchFaqs } from './content';
@@ -271,6 +271,17 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
         asset="ui_community_mothers_circle"
         stat={isEn ? "moderation notes" : "moderasyon notları"}
         tint={colors.purple}
+      />
+
+      <ToolExperienceCard
+        title={isEn ? 'Use the community safely' : 'Topluluğu güvenle kullan'}
+        steps={isEn
+          ? ['Start with a category, not endless scrolling.', 'Read similar experiences without treating them as diagnosis.', 'Save useful replies and ask your clinician for medical decisions.']
+          : ['Sonsuz akış yerine kategoriyle başla.', 'Benzer deneyimleri tanı gibi görmeden oku.', 'İşe yarayan yanıtları kaydet, tıbbi kararları uzmanına sor.']}
+        outcome={isEn ? 'Support stays warm, organized, and responsible.' : 'Destek sıcak, düzenli ve sorumlu kalır.'}
+        asset="ui_community_mothers_circle"
+        tint="#8A6BBE"
+        lang={lang}
       />
 
       {/* Sade 2 Sekmeli Segment: Anne Sohbetleri / Doğum Kulübüm */}

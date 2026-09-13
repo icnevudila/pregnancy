@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, TextInput, ScrollView, Switch } from 'react-native';
 import { colors, shadow } from './theme';
 import { Icon, BrandMark } from './Icons';
-import { T, Tap, Card, ScreenHero, LanguageToggle } from './ui';
+import { T, Tap, Card, ScreenHero, ToolExperienceCard, LanguageToggle } from './ui';
 import { babyNamesList } from './babyNamesData';
 import { dateLabel, pregnancyAt } from './domain.mjs';
 import { isSupabaseConfigured, supabase } from './supabaseClient';
@@ -192,6 +192,17 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
         icon="profile"
         stat={cloudStatusLabel(cloudStatus)}
         tint={currentRole === 'mother' ? '#B84570' : '#396F9E'}
+      />
+
+      <ToolExperienceCard
+        title={isEn ? 'Keep the family account ready' : 'Aile hesabını hazır tut'}
+        steps={isEn
+          ? ['Check your role, week, and baby profile.', 'Sync favorites and important settings.', 'Invite or manage partner access when needed.']
+          : ['Rolünü, haftanı ve bebek profilini kontrol et.', 'Favorileri ve önemli ayarları eşitle.', 'Gerektiğinde partner erişimini yönet.']}
+        outcome={isEn ? 'Every screen starts from the right family context.' : 'Her ekran doğru aile bağlamıyla açılır.'}
+        asset="profile_hero_family_sync"
+        tint="#7B4C80"
+        lang={lang}
       />
 
       {/* ─── 1. ÜST PROFİL HERO KARTI ─── */}
