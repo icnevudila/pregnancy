@@ -481,6 +481,32 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
       {/* ─── 2. BÖLÜM: 15 AKILLI ARAÇ & APP GRID ─── */}
       {hubTab === 'apps' && (
         <View style={{ gap: 16 }}>
+
+          <Card style={{ padding: 16, backgroundColor: '#FFFCF8', borderColor: '#ECE1EA' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <View>
+                <T bold style={{ fontSize: 17, color: colors.ink }}>{isEn ? 'Premium daily suite' : 'Premium günlük set'}</T>
+                <T style={{ fontSize: 12, color: colors.muted, marginTop: 3 }}>{isEn ? 'The four tools users need most today.' : 'Bugün en çok ihtiyaç duyulan dört araç.'}</T>
+              </View>
+              <View style={{ paddingHorizontal: 9, paddingVertical: 5, borderRadius: 12, backgroundColor: '#F1E8F4' }}>
+                <T bold style={{ fontSize: 10, color: colors.purple }}>{isEn ? 'SMART' : 'AKILLI'}</T>
+              </View>
+            </View>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 9 }}>
+              {[
+                ['kickCounter', isEn ? 'Movement' : 'Hareket', 'ui_kick_foot_button', '#FAF0F5'],
+                ['contractionTimer', isEn ? 'Contractions' : 'Kasılma', 'ui_contraction_pulse_button', '#FDF1EC'],
+                ['hospitalBag', isEn ? 'Bag' : 'Çanta', 'screen_hero_hospital_bag', '#F8F2FA'],
+                ['birthPlan', isEn ? 'Plan' : 'Plan', 'screen_hero_birth_plan', '#F3F6F0'],
+              ].map(([id, label, asset, bg]) => (
+                <Tap key={id} onPress={() => open(id)} label={label} style={{ width: '48%', flexDirection: 'row', alignItems: 'center', gap: 8, padding: 11, borderRadius: 17, backgroundColor: bg, borderWidth: 1, borderColor: '#EADFE9' }}>
+                  {generatedAssets[asset] ? <Image source={generatedAssets[asset]} style={{ width: 30, height: 30 }} resizeMode="contain" /> : <Icon name="heart" size={20} color={colors.purple} />}
+                  <T bold style={{ fontSize: 12.5, color: colors.ink }}>{label}</T>
+                </Tap>
+              ))}
+            </View>
+          </Card>
+
           {/* Kategori Filtre Butonları */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
             {categories.map(cat => (

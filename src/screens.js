@@ -214,6 +214,25 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
           )}
         </View>
 
+
+        <Card style={{ padding: 15, backgroundColor: '#FFFCF8', borderColor: '#EEE2EA' }}>
+          <T bold style={{ fontSize: 16, color: colors.ink }}>{isEn ? 'Why you will open Momora every day' : 'Momora’yı her gün açma sebebin'}</T>
+          <View style={{ gap: 9, marginTop: 12 }}>
+            {[
+              [isEn ? 'A new baby letter' : 'Yeni bebek mektubu', isEn ? 'A small emotional update every morning.' : 'Her sabah küçük, duygusal bir gelişim notu.', 'ui_baby_letter_envelope'],
+              [isEn ? 'Today’s tracker ritual' : 'Bugünün takip ritüeli', isEn ? 'Water, mood, movement and prep in one flow.' : 'Su, ruh hali, hareket ve hazırlık tek akışta.', 'ui_timeline_sun_moon'],
+              [isEn ? 'Weekly 3D growth' : 'Haftalık 3D gelişim', isEn ? 'See the week, compare size, save memories.' : 'Haftayı gör, boyutu kıyasla, anı sakla.', 'fetus'],
+            ].map(([title, sub, asset]) => (
+              <View key={title} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={{ width: 38, height: 38, borderRadius: 14, backgroundColor: '#F5EDF6', alignItems: 'center', justifyContent: 'center' }}>
+                  {generatedAssets[asset] ? <Image source={generatedAssets[asset]} style={{ width: 28, height: 28 }} resizeMode="contain" /> : <Icon name="heart" size={18} color={colors.purple} />}
+                </View>
+                <View style={{ flex: 1 }}><T bold style={{ fontSize: 13.5 }}>{title}</T><T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2 }}>{sub}</T></View>
+              </View>
+            ))}
+          </View>
+        </Card>
+
         {/* Devam Butonu */}
         <Tap onPress={() => setStep(2)} label={isEn ? 'Continue' : 'Devam Et'} style={s.obPrimaryBtn}>
           <T bold style={s.obPrimaryBtnText}>{isEn ? 'Continue' : 'Devam Et'}</T>
@@ -630,6 +649,14 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
           </View>
         </View>
 
+
+        {prepComplete && (
+          <Card style={{ width: '100%', padding: 15, backgroundColor: '#FFFCF8', borderColor: '#EDE1EA' }}>
+            <T bold style={{ fontSize: 16, color: colors.ink }}>{isEn ? 'Tomorrow is already waiting' : 'Yarınki akışın hazır'}</T>
+            <T style={{ fontSize: 12, color: colors.muted, lineHeight: 18, marginTop: 4 }}>{isEn ? 'Momora will bring a new baby letter, a weekly insight, and one small action when you return.' : 'Tekrar geldiğinde yeni bebek mektubu, haftalık içgörü ve tek küçük aksiyon seni bekleyecek.'}</T>
+          </Card>
+        )}
+
         {/* Başlama Butonu */}
         {prepComplete && (
           <Tap onPress={handleComplete} label={isEn ? 'Start Exploring Momora' : "Momora'yı Keşfetmeye Başla"} style={[s.obPrimaryBtn, { width: '100%', marginTop: 10 }]}>
@@ -788,6 +815,84 @@ function ComparisonHero({ week, info, onPress, lang = 'tr' }) {
 }
 
 // ─── Hamilelik Ekranı ─────────────────────────────────────────────────────────
+
+function PremiumWeeklyPlan({ week, state, update, open, lang = 'tr' }) {
+  const isEn = lang === 'en';
+  const done = (state.tasks || []).filter(Boolean).length;
+  const items = isEn
+    ? [
+        ['Movement routine', 'Start one calm kick session', 'kickCounter', 'ui_kick_foot_button'],
+        ['Body note', 'Log weight, mood or symptom', 'weight', 'ui_weight_bmi_gauge'],
+        ['Appointment prep', 'Save one question for the visit', 'doctorQuestions', 'ui_doctor_prep_notebook'],
+        ['Birth prep', 'Review hospital bag and plan', 'hospitalBag', 'screen_hero_hospital_bag'],
+      ]
+    : [
+        ['Hareket rutini', 'Sakin bir tekme seansı başlat', 'kickCounter', 'ui_kick_foot_button'],
+        ['Beden notu', 'Kilo, ruh hali veya belirti kaydet', 'weight', 'ui_weight_bmi_gauge'],
+        ['Randevu hazırlığı', 'Kontrol için bir soru sakla', 'doctorQuestions', 'ui_doctor_prep_notebook'],
+        ['Doğum hazırlığı', 'Çanta ve planı gözden geçir', 'hospitalBag', 'screen_hero_hospital_bag'],
+      ];
+  return (
+    <Card style={{ padding: 16, backgroundColor: '#FFFCF8', borderColor: '#EFE4EA' }}>
+      <View style={[s.topline, { marginBottom: 12 }]}> 
+        <View>
+          <T bold style={{ fontSize: 17, color: colors.ink }}>{isEn ? 'Week ' + week + ' plan' : week + '. hafta planı'}</T>
+          <T style={{ fontSize: 12, color: colors.muted, marginTop: 3 }}>{isEn ? 'Weekly learning is paired with practical actions.' : 'Haftalık bilgi, küçük görevlerle tamamlanır.'}</T>
+        </View>
+        <View style={{ width: 58, height: 58, borderRadius: 20, backgroundColor: '#F4ECF6', alignItems: 'center', justifyContent: 'center' }}>
+          <T bold style={{ fontSize: 15, color: colors.purple }}>%{Math.min(100, done * 20)}</T>
+          <T style={{ fontSize: 9, color: colors.muted }}>{isEn ? 'ready' : 'hazır'}</T>
+        </View>
+      </View>
+      <View style={{ gap: 9 }}>
+        {items.map(([title, sub, route, asset], i) => (
+          <Tap key={title} onPress={() => open(route)} label={title} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 11, borderRadius: 16, backgroundColor: i % 2 ? '#FAF5F8' : '#F7F1FA', borderWidth: 1, borderColor: '#EDE1EC' }}>
+            <View style={{ width: 38, height: 38, borderRadius: 14, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', ...shadow }}>
+              {generatedAssets[asset] ? <Image source={generatedAssets[asset]} style={{ width: 28, height: 28 }} resizeMode="contain" /> : <Icon name="heart" size={18} color={colors.purple} />}
+            </View>
+            <View style={{ flex: 1 }}>
+              <T bold style={{ fontSize: 13.5, color: colors.ink }}>{title}</T>
+              <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2 }}>{sub}</T>
+            </View>
+            <Icon name="chevron" size={16} color={colors.muted} />
+          </Tap>
+        ))}
+      </View>
+    </Card>
+  );
+}
+
+function PostpartumRecoverySnapshot({ state, update, open, lang = 'tr' }) {
+  const isEn = lang === 'en';
+  const done = (state.tasks || []).filter(Boolean).length;
+  const cards = isEn
+    ? [['Mood', state.postpartumMood == null ? 'Check in' : 'Logged', 'dailyMood', 'mood_good'], ['Feeding', 'Open timer', 'nursingTimer', 'ui_nursing_dual_timer'], ['Rest', 'Sleep sound', 'sleepWhiteNoise', 'screen_hero_white_noise']]
+    : [['Ruh hali', state.postpartumMood == null ? 'Kontrol et' : 'Kaydedildi', 'dailyMood', 'mood_good'], ['Beslenme', 'Zamanlayıcıyı aç', 'nursingTimer', 'ui_nursing_dual_timer'], ['Dinlenme', 'Uyku sesini aç', 'sleepWhiteNoise', 'screen_hero_white_noise']];
+  return (
+    <Card style={{ padding: 16, backgroundColor: '#FFFDFB', borderColor: '#EDE1EA' }}>
+      <View style={[s.topline, { marginBottom: 12 }]}><View><T bold style={{ fontSize: 17 }}>{isEn ? 'Recovery command center' : 'Toparlanma merkezi'}</T><T style={{ fontSize: 12, color: colors.muted, marginTop: 3 }}>{done}/5 {isEn ? 'self-care steps completed today' : 'bugünkü bakım adımı tamamlandı'}</T></View><Progress value={done * 20} style={{ width: 96 }} /></View>
+      <View style={{ flexDirection: 'row', gap: 9 }}>
+        {cards.map(([title, sub, route, asset]) => <Tap key={title} onPress={() => open(route)} style={{ flex: 1, padding: 11, borderRadius: 17, backgroundColor: '#F7F0F7', borderWidth: 1, borderColor: '#E8DCEB' }}><View style={{ alignItems: 'center', gap: 6 }}>{generatedAssets[asset] ? <Image source={generatedAssets[asset]} style={{ width: 34, height: 34 }} resizeMode="contain" /> : <Icon name="heart" size={24} color={colors.purple} />}<T bold style={{ fontSize: 12, textAlign: 'center' }}>{title}</T><T style={{ fontSize: 10.5, color: colors.muted, textAlign: 'center' }}>{sub}</T></View></Tap>)}
+      </View>
+    </Card>
+  );
+}
+
+function BabyDaySummary({ state, open, lang = 'tr' }) {
+  const isEn = lang === 'en';
+  const metrics = isEn
+    ? [['Feeds', '6', 'ui_nursing_dual_timer'], ['Sleep', '8h 40m', 'screen_hero_white_noise'], ['Diapers', '5', 'ui_diaper_wet_drop'], ['Growth', 'On track', 'btn_growth_tape']]
+    : [['Beslenme', '6', 'ui_nursing_dual_timer'], ['Uyku', '8 sa 40 dk', 'screen_hero_white_noise'], ['Bez', '5', 'ui_diaper_wet_drop'], ['Gelişim', 'Takipte', 'btn_growth_tape']];
+  return (
+    <Card style={{ padding: 16, backgroundColor: '#FFFCF8', borderColor: '#E5DDEB' }}>
+      <View style={[s.topline, { marginBottom: 12 }]}><View><T bold style={{ fontSize: 17 }}>{isEn ? '24-hour care summary' : '24 saat bakım özeti'}</T><T style={{ fontSize: 12, color: colors.muted, marginTop: 3 }}>{isEn ? 'The fastest view before the next care log.' : 'Yeni kayıt girmeden önce günün hızlı görünümü.'}</T></View><Tap onPress={() => open('records')} style={{ paddingHorizontal: 10, paddingVertical: 7, borderRadius: 13, backgroundColor: '#F0E8F4' }}><T bold style={{ fontSize: 11, color: colors.purple }}>{isEn ? 'All logs' : 'Tüm kayıtlar'}</T></Tap></View>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 9 }}>
+        {metrics.map(([title, value, asset]) => <View key={title} style={{ width: '48%', padding: 12, borderRadius: 18, backgroundColor: '#F7F3FA', borderWidth: 1, borderColor: '#E9DFEF' }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>{generatedAssets[asset] ? <Image source={generatedAssets[asset]} style={{ width: 28, height: 28 }} resizeMode="contain" /> : <Icon name="baby" size={20} color={colors.purple} />}<View><T bold style={{ fontSize: 14 }}>{value}</T><T style={{ fontSize: 11, color: colors.muted }}>{title}</T></View></View></View>)}
+      </View>
+    </Card>
+  );
+}
+
 export function Pregnancy({ state, update, open, lang = 'tr' }) {
   const isEn = lang === 'en';
   const [timelineDay, setTimelineDay] = useState('bugun'); // 'dun' | 'bugun' | 'yarin'
@@ -863,6 +968,8 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
         {isEn ? `Baby: ${state.babyName || 'Ada'}` : `Bebeğin: ${state.babyName || 'Ada'}`} · {state.babyGender === 'Kız' || state.babyGender === 'girl' ? (isEn ? 'Girl' : 'Kız') : (isEn ? 'Boy' : 'Erkek')}
       </T>
     </View>
+
+    <PremiumWeeklyPlan week={week} state={state} update={update} open={open} lang={lang} />
 
     {/* ─── 2. HAFTA ŞERİDİ ─── */}
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.weekStrip}>
@@ -1323,6 +1430,7 @@ export function Baby({state,open,lang='tr'}) {
   return <Page>
     <ScreenHero kicker={isEn ? 'BABY CARE' : 'BEBEK BAKIMI'} title={`${state.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · ${isEn ? '6 weeks old' : '6 haftalık'}`} body={isEn ? 'Feeding, sleep, diaper logs, and milestone guides gathered in one daily dashboard.' : 'Beslenme, uyku, bez kayıtları ve bakım rehberleri tek günlük panelde birleşir.'} icon="baby" asset="ui_baby_crib" stat={`${records.length} ${isEn ? 'logs' : 'kayıt'}`} tint="#6E5A96" />
     <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage} resizeMode="cover"/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · {isEn ? '6 weeks old' : '6 haftalık'}</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>{isEn ? "Today's daily rhythm" : 'Bugünün bakım ritmi'}</T></View></View><RoundButton icon="down" label={isEn ? 'Change journey' : 'Yolculuğunu değiştir'} onPress={()=>open('journey')}/></View>
+    <BabyDaySummary state={state} open={open} lang={lang} />
     <View style={s.babyGrid}>
       {babyActions.map(a=>(
         <Tap

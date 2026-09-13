@@ -23,6 +23,13 @@ try {
   console.warn('[MOMORA] project_scanner modulu yuklenemedi:', e.message);
 }
 
+let comparisonHarmonizer = null;
+try {
+  comparisonHarmonizer = require('./harmonize_comparison_assets');
+} catch (e) {
+  console.warn('[MOMORA] comparisonHarmonizer modulu yuklenemedi:', e.message);
+}
+
 // --- GLOBAL MUTEX LOCK (Çakışma Önleyici Tekil Kilit) ---
 // ChatGPT ve Gemini'nin aynı anda üretmesini kesin olarak engeller
 let activeLock = null; // { platform, filename, jobId, startedAt }
@@ -435,6 +442,23 @@ const server = http.createServer(async (req, res) => {
     }
     try {
       const result = projectScanner.syncMissingToQueue();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, ...result }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
+  // H. Kıyaslama Tablosunu Ortak Dile Çek (Meyve, Hayvan, Tatlı)
+  if (req.method === 'POST' && (req.url === '/project/harmonize-comparison' || req.url === '/project/harmonize')) {
+    if (!comparisonHarmonizer) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'comparisonHarmonizer not loaded' }));
+    }
+    try {
+      const result = comparisonHarmonizer.harmonizeAndSyncQueue(true);
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: true, ...result }));
     } catch (e) {
