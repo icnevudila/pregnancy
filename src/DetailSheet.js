@@ -17,6 +17,7 @@ import { ProfileScreen } from './ProfileScreen';
 import { AuthModal } from './AuthScreens';
 import { NotificationSettingsScreen } from './NotificationSettingsScreen';
 import { MilkStashTrackerScreen, PartnerTaskBoardScreen } from './ExtraToolScreens';
+import { LegalScreen } from './LegalScreen';
 import { t } from './i18n/index.js';
 
 export default function DetailSheet({ sheet, close, state, update, addRecord, deleteTrackerRecord, undoLastAction, choose, open, toast, lang: propLang }) {
@@ -79,6 +80,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     notes: [isEn ? 'Your private memory shelf' : 'Sana ait anı rafı', isEn ? ['Review saved notes.', 'Remove what no longer matters.', 'Add today’s small memory.'] : ['Kayıtlı notları gözden geçir.', 'Artık gerekmeyeni sil.', 'Bugünün küçük anısını ekle.'], 'ui_baby_letter_envelope', '#8A5BA4'],
     dailyMood: [isEn ? 'Start with yourself' : 'Önce kendini dinle', isEn ? ['Pick the closest feeling.', 'Add a small note if needed.', 'Continue the day with one gentle cue.'] : ['Sana en yakın hissi seç.', 'Gerekirse küçük not ekle.', 'Güne tek nazik ipucuyla devam et.'], 'mood_good', '#B66C7E'],
     notifications: [isEn ? 'Notification & Alert Center' : 'Bildirim & Hatırlatıcı Merkezi', isEn ? ['Manage clinical reminders.', 'Choose your preferred times.', 'Send instant test alerts.'] : ['Klinik hatırlatıcıları yönet.', 'Tercih ettiğin saatleri belirle.', 'Canlı test bildirimleri gönder.'], 'settings_notification_bell', '#7E4E8A'],
+    legal: [isEn ? 'Privacy, terms and clinical disclaimer' : 'Gizlilik, koşullar ve tıbbi sorumluluk', isEn ? ['Offline-first health metrics.', 'Zero data sales or commercial broker sharing.', 'Review clinical guidance boundaries.'] : ['Cihazda öncelikli sağlık kayıtları.', 'Sıfır veri satışı ve gizlilik garantisi.', 'Tıbbi sorumluluk sınırlarını inceleyin.'], 'settings_cloud_sync_backup', '#7E4E8A'],
   }[kind];
 
   if (kind === 'editorialArticle') {
@@ -291,6 +293,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     {kind==='milkStash'&&<MilkStashTrackerScreen state={state} update={update} toast={toast} lang={lang}/>}
     {kind==='partnerTasks'&&<PartnerTaskBoardScreen state={state} update={update} toast={toast} lang={lang}/>}
     {kind==='notifications'&&<NotificationSettingsScreen toast={toast} lang={lang} week={state.week||24} close={close}/>}
+    {kind==='legal'&&<LegalScreen initialTab={data?.tab||'privacy'} lang={lang} close={close}/>}
     {!!error&&<T accessibilityRole="alert" style={{color:'#A95769',marginTop:12}}>{error}</T>}
     </ScrollView></View></KeyboardAvoidingView>
     <InAppNotificationBanner lang={lang} onOpen={d => { if (d?.tool) open(d.tool); else if (d?.screen) choose(d.screen); }} />

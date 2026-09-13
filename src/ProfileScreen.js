@@ -643,20 +643,35 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
 
           {/* TIBBİ BİLGİLENDİRME & SÜRÜM */}
           <Card style={{ padding: 14, backgroundColor: '#FFFDF9', borderColor: '#EFE2DA' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-              <T style={{ fontSize: 16 }}>🩺</T>
-              <T bold style={{ fontSize: 13.5, color: '#7E3B1C' }}>
-                {isEn ? 'Medical Guidance Disclaimer' : 'Tıbbi Sorumluluk Reddi'}
-              </T>
-            </View>
+            <Tap
+              onPress={() => open && open('legal', { tab: 'medical' })}
+              label={isEn ? 'Medical Guidance Disclaimer' : 'Tıbbi Sorumluluk Reddi'}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <T style={{ fontSize: 16 }}>🩺</T>
+                <T bold style={{ fontSize: 13.5, color: '#7E3B1C' }}>
+                  {isEn ? 'Medical Guidance Disclaimer' : 'Tıbbi Sorumluluk Reddi'}
+                </T>
+              </View>
+              <T bold style={{ fontSize: 11, color: '#7E3B1C' }}>{isEn ? 'Details →' : 'Detaylar →'}</T>
+            </Tap>
             <T style={{ fontSize: 11, color: '#664736', lineHeight: 16 }}>
               {isEn
                 ? 'Momora is an educational wellness companion designed to support mothers and families. It does not provide clinical triage or treatment. Always consult your obstetrician for medical guidance.'
                 : 'Momora, anne ve ailelerin yolculuğunu destekleyen eğitici bir sağlıklı yaşam arkadaşıdır. Tıbbi teşhis veya tedavi yerine geçmez. Sağlık kararlarınızı hekiminizle birlikte alınız.'}
             </T>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, paddingTop: 8, borderTopWidth: 1, borderColor: '#F2E4DB' }}>
-              <T style={{ fontSize: 10.5, color: colors.muted }}>Momora v1.2.0 · Offline-first</T>
-              <T style={{ fontSize: 10.5, color: colors.purple, fontWeight: '600' }}>{isEn ? 'Terms & Privacy' : 'Kullanım & Gizlilik'}</T>
+              <T style={{ fontSize: 10.5, color: colors.muted }}>Momora v1.0.0 · Offline-first</T>
+              <Tap
+                onPress={() => open && open('legal', { tab: 'privacy' })}
+                label={isEn ? 'Terms & Privacy' : 'Kullanım & Gizlilik'}
+                style={{ paddingVertical: 4, paddingHorizontal: 2 }}
+              >
+                <T bold style={{ fontSize: 11, color: colors.purple }}>
+                  {isEn ? 'Terms & Privacy Policy →' : 'Kullanım & Gizlilik İlkeleri →'}
+                </T>
+              </Tap>
             </View>
           </Card>
         </View>

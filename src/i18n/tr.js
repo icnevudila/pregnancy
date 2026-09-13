@@ -406,6 +406,7 @@ export const tr = {
       birthAffirmations: 'Doğum Olumlamaları',
       milkStash: 'Süt Saklama Takibi',
       partnerTasks: 'Eş & Destek Görevleri',
+      legal: 'Yasal Bilgiler & Gizlilik',
     },
     saveButton: 'Kaydet',
     closeButton: 'Kapat',

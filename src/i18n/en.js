@@ -406,6 +406,7 @@ export const en = {
       birthAffirmations: 'Birth Affirmations',
       milkStash: 'Milk Stash Tracker',
       partnerTasks: 'Partner Task Board',
+      legal: 'Legal & Privacy',
     },
     saveButton: 'Save',
     closeButton: 'Close',
