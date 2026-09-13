@@ -1655,6 +1655,98 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
   );
 }
 
+// ─── 5. DOĞUM OLUMLAMALARI & SAKİNLİK SEANSI ────────────────────────────────
+export function BirthAffirmationsScreen({ state, update, toast, lang = 'tr', open }) {
+  const isEn = lang === 'en';
+  const sessions = [
+    { id: 'morning', title: isEn ? 'Morning courage' : 'Sabah cesareti', minutes: 3, tint: '#8A5BA4', bg: '#F7EFF9', cue: isEn ? 'Open the day with one calm sentence.' : 'Güne tek sakin cümleyle başla.', lines: isEn ? ['My body and my baby move through today together.', 'I can ask for help before I feel overwhelmed.', 'One soft breath is enough to begin again.'] : ['Bedenim ve bebeğim bugün birlikte ilerliyor.', 'Zorlanmadan önce destek istememe izin var.', 'Yeniden başlamak için bir yumuşak nefes yeter.'] },
+    { id: 'labor', title: isEn ? 'Labor wave focus' : 'Doğum dalgası odağı', minutes: 5, tint: '#B25068', bg: '#FDF1F4', cue: isEn ? 'Use during practice or between contractions.' : 'Provalarda veya kasılmalar arasında kullan.', lines: isEn ? ['Each wave has a beginning, a peak, and an ending.', 'I soften my jaw, shoulders, hands, and belly.', 'My care team and my own rhythm can work together.'] : ['Her dalganın başlangıcı, zirvesi ve bitişi var.', 'Çenemi, omuzlarımı, ellerimi ve karnımı yumuşatıyorum.', 'Bakım ekibim ve kendi ritmim birlikte ilerleyebilir.'] },
+    { id: 'night', title: isEn ? 'Night release' : 'Gece bırakışı', minutes: 4, tint: '#3B7E58', bg: '#EEF6F1', cue: isEn ? 'Close the day without pressure or scoring.' : 'Günü puanlamadan, baskısız kapat.', lines: isEn ? ['I did enough for this day.', 'Rest is part of preparation.', 'Tomorrow can be handled one small step at a time.'] : ['Bugün için yeterince emek verdim.', 'Dinlenmek hazırlığın bir parçası.', 'Yarın tek küçük adımla ilerleyebilir.'] },
+  ];
+  const soundScenes = [
+    { id: 'lofi', icon: 'music', label: isEn ? 'Lo-fi calm' : 'Lo-fi sakinlik', sub: isEn ? 'Warm soft beat' : 'Yumuşak sıcak ritim' },
+    { id: 'nightPad', icon: 'moon', label: isEn ? 'Night pad' : 'Gece ambiyansı', sub: isEn ? 'Slow ambient layer' : 'Yavaş fon dokusu' },
+    { id: 'rain', icon: 'water', label: isEn ? 'Soft rain' : 'Yumuşak yağmur', sub: isEn ? 'White noise calm' : 'Hafif beyaz gürültü' },
+    { id: 'lullaby', icon: 'heart', label: isEn ? 'Music box' : 'Ninni kutusu', sub: isEn ? 'Tiny bell melody' : 'Minik melodi' },
+  ];
+  const saved = state?.affirmationFavorites || [];
+  const history = state?.affirmationSessions || [];
+  const [selectedId, setSelectedId] = useState('morning');
+  const [activeSoundId, setActiveSoundId] = useState(null);
+  useEffect(() => () => stopSound(), []);
+  const selected = sessions.find(s => s.id === selectedId) || sessions[0];
+  const dailyLine = selected.lines[new Date().getDate() % selected.lines.length];
+  const isSaved = saved.includes(dailyLine);
+  const toggleSound = (soundId) => {
+    if (activeSoundId === soundId) {
+      stopSound();
+      setActiveSoundId(null);
+      return;
+    }
+    const ok = playSound(soundId, { volume: soundId === 'lofi' ? 0.22 : 0.28, timerMinutes: selected.minutes });
+    setActiveSoundId(soundId);
+    toast && toast(ok ? (isEn ? 'Calm sound started' : 'Sakin ses başladı') : (isEn ? 'Sound is not available on this device' : 'Bu cihazda ses açılamadı'));
+  };
+  const completeSession = () => {
+    const entry = { id: uid ? uid() : Date.now().toString(), mode: selected.id, title: selected.title, affirmation: dailyLine, minutes: selected.minutes, createdAt: new Date().toISOString() };
+    update && update(old => ({ affirmationSessions: [entry, ...(old.affirmationSessions || [])].slice(0, 20) }));
+    stopSound();
+    setActiveSoundId(null);
+    toast && toast(isEn ? 'Calm session saved 🌿' : 'Sakinlik seansı kaydedildi 🌿');
+  };
+  const toggleSave = () => {
+    update && update(old => {
+      const list = old.affirmationFavorites || [];
+      return { affirmationFavorites: list.includes(dailyLine) ? list.filter(x => x !== dailyLine) : [dailyLine, ...list].slice(0, 12) };
+    });
+    toast && toast(isSaved ? (isEn ? 'Removed from saved' : 'Kaydedilenlerden çıkarıldı') : (isEn ? 'Saved for later' : 'Daha sonrası için saklandı'));
+  };
+  return (
+    <View style={ts.container}>
+      <ScreenHero title={isEn ? 'Affirmations & Calm Session' : 'Olumlamalar & Sakinlik Seansı'} subtitle={isEn ? 'Short birth-prep reflections that pair with breathing practice and daily confidence.' : 'Nefes pratiğine eşlik eden kısa doğum hazırlığı cümleleri ve günlük sakinlik alanı.'} badge={isEn ? 'DAILY CALM' : 'GÜNLÜK SAKİNLİK'} badgeColor={selected.tint} icon="heart" lang={lang} />
+      <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+        {sessions.map(item => <Tap key={item.id} onPress={() => setSelectedId(item.id)} style={[as.modeChip, selectedId === item.id && { backgroundColor: item.tint, borderColor: item.tint }]}><T bold={selectedId === item.id} style={{ fontSize: 11.5, color: selectedId === item.id ? 'white' : colors.ink }}>{item.title}</T></Tap>)}
+      </View>
+      <Card style={[as.sessionCard, { backgroundColor: selected.bg, borderColor: selected.tint + '55' }]}> 
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <View style={{ flex: 1 }}><T bold style={{ fontSize: 13, color: selected.tint, letterSpacing: 0.8 }}>{selected.minutes} {isEn ? 'MIN SESSION' : 'DK SEANS'}</T><T bold style={as.sessionTitle}>{selected.title}</T><T style={as.sessionCue}>{selected.cue}</T></View>
+          <View style={[as.orb, { borderColor: selected.tint, backgroundColor: selected.tint + '18' }]}><Icon name="leaf" size={28} color={selected.tint} /></View>
+        </View>
+        <View style={as.quoteBox}><T style={as.quoteMark}>“</T><T bold style={as.quoteText}>{dailyLine}</T></View>
+        <View style={{ flexDirection: 'row', gap: 10 }}><Tap onPress={completeSession} style={[as.primaryBtn, { backgroundColor: selected.tint }]}><T bold style={{ color: 'white', fontSize: 13 }}>{isEn ? 'Save today’s session' : 'Bugünkü seansı kaydet'}</T></Tap><Tap onPress={toggleSave} style={as.saveBtn}><T style={{ fontSize: 18 }}>{isSaved ? '♥' : '♡'}</T></Tap></View>
+      </Card>
+      <Card style={as.soundCard}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <View style={{ flex: 1 }}>
+            <T bold style={{ fontSize: 15.5, color: colors.ink }}>{isEn ? 'Calm sound scene' : 'Sakin ses sahnesi'}</T>
+            <T style={{ fontSize: 12, color: colors.muted, lineHeight: 17, marginTop: 3 }}>{isEn ? 'Optional background sound for this session.' : 'Bu seansa eşlik eden isteğe bağlı arka plan sesi.'}</T>
+          </View>
+          {activeSoundId ? <Tap onPress={() => { stopSound(); setActiveSoundId(null); }} style={as.stopSoundBtn}><T bold style={{ fontSize: 11, color: '#7A4F80' }}>{isEn ? 'Stop' : 'Durdur'}</T></Tap> : null}
+        </View>
+        <View style={as.soundGrid}>
+          {soundScenes.map(scene => {
+            const active = activeSoundId === scene.id;
+            return (
+              <Tap key={scene.id} onPress={() => toggleSound(scene.id)} style={[as.soundTile, active && { borderColor: selected.tint, backgroundColor: selected.tint + '12' }]}>
+                <View style={[as.soundIcon, active && { backgroundColor: selected.tint }]}>
+                  <Icon name={scene.icon} size={15} color={active ? 'white' : selected.tint} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <T bold style={{ fontSize: 12.5, color: colors.ink }}>{scene.label}</T>
+                  <T numberOfLines={1} style={{ fontSize: 10.5, color: colors.muted, marginTop: 2 }}>{scene.sub}</T>
+                </View>
+              </Tap>
+            );
+          })}
+        </View>
+      </Card>
+      <ToolExperienceCard title={isEn ? 'Pair it with breathwork' : 'Nefes pratiğiyle birleştir'} steps={isEn ? ['Read the daily sentence once.', 'Open breathing coach for a calm rhythm.', 'Return and save the session note.'] : ['Günün cümlesini bir kez oku.', 'Sakin ritim için nefes koçunu aç.', 'Dönüp seans notunu sakla.']} outcome={isEn ? 'Birth prep becomes a repeatable daily ritual.' : 'Doğum hazırlığı günlük tekrarlanabilir bir ritüele dönüşür.'} asset="blog_herbal_tea_relax" tint={selected.tint} onPress={() => open && open('breathingGuide')} />
+      <Section title={isEn ? 'Recent calm sessions' : 'Son sakinlik seansları'} />
+      {history.length ? history.slice(0, 3).map(item => <Card key={item.id} style={{ padding: 13 }}><T bold style={{ fontSize: 13, color: colors.ink }}>{item.title}</T><T numberOfLines={2} style={{ fontSize: 12, color: colors.muted, lineHeight: 17, marginTop: 4 }}>{item.affirmation}</T></Card>) : <Card style={{ padding: 16, backgroundColor: '#FFFCF8' }}><T bold style={{ fontSize: 13.5, color: colors.ink }}>{isEn ? 'No pressure streak' : 'Baskısız başlangıç'}</T><T style={{ fontSize: 12, color: colors.muted, lineHeight: 18, marginTop: 4 }}>{isEn ? 'Save one short session when you need calm; Momora keeps the ritual gentle.' : 'Sakinliğe ihtiyaç duyduğun anda kısa bir seans kaydet; Momora bunu yarışa çevirmeden saklar.'}</T></Card>}
+    </View>
+  );
+}
+
 const cs = StyleSheet.create({
   counterCard: {
     padding: 24,
@@ -1717,6 +1809,24 @@ const cs = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: 'white',
   },
+});
+
+const as = StyleSheet.create({
+  modeChip: { paddingHorizontal: 13, paddingVertical: 8, borderRadius: 14, backgroundColor: 'white', borderWidth: 1, borderColor: '#E6DEE8' },
+  sessionCard: { padding: 18, borderRadius: 24, borderWidth: 1.5, gap: 16 },
+  sessionTitle: { fontSize: 21, color: colors.ink, marginTop: 6, letterSpacing: -0.4 },
+  sessionCue: { fontSize: 12.5, color: colors.muted, lineHeight: 18, marginTop: 5 },
+  orb: { width: 72, height: 72, borderRadius: 36, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  quoteBox: { backgroundColor: 'rgba(255,255,255,0.78)', borderRadius: 20, padding: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)' },
+  quoteMark: { fontSize: 28, color: '#BBA6C2', height: 26 },
+  quoteText: { fontSize: 18, lineHeight: 25, color: colors.ink, letterSpacing: -0.2 },
+  primaryBtn: { flex: 1, paddingVertical: 14, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  saveBtn: { width: 50, borderRadius: 16, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8DCE8', alignItems: 'center', justifyContent: 'center' },
+  soundCard: { padding: 15, borderRadius: 22, backgroundColor: '#FFFCF8', borderColor: '#EFE4EA', gap: 12 },
+  soundGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 9 },
+  soundTile: { width: '48%', flexGrow: 1, minHeight: 62, flexDirection: 'row', alignItems: 'center', gap: 9, borderRadius: 16, padding: 10, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E9DFE9' },
+  soundIcon: { width: 31, height: 31, borderRadius: 12, backgroundColor: '#F3ECF5', alignItems: 'center', justifyContent: 'center' },
+  stopSoundBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 13, backgroundColor: '#F4ECF4', borderWidth: 1, borderColor: '#E7D8E8' },
 });
 
 const bs = StyleSheet.create({

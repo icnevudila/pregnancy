@@ -5,7 +5,7 @@ import { T, Tap, Card, ToolExperienceCard, InAppNotificationBanner } from './ui'
 import { Icon, BrandMark, FruitArt, ComparisonArt, MoodFace } from './Icons';
 import { journeys, RecordList, sampleRecords } from './screens';
 import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel } from './weekData';
-import { KickCounter, ContractionTimer, HospitalBag, LaborBreathingGuide } from './ToolScreens';
+import { KickCounter, ContractionTimer, HospitalBag, LaborBreathingGuide, BirthAffirmationsScreen } from './ToolScreens';
 import { WeightTracker, BirthPlanBuilder, DoctorQuestions, BabyNameMatcher } from './MoreToolScreens';
 import { ToolsHub } from './ToolsHub';
 import { SizeComparisonHub, UltrasoundAtlas, MedicalTimeline, OrganDevelopment } from './MedicalScreens';
@@ -245,6 +245,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     {kind==='contractionTimer'&&<ContractionTimer state={state} update={update} toast={toast} close={close} open={open} lang={lang}/>}
     {kind==='hospitalBag'&&<HospitalBag state={state} update={update} toast={toast} close={close} open={open} lang={lang}/>}
     {kind==='breathingGuide'&&<LaborBreathingGuide state={state} update={update} toast={toast} close={close} open={open} lang={lang}/>}
+    {kind==='birthAffirmations'&&<BirthAffirmationsScreen state={state} update={update} toast={toast} close={close} open={open} lang={lang}/>}
     {kind==='weight'&&<WeightTracker state={state} update={update} toast={toast} close={close} open={open} lang={lang}/>}
     {kind==='birthPlan'&&<BirthPlanBuilder state={state} update={update} toast={toast} close={close} lang={lang}/>}
     {kind==='doctorQuestions'&&<DoctorQuestions state={state} update={update} toast={toast} close={close} lang={lang}/>}

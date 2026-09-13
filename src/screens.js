@@ -26,6 +26,10 @@ export const journeys = getJourneys('tr');
 export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state }) {
   const isEn = lang === 'en';
   const [role, setRole] = useState('mother'); // 'mother' | 'father'
+  const [onboardingStep, setOnboardingStep] = useState(1);
+  const [pendingJourney, setPendingJourney] = useState('pregnancy');
+  const [babyNameInput, setBabyNameInput] = useState(isEn ? 'Maya' : 'Ada');
+  const [careFocus, setCareFocus] = useState('daily');
   const [showSyncInput, setShowSyncInput] = useState(false);
   const [partnerCode, setPartnerCode] = useState('');
 
@@ -104,7 +108,7 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
     };
     const baby = {
       id: 'bby_local_1',
-      name: isEn ? 'Maya' : 'Ada',
+      name: babyNameInput.trim() || (isEn ? 'Maya' : 'Ada'),
       birthDate: key === 'baby' ? new Date(Date.now() - 14 * 86400000).toISOString().slice(0, 10) : '',
       sex: 'female',
     };
@@ -186,13 +190,13 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
       </View>
 
       {/* ─── ANNE / BABA ROL SEÇİCİ ─── */}
-      <View style={{ marginBottom: 20 }}>
+      {onboardingStep === 1 && <View style={{ marginBottom: 20 }}>
         <T bold style={{ fontSize: 13, color: colors.purple, marginBottom: 8, textAlign: 'center' }}>
           {isEn ? 'WHO AM I?' : 'BEN KİMİM?'}
         </T>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <Tap
-            onPress={() => setRole('mother')}
+            onPress={() => { setRole('mother'); setOnboardingStep(2); }}
             label={isEn ? "I'm the Mother" : 'Anne Adayıyım'}
             style={[
               { flex: 1, paddingVertical: 14, paddingHorizontal: 10, borderRadius: 18, alignItems: 'center', backgroundColor: '#FAF6FA', borderWidth: 2, borderColor: '#ECE0EE' },
@@ -215,7 +219,7 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
           </Tap>
 
           <Tap
-            onPress={() => setRole('father')}
+            onPress={() => { setRole('father'); setOnboardingStep(2); }}
             label={isEn ? "I'm the Father" : 'Baba Adayıyım'}
             style={[
               { flex: 1, paddingVertical: 14, paddingHorizontal: 10, borderRadius: 18, alignItems: 'center', backgroundColor: '#F6F9FB', borderWidth: 2, borderColor: '#DCE8F2' },
@@ -237,10 +241,11 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
             </T>
           </Tap>
         </View>
-      </View>
+        <Tap onPress={() => setOnboardingStep(2)} style={[s.obPrimaryBtn, { marginTop: 14 }]}><T bold style={s.obPrimaryBtnText}>{isEn ? 'Continue' : 'Devam Et'} →</T></Tap>
+      </View>}
 
       {/* EŞİNİN AİLE KODU İLE BAĞLAN BUTONU */}
-      <View style={{ marginBottom: 18, alignItems: 'center' }}>
+      {onboardingStep === 2 && <View style={{ marginBottom: 18, alignItems: 'center' }}>
         <Tap
           onPress={() => setShowSyncInput(!showSyncInput)}
           label={isEn ? 'I have a family invite code' : 'Eşimin aile kodu var'}
@@ -267,15 +272,15 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
             </Tap>
           </View>
         )}
-      </View>
+      </View>}
 
       {/* YOLCULUK KARTLARI — 1 DOKUNUŞLA ANINDA GİRİŞ & MÜKEMMEL RESİM FİTİ */}
-      <View style={{ gap: 16 }}>
+      {onboardingStep === 2 && <View style={{ gap: 16 }}>
         {currentJourneys.map(j => (
           <Tap
             key={j.key}
             label={j.title.replace('\n', ' ')}
-            onPress={() => selectJourney(j.key)}
+            onPress={() => { setPendingJourney(j.key); setOnboardingStep(3); }}
             style={[s.journey, { backgroundColor: j.tint }]}
           >
             <View style={s.journeyPhoto}>
@@ -294,7 +299,49 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
             <Icon name="chevron" size={22} color={colors.purple} />
           </Tap>
         ))}
-      </View>
+      </View>}
+
+      {onboardingStep === 3 && (
+        <View style={{ gap: 14 }}>
+          <Card style={{ padding: 16, backgroundColor: '#FFFCF8', borderColor: '#EFE4EA' }}>
+            <T bold style={{ fontSize: 19, color: colors.ink }}>{isEn ? 'Personalize your daily Momora' : 'Günlük Momora’nı kişiselleştir'}</T>
+            <T style={{ fontSize: 12.5, color: colors.muted, lineHeight: 18, marginTop: 5 }}>{isEn ? 'These details bring back the extra onboarding pages before the app starts.' : 'Uygulama başlamadan önceki ek başlangıç sayfaları burada geri geldi.'}</T>
+            <View style={{ marginTop: 14, gap: 10 }}>
+              <T bold style={{ fontSize: 12, color: colors.purple }}>{isEn ? 'Baby name' : 'Bebek adı'}</T>
+              <TextInput value={babyNameInput} onChangeText={setBabyNameInput} placeholder={isEn ? 'Maya' : 'Ada'} placeholderTextColor={colors.muted} style={s.obTextInput} />
+              {pendingJourney === 'pregnancy' && <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+                {[12, 20, 24, 32].map(w => <Tap key={w} onPress={() => update && update({ week: w })} style={s.obOptionPill}><T bold style={{ fontSize: 12, color: colors.ink }}>{w}. {isEn ? 'week' : 'hafta'}</T></Tap>)}
+              </View>}
+            </View>
+          </Card>
+          <Card style={{ padding: 16, backgroundColor: '#FAF5FB', borderColor: '#E9DDEA' }}>
+            <T bold style={{ fontSize: 17, color: colors.ink }}>{isEn ? 'What should Momora focus on?' : 'Momora neye odaklansın?'}</T>
+            <View style={{ gap: 9, marginTop: 12 }}>
+              {[
+                ['daily', isEn ? 'Daily guidance' : 'Günlük rehberlik', isEn ? 'Letters, tasks, reminders' : 'Mektuplar, görevler, hatırlatmalar'],
+                ['tools', isEn ? 'Practical tools' : 'Pratik araçlar', isEn ? 'Kick, contraction, bag, notes' : 'Tekme, sancı, çanta, notlar'],
+                ['calm', isEn ? 'Calm & birth prep' : 'Sakinlik ve doğum hazırlığı', isEn ? 'Breath, affirmations, sound' : 'Nefes, olumlama, ses']
+              ].map(item => <Tap key={item[0]} onPress={() => setCareFocus(item[0])} style={[s.obInterestCard, careFocus === item[0] && s.obInterestCardActive]}><View style={s.obInterestIconBox}><Icon name={item[0] === 'calm' ? 'heart' : item[0] === 'tools' ? 'tool' : 'calendar'} size={18} color={colors.purple} /></View><View style={{ flex: 1 }}><T bold style={s.obInterestTitle}>{item[1]}</T><T style={s.obInterestSub}>{item[2]}</T></View>{careFocus === item[0] && <Icon name='check' size={16} color={colors.purple} />}</Tap>)}
+            </View>
+          </Card>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <Tap onPress={() => setOnboardingStep(2)} style={[s.obSecondaryBtn, { flex: 0.8 }]}><T bold style={s.obSecondaryBtnText}>{isEn ? 'Back' : 'Geri'}</T></Tap>
+            <Tap onPress={() => setOnboardingStep(4)} style={[s.obPrimaryBtn, { flex: 1.3 }]}><T bold style={s.obPrimaryBtnText}>{isEn ? 'Prepare my plan' : 'Planımı hazırla'} →</T></Tap>
+          </View>
+        </View>
+      )}
+
+      {onboardingStep === 4 && (
+        <Card style={{ padding: 18, alignItems: 'center', gap: 14, backgroundColor: '#FFFCF8', borderColor: '#EFE4EA' }}>
+          <View style={s.obPrepLogoBox}><BrandMark size={54} /></View>
+          <T bold style={{ fontSize: 23, color: colors.ink, textAlign: 'center' }}>{isEn ? 'Your Momora is ready' : 'Momora’n hazır'}</T>
+          <T style={{ fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 19 }}>{isEn ? 'Daily feed, tools, calm sessions and family sync are prepared for your journey.' : 'Günlük akış, araçlar, sakinlik seansları ve aile senkronu yolculuğuna göre hazırlandı.'}</T>
+          <View style={s.obChecklist}>
+            {[isEn ? 'Journey mode selected' : 'Yolculuk modu seçildi', isEn ? 'Daily content personalized' : 'Günlük içerik kişiselleştirildi', isEn ? 'Calm tools activated' : 'Sakinlik araçları etkinleştirildi'].map(x => <View key={x} style={s.obCheckItem}><View style={[s.obMiniCheck, s.obMiniCheckDone]}><Icon name='check' size={11} color='white' /></View><T bold style={s.obCheckLabelDone}>{x}</T></View>)}
+          </View>
+          <Tap onPress={() => selectJourney(pendingJourney)} style={[s.obPrimaryBtn, { width: '100%' }]}><T bold style={s.obPrimaryBtnText}>{isEn ? 'Start Momora' : 'Momora’ya Başla'} →</T></Tap>
+        </Card>
+      )}
 
       <View style={s.motto}>
         <Icon name="heart" color="#A68A9C" size={29} />

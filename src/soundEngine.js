@@ -100,6 +100,33 @@ export function playSound(id, options = {}) {
         const chime = Math.sin(2 * Math.PI * freq * t) + 0.3 * Math.sin(2 * Math.PI * freq * 2 * t);
         data[i] = chime * envelope * 0.45;
       }
+    } else if (id === 'lofi' || id === 'nightPad') {
+      // Original, procedural calm loop: warm pad + tiny soft beat, no audio file required.
+      const bpm = id === 'lofi' ? 70 : 52;
+      const beatLen = 60 / bpm;
+      const chords = id === 'lofi'
+        ? [[196.00, 246.94, 293.66], [174.61, 220.00, 261.63], [207.65, 261.63, 329.63], [185.00, 233.08, 277.18]]
+        : [[146.83, 185.00, 220.00], [164.81, 196.00, 246.94], [138.59, 174.61, 220.00], [155.56, 196.00, 233.08]];
+      let noiseCarry = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const t = i / ctx.sampleRate;
+        const bar = Math.floor(t / (beatLen * 4));
+        const chord = chords[bar % chords.length];
+        const beatPhase = t % beatLen;
+        const eighthPhase = t % (beatLen / 2);
+        const chordFade = 0.62 + 0.38 * Math.sin(Math.PI * ((t % (beatLen * 4)) / (beatLen * 4)));
+        const pad = chord.reduce((sum, freq, idx) => {
+          const slow = Math.sin(2 * Math.PI * (freq * 0.5) * t + idx * 0.35);
+          const shimmer = Math.sin(2 * Math.PI * freq * t) * 0.16;
+          return sum + slow * 0.16 + shimmer * 0.04;
+        }, 0) * chordFade;
+        const kick = id === 'lofi' ? Math.exp(-beatPhase * 16) * Math.sin(2 * Math.PI * 58 * t) * 0.22 : 0;
+        const hatNoise = Math.random() * 2 - 1;
+        noiseCarry = noiseCarry * 0.92 + hatNoise * 0.08;
+        const hat = id === 'lofi' ? Math.exp(-eighthPhase * 36) * noiseCarry * 0.035 : noiseCarry * 0.018;
+        const vinyl = Math.sin(2 * Math.PI * 0.33 * t) * 0.012 + (Math.random() * 2 - 1) * 0.01;
+        data[i] = pad + kick + hat + vinyl;
+      }
     } else if (id === 'hairdryer' || id === 'vacuum') {
       // Warm, deep pink noise with gentle rumble
       let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
@@ -132,6 +159,10 @@ export function playSound(id, options = {}) {
       filter.type = 'bandpass';
       filter.frequency.value = 260;
       filter.Q.value = 1.4;
+    } else if (id === 'lofi' || id === 'nightPad') {
+      filter.type = 'lowpass';
+      filter.frequency.value = id === 'lofi' ? 1800 : 900;
+      filter.Q.value = 0.7;
     } else if (id === 'vacuum') {
       filter.type = 'lowpass';
       filter.frequency.value = id === 'lullaby' ? 2400 : 550;

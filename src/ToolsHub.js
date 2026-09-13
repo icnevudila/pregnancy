@@ -147,6 +147,18 @@ export function getAllTools(lang = 'tr') {
       available: true,
     },
     {
+      id: 'birthAffirmations',
+      cat: 'prep',
+      catTitle: isEn ? 'Birth Prep' : 'Doğuma Hazırlık',
+      title: isEn ? 'Affirmations & Calm' : 'Olumlamalar & Sakinlik',
+      subtitle: isEn ? 'Daily birth confidence ritual' : 'Günlük doğum güveni ritüeli',
+      icon: 'heart',
+      art: 'blog_herbal_tea_relax',
+      color: '#F8F1FA',
+      tint: '#8A5BA4',
+      available: true,
+    },
+    {
       id: 'breathingGuide',
       cat: 'prep',
       catTitle: isEn ? 'Birth Prep' : 'Doğuma Hazırlık',
