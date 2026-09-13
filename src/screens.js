@@ -35,6 +35,7 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
   const [supportStyle, setSupportStyle] = useState('gentle');
   const [careFocus, setCareFocus] = useState('daily');
   const [prepDone, setPrepDone] = useState(false);
+  const [prepProgress, setPrepProgress] = useState(0);
   const [showSyncInput, setShowSyncInput] = useState(false);
   const [partnerCode, setPartnerCode] = useState('');
 
@@ -133,11 +134,28 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
     ? (isEn ? 'Partner support mode is ready.' : 'Baba ve eş desteği modu hazırlandı.')
     : (isEn ? 'Mother care mode is ready.' : 'Anne bakım modu hazırlandı.');
 
+  const preparationItems = [
+    roleReadyText.replace('hazırlandı.', 'hesaplanıyor.').replace('is ready.', 'is being calculated.'),
+    journeyDetailCopy[pendingJourney].replace('hazırlandı.', 'ölçülüyor.').replace('is prepared.', 'is being measured.'),
+    focusCopy[careFocus].replace('öne alındı.', 'sıralanıyor.').replace('hazırlandı.', 'yerleştiriliyor.').replace('prioritized.', 'being prioritized.').replace('ready for quick access.', 'being placed for quick access.'),
+    isEn ? 'Daily reminders and first cards are being synchronized.' : 'Günlük hatırlatmalar ve ilk kartlar senkronize ediliyor.',
+    isEn ? 'Calm sounds, breath cues and tool shortcuts are being prepared.' : 'Sakin sesler, nefes komutları ve araç kısayolları hazırlanıyor.',
+  ];
+
   useEffect(() => {
     if (onboardingStep !== 4) return;
     setPrepDone(false);
-    const timer = setTimeout(() => setPrepDone(true), 1350);
-    return () => clearTimeout(timer);
+    setPrepProgress(0);
+    let value = 0;
+    const timer = setInterval(() => {
+      value = Math.min(100, value + 8 + Math.round(Math.random() * 9));
+      setPrepProgress(value);
+      if (value >= 100) {
+        clearInterval(timer);
+        setTimeout(() => setPrepDone(true), 260);
+      }
+    }, 180);
+    return () => clearInterval(timer);
   }, [onboardingStep, pendingJourney, role, careFocus, supportStyle]);
 
   function selectJourney(key) {
@@ -401,11 +419,17 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
           <View style={s.obPrepLogoBox}><BrandMark size={54} /></View>
           {!prepDone ? (
             <>
-              <T bold style={{ fontSize: 23, color: colors.ink, textAlign: 'center' }}>{isEn ? 'Preparing your Momora' : 'Momora’n hazırlanıyor'}</T>
-              <T style={{ fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 19 }}>{isEn ? 'We are shaping the first daily flow from your choices.' : 'İlk günlük akış seçimlerine göre şekilleniyor.'}</T>
-              <View style={s.obProgressTrack}><View style={[s.obProgressFill, { width: '78%' }]} /></View>
+              <T bold style={{ fontSize: 23, color: colors.ink, textAlign: 'center' }}>{isEn ? 'Calculating your Momora' : 'Momora’n hesaplanıyor'}</T>
+              <T style={{ fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 19 }}>{isEn ? 'Your first daily flow is being built step by step from your choices.' : 'İlk günlük akış seçimlerinden adım adım kuruluyor.'}</T>
+              <View style={s.obProgressMeta}><T bold style={s.obProgressPercent}>%{Math.min(100, prepProgress)}</T><T style={s.obProgressText}>{prepProgress < 35 ? (isEn ? 'Reading choices' : 'Seçimler okunuyor') : prepProgress < 72 ? (isEn ? 'Matching tools' : 'Araçlar eşleşiyor') : (isEn ? 'Final touches' : 'Son dokunuşlar')}</T></View>
+              <View style={s.obProgressTrack}><View style={[s.obProgressFill, { width: Math.max(4, prepProgress) + '%' }]} /></View>
               <View style={s.obChecklist}>
-                {[journeyDetailCopy[pendingJourney], focusCopy[careFocus], isEn ? 'Placing the right tools on your home screen.' : 'Doğru araçlar ana ekrana yerleştiriliyor.'].map((x, i) => <View key={x} style={s.obCheckItem}><View style={[s.obMiniCheck, i < 2 && s.obMiniCheckDone]}>{i < 2 ? <Icon name='check' size={11} color='white' /> : <View style={s.obMiniDot} />}</View><T bold={i < 2} style={i < 2 ? s.obCheckLabelDone : s.obCheckLabel}>{x}</T></View>)}
+                {preparationItems.map((x, i) => {
+                  const threshold = (i + 1) * (100 / preparationItems.length);
+                  const done = prepProgress >= threshold;
+                  const active = !done && prepProgress >= i * (100 / preparationItems.length);
+                  return <View key={x} style={[s.obCheckItem, active && s.obCheckItemActive]}><View style={[s.obMiniCheck, done && s.obMiniCheckDone, active && s.obMiniCheckActive]}>{done ? <Icon name='check' size={11} color='white' /> : <View style={s.obMiniDot} />}</View><T bold={done || active} style={done ? s.obCheckLabelDone : s.obCheckLabel}>{x}</T></View>;
+                })}
               </View>
             </>
           ) : (
@@ -2251,10 +2275,15 @@ const s=StyleSheet.create({
   obPrepLogoBox: { width: 90, height: 90, borderRadius: 45, backgroundColor: '#F7EFF7', alignItems: 'center', justifyContent: 'center', ...shadow },
   obProgressTrack: { width: '100%', height: 8, borderRadius: 4, backgroundColor: '#EDE4EF', overflow: 'hidden' },
   obProgressFill: { height: '100%', backgroundColor: colors.purple, borderRadius: 4 },
+  obProgressMeta: { width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 2 },
+  obProgressPercent: { fontSize: 18, color: '#8F6390' },
+  obProgressText: { fontSize: 12, color: colors.muted },
   obChecklist: { width: '100%', backgroundColor: '#FAF6FA', padding: 16, borderRadius: 18, gap: 12, borderWidth: 1, borderColor: '#ECE0EB' },
-  obCheckItem: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  obCheckItem: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 2 },
+  obCheckItemActive: { transform: [{ scale: 1.01 }] },
   obMiniCheck: { width: 18, height: 18, borderRadius: 9, backgroundColor: '#E2D4E2', alignItems: 'center', justifyContent: 'center' },
   obMiniCheckDone: { backgroundColor: '#388E5A' },
+  obMiniCheckActive: { backgroundColor: '#B990B2' },
   obMiniDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#8E7B8E' },
   obCheckLabel: { fontSize: 12.5, color: colors.muted },
   obCheckLabelDone: { color: colors.ink, fontFamily: fonts.bold },

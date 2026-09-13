@@ -4,6 +4,7 @@
 
 let audioCtx = null;
 let currentSource = null;
+let currentAudioElement = null;
 let currentGain = null;
 let currentSoundId = null;
 let currentVolume = 0.5;
@@ -24,7 +25,7 @@ function getAudioContext() {
 }
 
 function notify() {
-  const state = { soundId: currentSoundId, isPlaying: !!currentSource, volume: currentVolume };
+  const state = { soundId: currentSoundId, isPlaying: !!currentSource || !!currentAudioElement, volume: currentVolume };
   listeners.forEach(fn => { try { fn(state); } catch (e) {} });
 }
 
@@ -33,6 +34,33 @@ export function playSound(id, options = {}) {
   currentVolume = Math.max(0, Math.min(1, volume));
 
   stopSound();
+
+  if (id === 'lofi' && typeof Audio !== 'undefined') {
+    try {
+      const audio = new Audio('/audio/momora-lofi-calm.wav');
+      audio.loop = true;
+      audio.volume = currentVolume;
+      currentAudioElement = audio;
+      currentSoundId = id;
+      if (timerMinutes && timerMinutes > 0) {
+        sleepTimerId = setTimeout(() => stopSound(), timerMinutes * 60 * 1000);
+      }
+      const playPromise = audio.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {
+          if (currentAudioElement === audio) {
+            currentAudioElement = null;
+            currentSoundId = null;
+            notify();
+          }
+        });
+      }
+      notify();
+      return true;
+    } catch (err) {
+      console.warn('Lofi audio file playback error, falling back to synth:', err);
+    }
+  }
 
   const ctx = getAudioContext();
   if (!ctx) {
@@ -214,6 +242,14 @@ export function stopSound() {
     } catch (e) {}
     currentSource = null;
   }
+  if (currentAudioElement) {
+    try {
+      currentAudioElement.pause();
+      currentAudioElement.currentTime = 0;
+      currentAudioElement.src = '';
+    } catch (e) {}
+    currentAudioElement = null;
+  }
   currentGain = null;
   currentSoundId = null;
   if (sleepTimerId) {
@@ -225,6 +261,9 @@ export function stopSound() {
 
 export function setVolume(vol) {
   currentVolume = Math.max(0, Math.min(1, vol));
+  if (currentAudioElement) {
+    try { currentAudioElement.volume = currentVolume; } catch (e) {}
+  }
   if (currentGain && audioCtx) {
     try {
       currentGain.gain.setValueAtTime(currentVolume, audioCtx.currentTime);
@@ -238,7 +277,7 @@ export function setVolume(vol) {
 export function getCurrentSound() {
   return {
     soundId: currentSoundId,
-    isPlaying: !!currentSource,
+    isPlaying: !!currentSource || !!currentAudioElement,
     volume: currentVolume,
   };
 }
@@ -341,3 +380,29 @@ export function playNotificationChime() {
   }
 }
 
+
+// Short premium interaction cues for tool taps, completion and timers.
+export function playActionCue(kind = 'soft') {
+  const ctx = getAudioContext();
+  if (!ctx) return false;
+  try {
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = kind === 'kick' ? 'triangle' : 'sine';
+    const start = kind === 'timer' ? 330 : kind === 'complete' ? 587.33 : kind === 'kick' ? 420 : 360;
+    const end = kind === 'kick' ? 520 : kind === 'timer' ? 392 : start * 1.18;
+    osc.frequency.setValueAtTime(start, now);
+    osc.frequency.exponentialRampToValueAtTime(end, now + 0.09);
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.linearRampToValueAtTime(kind === 'kick' ? 0.16 : 0.11, now + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.2);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}

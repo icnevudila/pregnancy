@@ -19,7 +19,7 @@ import { secondsLabel, uid, localDay } from './domain.mjs';
 import { saveKickSessionCloud, saveContractionSessionCloud } from './backendSync';
 import { offlineSyncQueue } from './services/offlineSyncQueue';
 import { createTrackerEvent } from './domain/types';
-import { playSound, stopSound, playBreathCue } from './soundEngine';
+import { playSound, stopSound, playBreathCue, playNotificationChime, playActionCue } from './soundEngine';
 import { speakText, stopSpeech } from './speechService';
 
 // ─── 1. TEKME SAYACI (ADVANCED KICK COUNTER) ──────────────────────────────────
@@ -80,6 +80,8 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
       setSeconds(0);
     }
     const nextKicks = kicks + 1;
+    playActionCue(selectedType === 'kick' ? 'kick' : 'soft');
+    if (nextKicks > 0 && nextKicks % 10 === 0) playNotificationChime();
     setKicks(nextKicks);
     setLastKickTime(new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }));
 
@@ -171,6 +173,7 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
       metadata: { kicks, durationSecs: finalSecs, feeling: selectedFeeling, breakdown: typeCounts },
     })).catch(() => {});
 
+    playNotificationChime();
     toast && toast(isEn ? `🌸 ${kicks} movements saved (${secondsLabel(finalSecs)})` : `🌸 ${kicks} hareket kaydedildi (${secondsLabel(finalSecs)})`);
     setKicks(0);
     setSeconds(0);
@@ -179,6 +182,7 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
   }
 
   function resetSession() {
+    playActionCue('soft');
     setSessionActive(false);
     startedAtRef.current = null;
     setKicks(0);
@@ -1664,7 +1668,7 @@ export function BirthAffirmationsScreen({ state, update, toast, lang = 'tr', ope
     { id: 'night', title: isEn ? 'Night release' : 'Gece bırakışı', minutes: 4, tint: '#3B7E58', bg: '#EEF6F1', cue: isEn ? 'Close the day without pressure or scoring.' : 'Günü puanlamadan, baskısız kapat.', lines: isEn ? ['I did enough for this day.', 'Rest is part of preparation.', 'Tomorrow can be handled one small step at a time.'] : ['Bugün için yeterince emek verdim.', 'Dinlenmek hazırlığın bir parçası.', 'Yarın tek küçük adımla ilerleyebilir.'] },
   ];
   const soundScenes = [
-    { id: 'lofi', icon: 'music', label: isEn ? 'Lo-fi calm' : 'Lo-fi sakinlik', sub: isEn ? 'Warm soft beat' : 'Yumuşak sıcak ritim' },
+    { id: 'lofi', icon: 'music', label: isEn ? 'Real lo-fi' : 'Gerçek lo-fi', sub: isEn ? 'Original calm music loop' : 'Orijinal sakin müzik loop’u' },
     { id: 'nightPad', icon: 'moon', label: isEn ? 'Night pad' : 'Gece ambiyansı', sub: isEn ? 'Slow ambient layer' : 'Yavaş fon dokusu' },
     { id: 'rain', icon: 'water', label: isEn ? 'Soft rain' : 'Yumuşak yağmur', sub: isEn ? 'White noise calm' : 'Hafif beyaz gürültü' },
     { id: 'lullaby', icon: 'heart', label: isEn ? 'Music box' : 'Ninni kutusu', sub: isEn ? 'Tiny bell melody' : 'Minik melodi' },
@@ -1673,10 +1677,51 @@ export function BirthAffirmationsScreen({ state, update, toast, lang = 'tr', ope
   const history = state?.affirmationSessions || [];
   const [selectedId, setSelectedId] = useState('morning');
   const [activeSoundId, setActiveSoundId] = useState(null);
-  useEffect(() => () => stopSound(), []);
+  const [breathRunning, setBreathRunning] = useState(false);
+  const [breathPhaseIndex, setBreathPhaseIndex] = useState(0);
+  const [breathSecond, setBreathSecond] = useState(0);
+  const [voiceGuide, setVoiceGuide] = useState(true);
+  useEffect(() => () => { stopSound(); stopSpeech(); }, []);
   const selected = sessions.find(s => s.id === selectedId) || sessions[0];
+  const breathPlan = selected.id === 'labor'
+    ? [{ key: 'inhale', sec: 4, label: isEn ? 'Breathe in' : 'Nefes al' }, { key: 'exhale', sec: 6, label: isEn ? 'Release slowly' : 'Yavaşça ver' }]
+    : selected.id === 'night'
+      ? [{ key: 'inhale', sec: 4, label: isEn ? 'Breathe in' : 'Nefes al' }, { key: 'hold', sec: 2, label: isEn ? 'Soften' : 'Yumuşa' }, { key: 'exhale', sec: 7, label: isEn ? 'Long exhale' : 'Uzun ver' }]
+      : [{ key: 'inhale', sec: 4, label: isEn ? 'Breathe in' : 'Nefes al' }, { key: 'hold', sec: 2, label: isEn ? 'Hold gently' : 'Nazikçe tut' }, { key: 'exhale', sec: 6, label: isEn ? 'Breathe out' : 'Nefes ver' }];
+  const activeBreath = breathPlan[breathPhaseIndex % breathPlan.length];
+  const breathProgress = Math.min(1, breathSecond / Math.max(1, activeBreath.sec));
   const dailyLine = selected.lines[new Date().getDate() % selected.lines.length];
   const isSaved = saved.includes(dailyLine);
+  useEffect(() => {
+    if (!breathRunning) return;
+    playBreathCue(activeBreath.key);
+    Vibration.vibrate(activeBreath.key === 'exhale' ? 35 : 18);
+    if (voiceGuide) speakText(activeBreath.label, lang, { rate: 0.82, pitch: 1.02 });
+    setBreathSecond(0);
+    const tick = setInterval(() => {
+      setBreathSecond(prev => {
+        if (prev + 1 >= activeBreath.sec) {
+          setBreathPhaseIndex(x => x + 1);
+          return 0;
+        }
+        return prev + 1;
+      });
+    }, 1000);
+    return () => clearInterval(tick);
+  }, [breathRunning, breathPhaseIndex, selectedId, voiceGuide]);
+
+  const startCalmBreath = () => {
+    setBreathPhaseIndex(0);
+    setBreathSecond(0);
+    setBreathRunning(true);
+    playActionCue('timer');
+  };
+  const stopCalmBreath = () => {
+    setBreathRunning(false);
+    stopSpeech();
+    playActionCue('complete');
+  };
+
   const toggleSound = (soundId) => {
     if (activeSoundId === soundId) {
       stopSound();
@@ -1691,6 +1736,7 @@ export function BirthAffirmationsScreen({ state, update, toast, lang = 'tr', ope
     const entry = { id: uid ? uid() : Date.now().toString(), mode: selected.id, title: selected.title, affirmation: dailyLine, minutes: selected.minutes, createdAt: new Date().toISOString() };
     update && update(old => ({ affirmationSessions: [entry, ...(old.affirmationSessions || [])].slice(0, 20) }));
     stopSound();
+    stopCalmBreath();
     setActiveSoundId(null);
     toast && toast(isEn ? 'Calm session saved 🌿' : 'Sakinlik seansı kaydedildi 🌿');
   };
@@ -1713,6 +1759,21 @@ export function BirthAffirmationsScreen({ state, update, toast, lang = 'tr', ope
           <View style={[as.orb, { borderColor: selected.tint, backgroundColor: selected.tint + '18' }]}><Icon name="leaf" size={28} color={selected.tint} /></View>
         </View>
         <View style={as.quoteBox}><T style={as.quoteMark}>“</T><T bold style={as.quoteText}>{dailyLine}</T></View>
+        <View style={as.breathCoachBox}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+            <View style={{ flex: 1 }}>
+              <T bold style={{ fontSize: 13, color: selected.tint, letterSpacing: 0.7 }}>{isEn ? 'GUIDED BREATH' : 'REHBERLİ NEFES'}</T>
+              <T bold style={{ fontSize: 24, color: colors.ink, marginTop: 4 }}>{activeBreath.label}</T>
+              <T style={{ fontSize: 12, color: colors.muted, marginTop: 3 }}>{breathRunning ? (isEn ? 'Second ' + Math.min(activeBreath.sec, breathSecond + 1) + ' / ' + activeBreath.sec : Math.min(activeBreath.sec, breathSecond + 1) + ' / ' + activeBreath.sec + ' saniye') : (isEn ? 'Tap start for sound, haptic and voice guidance.' : 'Ses, titreşim ve sesli yönlendirme için başlat.')}</T>
+            </View>
+            <View style={[as.breathOrb, { borderColor: selected.tint, transform: [{ scale: breathRunning ? 1 + breathProgress * 0.16 : 1 }] }]}> <Icon name={activeBreath.key === 'exhale' ? 'leaf' : 'heart'} size={26} color={selected.tint} /></View>
+          </View>
+          <View style={as.breathProgressTrack}><View style={[as.breathProgressFill, { width: (breathRunning ? Math.max(8, breathProgress * 100) : 8) + '%', backgroundColor: selected.tint }]} /></View>
+          <View style={{ flexDirection: 'row', gap: 9 }}>
+            <Tap onPress={breathRunning ? stopCalmBreath : startCalmBreath} style={[as.primaryBtn, { backgroundColor: breathRunning ? '#9C415A' : selected.tint }]}><T bold style={{ color: 'white', fontSize: 13 }}>{breathRunning ? (isEn ? 'Stop breathing' : 'Nefesi durdur') : (isEn ? 'Start guided breath' : 'Rehberli nefesi başlat')}</T></Tap>
+            <Tap onPress={() => setVoiceGuide(v => !v)} style={[as.voiceBtn, voiceGuide && { borderColor: selected.tint, backgroundColor: selected.tint + '12' }]}><Icon name={voiceGuide ? 'volume' : 'close'} size={17} color={selected.tint} /></Tap>
+          </View>
+        </View>
         <View style={{ flexDirection: 'row', gap: 10 }}><Tap onPress={completeSession} style={[as.primaryBtn, { backgroundColor: selected.tint }]}><T bold style={{ color: 'white', fontSize: 13 }}>{isEn ? 'Save today’s session' : 'Bugünkü seansı kaydet'}</T></Tap><Tap onPress={toggleSave} style={as.saveBtn}><T style={{ fontSize: 18 }}>{isSaved ? '♥' : '♡'}</T></Tap></View>
       </Card>
       <Card style={as.soundCard}>
@@ -1827,6 +1888,11 @@ const as = StyleSheet.create({
   soundTile: { width: '48%', flexGrow: 1, minHeight: 62, flexDirection: 'row', alignItems: 'center', gap: 9, borderRadius: 16, padding: 10, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E9DFE9' },
   soundIcon: { width: 31, height: 31, borderRadius: 12, backgroundColor: '#F3ECF5', alignItems: 'center', justifyContent: 'center' },
   stopSoundBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 13, backgroundColor: '#F4ECF4', borderWidth: 1, borderColor: '#E7D8E8' },
+  breathCoachBox: { backgroundColor: 'rgba(255,255,255,0.82)', borderRadius: 20, padding: 14, borderWidth: 1, borderColor: '#EFE4EA', gap: 12 },
+  breathOrb: { width: 70, height: 70, borderRadius: 35, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.72)' },
+  breathProgressTrack: { width: '100%', height: 8, borderRadius: 99, backgroundColor: '#EFE7EF', overflow: 'hidden' },
+  breathProgressFill: { height: '100%', borderRadius: 99 },
+  voiceBtn: { width: 50, borderRadius: 16, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8DCE8', alignItems: 'center', justifyContent: 'center' },
 });
 
 const bs = StyleSheet.create({
