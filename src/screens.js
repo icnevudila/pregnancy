@@ -1192,6 +1192,16 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
         </Tap>
 
         <Tap
+          onPress={()=>open('breathingGuide')}
+          label="Nefes egzersizini aç"
+          style={{width:145,padding:14,borderRadius:18,backgroundColor:'#EEF6F8',borderWidth:1,borderColor:'#D9ECF0',...shadow}}
+        >
+          <CleanIcon asset="ui_postpartum_lotus" size={44} imgSize={40} icon="leaf" tint="#3B8B9B" style={{ marginBottom: 8 }} />
+          <T bold style={{fontSize:13,color:'#1F5A67'}}>{isEn ? 'Breathing Guide' : 'Nefes Egzersizi'}</T>
+          <T style={{fontSize:10,color:'#487E8C',marginTop:2}}>{isEn ? '4-7-8, Lamaze & Box' : '4-7-8, Lamaze & Kutu'}</T>
+        </Tap>
+
+        <Tap
           onPress={()=>open('weight')}
           label="Kilo takibini aç"
           style={{width:145,padding:14,borderRadius:18,backgroundColor:'#EBF3EE',borderWidth:1,borderColor:'#D7E8DD',...shadow}}
@@ -1258,6 +1268,7 @@ export function RecordList({ records = [], trackerEvents = [], onDelete, onUndo,
     'Su': isEn ? 'Water' : 'Su',
     'Vitamin': isEn ? 'Vitamin' : 'Vitamin',
     'Kilo': isEn ? 'Weight' : 'Kilo',
+    'Nefes': isEn ? 'Breathing' : 'Nefes',
   };
   const iconMap = {
     'Emzirme': 'nursing',
@@ -1271,6 +1282,7 @@ export function RecordList({ records = [], trackerEvents = [], onDelete, onUndo,
     'Su': 'drop',
     'Vitamin': 'heart',
     'Kilo': 'scale',
+    'Nefes': 'leaf',
   };
 
   function localizeValue(val) {

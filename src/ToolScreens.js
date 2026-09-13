@@ -1411,7 +1411,7 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
       Animated.timing(circleOpacity, { toValue: 0.7, duration: 400, useNativeDriver: false }),
     ]).start();
 
-    if (cycles > 0) {
+    if (cycles > 0 || totalSecs >= 20) {
       const sessionEntry = {
         id: uid ? uid() : Date.now().toString(),
         mode: selectedModeId,
@@ -1420,12 +1420,21 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
         durationSeconds: totalSecs,
         cycleCount: cycles,
       };
+      const mins = Math.max(1, Math.round(totalSecs / 60));
+      const dailyRecord = {
+        id: uid ? uid() : Date.now().toString(),
+        type: 'Nefes',
+        value: isEn ? `${activeMode.shortTitle} · ${mins}m (${cycles || 1} cycles)` : `${activeMode.shortTitle} · ${mins} dk (${cycles || 1} döngü)`,
+        time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
+        createdAt: new Date().toISOString(),
+      };
       if (update) {
         update(old => ({
           relaxationSessions: [sessionEntry, ...(old.relaxationSessions || [])],
+          records: [dailyRecord, ...(old.records || [])],
         }));
       }
-      toast && toast(isEn ? `Session ended · ${cycles} cycles (${secondsLabel(totalSecs)})` : `Seans tamamlandı · ${cycles} döngü (${secondsLabel(totalSecs)})`);
+      toast && toast(isEn ? `🌿 Breath practice saved to daily logs (${secondsLabel(totalSecs)})` : `🌿 Nefes pratiği günlük kayıtlara eklendi (${secondsLabel(totalSecs)})`);
     }
   }
 
@@ -1851,158 +1860,474 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
   );
 }
 
-// ─── 5. DOĞUM OLUMLAMALARI & SAKİNLİK SEANSI ────────────────────────────────
+// ─── 5. DOĞUM OLUMLAMALARI & POZİTİF ZİHİN STÜDYOSU ────────────────────────
 export function BirthAffirmationsScreen({ state, update, toast, lang = 'tr', open }) {
   const isEn = lang === 'en';
-  const sessions = [
-    { id: 'morning', title: isEn ? 'Morning courage' : 'Sabah cesareti', minutes: 3, tint: '#8A5BA4', bg: '#F7EFF9', cue: isEn ? 'Open the day with one calm sentence.' : 'Güne tek sakin cümleyle başla.', lines: isEn ? ['My body and my baby move through today together.', 'I can ask for help before I feel overwhelmed.', 'One soft breath is enough to begin again.'] : ['Bedenim ve bebeğim bugün birlikte ilerliyor.', 'Zorlanmadan önce destek istememe izin var.', 'Yeniden başlamak için bir yumuşak nefes yeter.'] },
-    { id: 'labor', title: isEn ? 'Labor wave focus' : 'Doğum dalgası odağı', minutes: 5, tint: '#B25068', bg: '#FDF1F4', cue: isEn ? 'Use during practice or between contractions.' : 'Provalarda veya kasılmalar arasında kullan.', lines: isEn ? ['Each wave has a beginning, a peak, and an ending.', 'I soften my jaw, shoulders, hands, and belly.', 'My care team and my own rhythm can work together.'] : ['Her dalganın başlangıcı, zirvesi ve bitişi var.', 'Çenemi, omuzlarımı, ellerimi ve karnımı yumuşatıyorum.', 'Bakım ekibim ve kendi ritmim birlikte ilerleyebilir.'] },
-    { id: 'night', title: isEn ? 'Night release' : 'Gece bırakışı', minutes: 4, tint: '#3B7E58', bg: '#EEF6F1', cue: isEn ? 'Close the day without pressure or scoring.' : 'Günü puanlamadan, baskısız kapat.', lines: isEn ? ['I did enough for this day.', 'Rest is part of preparation.', 'Tomorrow can be handled one small step at a time.'] : ['Bugün için yeterince emek verdim.', 'Dinlenmek hazırlığın bir parçası.', 'Yarın tek küçük adımla ilerleyebilir.'] },
+  const categories = [
+    {
+      id: 'courage',
+      name: isEn ? '🌸 Birth Courage' : '🌸 Doğum Cesareti',
+      sub: isEn ? 'Trusting body & waves' : 'Bedene ve dalgalara güven',
+      tint: '#9B3B60',
+      bg: '#FCF1F4',
+      accent: '#F3D2DE',
+      cards: isEn ? [
+        'My body knows how to give birth; my baby knows how to be born.',
+        'Each wave brings me one breath closer to holding my baby.',
+        'I release all fear and welcome each sensation with deep trust.',
+        'My body softens, expands, and opens naturally and safely.',
+        'I am surrounded by quiet strength, love, and patient care.',
+        'Generations of women have walked this path; their ancient wisdom lives in me.',
+        'Sensations are not pain; they are my body’s powerful embrace welcoming my baby.',
+        'With every slow breath in, my courage multiplies.',
+        'My care team and my own natural rhythm work together in harmony.',
+        'I honor my body’s pace; I surrender to its timing without rushing.',
+        'My baby will arrive at the exact right moment, peaceful and safe.',
+        'I am capable, I am calm, and I am ready for our birth.',
+      ] : [
+        'Bedenim doğurmayı biliyor; bebeğim de doğmayı biliyor.',
+        'Gelen her dalga beni bebeğime bir nefes daha yaklaştırıyor.',
+        'Korkuyu serbest bırakıyorum ve bedenimin bilgeliğine güveniyorum.',
+        'Bedenim gevşedikçe güvenle açılıyor ve bebeğime sevgiyle yol veriyor.',
+        'İçimdeki güç, sakinlik ve sabır bana ve bebeğime fazlasıyla yetiyor.',
+        'Yüzyıllardır bu yoldan geçen kadınlar gibi, kadim doğum bilgeliği içimde saklı.',
+        'Dalgalar bir zorluk değil; bedenimin bebeğimi kucaklamak için kurduğu güçlü köprü.',
+        'Aldığım her derin nefes cesaretimi artırıyor, verdiğim her nefes bedenimi yumuşatıyor.',
+        'Doğum ekibim ve kendi içsel ritmim kusursuz bir ahenkle ilerliyor.',
+        'Bedenimin sınırlarına saygı duyuyor ve onun hızına güvenle teslim oluyorum.',
+        'Bebeğim en doğru zamanda, en güvenli ve en sevgi dolu şekilde kucağıma gelecek.',
+        'Ben güçlüyüm, sakinim ve bebeğimin geliş anına tüm kalbimle hazırım.',
+      ],
+    },
+    {
+      id: 'soften',
+      name: isEn ? '🌿 Soften & Release' : '🌿 Gevşeme & Bırakış',
+      sub: isEn ? 'Jaw, shoulders & hands' : 'Çene, omuz ve elleri serbest bırakma',
+      tint: '#2B6E4A',
+      bg: '#EFF7F2',
+      accent: '#D0EADB',
+      cards: isEn ? [
+        'I soften my jaw, drop my shoulders, and uncurl my fingers.',
+        'With each calm exhale, tension simply melts away into the earth.',
+        'I ride each sensation like a gentle, rolling ocean wave.',
+        'My breath delivers pure calm, love, and oxygen to my baby.',
+        'I release the urge to control; I surrender to my body’s natural rhythm.',
+        'A soft face means an open, receptive womb.',
+        'I breathe into the intensity and allow my muscles to melt like warm butter.',
+        'I am deeply supported by the ground beneath me and the air within me.',
+        'When the wave rises I stay centered; when it peaks I surrender; when it passes I rest.',
+        'My mind is a serene mountain lake; the ripples pass, the depths remain still.',
+        'I open like a blossoming flower in the morning sun.',
+        'Every release brings replenishment, peace, and renewed vitality.',
+      ] : [
+        'Çenemi gevşetiyorum, omuzlarımı düşürüyorum, ellerimi serbest bırakıyorum.',
+        'Her sakin nefes verişimde bedenimdeki tüm gerginlik akıp gidiyor.',
+        'Kasılmalara direnmek yerine, sakin bir dalganın üzerinde sakince süzülüyorum.',
+        'Aldığım her nefes bedenime dinginlik, bebeğime bol oksijen taşıyor.',
+        'Kontrol etme çabasını bırakıyorum; bedenimin doğal ritmine güveniyorum.',
+        'Yüzümdeki tüm mimikleri yumuşatıyorum; yüzüm gevşedikçe rahmim güvenle açılıyor.',
+        'Yoğunluğun içine doğru sakince nefes alıyor, kaslarımı yumuşacık bırakıyorum.',
+        'Ayaklarımın altındaki zemin ve ciğerlerime dolan hava beni sevgiyle destekliyor.',
+        'Dalga yükselirken sakinim, zirvedeyken teslimim, geçerken tamamen gevşiyorum.',
+        'Zihnim durgun bir göl gibi; yüzeydeki dalgalar geçer, derindeki huzur hiç bozulmaz.',
+        'Sabah güneşinde yavaşça açan narin bir çiçek gibi güvenle esniyor ve açılıyorum.',
+        'Her gevşeme anı beni dinlendiriyor, sakinleştiriyor ve ruhumu tazeliyor.',
+      ],
+    },
+    {
+      id: 'grace',
+      name: isEn ? '🤍 Inner Grace' : '🤍 Şefkat & İç Huzur',
+      sub: isEn ? 'Releasing perfectionism' : 'Yeterlilik & kendine şefkat',
+      tint: '#79478F',
+      bg: '#F8F1FA',
+      accent: '#E6D4EC',
+      cards: isEn ? [
+        'I am the exact right, loving mother for my baby.',
+        'I do not need to be perfect; my loving presence is more than enough.',
+        'Asking for rest and support is a gift to my family, never a weakness.',
+        'My maternal intuition is quiet, wise, and always available.',
+        'I honor my body for the daily miracle it is performing.',
+        'I do not compare my journey to anyone else; our path is sacred and unique.',
+        'In moments of doubt, I wrap myself in patience and unconditional kindness.',
+        'It is normal to feel tired; rest is an active part of good mothering.',
+        'My heart is free of doubt and filled with pure, overflowing love.',
+        'Motherhood is an unfolding journey; I give myself time and grace to grow.',
+        'Every single feeling I experience today is completely valid and honored.',
+        'When I am gentle with myself, I create a peaceful world for my child.',
+      ] : [
+        'Bebeğim için dünyadaki en doğru, en şefkatli anneyim.',
+        'Mükemmel olmak zorunda değilim; varlığım ve sevgim bebeğime yetiyor.',
+        'Dinlenmek ve yardım istemek zayıflık değil, kendime verdiğim bir hediyedir.',
+        'İç sesim ve annelik sezgilerim beni her adımda doğru yönlendiriyor.',
+        'Bedenimin her gün gerçekleştirdiği bu mucizeye saygı ve sevgi duyuyorum.',
+        'Yolculuğumu kimseyle kıyaslamıyorum; benim yolum bana ve bebeğime özel.',
+        'Zorlandığım anlarda kendimi suçlamak yerine şefkatle kucaklamayı seçiyorum.',
+        'Yorulmak çok doğal; dinlenmek bebeğime sunduğum en değerli bakımlardan biridir.',
+        'Kalbim endişelerden arınıyor, yerine dingin ve sınırsız bir sevgi doluyor.',
+        'Annelik öğrenilen bir yolculuktur; kendime öğrenmek ve hissetmek için zaman tanıyorum.',
+        'Bugün içimden geçen tüm hisler doğal, değerli ve saygıya layıktır.',
+        'Kendime şefkat gösterdikçe, bebeğime de huzur dolu bir yuva sunuyorum.',
+      ],
+    },
+    {
+      id: 'night',
+      name: isEn ? '🌙 Night Peace' : '🌙 Gece Dinginliği',
+      sub: isEn ? 'Rest without pressure' : 'Günü baskısız kapatma & uyku',
+      tint: '#345582',
+      bg: '#EFF4FA',
+      accent: '#D0DFEE',
+      cards: isEn ? [
+        'I did enough today; now it is time to rest completely.',
+        'Sleep restores my mind, replenishes my body, and grows my baby.',
+        'Tomorrow can wait; right now in this moment, all is safe and well.',
+        'My bed is a sanctuary of comfort, soft breathing, and deep repair.',
+        'As I close my eyes, I release every thought like passing evening clouds.',
+        'The night brings silence, restoration, and deeply restorative healing.',
+        'My breathing slows, my heartbeat softens, and my muscles surrender.',
+        'In the quiet darkness, I whisper my love and reassurance to my baby.',
+        'Tonight my body rebuilds strength, serenity, and endurance.',
+        'I yield completely to restorative, tranquil sleep.',
+      ] : [
+        'Bugün elimden gelenin en iyisini yaptım; şimdi dinlenme vakti.',
+        'Derin bir uyku zihnimi onarır, bedenimi tazeler ve bebeğimi büyütür.',
+        'Yarının telaşı bekleyebilir; şu anda her şey güvende ve huzurlu.',
+        'Yatağım şefkatli bir dinlenme yuvası; kendimi gevşemeye bırakıyorum.',
+        'Gözlerimi kapatırken tüm düşünceleri gökyüzünden geçen bulutlar gibi serbest bırakıyorum.',
+        'Gece bana sessizlik, iç huzur ve hücrelerimi yenileyen bir şifa armağan ediyor.',
+        'Nefesim yavaşladıkça kalbimin ritmi sakinleşiyor, tüm bedenim huzura eriyor.',
+        'Sessiz karanlıkta bebeğime elimi koyuyor, ona sevgimi ve güvenimi fısıldıyorum.',
+        'Bu gece bedenim doğum için güç, sakinlik ve tazelik depoluyor.',
+        'Zihnimi susturuyor ve derin, şifalı bir uykuya güvenle teslim oluyorum.',
+      ],
+    },
+    {
+      id: 'baby',
+      name: isEn ? '👶 Baby Bond' : '👶 Bebeğimle Bağ',
+      sub: isEn ? 'Heart-to-heart love' : 'Kalpten kalbe kesintisiz sevgi',
+      tint: '#AC486E',
+      bg: '#FDF1F5',
+      accent: '#F3D2DF',
+      cards: isEn ? [
+        'An unbroken ribbon of love flows between my heart and my baby’s heart.',
+        'My baby feels my calm, my trust, and my boundless love.',
+        'We are experiencing this incredible transformation as a harmonious team.',
+        'I hold patience and gentle joy as I await the day we look into each other’s eyes.',
+        'My hand on my belly sends warmth, sanctuary, and reassurance straight to you.',
+        'I cannot wait to hear your first breath, see your smile, and hold you close.',
+        'You are safe, you are cherished, and you are eagerly awaited, my little one.',
+        'We are growing together, learning together, and becoming stronger together.',
+        'From the moment you arrive into this world, I will be your safe harbor.',
+        'Your presence brings miracles to my life; I am deeply grateful for you.',
+      ] : [
+        'Kalbimden bebeğimin kalbine kesintisiz bir sevgi bağı akıyor.',
+        'Bebeğim içimdeki huzuru, şefkati ve sevgiyi her an hissediyor.',
+        'Bu yolculukta bebeğimle mükemmel bir uyum içinde olan bir ekibiz.',
+        'Seni kucağıma alacağım o tatlı anı sabırla, sevgiyle ve güvenle bekliyorum.',
+        'Karnıma koyduğum elim bebeğime sıcacık bir sığınak ve sonsuz güven veriyor.',
+        'Senin ilk nefesini duyacağım, kokunu içime çekeceğim günü sabırsızlıkla bekliyorum.',
+        'Sen güvendesin, çok seviliyorsun ve bu dünyada büyük bir sevgiyle bekleniyorsun minik yavrum.',
+        'Birlikte büyüyoruz, birlikte öğreniyoruz ve her geçen gün daha da güçleniyoruz.',
+        'Dünyaya gözlerini açtığın andan itibaren senin en güvenli, en huzurlu limanın olacağım.',
+        'Varlığın hayatımı bir mucizeye çeviriyor; sana sahip olduğum için şükrediyorum.',
+      ],
+    },
   ];
-  const soundScenes = [
-    { id: 'lofi', icon: 'music', label: isEn ? 'Momora Lo-fi Radio' : 'Momora Lo-fi Radyo', sub: isEn ? 'Live calm station' : 'Canlı sakin kanal' },
-    { id: 'nightPad', icon: 'moon', label: isEn ? 'Night Drift' : 'Gece Akışı', sub: isEn ? 'Slow ambient station' : 'Yavaş ambiyans kanalı' },
-    { id: 'rain', icon: 'water', label: isEn ? 'Rain Room' : 'Yağmur Odası', sub: isEn ? 'Soft rain station' : 'Yumuşak yağmur kanalı' },
-    { id: 'lullaby', icon: 'heart', label: isEn ? 'Tiny Lullaby FM' : 'Mini Ninni FM', sub: isEn ? 'Music box station' : 'Ninni kutusu kanalı' },
+
+  const ambientSounds = [
+    { id: 'lofi', label: isEn ? 'Lo-fi Calm' : 'Lo-fi Radyo', icon: 'music' },
+    { id: 'tibetan', label: isEn ? '432 Hz Bowl' : '432 Hz Şifa', icon: 'star' },
+    { id: 'stream', label: isEn ? 'River Stream' : 'Dağ Deresi', icon: 'water' },
+    { id: 'birds', label: isEn ? 'Forest Birds' : 'Orman Kuşları', icon: 'leaf' },
+    { id: 'rain', label: isEn ? 'Gentle Rain' : 'Ilık Yağmur', icon: 'drop' },
   ];
-  const saved = state?.affirmationFavorites || [];
-  const history = state?.affirmationSessions || [];
-  const [selectedId, setSelectedId] = useState('morning');
+
+  const [activeCatId, setActiveCatId] = useState('courage');
+  const [cardIndex, setCardIndex] = useState(0);
   const [activeSoundId, setActiveSoundId] = useState(null);
-  const [breathRunning, setBreathRunning] = useState(false);
-  const [breathPhaseIndex, setBreathPhaseIndex] = useState(0);
-  const [breathSecond, setBreathSecond] = useState(0);
-  const [voiceGuide, setVoiceGuide] = useState(true);
+  const [customInput, setCustomInput] = useState('');
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
   useEffect(() => () => { stopSound(); stopSpeech(); }, []);
-  const selected = sessions.find(s => s.id === selectedId) || sessions[0];
-  const breathPlan = selected.id === 'labor'
-    ? [{ key: 'inhale', sec: 4, label: isEn ? 'Breathe in' : 'Nefes al' }, { key: 'exhale', sec: 6, label: isEn ? 'Release slowly' : 'Yavaşça ver' }]
-    : selected.id === 'night'
-      ? [{ key: 'inhale', sec: 4, label: isEn ? 'Breathe in' : 'Nefes al' }, { key: 'hold', sec: 2, label: isEn ? 'Soften' : 'Yumuşa' }, { key: 'exhale', sec: 7, label: isEn ? 'Long exhale' : 'Uzun ver' }]
-      : [{ key: 'inhale', sec: 4, label: isEn ? 'Breathe in' : 'Nefes al' }, { key: 'hold', sec: 2, label: isEn ? 'Hold gently' : 'Nazikçe tut' }, { key: 'exhale', sec: 6, label: isEn ? 'Breathe out' : 'Nefes ver' }];
-  const activeBreath = breathPlan[breathPhaseIndex % breathPlan.length];
-  const breathProgress = Math.min(1, breathSecond / Math.max(1, activeBreath.sec));
-  const dailyLine = selected.lines[new Date().getDate() % selected.lines.length];
-  const isSaved = saved.includes(dailyLine);
-  useEffect(() => {
-    if (!breathRunning) return;
-    playBreathCue(activeBreath.key);
-    Vibration.vibrate(activeBreath.key === 'exhale' ? 35 : 18);
-    if (voiceGuide) speakText(activeBreath.label, lang, { rate: 0.82, pitch: 1.02 });
-    setBreathSecond(0);
-    const tick = setInterval(() => {
-      setBreathSecond(prev => {
-        if (prev + 1 >= activeBreath.sec) {
-          setBreathPhaseIndex(x => x + 1);
-          return 0;
-        }
-        return prev + 1;
-      });
-    }, 1000);
-    return () => clearInterval(tick);
-  }, [breathRunning, breathPhaseIndex, selectedId, voiceGuide]);
 
-  const startCalmBreath = () => {
-    setBreathPhaseIndex(0);
-    setBreathSecond(0);
-    setBreathRunning(true);
-    playActionCue('timer');
-  };
-  const stopCalmBreath = () => {
-    setBreathRunning(false);
+  const activeCat = categories.find(c => c.id === activeCatId) || categories[0];
+  const customCards = state?.customAffirmations || [];
+  const currentCardList = activeCat.cards;
+  const currentText = currentCardList[cardIndex % currentCardList.length];
+  const favorites = state?.affirmationFavorites || [];
+  const isFavorite = favorites.includes(currentText);
+
+  const handleNextCard = () => {
+    playActionCue('kick');
+    Vibration.vibrate(18);
+    setCardIndex(prev => (prev + 1) % currentCardList.length);
     stopSpeech();
-    playActionCue('complete');
+    setIsSpeaking(false);
   };
 
-  const toggleSound = (soundId) => {
-    if (activeSoundId === soundId) {
-      stopSound();
-      setActiveSoundId(null);
-      return;
+  const handleCategoryChange = (id) => {
+    setActiveCatId(id);
+    setCardIndex(0);
+    stopSpeech();
+    setIsSpeaking(false);
+  };
+
+  const handleSpeak = () => {
+    if (isSpeaking) {
+      stopSpeech();
+      setIsSpeaking(false);
+    } else {
+      setIsSpeaking(true);
+      speakText(currentText, lang, {
+        rate: 0.84,
+        pitch: 1.0,
+        onDone: () => setIsSpeaking(false),
+      });
+      toast && toast(isEn ? '🔊 Reading affirmation softly...' : '🔊 Şefkatle seslendiriliyor...');
     }
-    const ok = playSound(soundId, { volume: soundId === 'lofi' ? 0.22 : 0.28, timerMinutes: selected.minutes });
-    setActiveSoundId(soundId);
-    toast && toast(ok ? (soundId === 'lofi' ? (isEn ? 'Momora Lo-fi Radio started' : 'Momora Lo-fi Radyo başladı') : (isEn ? 'Calm station started' : 'Sakin kanal başladı')) : (isEn ? 'Sound is not available on this device' : 'Bu cihazda ses açılamadı'));
   };
-  const completeSession = () => {
-    const entry = { id: uid ? uid() : Date.now().toString(), mode: selected.id, title: selected.title, affirmation: dailyLine, minutes: selected.minutes, createdAt: new Date().toISOString() };
-    update && update(old => ({ affirmationSessions: [entry, ...(old.affirmationSessions || [])].slice(0, 20) }));
-    stopSound();
-    stopCalmBreath();
-    setActiveSoundId(null);
-    toast && toast(isEn ? 'Calm session saved 🌿' : 'Sakinlik seansı kaydedildi 🌿');
-  };
-  const toggleSave = () => {
+
+  const handleToggleFavorite = () => {
+    playActionCue('soft');
+    Vibration.vibrate(22);
     update && update(old => {
       const list = old.affirmationFavorites || [];
-      return { affirmationFavorites: list.includes(dailyLine) ? list.filter(x => x !== dailyLine) : [dailyLine, ...list].slice(0, 12) };
+      const updated = list.includes(currentText)
+        ? list.filter(t => t !== currentText)
+        : [currentText, ...list].slice(0, 20);
+      return { affirmationFavorites: updated };
     });
-    toast && toast(isSaved ? (isEn ? 'Removed from saved' : 'Kaydedilenlerden çıkarıldı') : (isEn ? 'Saved for later' : 'Daha sonrası için saklandı'));
+    toast && toast(isFavorite
+      ? (isEn ? 'Removed from favorites' : 'Favorilerden çıkarıldı')
+      : (isEn ? 'Saved to affirmation collection ⭐' : 'Olumlama koleksiyonuna eklendi ⭐'));
   };
+
+  const handleToggleSound = (id) => {
+    if (activeSoundId === id) {
+      stopSound();
+      setActiveSoundId(null);
+    } else {
+      playSound(id, { volume: 0.25 });
+      setActiveSoundId(id);
+      toast && toast(isEn ? '🎵 Ambient backdrop started' : '🎵 Sakinlik fon müziği açıldı');
+    }
+  };
+
+  const handleSaveCustom = () => {
+    const trimmed = customInput.trim();
+    if (!trimmed) return;
+    update && update(old => ({
+      customAffirmations: [trimmed, ...(old.customAffirmations || [])].slice(0, 15),
+      affirmationFavorites: [trimmed, ...(old.affirmationFavorites || [])].slice(0, 20),
+    }));
+    setCustomInput('');
+    setShowCustomInput(false);
+    toast && toast(isEn ? 'Your custom affirmation saved! ✨' : 'Özel olumlaman koleksiyona kaydedildi! ✨');
+  };
+
   return (
     <View style={ts.container}>
-      <ScreenHero title={isEn ? 'Affirmations & Calm Session' : 'Olumlamalar & Sakinlik Seansı'} subtitle={isEn ? 'Short birth-prep reflections that pair with breathing practice and daily confidence.' : 'Nefes pratiğine eşlik eden kısa doğum hazırlığı cümleleri ve günlük sakinlik alanı.'} badge={isEn ? 'DAILY CALM' : 'GÜNLÜK SAKİNLİK'} badgeColor={selected.tint} icon="heart" lang={lang} />
-      <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
-        {sessions.map(item => <Tap key={item.id} onPress={() => setSelectedId(item.id)} style={[as.modeChip, selectedId === item.id && { backgroundColor: item.tint, borderColor: item.tint }]}><T bold={selectedId === item.id} style={{ fontSize: 11.5, color: selectedId === item.id ? 'white' : colors.ink }}>{item.title}</T></Tap>)}
-      </View>
-      <Card style={[as.sessionCard, { backgroundColor: selected.bg, borderColor: selected.tint + '55' }]}> 
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-          <View style={{ flex: 1 }}><T bold style={{ fontSize: 13, color: selected.tint, letterSpacing: 0.8 }}>{selected.minutes} {isEn ? 'MIN SESSION' : 'DK SEANS'}</T><T bold style={as.sessionTitle}>{selected.title}</T><T style={as.sessionCue}>{selected.cue}</T></View>
-          <View style={[as.orb, { borderColor: selected.tint, backgroundColor: selected.tint + '18' }]}><Icon name="leaf" size={28} color={selected.tint} /></View>
-        </View>
-        <View style={as.quoteBox}><T style={as.quoteMark}>“</T><T bold style={as.quoteText}>{dailyLine}</T></View>
-        <View style={as.breathCoachBox}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-            <View style={{ flex: 1 }}>
-              <T bold style={{ fontSize: 13, color: selected.tint, letterSpacing: 0.7 }}>{isEn ? 'GUIDED BREATH' : 'REHBERLİ NEFES'}</T>
-              <T bold style={{ fontSize: 24, color: colors.ink, marginTop: 4 }}>{activeBreath.label}</T>
-              <T style={{ fontSize: 12, color: colors.muted, marginTop: 3 }}>{breathRunning ? (isEn ? 'Second ' + Math.min(activeBreath.sec, breathSecond + 1) + ' / ' + activeBreath.sec : Math.min(activeBreath.sec, breathSecond + 1) + ' / ' + activeBreath.sec + ' saniye') : (isEn ? 'Tap start for sound, haptic and voice guidance.' : 'Ses, titreşim ve sesli yönlendirme için başlat.')}</T>
-            </View>
-            <View style={[as.breathOrb, { borderColor: selected.tint, transform: [{ scale: breathRunning ? 1 + breathProgress * 0.16 : 1 }] }]}> <Icon name={activeBreath.key === 'exhale' ? 'leaf' : 'heart'} size={26} color={selected.tint} /></View>
+      <ScreenHero
+        title={isEn ? 'Affirmation & Mindset Studio' : 'Olumlamalar & Pozitif Zihin'}
+        subtitle={isEn ? 'Daily porcelain thought cards designed to inspire courage, body trust, and peaceful birth.' : 'Doğum cesareti, bedene güven ve sakin annelik için özenle seçilmiş ilham kartları.'}
+        badge={isEn ? 'ZEN STUDIO' : 'ZİHİNSEL STÜDYO'}
+        badgeColor={activeCat.tint}
+        icon="heart"
+        lang={lang}
+      />
+
+      {/* ─── KATEGORİ DEKORATİF SEÇİCİ ─── */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 4 }}>
+        {categories.map(cat => {
+          const selected = activeCatId === cat.id;
+          return (
+            <Tap
+              key={cat.id}
+              onPress={() => handleCategoryChange(cat.id)}
+              style={[
+                as.categoryPill,
+                selected && { backgroundColor: cat.tint, borderColor: cat.tint },
+              ]}
+            >
+              <T bold={selected} style={{ fontSize: 12.5, color: selected ? 'white' : colors.ink }}>
+                {cat.name}
+              </T>
+            </Tap>
+          );
+        })}
+      </ScrollView>
+
+      {/* ─── PORSELEN OLUMLAMA ODAK KARTI ─── */}
+      <Card style={[as.cardStudio, { backgroundColor: activeCat.bg, borderColor: activeCat.accent }]}>
+        {/* Üst Bilgi Rozeti */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <View style={[as.statusDot, { backgroundColor: activeCat.tint }]} />
+            <T bold style={{ fontSize: 11.5, color: activeCat.tint, letterSpacing: 0.8 }}>
+              {activeCat.sub.toUpperCase()}
+            </T>
           </View>
-          <View style={as.breathProgressTrack}><View style={[as.breathProgressFill, { width: (breathRunning ? Math.max(8, breathProgress * 100) : 8) + '%', backgroundColor: selected.tint }]} /></View>
-          <View style={{ flexDirection: 'row', gap: 9 }}>
-            <Tap onPress={breathRunning ? stopCalmBreath : startCalmBreath} style={[as.primaryBtn, { backgroundColor: breathRunning ? '#9C415A' : selected.tint }]}><T bold style={{ color: 'white', fontSize: 13 }}>{breathRunning ? (isEn ? 'Stop breathing' : 'Nefesi durdur') : (isEn ? 'Start guided breath' : 'Rehberli nefesi başlat')}</T></Tap>
-            <Tap onPress={() => setVoiceGuide(v => !v)} style={[as.voiceBtn, voiceGuide && { borderColor: selected.tint, backgroundColor: selected.tint + '12' }]}><Icon name={voiceGuide ? 'volume' : 'close'} size={17} color={selected.tint} /></Tap>
-          </View>
+          <T style={{ fontSize: 11.5, color: colors.muted }}>
+            {cardIndex + 1} / {currentCardList.length}
+          </T>
         </View>
-        <View style={{ flexDirection: 'row', gap: 10 }}><Tap onPress={completeSession} style={[as.primaryBtn, { backgroundColor: selected.tint }]}><T bold style={{ color: 'white', fontSize: 13 }}>{isEn ? 'Save today’s session' : 'Bugünkü seansı kaydet'}</T></Tap><Tap onPress={toggleSave} style={as.saveBtn}><T style={{ fontSize: 18 }}>{isSaved ? '♥' : '♡'}</T></Tap></View>
+
+        {/* Ana Alıntı Metni */}
+        <View style={as.quoteContainer}>
+          <T style={[as.largeQuoteMark, { color: activeCat.tint + '40' }]}>“</T>
+          <T bold style={[as.mainAffirmationText, { color: colors.ink }]}>
+            {currentText}
+          </T>
+          <T style={[as.largeQuoteMark, { color: activeCat.tint + '40', textAlign: 'right', marginTop: -10 }]}>”</T>
+        </View>
+
+        {/* Aksiyon Araç Çubuğu */}
+        <View style={as.cardActionsRow}>
+          {/* Sesli Dinle */}
+          <Tap
+            onPress={handleSpeak}
+            style={[as.actionBtn, isSpeaking && { backgroundColor: activeCat.tint, borderColor: activeCat.tint }]}
+          >
+            <Icon name="volume" size={17} color={isSpeaking ? 'white' : activeCat.tint} />
+            <T bold style={{ fontSize: 12, color: isSpeaking ? 'white' : activeCat.tint, marginLeft: 6 }}>
+              {isSpeaking ? (isEn ? 'Stop' : 'Durdur') : (isEn ? 'Listen' : 'Seslendir')}
+            </T>
+          </Tap>
+
+          {/* Favori Kalp */}
+          <Tap
+            onPress={handleToggleFavorite}
+            style={[as.actionBtn, isFavorite && { backgroundColor: '#FBE8EE', borderColor: '#F5BACB' }]}
+          >
+            <T style={{ fontSize: 16 }}>{isFavorite ? '❤️' : '🤍'}</T>
+            <T bold style={{ fontSize: 12, color: isFavorite ? '#B83259' : colors.ink, marginLeft: 6 }}>
+              {isFavorite ? (isEn ? 'Saved' : 'Kaydedildi') : (isEn ? 'Save' : 'Kaydet')}
+            </T>
+          </Tap>
+
+          {/* Sonraki Kart (Yeni Cümle Çek) */}
+          <Tap
+            onPress={handleNextCard}
+            style={[as.nextCardBtn, { backgroundColor: activeCat.tint }]}
+          >
+            <T bold style={{ color: 'white', fontSize: 13 }}>
+              {isEn ? 'Next Card →' : 'Sonraki Kart →'}
+            </T>
+          </Tap>
+        </View>
       </Card>
-      <Card style={as.soundCard}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-          <View style={{ flex: 1 }}>
-            <T bold style={{ fontSize: 15.5, color: colors.ink }}>{isEn ? 'Momora Lo-fi Radio' : 'Momora Lo-fi Radyo'}</T>
-            <T style={{ fontSize: 12, color: colors.muted, lineHeight: 17, marginTop: 3 }}>{isEn ? 'A calm radio-style player for breathing, rest and night routines.' : 'Nefes, dinlenme ve gece rutini için radyo hissinde sakin çalar.'}</T>
+
+      {/* ─── SAKİNLİK FONU & AMBİYANS ÇALAR ─── */}
+      <Card style={{ padding: 14, backgroundColor: '#FAF7F4', borderColor: '#EAE1D8' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Icon name="music" size={16} color="#7A6082" />
+            <T bold style={{ fontSize: 13.5, color: colors.ink }}>
+              {isEn ? 'Calm Ambient Backdrop' : 'Meditatif Sakinlik Fonu'}
+            </T>
           </View>
-          {activeSoundId ? <Tap onPress={() => { stopSound(); setActiveSoundId(null); }} style={as.stopSoundBtn}><T bold style={{ fontSize: 11, color: '#7A4F80' }}>{isEn ? 'Stop radio' : 'Radyoyu durdur'}</T></Tap> : null}
+          {activeSoundId && (
+            <Tap onPress={() => { stopSound(); setActiveSoundId(null); }} style={{ paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, backgroundColor: '#EDE3F0' }}>
+              <T bold style={{ fontSize: 11, color: '#6F3A79' }}>{isEn ? 'Mute' : 'Sustur'}</T>
+            </Tap>
+          )}
         </View>
-        <View style={as.radioNowPlaying}>
-          <View style={as.liveDot} />
-          <View style={{ flex: 1 }}>
-            <T bold style={{ fontSize: 12.5, color: colors.ink }}>{activeSoundId ? (isEn ? 'On air now' : 'Şu an yayında') : (isEn ? 'Choose a station' : 'Bir kanal seç')}</T>
-            <T numberOfLines={1} style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>{activeSoundId ? (soundScenes.find(x => x.id === activeSoundId)?.label || '') + ' · ' + selected.minutes + ' dk sleep timer' : (isEn ? 'Lo-fi, rain and night channels stay inside Momora.' : 'Lo-fi, yağmur ve gece kanalları Momora içinde çalışır.')}</T>
-          </View>
-        </View>
-        <View style={as.soundGrid}>
-          {soundScenes.map(scene => {
-            const active = activeSoundId === scene.id;
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          {ambientSounds.map(snd => {
+            const active = activeSoundId === snd.id;
             return (
-              <Tap key={scene.id} onPress={() => toggleSound(scene.id)} style={[as.soundTile, active && { borderColor: selected.tint, backgroundColor: selected.tint + '12' }]}>
-                <View style={[as.soundIcon, active && { backgroundColor: selected.tint }]}>
-                  <Icon name={scene.icon} size={15} color={active ? 'white' : selected.tint} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <T bold style={{ fontSize: 12.5, color: colors.ink }}>{scene.label}</T>
-                  <T numberOfLines={1} style={{ fontSize: 10.5, color: colors.muted, marginTop: 2 }}>{scene.sub}</T>
-                </View>
+              <Tap
+                key={snd.id}
+                onPress={() => handleToggleSound(snd.id)}
+                style={[
+                  as.ambientPill,
+                  active && { backgroundColor: activeCat.tint, borderColor: activeCat.tint },
+                ]}
+              >
+                <Icon name={snd.icon} size={14} color={active ? 'white' : '#5A4A62'} />
+                <T bold={active} style={{ fontSize: 11.5, color: active ? 'white' : colors.ink }}>
+                  {snd.label}
+                </T>
               </Tap>
             );
           })}
         </View>
       </Card>
-      <ToolExperienceCard title={isEn ? 'Pair it with breathwork' : 'Nefes pratiğiyle birleştir'} steps={isEn ? ['Read the daily sentence once.', 'Open breathing coach for a calm rhythm.', 'Return and save the session note.'] : ['Günün cümlesini bir kez oku.', 'Sakin ritim için nefes koçunu aç.', 'Dönüp seans notunu sakla.']} outcome={isEn ? 'Birth prep becomes a repeatable daily ritual.' : 'Doğum hazırlığı günlük tekrarlanabilir bir ritüele dönüşür.'} asset="blog_herbal_tea_relax" tint={selected.tint} onPress={() => open && open('breathingGuide')} />
-      <Section title={isEn ? 'Recent calm sessions' : 'Son sakinlik seansları'} />
-      {history.length ? history.slice(0, 3).map(item => <Card key={item.id} style={{ padding: 13 }}><T bold style={{ fontSize: 13, color: colors.ink }}>{item.title}</T><T numberOfLines={2} style={{ fontSize: 12, color: colors.muted, lineHeight: 17, marginTop: 4 }}>{item.affirmation}</T></Card>) : <Card style={{ padding: 16, backgroundColor: '#FFFCF8' }}><T bold style={{ fontSize: 13.5, color: colors.ink }}>{isEn ? 'No pressure streak' : 'Baskısız başlangıç'}</T><T style={{ fontSize: 12, color: colors.muted, lineHeight: 18, marginTop: 4 }}>{isEn ? 'Save one short session when you need calm; Momora keeps the ritual gentle.' : 'Sakinliğe ihtiyaç duyduğun anda kısa bir seans kaydet; Momora bunu yarışa çevirmeden saklar.'}</T></Card>}
+
+      {/* ─── KENDİ ÖZEL OLUMLAMANI YAZ ─── */}
+      <Card style={{ padding: 16, backgroundColor: '#FFFFFF', borderColor: '#ECE4EE' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ flex: 1, paddingRight: 10 }}>
+            <T bold style={{ fontSize: 14, color: colors.ink }}>
+              {isEn ? '✍️ Add Your Own Power Affirmation' : '✍️ Kendi Güç Cümleni Ekle'}
+            </T>
+            <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2 }}>
+              {isEn ? 'Personal mantra or encouraging word from doctor or partner.' : 'Doktorundan, eşinden duyduğun veya kalbinden geçen özel niyet.'}
+            </T>
+          </View>
+          <Tap
+            onPress={() => setShowCustomInput(v => !v)}
+            style={{ paddingHorizontal: 12, paddingVertical: 7, borderRadius: 12, backgroundColor: '#F5ECF7' }}
+          >
+            <T bold style={{ fontSize: 12, color: colors.purple }}>
+              {showCustomInput ? (isEn ? 'Cancel' : 'Vazgeç') : (isEn ? '+ Write' : '+ Cümle Yaz')}
+            </T>
+          </Tap>
+        </View>
+
+        {showCustomInput && (
+          <View style={{ marginTop: 12, gap: 10 }}>
+            <TextInput
+              value={customInput}
+              onChangeText={setCustomInput}
+              placeholder={isEn ? 'E.g., My strength grows with every sunrise...' : 'Örn: Bedenime ve bebeğime her adımda sonsuz güveniyorum...'}
+              placeholderTextColor="#A79AA7"
+              multiline
+              maxLength={200}
+              style={as.customTextInput}
+            />
+            <Tap
+              onPress={handleSaveCustom}
+              style={[as.nextCardBtn, { backgroundColor: activeCat.tint, alignSelf: 'flex-end', paddingHorizontal: 20 }]}
+            >
+              <T bold style={{ color: 'white', fontSize: 13 }}>
+                {isEn ? 'Save to My Collection' : 'Koleksiyonuma Kaydet'}
+              </T>
+            </Tap>
+          </View>
+        )}
+      </Card>
+
+      {/* ─── FAVORİ OLUMLAMALARIM KOLEKSİYONU ─── */}
+      <Section title={isEn ? `Saved Favorites (${favorites.length})` : `Favori Cümlelerim (${favorites.length})`} />
+      {favorites.length === 0 ? (
+        <Card style={{ padding: 18, alignItems: 'center', backgroundColor: '#FAF8F6' }}>
+          <T style={{ fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 18 }}>
+            {isEn
+              ? 'Tap the heart on any card to build your personal birth affirmation sanctuary.'
+              : 'Beğendiğin kartlardaki kalp butonuna dokunarak kendi doğum ve annelik koleksiyonunu oluşturabilirsin.'}
+          </T>
+        </Card>
+      ) : (
+        favorites.slice(0, 5).map((fav, i) => (
+          <Card key={i} style={{ padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+            <View style={{ flex: 1 }}>
+              <T style={{ fontSize: 13.5, color: colors.ink, lineHeight: 19 }}>
+                “{fav}”
+              </T>
+            </View>
+            <Tap
+              onPress={() => {
+                speakText(fav, lang, { rate: 0.84 });
+                toast && toast(isEn ? '🔊 Reading favorite...' : '🔊 Favori cümle seslendiriliyor...');
+              }}
+              style={{ padding: 8, borderRadius: 10, backgroundColor: '#F4EFF6' }}
+            >
+              <Icon name="volume" size={16} color={colors.purple} />
+            </Tap>
+          </Card>
+        ))
+      )}
     </View>
   );
 }
@@ -2072,28 +2397,95 @@ const cs = StyleSheet.create({
 });
 
 const as = StyleSheet.create({
-  modeChip: { paddingHorizontal: 13, paddingVertical: 8, borderRadius: 14, backgroundColor: 'white', borderWidth: 1, borderColor: '#E6DEE8' },
-  sessionCard: { padding: 18, borderRadius: 24, borderWidth: 1.5, gap: 16 },
-  sessionTitle: { fontSize: 21, color: colors.ink, marginTop: 6, letterSpacing: -0.4 },
-  sessionCue: { fontSize: 12.5, color: colors.muted, lineHeight: 18, marginTop: 5 },
-  orb: { width: 72, height: 72, borderRadius: 36, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
-  quoteBox: { backgroundColor: 'rgba(255,255,255,0.78)', borderRadius: 20, padding: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)' },
-  quoteMark: { fontSize: 28, color: '#BBA6C2', height: 26 },
-  quoteText: { fontSize: 18, lineHeight: 25, color: colors.ink, letterSpacing: -0.2 },
-  primaryBtn: { flex: 1, paddingVertical: 14, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  saveBtn: { width: 50, borderRadius: 16, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8DCE8', alignItems: 'center', justifyContent: 'center' },
-  soundCard: { padding: 15, borderRadius: 22, backgroundColor: '#FFFCF8', borderColor: '#EFE4EA', gap: 12 },
-  radioNowPlaying: { flexDirection: 'row', alignItems: 'center', gap: 9, padding: 11, borderRadius: 16, backgroundColor: '#F8F1F8', borderWidth: 1, borderColor: '#E9DCE9' },
-  liveDot: { width: 9, height: 9, borderRadius: 4.5, backgroundColor: '#3C9A65' },
-  soundGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 9 },
-  soundTile: { width: '48%', flexGrow: 1, minHeight: 62, flexDirection: 'row', alignItems: 'center', gap: 9, borderRadius: 16, padding: 10, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E9DFE9' },
-  soundIcon: { width: 31, height: 31, borderRadius: 12, backgroundColor: '#F3ECF5', alignItems: 'center', justifyContent: 'center' },
-  stopSoundBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 13, backgroundColor: '#F4ECF4', borderWidth: 1, borderColor: '#E7D8E8' },
-  breathCoachBox: { backgroundColor: 'rgba(255,255,255,0.82)', borderRadius: 20, padding: 14, borderWidth: 1, borderColor: '#EFE4EA', gap: 12 },
-  breathOrb: { width: 70, height: 70, borderRadius: 35, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.72)' },
-  breathProgressTrack: { width: '100%', height: 8, borderRadius: 99, backgroundColor: '#EFE7EF', overflow: 'hidden' },
-  breathProgressFill: { height: '100%', borderRadius: 99 },
-  voiceBtn: { width: 50, borderRadius: 16, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8DCE8', alignItems: 'center', justifyContent: 'center' },
+  categoryPill: {
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#E8DFE9',
+  },
+  cardStudio: {
+    padding: 22,
+    borderRadius: 26,
+    borderWidth: 1.5,
+    gap: 16,
+    minHeight: 240,
+    justifyContent: 'space-between',
+    elevation: 2,
+    shadowColor: '#633969',
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  quoteContainer: {
+    paddingVertical: 10,
+    paddingHorizontal: 6,
+  },
+  largeQuoteMark: {
+    fontSize: 42,
+    lineHeight: 40,
+    fontFamily: fonts.bold,
+  },
+  mainAffirmationText: {
+    fontSize: 21,
+    lineHeight: 31,
+    letterSpacing: -0.3,
+    textAlign: 'center',
+    marginVertical: 4,
+  },
+  cardActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  actionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 11,
+    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#E6DEE8',
+  },
+  nextCardBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 2,
+  },
+  ambientPill: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E4DAE4',
+  },
+  customTextInput: {
+    backgroundColor: '#F9F5F9',
+    borderWidth: 1,
+    borderColor: '#E6D8E7',
+    borderRadius: 14,
+    padding: 12,
+    fontSize: 13.5,
+    color: colors.ink,
+    minHeight: 70,
+    textAlignVertical: 'top',
+  },
 });
 
 const bs = StyleSheet.create({

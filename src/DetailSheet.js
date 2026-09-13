@@ -106,6 +106,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
   const FULL_SCREEN_KINDS = new Set([
     'babyNames',
     'breathingGuide',
+    'birthAffirmations',
     'kickCounter',
     'contractionTimer',
     'hospitalBag',
@@ -356,7 +357,8 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     {!!error&&<T accessibilityRole="alert" style={{color:'#A95769',marginTop:12}}>{error}</T>}
     </ScrollView></View></KeyboardAvoidingView>
     <InAppNotificationBanner lang={lang} onOpen={d => { if (d?.tool) open(d.tool); else if (d?.screen) choose(d.screen); }} />
-    </Modal>;
+    </Modal>
+  );
 }
 const s=StyleSheet.create({
   fullscreenBackdrop:{flex:1,backgroundColor:'#1E142433',alignItems:'center',justifyContent:'center'},

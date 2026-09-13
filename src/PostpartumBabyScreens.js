@@ -514,16 +514,28 @@ export function SleepWhiteNoiseScreen({ state, update, toast, lang = 'tr' }) {
 
   const whiteNoises = isEn ? [
     { id: 'womb', name: 'Womb Rhythm', icon: 'heart', desc: 'Blood flow & maternal heartbeat' },
-    { id: 'rain', name: 'Gentle Rain', icon: 'drop', desc: 'Serene rainfall nature sound' },
-    { id: 'fan', name: 'Fan & Air', icon: 'milestone', desc: 'Continuous calm airflow' },
+    { id: 'lullaby', name: 'Classic Music Box Lullaby', icon: 'heart', desc: 'Gentle celesta & baby lullaby' },
+    { id: 'lofi', name: 'Momora Lo-fi Radio', icon: 'music', desc: 'Warm comforting acoustic beats' },
     { id: 'shh', name: 'Rhythmic Shh', icon: 'star', desc: 'Gentle soothing whisper shh' },
+    { id: 'rain', name: 'Gentle Rain', icon: 'drop', desc: 'Serene rainfall nature sound' },
+    { id: 'fan', name: 'Fan & Airflow', icon: 'milestone', desc: 'Continuous calm soothing air hum' },
     { id: 'ocean', name: 'Ocean Surf', icon: 'water', desc: 'Peaceful rolling sea waves' },
+    { id: 'stream', name: 'Mountain Brook', icon: 'water', desc: 'Soothing bubbling river water' },
+    { id: 'birds', name: 'Forest Birds', icon: 'leaf', desc: 'Peaceful morning canopy birds' },
+    { id: 'fire', name: 'Cozy Fireplace', icon: 'heart', desc: 'Warm embers & gentle crackle' },
+    { id: 'tibetan', name: '432 Hz Healing Bowl', icon: 'star', desc: 'Harmonic deep relaxation tone' },
   ] : [
     { id: 'womb', name: 'Anne Karnı Sesi', icon: 'heart', desc: 'Amniyotik sıvı ve kalp ritmi' },
+    { id: 'lullaby', name: 'Dandini Dandini · Ninni Kutusu', icon: 'heart', desc: 'Geleneksel huzurlu müzik kutusu ninnisi' },
+    { id: 'lofi', name: 'Momora Lo-fi Radyo', icon: 'music', desc: 'Sıcak ve dinlendirici huzur melodisi' },
+    { id: 'shh', name: 'Pişt Pişt / Shh', icon: 'star', desc: 'Yatıştırıcı ritmik fısıltı melodisi' },
     { id: 'rain', name: 'Ilık Yağmur', icon: 'drop', desc: 'Dingin ve rahatlatıcı doğa sesi' },
-    { id: 'fan', name: 'Vantilatör Sesi', icon: 'milestone', desc: 'Sürekli sakin hava akımı' },
-    { id: 'shh', name: 'Pişt Pişt / Shh', icon: 'star', desc: 'Yatıştırıcı ritmik ninni fısıltısı' },
+    { id: 'fan', name: 'Vantilatör & Hava Akımı', icon: 'milestone', desc: 'Sürekli sakin derin beyaz gürültü' },
     { id: 'ocean', name: 'Okyanus Dalgaları', icon: 'water', desc: 'Kıyıya vuran huzurlu dalgalar' },
+    { id: 'stream', name: 'Dağ Deresi & Su Şırıltısı', icon: 'water', desc: 'Rahatlatıcı dingin su akıntısı' },
+    { id: 'birds', name: 'Orman Sabahı & Kuş Sesleri', icon: 'leaf', desc: 'Ağaçlar arasında dingin kuş cıvıltıları' },
+    { id: 'fire', name: 'Şömine Çıtırtısı', icon: 'heart', desc: 'Kütük çıtırtısı ve sıcacık huzur' },
+    { id: 'tibetan', name: '432 Hz Tibet Şifa Çanı', icon: 'star', desc: 'Derin hücresel gevşeme ve sakinlik frekansı' },
   ];
 
   useEffect(() => {
