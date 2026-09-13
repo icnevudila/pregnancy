@@ -295,208 +295,164 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
 
   return (
     <ScrollView contentContainerStyle={ps.container} showsVerticalScrollIndicator={false}>
-      <ScreenHero
-        kicker={isEn ? 'FAMILY PROFILE' : 'AİLE PROFİLİ'}
-        title={`${currentRole === 'mother' ? userName : partnerName} · ${isEn ? `Week ${journey.week}` : `${journey.week}. hafta`}`}
-        body={isEn
-          ? 'Customize photo, mother/father role, language preferences, and cloud synchronization.'
-          : 'Fotoğraf, anne/baba rolü, dil tercihleri ve bulut eşitlemesini tek merkezden yönetin.'}
-        icon="profile"
-        stat={cloudStatusLabel(cloudStatus)}
-        tint={currentRole === 'mother' ? '#B84570' : '#2C6496'}
-      />
-
-      {/* ─── 1. ÜST PROFİL & AVATAR KARTI ─── */}
-      <Card style={ps.heroCard}>
-        <View style={ps.heroRow}>
-          {/* Tıklanabilir Profil Avatarı & Kamera Rozeti */}
+      {/* ─── 1. TEK VE DÜZENLİ PROFİL KARTI (CLEAN UNIFIED PROFILE HEADER) ─── */}
+      <Card style={ps.profileHeaderCard}>
+        {/* Üst Satır: Avatar, İsim, Rol Rozeti ve Eş Bilgisi */}
+        <View style={ps.headerTopRow}>
+          {/* Avatar & Kamera İkonu */}
           <Tap
             onPress={() => setShowAvatarModal(true)}
-            label={isEn ? 'Change profile picture' : 'Profil fotoğrafını değiştir'}
-            style={ps.avatarWrap}
+            label={isEn ? 'Change profile photo' : 'Profil fotoğrafını değiştir'}
+            style={ps.avatarBox}
           >
             {state.avatarUri ? (
               <Image source={{ uri: state.avatarUri }} style={ps.avatarImg} resizeMode="cover" />
             ) : (
-              <T style={{ fontSize: 34 }}>{state.avatarPreset || (currentRole === 'mother' ? '🤰' : '👨‍🍼')}</T>
+              <T style={{ fontSize: 30 }}>{state.avatarPreset || (currentRole === 'mother' ? '🌸' : '👨‍🍼')}</T>
             )}
-            <View style={ps.avatarCameraBadge}>
-              <Icon name="camera" size={12} color="white" />
+            <View style={ps.avatarEditBadge}>
+              <Icon name="camera" size={11} color="white" />
             </View>
           </Tap>
 
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <T bold style={ps.userName}>{currentRole === 'mother' ? userName : partnerName}</T>
-              <View style={[ps.roleBadge, currentRole === 'mother' ? { backgroundColor: '#F9ECF4' } : { backgroundColor: '#EBF3FA' }]}>
-                <T bold style={{ fontSize: 11, color: currentRole === 'mother' ? '#B84570' : '#2C6496' }}>
-                  {currentRole === 'mother' ? (isEn ? '🤰 Mother-to-be' : '🤰 Anne Adayı') : (isEn ? '👨‍🍼 Father-to-be' : '👨‍🍼 Baba Adayı')}
+              <T bold style={ps.profileName}>{state.name || userName}</T>
+              <View style={[ps.roleBadge, currentRole === 'mother' ? ps.roleBadgeMom : ps.roleBadgeDad]}>
+                <T bold style={[ps.roleBadgeText, currentRole === 'mother' ? { color: '#A23463' } : { color: '#225985' }]}>
+                  {currentRole === 'mother'
+                    ? (isEn ? '🌸 Mother-to-be' : '🌸 Anne Adayı')
+                    : (isEn ? '👨‍🍼 Father-to-be' : '👨‍🍼 Baba Adayı')}
                 </T>
               </View>
             </View>
 
-            <Tap onPress={() => setShowAvatarModal(true)} style={{ marginTop: 3 }}>
-              <T style={{ fontSize: 11.5, color: colors.purple, fontWeight: '600' }}>
-                {isEn ? 'Change photo or avatar 📸' : 'Fotoğraf veya avatar değiştir 📸'}
-              </T>
-            </Tap>
-
-            {/* Bağlı Partner Bilgisi */}
-            <View style={ps.partnerPill}>
-              <T style={{ fontSize: 11, color: '#3E7D52' }}>
+            {/* Bağlı Eş / Aile Bilgisi */}
+            <Tap
+              onPress={() => setActiveTab('family')}
+              label="Eş ve Aile Bilgisi"
+              style={ps.partnerStatusPill}
+            >
+              <T style={{ fontSize: 11.5, color: '#2F6B42' }}>
                 {isEn
-                  ? `💚 Connected: ${currentRole === 'mother' ? partnerName : userName}`
-                  : `💚 Eş bağlı: ${currentRole === 'mother' ? partnerName : userName}`}
+                  ? `💚 Partner: ${state.partnerName || partnerName}`
+                  : `💚 Eş: ${state.partnerName || partnerName} (Bağlı)`}
               </T>
-            </View>
-          </View>
-        </View>
-
-        {/* 2'Lİ ETKİLEŞİMLİ ROL SEÇİCİ KARTLARI (ANNE / BABA) */}
-        <View style={{ marginTop: 14 }}>
-          <T bold style={{ fontSize: 12, color: colors.muted, marginBottom: 6 }}>
-            {isEn ? 'SELECT ACTIVE ROLE' : 'AKTİF EBEVEYN ROLÜNÜ SEÇ'}
-          </T>
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            {/* Anne Modu Kartı */}
-            <Tap
-              onPress={() => selectRole('mother')}
-              label={isEn ? 'Mother Mode' : 'Anne Modu'}
-              style={[
-                ps.roleCardOption,
-                currentRole === 'mother' && ps.roleCardOptionMomActive
-              ]}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <View style={[ps.roleIconCircle, currentRole === 'mother' && { backgroundColor: '#F7E7F0' }]}>
-                  <T style={{ fontSize: 22 }}>🤰</T>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <T bold style={{ fontSize: 13, color: currentRole === 'mother' ? '#A23463' : colors.ink }}>
-                    {isEn ? 'Mother Mode' : 'Anne Modu'}
-                  </T>
-                  <T style={{ fontSize: 10.5, color: colors.muted }}>
-                    {isEn ? 'Body & symptoms' : 'Beden & gelişim'}
-                  </T>
-                </View>
-                {currentRole === 'mother' && (
-                  <View style={[ps.miniCheck, { backgroundColor: '#A23463' }]}>
-                    <Icon name="check" size={10} color="white" />
-                  </View>
-                )}
-              </View>
-            </Tap>
-
-            {/* Baba Modu Kartı */}
-            <Tap
-              onPress={() => selectRole('father')}
-              label={isEn ? 'Father Mode' : 'Baba Modu'}
-              style={[
-                ps.roleCardOption,
-                currentRole === 'father' && ps.roleCardOptionDadActive
-              ]}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <View style={[ps.roleIconCircle, currentRole === 'father' && { backgroundColor: '#E4EFF8' }]}>
-                  <T style={{ fontSize: 22 }}>👨‍🍼</T>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <T bold style={{ fontSize: 13, color: currentRole === 'father' ? '#225985' : colors.ink }}>
-                    {isEn ? 'Father Mode' : 'Baba Modu'}
-                  </T>
-                  <T style={{ fontSize: 10.5, color: colors.muted }}>
-                    {isEn ? 'Support & partner' : 'Eş desteği & rehber'}
-                  </T>
-                </View>
-                {currentRole === 'father' && (
-                  <View style={[ps.miniCheck, { backgroundColor: '#225985' }]}>
-                    <Icon name="check" size={10} color="white" />
-                  </View>
-                )}
-              </View>
             </Tap>
           </View>
         </View>
 
-        {/* Hafta & Kalan Gün Özeti */}
-        <View style={ps.statStrip}>
-          <View style={ps.statCol}>
-            <T bold style={ps.statNum}>{journey.week}. {isEn ? 'Week' : 'Hafta'}</T>
-            <T style={ps.statLbl}>{isEn ? 'Progress' : 'İlerleme'}</T>
+        {/* Orta Satır: Şık ve Kompakt Segmentli Ebeveyn Modu Seçici */}
+        <View style={ps.roleSegmentContainer}>
+          <Tap
+            onPress={() => selectRole('mother')}
+            label={isEn ? 'Mother Mode' : 'Anne Modu'}
+            style={[
+              ps.roleSegmentItem,
+              currentRole === 'mother' && ps.roleSegmentItemMomActive
+            ]}
+          >
+            <T style={{ fontSize: 15 }}>🌸</T>
+            <T bold style={[ps.roleSegmentLabel, currentRole === 'mother' && { color: '#A23463' }]}>
+              {isEn ? 'Mother Mode' : 'Anne Modu'}
+            </T>
+          </Tap>
+
+          <Tap
+            onPress={() => selectRole('father')}
+            label={isEn ? 'Father Mode' : 'Baba Modu'}
+            style={[
+              ps.roleSegmentItem,
+              currentRole === 'father' && ps.roleSegmentItemDadActive
+            ]}
+          >
+            <T style={{ fontSize: 15 }}>👨‍🍼</T>
+            <T bold style={[ps.roleSegmentLabel, currentRole === 'father' && { color: '#225985' }]}>
+              {isEn ? 'Father Mode' : 'Baba Modu'}
+            </T>
+          </Tap>
+        </View>
+
+        {/* Alt Satır: Kompakt 3'lü İlerleme Özeti */}
+        <View style={ps.glanceBar}>
+          <View style={ps.glanceCol}>
+            <T bold style={ps.glanceVal}>{journey.week}. {isEn ? 'Wk' : 'Hafta'}</T>
+            <T style={ps.glanceSub}>{isEn ? 'Pregnancy' : 'İlerleme'}</T>
           </View>
-          <View style={ps.statDivider} />
-          <View style={ps.statCol}>
-            <T bold style={ps.statNum}>{remainingLabel}</T>
-            <T style={ps.statLbl}>{isEn ? 'Time Left' : 'Kalan Süre'}</T>
+          <View style={ps.glanceDiv} />
+          <View style={ps.glanceCol}>
+            <T bold style={ps.glanceVal}>{remainingLabel}</T>
+            <T style={ps.glanceSub}>{isEn ? 'Remaining' : 'Kalan Süre'}</T>
           </View>
-          <View style={ps.statDivider} />
-          <View style={ps.statCol}>
-            <T bold style={ps.statNum}>{babyName}</T>
-            <T style={ps.statLbl}>{isEn ? `Baby (${babyGender})` : `Bebek (${babyGender})`}</T>
+          <View style={ps.glanceDiv} />
+          <View style={ps.glanceCol}>
+            <T bold style={ps.glanceVal}>{babyName || (isEn ? 'Baby' : 'Bebek')}</T>
+            <T style={ps.glanceSub}>{babyGender}</T>
           </View>
         </View>
       </Card>
 
-      {/* ─── 2. ALT SEKME NAVİGASYONU ─── */}
-      <View style={ps.tabBar}>
+      {/* ─── 2. DÜZENLİ VE FERAH 4'LÜ SEKME ÇUBUĞU ─── */}
+      <View style={ps.tabContainer}>
         {[
-          { key: 'settings', label: isEn ? '⚙️ Settings' : '⚙️ Ayarlar' },
-          { key: 'personal', label: isEn ? '👤 Info' : '👤 Bilgiler' },
-          { key: 'family', label: isEn ? '👨‍👩‍👧 Family' : '👨‍👩‍👧 Eş & Aile', badge: partnerMessages.length },
-          { key: 'favorites', label: isEn ? '⭐ Memories' : '⭐ Anılar', badge: favNames.length },
-        ].map(t => (
-          <Tap
-            key={t.key}
-            onPress={() => setActiveTab(t.key)}
-            label={t.label}
-            style={[ps.tabBtn, activeTab === t.key && ps.tabBtnActive]}
-          >
-            <T bold={activeTab === t.key} style={[ps.tabText, activeTab === t.key && ps.tabTextActive]}>
-              {t.label}
-            </T>
-            {t.badge ? (
-              <View style={[ps.tabBadge, activeTab === t.key && { backgroundColor: colors.purple }]}>
-                <T bold style={{ fontSize: 9.5, color: 'white' }}>{t.badge}</T>
-              </View>
-            ) : null}
-          </Tap>
-        ))}
+          { key: 'settings', icon: '⚙️', label: isEn ? 'Settings' : 'Ayarlar' },
+          { key: 'personal', icon: '👤', label: isEn ? 'Info' : 'Bilgiler' },
+          { key: 'family', icon: '👨‍👩‍👧', label: isEn ? 'Family' : 'Aile', badge: partnerMessages.length },
+          { key: 'favorites', icon: '⭐', label: isEn ? 'Memories' : 'Anılar', badge: favNames.length },
+        ].map(t => {
+          const isActive = activeTab === t.key;
+          return (
+            <Tap
+              key={t.key}
+              onPress={() => setActiveTab(t.key)}
+              label={t.label}
+              style={[ps.tabItem, isActive && ps.tabItemActive]}
+            >
+              <T style={{ fontSize: 14 }}>{t.icon}</T>
+              <T bold={isActive} style={[ps.tabLabel, isActive && ps.tabLabelActive]}>
+                {t.label}
+              </T>
+              {t.badge ? (
+                <View style={[ps.tabBadge, isActive && { backgroundColor: colors.purple }]}>
+                  <T bold style={{ fontSize: 9.5, color: 'white' }}>{t.badge}</T>
+                </View>
+              ) : null}
+            </Tap>
+          );
+        })}
       </View>
 
-      {/* ─── 3. TAB 1: AYARLAR & DİL TERCİHLERİ ─── */}
+      {/* ─── 3. TAB 1: AYARLAR & TERCİHLER ─── */}
       {activeTab === 'settings' && (
-        <Card style={{ padding: 18 }}>
-          {/* BÜYÜK & BELİRGİN DİL SEÇİM KARTI */}
-          <View style={ps.settingSection}>
+        <View style={{ gap: 12 }}>
+          {/* UYGULAMA DİLİ */}
+          <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <T style={{ fontSize: 20 }}>🌐</T>
+              <T style={{ fontSize: 18 }}>🌐</T>
               <View style={{ flex: 1 }}>
-                <T bold style={{ fontSize: 15, color: colors.ink }}>
+                <T bold style={{ fontSize: 14.5, color: colors.ink }}>
                   {isEn ? 'Application Language' : 'Uygulama Dili'}
                 </T>
-                <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 1 }}>
-                  {isEn ? 'Select interface and clinical content language' : 'Arayüz ve editoryal içeriklerin dilini belirleyin'}
+                <T style={{ fontSize: 11, color: colors.muted, marginTop: 1 }}>
+                  {isEn ? 'Select interface and content language' : 'Arayüz ve editoryal içeriklerin dilini belirleyin'}
                 </T>
               </View>
             </View>
 
             <View style={{ flexDirection: 'row', gap: 10 }}>
-              {/* Türkçe Seçeneği */}
+              {/* Türkçe */}
               <Tap
                 onPress={() => {
                   update({ lang: 'tr' });
                   toast && toast('Dil Türkçe olarak güncellendi 🌸');
                 }}
                 label="Türkçe dili seç"
-                style={[
-                  ps.langCardItem,
-                  lang === 'tr' && ps.langCardItemActive
-                ]}
+                style={[ps.langCardItem, lang === 'tr' && ps.langCardItemActive]}
               >
-                <T style={{ fontSize: 24 }}>🇹🇷</T>
+                <T style={{ fontSize: 22 }}>🇹🇷</T>
                 <View style={{ flex: 1, marginLeft: 8 }}>
-                  <T bold style={{ fontSize: 13.5, color: lang === 'tr' ? colors.purple : colors.ink }}>Türkçe</T>
-                  <T style={{ fontSize: 10.5, color: colors.muted }}>Türkiye (TR)</T>
+                  <T bold style={{ fontSize: 13, color: lang === 'tr' ? colors.purple : colors.ink }}>Türkçe</T>
+                  <T style={{ fontSize: 10, color: colors.muted }}>Türkiye (TR)</T>
                 </View>
                 {lang === 'tr' && (
                   <View style={ps.langCheckCircle}>
@@ -505,22 +461,19 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
                 )}
               </Tap>
 
-              {/* İngilizce Seçeneği */}
+              {/* İngilizce */}
               <Tap
                 onPress={() => {
                   update({ lang: 'en' });
                   toast && toast('Language switched to English 🌸');
                 }}
                 label="Select English language"
-                style={[
-                  ps.langCardItem,
-                  lang === 'en' && ps.langCardItemActive
-                ]}
+                style={[ps.langCardItem, lang === 'en' && ps.langCardItemActive]}
               >
-                <T style={{ fontSize: 24 }}>🇬🇧</T>
+                <T style={{ fontSize: 22 }}>🇬🇧</T>
                 <View style={{ flex: 1, marginLeft: 8 }}>
-                  <T bold style={{ fontSize: 13.5, color: lang === 'en' ? colors.purple : colors.ink }}>English</T>
-                  <T style={{ fontSize: 10.5, color: colors.muted }}>Global (EN)</T>
+                  <T bold style={{ fontSize: 13, color: lang === 'en' ? colors.purple : colors.ink }}>English</T>
+                  <T style={{ fontSize: 10, color: colors.muted }}>Global (EN)</T>
                 </View>
                 {lang === 'en' && (
                   <View style={ps.langCheckCircle}>
@@ -529,106 +482,76 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
                 )}
               </Tap>
             </View>
-          </View>
-
-          {/* FOTOĞRAF VE AVATAR YÖNETİMİ KARTI */}
-          <View style={[ps.settingSection, { marginTop: 16 }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <T style={{ fontSize: 20 }}>📸</T>
-                <View>
-                  <T bold style={{ fontSize: 14.5, color: colors.ink }}>
-                    {isEn ? 'Profile Photo & Persona' : 'Profil Fotoğrafı & Avatar'}
-                  </T>
-                  <T style={{ fontSize: 11, color: colors.muted, marginTop: 1 }}>
-                    {state.avatarUri
-                      ? (isEn ? 'Custom device photo uploaded' : 'Özel cihaz fotoğrafı yüklü')
-                      : (state.avatarPreset ? `${state.avatarPreset} ${isEn ? 'preset avatar' : 'hazır avatar'}` : (isEn ? 'Default role avatar' : 'Varsayılan rol avatarı'))}
-                  </T>
-                </View>
-              </View>
-              <Tap onPress={() => setShowAvatarModal(true)} style={ps.smallActionBtn}>
-                <T bold style={{ fontSize: 12, color: colors.purple }}>
-                  {isEn ? 'Change ✎' : 'Değiştir ✎'}
-                </T>
-              </Tap>
-            </View>
-          </View>
-
-          {/* BİLDİRİM MERKEZİ BUTONU */}
-          <Card style={{ padding: 16, backgroundColor: '#FAF5FB', borderColor: '#EBDDEB', marginTop: 14, marginBottom: 14 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: '#F0E3F2', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name="bell" size={19} color={colors.purple} />
-                </View>
-                <View>
-                  <T bold style={{ fontSize: 14.5, color: colors.ink }}>
-                    {isEn ? 'Notification & Reminder Center' : 'Bildirim & Hatırlatıcı Merkezi'}
-                  </T>
-                  <T style={{ fontSize: 11, color: colors.muted, marginTop: 1 }}>
-                    {isEn ? 'Hydration, vitamins, kicks & test alerts' : 'Su, vitamin, fetal tekme ve test alarmları'}
-                  </T>
-                </View>
-              </View>
-            </View>
-
-            <View style={{ marginTop: 10, paddingTop: 8, borderTopWidth: 1, borderColor: '#EDE2EE' }}>
-              <Tap
-                onPress={() => open && open('notifications')}
-                label={isEn ? "Open Notification Settings" : "Bildirim Ayarlarını Aç"}
-                style={[ps.saveFullBtn, { marginTop: 6 }]}
-              >
-                <T bold style={{ color: 'white', fontSize: 13.5 }}>
-                  {isEn ? '🔔 Manage All Reminders →' : '🔔 Tüm Hatırlatıcıları Yönet →'}
-                </T>
-              </Tap>
-            </View>
           </Card>
 
-          {/* YOLCULUK SEÇİMLERİ VE ONBOARDING YENİDEN YAPILANDIRMA KARTI */}
-          <Card style={{ padding: 16, backgroundColor: '#FAF6FA', borderColor: '#E5D6E7', marginBottom: 14 }}>
+          {/* YOLCULUK SEÇİMLERİ (ONBOARDING) */}
+          <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: '#EFE2F2', alignItems: 'center', justifyContent: 'center' }}>
-                <T style={{ fontSize: 22 }}>🧭</T>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#FAF0FA', alignItems: 'center', justifyContent: 'center' }}>
+                <T style={{ fontSize: 20 }}>🧭</T>
               </View>
               <View style={{ flex: 1 }}>
                 <T bold style={{ fontSize: 14.5, color: colors.ink }}>
-                  {isEn ? 'Journey Setup & Onboarding' : 'Yolculuk Tercihleri & Onboarding'}
+                  {isEn ? 'Journey Setup & Stage' : 'Yolculuk Tercihleri & Dönem'}
                 </T>
-                <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2, lineHeight: 16 }}>
+                <T style={{ fontSize: 11, color: colors.muted, marginTop: 1, lineHeight: 15 }}>
                   {isEn
-                    ? 'Re-configure your journey stage (Pregnancy, Postpartum, Baby), due date, roles, and focus areas.'
-                    : 'Dönemini (Hamilelik, Lohusalık, Bebek), doğum tarihini, rolünü ve ilgi alanlarını baştan yapılandır.'}
+                    ? 'Reconfigure pregnancy, postpartum, due date, and focus areas.'
+                    : 'Hamilelik, lohusalık veya bebek dönemi seçimlerini baştan yapılandırın.'}
                 </T>
               </View>
             </View>
 
-            <View style={{ marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#EDE0EE' }}>
-              <Tap
-                onPress={() => {
-                  if (setPage) setPage('onboarding');
-                  else if (choose) choose('onboarding');
-                  toast && toast(isEn ? 'Opening onboarding setup 🧭' : 'Yolculuk seçimleri açılıyor 🧭');
-                }}
-                label={isEn ? "Re-run Onboarding Setup" : "Seçimleri Yeniden Yap (Onboarding)"}
-                style={[ps.saveFullBtn, { backgroundColor: colors.purple, marginTop: 4 }]}
-              >
-                <T bold style={{ color: 'white', fontSize: 13.5 }}>
-                  {isEn ? '🧭 Re-run Onboarding Choices →' : '🧭 Yolculuk Seçimlerini Yeniden Yap (Onboarding) →'}
-                </T>
-              </Tap>
-            </View>
+            <Tap
+              onPress={() => {
+                if (setPage) setPage('onboarding');
+                else if (choose) choose('onboarding');
+                toast && toast(isEn ? 'Opening onboarding setup 🧭' : 'Yolculuk seçimleri açılıyor 🧭');
+              }}
+              label={isEn ? "Re-run Onboarding Setup" : "Seçimleri Yeniden Yap (Onboarding)"}
+              style={[ps.saveFullBtn, { marginTop: 12 }]}
+            >
+              <T bold style={{ color: 'white', fontSize: 13.5 }}>
+                {isEn ? '🧭 Re-run Onboarding Choices →' : '🧭 Yolculuk Seçimlerini Yeniden Yap (Onboarding) →'}
+              </T>
+            </Tap>
           </Card>
 
-          {/* BULUT VE HESAP YÖNETİMİ (ACCOUNT & GUEST MODE) */}
-          <Card style={{ padding: 16, backgroundColor: '#FAF6FA', borderColor: '#EDE0EE', marginBottom: 14 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* BİLDİRİM MERKEZİ */}
+          <Card style={{ padding: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#F0EAF2', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="bell" size={18} color={colors.purple} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <T bold style={{ fontSize: 14.5, color: colors.ink }}>
+                  {isEn ? 'Notification & Reminder Center' : 'Bildirim & Hatırlatıcı Merkezi'}
+                </T>
+                <T style={{ fontSize: 11, color: colors.muted, marginTop: 1 }}>
+                  {isEn ? 'Hydration, vitamins, kicks & appointment alerts' : 'Su, vitamin, fetal tekme ve test alarmları'}
+                </T>
+              </View>
+            </View>
+
+            <Tap
+              onPress={() => open && open('notifications')}
+              label={isEn ? "Open Notification Settings" : "Bildirim Ayarlarını Aç"}
+              style={[ps.secondaryBtn, { marginTop: 12 }]}
+            >
+              <T bold style={{ color: colors.purple, fontSize: 13 }}>
+                {isEn ? '🔔 Manage All Reminders →' : '🔔 Tüm Hatırlatıcıları Yönet →'}
+              </T>
+            </Tap>
+          </Card>
+
+          {/* BULUT VE HESAP YÖNETİMİ */}
+          <Card style={{ padding: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <BrandMark size={30} />
+                <BrandMark size={28} />
                 <View>
                   <T bold style={{ fontSize: 14.5, color: colors.ink }}>
-                    {isEn ? 'Account & Momora Cloud' : 'Hesap & Momora Bulut'}
+                    {isEn ? 'Account & Cloud Sync' : 'Hesap & Momora Bulut'}
                   </T>
                   <T style={{ fontSize: 11, color: colors.muted, marginTop: 1 }}>
                     {cloudUser
@@ -645,35 +568,35 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
             </View>
 
             {cloudUser ? (
-              <View style={{ marginTop: 12, gap: 8 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderTopWidth: 1, borderColor: '#EFE5F0' }}>
+              <View style={{ marginTop: 10, gap: 8, paddingTop: 8, borderTopWidth: 1, borderColor: '#F0E6F0' }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <T style={{ fontSize: 12, color: colors.muted }}>{isEn ? 'Family Sync Code' : 'Aile Eşleşme Kodu'}</T>
                   <T bold style={{ fontSize: 12, letterSpacing: 1, color: colors.ink }}>{state.familyCode || 'MOM-7829-TR'}</T>
                 </View>
-                <Tap onPress={handleSignOut} label={isEn ? 'Sign out' : 'Çıkış yap'} style={[ps.secondaryBtn, { marginTop: 6 }]}>
-                  <T bold style={{ fontSize: 13, color: '#B42318' }}>{isEn ? 'Sign Out' : 'Oturumu Kapat'}</T>
+                <Tap onPress={handleSignOut} label={isEn ? 'Sign out' : 'Çıkış yap'} style={[ps.secondaryBtn, { marginTop: 4 }]}>
+                  <T bold style={{ fontSize: 12.5, color: '#B42318' }}>{isEn ? 'Sign Out' : 'Oturumu Kapat'}</T>
                 </Tap>
               </View>
             ) : (
-              <View style={{ marginTop: 10 }}>
-                <T style={{ fontSize: 11.5, color: '#5C5463', lineHeight: 17, marginBottom: 10 }}>
+              <View style={{ marginTop: 8 }}>
+                <T style={{ fontSize: 11.5, color: '#5C5463', lineHeight: 16, marginBottom: 10 }}>
                   {isEn
-                    ? 'You are currently in guest mode. Sign in to sync notes and data with your partner across multiple devices.'
-                    : 'Şu anda misafir modundasınız. Eşinizle tüm verilerinizi eşitlemek ve yedeklemek için giriş yapabilirsiniz.'}
+                    ? 'Sign in to sync baby logs and notes with your partner across devices.'
+                    : 'Eşinizle tüm verilerinizi eşitlemek ve bulutta yedeklemek için giriş yapın.'}
                 </T>
                 <Tap onPress={() => open && open('auth')} style={ps.saveFullBtn}>
-                  <T bold style={{ color: 'white', fontSize: 13.5 }}>
-                    {isEn ? 'Sign In / Create Cloud Account 🌸' : 'Giriş Yap / Bulut Hesabı Oluştur 🌸'}
+                  <T bold style={{ color: 'white', fontSize: 13 }}>
+                    {isEn ? 'Sign In / Create Account 🌸' : 'Giriş Yap / Hesap Oluştur 🌸'}
                   </T>
                 </Tap>
               </View>
             )}
           </Card>
 
-          {/* VERİ & GİZLİLİK - PAYLAŞIM İZİNLERİ (GRANULAR SHARING PERMISSIONS) */}
-          <Card style={{ padding: 16, backgroundColor: '#FAFAFD', borderColor: '#E5E4EE', marginBottom: 14 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <T style={{ fontSize: 20 }}>🔒</T>
+          {/* VERİ & GİZLİLİK PAYLAŞIM İZİNLERİ */}
+          <Card style={{ padding: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <T style={{ fontSize: 18 }}>🔒</T>
               <View style={{ flex: 1 }}>
                 <T bold style={{ fontSize: 14.5, color: colors.ink }}>
                   {isEn ? 'Data & Partner Sharing Privacy' : 'Veri & Eş Paylaşım Gizliliği'}
@@ -684,7 +607,7 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
               </View>
             </View>
 
-            <View style={{ gap: 10 }}>
+            <View style={{ gap: 8 }}>
               {[
                 { key: 'sharePregnancyWeek', labelTr: 'Hamilelik Haftası ve Günleri', labelEn: 'Pregnancy Week & Progress', defaultVal: true },
                 { key: 'shareAppointments', labelTr: 'Doktor Randevuları ve Soruları', labelEn: 'Doctor Appointments & Questions', defaultVal: true },
@@ -697,11 +620,11 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
               ].map(item => {
                 const isChecked = permissions[item.key] !== undefined ? permissions[item.key] : item.defaultVal;
                 return (
-                  <View key={item.key} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 5, borderBottomWidth: 1, borderColor: '#F0EFF6' }}>
+                  <View key={item.key} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 5, borderBottomWidth: 1, borderColor: '#F2EEF4' }}>
                     <View style={{ flex: 1, paddingRight: 10 }}>
-                      <T bold style={{ fontSize: 12.5, color: colors.ink }}>{isEn ? item.labelEn : item.labelTr}</T>
+                      <T bold style={{ fontSize: 12, color: colors.ink }}>{isEn ? item.labelEn : item.labelTr}</T>
                       {item.privateHint && (
-                        <T style={{ fontSize: 10.5, color: '#A23463', marginTop: 1 }}>
+                        <T style={{ fontSize: 10, color: '#A23463', marginTop: 1 }}>
                           {isEn ? '🔒 Private by default' : '🔒 Mahremiyet gereği varsayılan kapalı'}
                         </T>
                       )}
@@ -716,42 +639,27 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
                 );
               })}
             </View>
-
-            <View style={{ marginTop: 12, padding: 10, borderRadius: 12, backgroundColor: '#F5EFF7' }}>
-              <T style={{ fontSize: 11, color: '#5B4B63', lineHeight: 16 }}>
-                {isEn
-                  ? 'Note: Sensitive maternal health data (weight, mood, health notes) are stored locally and only shared when explicitly enabled.'
-                  : 'Not: Anne mahremiyetini korumak adına kilo, ruh hali ve sağlık notları varsayılan olarak gizlidir ve sadece izin verdiğinizde eşinizle paylaşılır.'}
-              </T>
-            </View>
           </Card>
 
-          {/* DESTEK & TIBBİ BİLGİLENDİRME (SUPPORT & MEDICAL DISCLAIMER) */}
-          <Card style={{ padding: 16, backgroundColor: '#FFFDF9', borderColor: '#EFE2DA', marginBottom: 14 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <T style={{ fontSize: 18 }}>🩺</T>
-              <T bold style={{ fontSize: 14, color: '#7E3B1C' }}>
+          {/* TIBBİ BİLGİLENDİRME & SÜRÜM */}
+          <Card style={{ padding: 14, backgroundColor: '#FFFDF9', borderColor: '#EFE2DA' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+              <T style={{ fontSize: 16 }}>🩺</T>
+              <T bold style={{ fontSize: 13.5, color: '#7E3B1C' }}>
                 {isEn ? 'Medical Guidance Disclaimer' : 'Tıbbi Sorumluluk Reddi'}
               </T>
             </View>
-            <T style={{ fontSize: 11.5, color: '#664736', lineHeight: 17 }}>
+            <T style={{ fontSize: 11, color: '#664736', lineHeight: 16 }}>
               {isEn
-                ? 'Momora is an educational wellness companion designed to support mothers and families. It does not provide medical diagnosis, treatment, or clinical triage. Always consult your obstetrician or healthcare professional for clinical decisions.'
-                : 'Momora, anne ve ailelerin yolculuğunu destekleyen eğitici bir sağlıklı yaşam arkadaşıdır. Tıbbi teşhis, tanı veya klinik yönlendirme yerine geçmez. Sağlığınızla ilgili tüm kararları kadın doğum uzmanınız veya hekiminizle birlikte alınız.'}
+                ? 'Momora is an educational wellness companion designed to support mothers and families. It does not provide clinical triage or treatment. Always consult your obstetrician for medical guidance.'
+                : 'Momora, anne ve ailelerin yolculuğunu destekleyen eğitici bir sağlıklı yaşam arkadaşıdır. Tıbbi teşhis veya tedavi yerine geçmez. Sağlık kararlarınızı hekiminizle birlikte alınız.'}
             </T>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#F2E4DB' }}>
-              <T style={{ fontSize: 11, color: colors.muted }}>Momora v1.2.0-rc1 · Offline-first</T>
-              <T style={{ fontSize: 11, color: colors.purple, fontWeight: '600' }}>{isEn ? 'Terms & Privacy' : 'Kullanım & Gizlilik'}</T>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, paddingTop: 8, borderTopWidth: 1, borderColor: '#F2E4DB' }}>
+              <T style={{ fontSize: 10.5, color: colors.muted }}>Momora v1.2.0 · Offline-first</T>
+              <T style={{ fontSize: 10.5, color: colors.purple, fontWeight: '600' }}>{isEn ? 'Terms & Privacy' : 'Kullanım & Gizlilik'}</T>
             </View>
           </Card>
-
-          {/* YOLCULUK MODU DEĞİŞTİR */}
-          <Tap onPress={() => open && open('journey')} label={isEn ? 'Change journey' : 'Yolculuğu değiştir'} style={ps.secondaryBtn}>
-            <T bold style={{ fontSize: 13.5, color: colors.purple }}>
-              {isEn ? 'Change Journey Stage (Pregnancy / Baby)' : 'Yolculuk Aşamasını Değiştir (Hamilelik / Bebek)'}
-            </T>
-          </Tap>
-        </Card>
+        </View>
       )}
 
       {/* ─── 4. TAB 2: KİŞİSEL & BEBEK BİLGİLERİ ─── */}
@@ -839,68 +747,44 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
       {/* ─── 5. TAB 3: EŞ & AİLE ALANI ─── */}
       {activeTab === 'family' && (
         <View style={{ gap: 14 }}>
-          {/* ─── SPEC 21: CRITICAL DATA FIX & DISTINCT ENTITIES ─── */}
+          {/* ─── AİLE ÇEMBERİMİZ & HANE KARTI ─── */}
           <Card style={{ padding: 16, backgroundColor: '#FAF6FA', borderColor: '#EBE0ED' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <View>
                 <T bold style={{ fontSize: 15, color: colors.ink }}>
-                  {isEn ? 'Distinct Entities & Household' : 'Hane ve Bağımsız Varlık Çerçevesi'}
+                  {isEn ? 'Our Family Circle' : 'Aile Çemberimiz & Hane'}
                 </T>
                 <T style={{ fontSize: 11, color: colors.muted, marginTop: 1 }}>
-                  {isEn ? 'Spec 21 Data Model · Zero Contradiction' : '21_PROFILE_FAMILY · Çelişkisiz Varlık Modeli'}
+                  {isEn ? 'All synced family members tracking together' : 'Birlikte takip eden aile üyelerimiz'}
                 </T>
               </View>
               <View style={{ backgroundColor: '#F0E3F3', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 10 }}>
                 <T bold style={{ fontSize: 11, color: colors.purple }}>
-                  {currentRole === 'mother' ? (isEn ? '👑 Mother Mode' : '👑 Anne Modu') : (isEn ? '👨‍🍼 Father Mode' : '👨‍🍼 Baba Modu')}
+                  {currentRole === 'mother' ? (isEn ? '🌸 Mother Active' : '🌸 Anne Aktif') : (isEn ? '👨‍🍼 Father Active' : '👨‍🍼 Baba Aktif')}
                 </T>
-              </View>
-            </View>
-
-            {/* Spec 21 Entity Definition Table */}
-            <View style={{ backgroundColor: '#FFFFFF', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: '#EDE2EE', gap: 6 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 }}>
-                <T bold style={{ fontSize: 11.5, color: colors.muted }}>USER:</T>
-                <T bold style={{ fontSize: 12, color: colors.ink }}>{currentRole === 'mother' ? userName : partnerName}</T>
-              </View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 }}>
-                <T bold style={{ fontSize: 11.5, color: colors.muted }}>ROLE:</T>
-                <T bold style={{ fontSize: 12, color: currentRole === 'mother' ? '#B84570' : '#2C6496' }}>
-                  {currentRole === 'mother' ? (isEn ? 'Mother' : 'Anne') : (isEn ? 'Father' : 'Baba')}
-                </T>
-              </View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 }}>
-                <T bold style={{ fontSize: 11.5, color: colors.muted }}>HOUSEHOLD:</T>
-                <T bold style={{ fontSize: 12, color: colors.purple }}>{userName} + {partnerName}</T>
-              </View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 }}>
-                <T bold style={{ fontSize: 11.5, color: colors.muted }}>PREGNANCY:</T>
-                <T bold style={{ fontSize: 12, color: colors.ink }}>
-                  {userName} · {journey.week}+{journey.day} ({journey.daysRemaining} {isEn ? 'days left' : 'gün kaldı'})
-                </T>
-              </View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 }}>
-                <T bold style={{ fontSize: 11.5, color: colors.muted }}>BABY:</T>
-                <T bold style={{ fontSize: 12, color: '#3E7D52' }}>{babyName} ({babyGender})</T>
               </View>
             </View>
 
             {/* Üyeler ve Roller Listesi */}
-            <View style={{ gap: 8, marginTop: 10 }}>
+            <View style={{ gap: 8 }}>
               {[
-                { name: userName, roleLabel: isEn ? 'Mother (Primary Account)' : 'Anne (Birincil Hesap)', emoji: '🤰', status: isEn ? 'Active' : 'Aktif' },
-                { name: partnerName, roleLabel: isEn ? 'Father / Partner' : 'Baba / Eş', emoji: '👨‍🍼', status: isEn ? 'Connected' : 'Bağlı' },
-                { name: babyName, roleLabel: isEn ? `Baby (${babyGender})` : `Bebek (${babyGender})`, emoji: '👶', status: isEn ? 'Family Member' : 'Aile Üyesi' },
+                { name: state.role === 'father' ? (state.partnerName || 'Zeynep') : (state.name || 'Zeynep'), roleLabel: isEn ? 'Mother (Primary Account)' : 'Anne (Birincil Hesap)', emoji: '🌸', status: isEn ? 'Active' : 'Aktif' },
+                { name: state.role === 'father' ? (state.name || 'Mehmet') : (state.partnerName || 'Mehmet'), roleLabel: isEn ? 'Father / Partner' : 'Baba / Eş', emoji: '👨‍🍼', status: isEn ? 'Connected' : 'Bağlı' },
+                { name: babyName || (isEn ? 'Baby' : 'Bebek'), roleLabel: isEn ? `Baby (${babyGender}) · Week ${journey.week}` : `Bebek (${babyGender}) · ${journey.week}. Hafta`, emoji: '👶', status: isEn ? 'Growing' : 'Büyüyor' },
               ].map(m => (
-                <View key={m.name + m.roleLabel} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderColor: '#F2E8F3' }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <T style={{ fontSize: 20 }}>{m.emoji}</T>
+                <View key={m.name + m.roleLabel} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 7, borderBottomWidth: 1, borderColor: '#F2E8F3' }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#FAF0FA', alignItems: 'center', justifyContent: 'center' }}>
+                      <T style={{ fontSize: 16 }}>{m.emoji}</T>
+                    </View>
                     <View>
                       <T bold style={{ fontSize: 13, color: colors.ink }}>{m.name}</T>
                       <T style={{ fontSize: 10.5, color: colors.muted }}>{m.roleLabel}</T>
                     </View>
                   </View>
-                  <T style={{ fontSize: 11, color: colors.purple, fontWeight: '600' }}>{m.status}</T>
+                  <View style={{ backgroundColor: '#F0EAF2', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+                    <T bold style={{ fontSize: 10.5, color: colors.purple }}>{m.status}</T>
+                  </View>
                 </View>
               ))}
             </View>
@@ -1321,31 +1205,173 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
 }
 
 const ps = StyleSheet.create({
-  container: { padding: 18, paddingBottom: 40, gap: 14 },
-  heroCard: { padding: 18, backgroundColor: '#FFFDFA' },
-  heroRow: { flexDirection: 'row', gap: 14, alignItems: 'center' },
-  avatarWrap: { width: 72, height: 72, borderRadius: 36, backgroundColor: '#F6ECF6', alignItems: 'center', justifyContent: 'center', borderWidth: 2.5, borderColor: '#E8D4EB', position: 'relative' },
-  avatarImg: { width: 68, height: 68, borderRadius: 34 },
-  avatarCameraBadge: { position: 'absolute', bottom: -1, right: -1, width: 22, height: 22, borderRadius: 11, backgroundColor: colors.purple, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'white' },
-  userName: { fontSize: 21, color: colors.ink },
-  roleBadge: { paddingHorizontal: 9, paddingVertical: 3, borderRadius: 10 },
-  partnerPill: { marginTop: 5, backgroundColor: '#EDF6F0', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, alignSelf: 'flex-start' },
+  container: { padding: 16, paddingBottom: 40, gap: 12 },
 
-  // 2'li Rol Kartları
-  roleCardOption: { flex: 1, padding: 11, borderRadius: 16, backgroundColor: '#FAF6FA', borderWidth: 1.5, borderColor: '#EFE3EE' },
-  roleCardOptionMomActive: { borderColor: '#B84570', backgroundColor: '#FDF2F7', ...shadow },
-  roleCardOptionDadActive: { borderColor: '#225985', backgroundColor: '#EFF6FB', ...shadow },
-  roleIconCircle: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#F2E8F0', alignItems: 'center', justifyContent: 'center' },
-  miniCheck: { width: 18, height: 18, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
+  // Clean Unified Header Card
+  profileHeaderCard: {
+    padding: 16,
+    backgroundColor: '#FFFCFA',
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#EFE5EE',
+    ...shadow,
+  },
+  headerTopRow: {
+    flexDirection: 'row',
+    gap: 14,
+    alignItems: 'center',
+  },
+  avatarBox: {
+    width: 66,
+    height: 66,
+    borderRadius: 33,
+    backgroundColor: '#F7EDF7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#E8D2EB',
+    position: 'relative',
+  },
+  avatarImg: {
+    width: 62,
+    height: 62,
+    borderRadius: 31,
+  },
+  avatarEditBadge: {
+    position: 'absolute',
+    bottom: -1,
+    right: -1,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: colors.purple,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: 'white',
+  },
+  profileName: {
+    fontSize: 20,
+    color: colors.ink,
+  },
+  roleBadge: {
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  roleBadgeMom: {
+    backgroundColor: '#FDF0F6',
+  },
+  roleBadgeDad: {
+    backgroundColor: '#EEF5FA',
+  },
+  roleBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  partnerStatusPill: {
+    marginTop: 4,
+    backgroundColor: '#EDF7F1',
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
 
-  statStrip: { flexDirection: 'row', marginTop: 16, paddingTop: 14, borderTopWidth: 1, borderColor: colors.line, justifyContent: 'space-around' },
-  statCol: { alignItems: 'center' },
-  statNum: { fontSize: 15, color: colors.purple },
-  statLbl: { fontSize: 10, color: colors.muted, marginTop: 2 },
-  statDivider: { width: 1, backgroundColor: colors.line, height: '80%', alignSelf: 'center' },
+  // Role Segment Control
+  roleSegmentContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#F3EAF3',
+    borderRadius: 14,
+    padding: 3,
+    gap: 4,
+    marginTop: 14,
+  },
+  roleSegmentItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    borderRadius: 11,
+  },
+  roleSegmentItemMomActive: {
+    backgroundColor: '#FFFFFF',
+    ...shadow,
+  },
+  roleSegmentItemDadActive: {
+    backgroundColor: '#FFFFFF',
+    ...shadow,
+  },
+  roleSegmentLabel: {
+    fontSize: 12.5,
+    color: colors.muted,
+  },
 
-  tabBar: { flexDirection: 'row', backgroundColor: '#EDE5EF', borderRadius: 16, padding: 4, gap: 4 },
-  tabBtn: { flex: 1, paddingVertical: 9, alignItems: 'center', justifyContent: 'center', borderRadius: 12, flexDirection: 'row', gap: 4 },
+  // Glance Bar (Stats Strip)
+  glanceBar: {
+    flexDirection: 'row',
+    marginTop: 14,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderColor: '#F0E6EE',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  glanceCol: {
+    alignItems: 'center',
+  },
+  glanceVal: {
+    fontSize: 14.5,
+    color: colors.purple,
+  },
+  glanceSub: {
+    fontSize: 10.5,
+    color: colors.muted,
+    marginTop: 2,
+  },
+  glanceDiv: {
+    width: 1,
+    height: 24,
+    backgroundColor: '#EAE0EC',
+  },
+
+  // Tab Navigation Container
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#EDE5EF',
+    borderRadius: 16,
+    padding: 4,
+    gap: 4,
+  },
+  tabItem: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 12,
+    flexDirection: 'row',
+    gap: 4,
+  },
+  tabItemActive: {
+    backgroundColor: '#FFFFFF',
+    ...shadow,
+  },
+  tabLabel: {
+    fontSize: 11.5,
+    color: '#746678',
+  },
+  tabLabelActive: {
+    color: colors.purple,
+    fontWeight: '700',
+  },
+  tabBadge: {
+    backgroundColor: '#8E7394',
+    borderRadius: 8,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+  },
   tabBtnActive: { backgroundColor: 'white', ...shadow },
   tabText: { fontSize: 12, color: '#746678' },
   tabTextActive: { color: colors.purple },

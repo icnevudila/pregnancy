@@ -1141,7 +1141,16 @@ export function HospitalBag({ state, update, toast, lang = 'tr' }) {
               onChangeText={setNewItemTitle}
               placeholder={isEn ? 'Item name...' : 'Eşya adı (örn. emzirme yastığı)...'}
               placeholderTextColor="#A79AA7"
-              style={ws.noteInputBox}
+              style={{
+                backgroundColor: '#FAF5FB',
+                borderRadius: 12,
+                paddingHorizontal: 14,
+                paddingVertical: 10,
+                fontSize: 14,
+                color: colors.ink,
+                borderWidth: 1,
+                borderColor: '#E8DEEB',
+              }}
             />
 
             <T bold style={{ fontSize: 12, color: colors.ink, marginTop: 4 }}>{isEn ? 'Priority:' : 'Öncelik:'}</T>
