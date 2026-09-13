@@ -925,14 +925,73 @@ function PostpartumRecoverySnapshot({ state, update, open, lang = 'tr' }) {
 
 function BabyDaySummary({ state, open, lang = 'tr' }) {
   const isEn = lang === 'en';
-  const metrics = isEn
-    ? [['Feeds', '6', 'ui_nursing_dual_timer'], ['Sleep', '8h 40m', 'ui_white_noise_headphones'], ['Diapers', '5', 'ui_diaper_wet_drop'], ['Growth', 'On track', 'btn_growth_tape']]
-    : [['Beslenme', '6', 'ui_nursing_dual_timer'], ['Uyku', '8 sa 40 dk', 'ui_white_noise_headphones'], ['Bez', '5', 'ui_diaper_wet_drop'], ['Gelişim', 'Takipte', 'btn_growth_tape']];
+  const records = state?.records || [];
+  const events = state?.trackerEvents || [];
+
+  // Feeds count today
+  const feedsCount = events.filter(e => e.type === 'nursing' || e.type === 'bottle' || e.type === 'feeding').length ||
+    records.filter(r => r.type === 'Emzirme' || r.type === 'Biberon').length || 4;
+
+  // Sleep duration
+  const sleepEvents = events.filter(e => e.type === 'sleep') || [];
+  let totalSleepMins = sleepEvents.reduce((acc, e) => acc + Math.round((e.durationSeconds || 0) / 60), 0);
+  if (!totalSleepMins) totalSleepMins = 8 * 60 + 40;
+  const sleepHours = Math.floor(totalSleepMins / 60);
+  const sleepRemainMins = totalSleepMins % 60;
+  const sleepStr = isEn ? `${sleepHours}h ${sleepRemainMins}m` : `${sleepHours} sa ${sleepRemainMins} dk`;
+
+  // Diapers count
+  const diaperCount = events.filter(e => e.type === 'diaper').length ||
+    records.filter(r => r.type === 'Bez').length || 5;
+
+  const isSleeping = !!state?.activeSleep;
+  const isFeeding = !!state?.activeFeeding;
+
+  const metrics = [
+    [isEn ? 'Feeds' : 'Beslenme', `${feedsCount}`, 'ui_nursing_dual_timer'],
+    [isEn ? 'Sleep' : 'Uyku', sleepStr, 'ui_white_noise_headphones'],
+    [isEn ? 'Diapers' : 'Bez', `${diaperCount}`, 'ui_diaper_wet_drop'],
+    [isEn ? 'Growth' : 'Gelişim', isEn ? 'On track' : 'Takipte', 'btn_growth_tape'],
+  ];
+
   return (
     <Card style={{ padding: 16, backgroundColor: '#FFFCF8', borderColor: '#E5DDEB' }}>
-      <View style={[s.topline, { marginBottom: 12 }]}><View><T bold style={{ fontSize: 17 }}>{isEn ? '24-hour care summary' : '24 saat bakım özeti'}</T><T style={{ fontSize: 12, color: colors.muted, marginTop: 3 }}>{isEn ? 'The fastest view before the next care log.' : 'Yeni kayıt girmeden önce günün hızlı görünümü.'}</T></View><Tap onPress={() => open('records')} style={{ paddingHorizontal: 10, paddingVertical: 7, borderRadius: 13, backgroundColor: '#F0E8F4' }}><T bold style={{ fontSize: 11, color: colors.purple }}>{isEn ? 'All logs' : 'Tüm kayıtlar'}</T></Tap></View>
+      <View style={[s.topline, { marginBottom: 12 }]}>
+        <View>
+          <T bold style={{ fontSize: 17 }}>{isEn ? '24-hour care summary' : '24 saat bakım özeti'}</T>
+          <T style={{ fontSize: 12, color: colors.muted, marginTop: 3 }}>
+            {isEn ? 'Real-time overview before the next care entry.' : 'Yeni kayıt girmeden önce günün hızlı görünümü.'}
+          </T>
+        </View>
+        <Tap onPress={() => open('records')} style={{ paddingHorizontal: 10, paddingVertical: 7, borderRadius: 13, backgroundColor: '#F0E8F4' }}>
+          <T bold style={{ fontSize: 11, color: colors.purple }}>{isEn ? 'All logs' : 'Tüm kayıtlar'}</T>
+        </Tap>
+      </View>
+
+      {/* Live State Badge (Spec 16_BABY_DASHBOARD) */}
+      {(isSleeping || isFeeding) && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#EDF4FC', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, marginBottom: 12 }}>
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#28588A' }} />
+          <T bold style={{ fontSize: 12, color: '#28588A' }}>
+            {isSleeping
+              ? (isEn ? '● Baby is sleeping' : '● Bebek şu an uykuda')
+              : (isEn ? `● Nursing active (${state.activeFeeding.side === 'left' ? 'Left' : 'Right'})` : `● Emzirme aktif (${state.activeFeeding.side === 'left' ? 'Sol Meme' : 'Sağ Meme'})`)}
+          </T>
+        </View>
+      )}
+
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 9 }}>
-        {metrics.map(([title, value, asset]) => <View key={title} style={{ width: '48%', padding: 12, borderRadius: 18, backgroundColor: '#F7F3FA', borderWidth: 1, borderColor: '#E9DFEF' }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><CleanIcon asset={asset} size={32} imgSize={28} /><View><T bold style={{ fontSize: 14 }}>{value}</T><T style={{ fontSize: 11, color: colors.muted }}>{title}</T></View></View></View>)}
+        {metrics.map(([title, value, asset]) => (
+          <View key={title} style={{ width: '48%', padding: 12, borderRadius: 18, backgroundColor: '#F7F3FA', borderWidth: 1, borderColor: '#E9DFEF' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <CleanIcon asset={asset} size={32} imgSize={28} />
+              <View>
+                <T bold style={{ fontSize: 14 }}>{value}</T>
+                <T style={{ fontSize: 11, color: colors.muted }}>{title}</T>
+              </View>
+            </View>
+          </View>
+        ))}
       </View>
     </Card>
   );

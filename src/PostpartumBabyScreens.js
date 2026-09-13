@@ -10,22 +10,34 @@ import { playSound, stopSound, setVolume as setEngineVolume, getCurrentSound, ad
 import { offlineSyncQueue } from './services/offlineSyncQueue';
 import { createTrackerEvent } from './domain/types';
 
-// ─── EKRAN 22: EMZİRME & BİBERON SAYACI (NURSING & FEEDING TIMER) ─────────────
+// ─── EKRAN 22: EMZİRME / BİBERON / SAĞIM (FEEDING TRACKER PER SPEC 12_FEEDING) ───
 export function NursingTimerScreen({ state, update, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
+  const [activeTab, setActiveTab] = useState('breast'); // 'breast' | 'bottle' | 'pump'
+  
+  // Breastfeeding State
   const [activeSide, setActiveSide] = useState(null); // 'left' | 'right' | null
-  const [lastSide, setLastSide] = useState(state.lastNursingSide || (isEn ? 'Left Breast' : 'Sol Meme'));
+  const [lastSide, setLastSide] = useState(state.lastNursingSide || (isEn ? 'Right Breast' : 'Sağ Meme'));
   const [leftSecs, setLeftSecs] = useState(0);
   const [rightSecs, setRightSecs] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Bottle State
   const [bottleMl, setBottleMl] = useState(120);
-  const [bottleType, setBottleType] = useState('Anne Sütü'); // 'Anne Sütü' | 'Formül Mama'
-  const [pumpMl, setPumpMl] = useState(80);
-  const [feedMode, setFeedMode] = useState('breast'); // 'breast' | 'bottle' | 'pump'
+  const [bottleType, setBottleType] = useState('breast_milk'); // 'breast_milk' | 'formula' | 'mixed'
+  const [bottleNote, setBottleNote] = useState('');
+
+  // Pumping State
+  const [pumpLeftMl, setPumpLeftMl] = useState(60);
+  const [pumpRightMl, setPumpRightMl] = useState(60);
+  const [pumpMins, setPumpMins] = useState(15);
+  const [pumpNote, setPumpNote] = useState('');
+
+  // Undo & timers
   const [justSavedEntry, setJustSavedEntry] = useState(null);
   const [undoCountdown, setUndoCountdown] = useState(8);
   const timerRef = useRef(null);
-  const leftStartedAtRef = useRef(null);
-  const rightStartedAtRef = useRef(null);
+  const startedAtRef = useRef(null);
   const undoTimerRef = useRef(null);
 
   useEffect(() => {
@@ -46,26 +58,37 @@ export function NursingTimerScreen({ state, update, toast, lang = 'tr' }) {
     return () => { if (undoTimerRef.current) clearInterval(undoTimerRef.current); };
   }, [justSavedEntry]);
 
+  // One-hand usable timer interval based on startedAt timestamp
   useEffect(() => {
-    if (activeSide === 'left') {
-      leftStartedAtRef.current = Date.now() - (leftSecs * 1000);
+    if (activeSide && !isPaused) {
+      if (!startedAtRef.current) startedAtRef.current = Date.now();
       timerRef.current = setInterval(() => {
-        if (leftStartedAtRef.current) {
-          setLeftSecs(Math.floor((Date.now() - leftStartedAtRef.current) / 1000));
+        if (activeSide === 'left') {
+          setLeftSecs(s => s + 1);
+        } else if (activeSide === 'right') {
+          setRightSecs(s => s + 1);
         }
-      }, 500);
-    } else if (activeSide === 'right') {
-      rightStartedAtRef.current = Date.now() - (rightSecs * 1000);
-      timerRef.current = setInterval(() => {
-        if (rightStartedAtRef.current) {
-          setRightSecs(Math.floor((Date.now() - rightStartedAtRef.current) / 1000));
-        }
-      }, 500);
+      }, 1000);
     } else {
       if (timerRef.current) clearInterval(timerRef.current);
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [activeSide]);
+  }, [activeSide, isPaused]);
+
+  function startNursing(side) {
+    setActiveSide(side);
+    setIsPaused(false);
+    startedAtRef.current = Date.now();
+    update({ activeFeeding: { side, startedAt: Date.now() } });
+  }
+
+  function switchSide() {
+    const nextSide = activeSide === 'left' ? 'right' : 'left';
+    setActiveSide(nextSide);
+    startedAtRef.current = Date.now();
+    update({ activeFeeding: { side: nextSide, startedAt: Date.now() } });
+    toast && toast(isEn ? `Switched to ${nextSide === 'left' ? 'Left' : 'Right'} breast` : `${nextSide === 'left' ? 'Sol' : 'Sağ'} memeye geçildi`);
+  }
 
   function handleUndoFeed() {
     if (!justSavedEntry) return;
@@ -75,55 +98,60 @@ export function NursingTimerScreen({ state, update, toast, lang = 'tr' }) {
     }));
     setJustSavedEntry(null);
     if (undoTimerRef.current) clearInterval(undoTimerRef.current);
-    toast && toast(isEn ? 'Feeding record undone.' : 'Beslenme kaydı geri alındı.');
+    toast && toast(isEn ? 'Feeding log undone.' : 'Beslenme kaydı geri alındı.');
   }
 
-  function saveNursing() {
-    const finalLeft = leftStartedAtRef.current ? Math.floor((Date.now() - leftStartedAtRef.current) / 1000) : leftSecs;
-    const finalRight = rightStartedAtRef.current ? Math.floor((Date.now() - rightStartedAtRef.current) / 1000) : rightSecs;
-    const chosenSide = finalRight > finalLeft ? (isEn ? 'Right Breast' : 'Sağ Meme') : (isEn ? 'Left Breast' : 'Sol Meme');
+  function finishNursing() {
     setActiveSide(null);
-    leftStartedAtRef.current = null;
-    rightStartedAtRef.current = null;
-    setLastSide(chosenSide);
-    const totalMins = Math.max(1, Math.round((finalLeft + finalRight) / 60));
-    const sideText = finalLeft > 0 && finalRight > 0
-      ? (isEn ? `Left ${Math.round(finalLeft / 60)} min + Right ${Math.round(finalRight / 60)} min` : `Sol ${Math.round(finalLeft / 60)} dk + Sağ ${Math.round(finalRight / 60)} dk`)
-      : finalLeft > 0
-      ? (isEn ? `Left breast • ${totalMins} min` : `Sol meme • ${totalMins} dk`)
-      : (isEn ? `Right breast • ${totalMins} min` : `Sağ meme • ${totalMins} dk`);
+    setIsPaused(false);
+    update({ activeFeeding: null });
+    const totalSecs = leftSecs + rightSecs;
+    if (totalSecs === 0) return;
+
+    const totalMins = Math.max(1, Math.round(totalSecs / 60));
+    const finalSide = rightSecs > leftSecs ? (isEn ? 'Right Breast' : 'Sağ Meme') : (isEn ? 'Left Breast' : 'Sol Meme');
+    setLastSide(finalSide);
+
+    const desc = leftSecs > 0 && rightSecs > 0
+      ? (isEn ? `Left ${Math.round(leftSecs / 60)}m + Right ${Math.round(rightSecs / 60)}m (${totalMins}m total)` : `Sol ${Math.round(leftSecs / 60)} dk + Sağ ${Math.round(rightSecs / 60)} dk (Top. ${totalMins} dk)`)
+      : (isEn ? `${finalSide} • ${totalMins} min` : `${finalSide} • ${totalMins} dk`);
 
     const newRecord = {
       id: uid(),
       type: 'Emzirme',
-      value: sideText,
+      value: desc,
       time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
       createdAt: new Date().toISOString(),
     };
 
     update(old => ({
-      lastNursingSide: chosenSide,
+      lastNursingSide: finalSide,
       records: [newRecord, ...(old.records || [])],
     }));
 
     setJustSavedEntry(newRecord);
-
     offlineSyncQueue.enqueue(createTrackerEvent({
       type: 'breastfeeding',
-      metadata: { side: chosenSide, leftSecs: finalLeft, rightSecs: finalRight, sideText },
+      metadata: { side: finalSide, leftSecs, rightSecs, totalMins },
     })).catch(() => {});
 
-    toast && toast(isEn ? `🍼 Nursing logged: ${totalMins} minutes` : `🍼 Emzirme kaydedildi: ${totalMins} dakika`);
+    toast && toast(isEn ? `🍼 Nursing saved: ${totalMins} min` : `🍼 Emzirme kaydedildi: ${totalMins} dk`);
     setLeftSecs(0);
     setRightSecs(0);
   }
 
   function saveBottle() {
-    const bottleTypeDisplay = (bottleType === 'Anne Sütü' && isEn) ? 'Breast Milk' : (bottleType === 'Formül Mama' && isEn) ? 'Formula' : bottleType;
+    const typeLabel = bottleType === 'breast_milk'
+      ? (isEn ? 'Breast Milk' : 'Anne Sütü')
+      : bottleType === 'formula'
+      ? (isEn ? 'Formula' : 'Formül Mama')
+      : (isEn ? 'Mixed' : 'Karışık');
+
+    const desc = `${bottleMl} ml · ${typeLabel}${bottleNote ? ' · ' + bottleNote : ''}`;
     const newRecord = {
       id: uid(),
       type: 'Biberon',
-      value: `${bottleMl} ml ${bottleTypeDisplay}`,
+      value: desc,
       time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
       createdAt: new Date().toISOString(),
     };
@@ -133,20 +161,22 @@ export function NursingTimerScreen({ state, update, toast, lang = 'tr' }) {
     }));
 
     setJustSavedEntry(newRecord);
-
     offlineSyncQueue.enqueue(createTrackerEvent({
       type: 'bottle',
-      metadata: { ml: bottleMl, bottleType: bottleTypeDisplay },
+      metadata: { amountMl: bottleMl, bottleType, note: bottleNote },
     })).catch(() => {});
 
-    toast && toast(isEn ? `🍼 Bottle logged: ${bottleMl} ml (${bottleTypeDisplay})` : `🍼 Biberon kaydedildi: ${bottleMl} ml (${bottleType})`);
+    toast && toast(isEn ? `🍼 Bottle logged: ${bottleMl} ml` : `🍼 Biberon kaydedildi: ${bottleMl} ml`);
+    setBottleNote('');
   }
 
-  function savePump() {
+  function savePumping() {
+    const totalMl = pumpLeftMl + pumpRightMl;
+    const desc = `Sol ${pumpLeftMl} ml + Sağ ${pumpRightMl} ml (Toplam ${totalMl} ml)${pumpMins ? ` · ${pumpMins} dk` : ''}`;
     const newRecord = {
       id: uid(),
-      type: 'Süt Sağma',
-      value: isEn ? `${pumpMl} ml breast milk expressed` : `${pumpMl} ml anne sütü sağıldı`,
+      type: 'Biberon',
+      value: desc,
       time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
       createdAt: new Date().toISOString(),
     };
@@ -156,33 +186,51 @@ export function NursingTimerScreen({ state, update, toast, lang = 'tr' }) {
     }));
 
     setJustSavedEntry(newRecord);
-
-    offlineSyncQueue.enqueue(createTrackerEvent({
-      type: 'pumping',
-      metadata: { ml: pumpMl },
-    })).catch(() => {});
-
-    toast && toast(isEn ? `✨ Pumping logged: ${pumpMl} ml` : `✨ Süt sağma kaydedildi: ${pumpMl} ml`);
+    toast && toast(isEn ? `⚡ Pumping logged: ${totalMl} ml` : `⚡ Sağım kaydedildi: ${totalMl} ml`);
   }
 
-  const records = state.records || [];
+  const records = state?.records || [];
   const feedRecordsToday = records.filter(r => r.type === 'Emzirme' || r.type === 'Biberon');
-  const lastFeed = feedRecordsToday[0];
 
   return (
     <View style={pbs.container}>
       <ScreenHero
-        kicker={isEn ? 'FEEDING RHYTHM' : 'BESLENME RİTMİ'}
-        title={isEn ? 'Nursing, Bottle and Pumping' : 'Emzirme, Biberon ve Sağma'}
-        body={isEn ? 'Track feeding sessions with duration, side, and milliliter precision in one place.' : 'Beslenme seanslarını süre, taraf ve mililitre hassasiyetiyle tek noktadan takip et.'}
+        kicker={isEn ? 'NUTRITION & RHYTHM' : 'BESLENME & RİTİM'}
+        title={isEn ? 'Feeding, Nursing & Pumping' : 'Emzirme, Biberon ve Sağım'}
+        body={isEn ? 'Designed for 03:00 one-hand use. Track sides, bottle volume, and milk expression seamlessly.' : 'Gece 03:00’te tek elle kullanıma uygun sade tasarım. Meme tarafı, süre, biberon ve sağımı zahmetsizce kaydedin.'}
         icon="nursing"
-        asset={feedMode === 'pump' ? 'btn_breast_pump' : feedMode === 'bottle' ? 'btn_bottle' : 'ui_nursing_dual_timer'}
-        stat={feedMode === 'breast' ? (activeSide ? (isEn ? 'nursing' : 'emziriliyor') : lastSide) : feedMode === 'bottle' ? `${bottleMl} ml` : `${pumpMl} ml`}
-        tint="#9B4E76"
+        asset="ui_nursing_dual_timer"
+        stat={`${feedRecordsToday.length} ${isEn ? 'feeds today' : 'beslenme bugün'}`}
+        tint="#B66C7E"
       />
-      <ToolExperienceCard lang={lang} title={isEn ? 'Log feeding without friction' : 'Beslenmeyi zahmetsiz kaydet'} steps={isEn ? ['Pick breast or bottle mode.', 'Track side, duration, or amount.', 'Save one clean entry.'] : ['Meme veya biberon modunu seç.', 'Taraf, süre ya da miktarı izle.', 'Tek temiz kayıt olarak sakla.']} outcome={isEn ? 'A daily feeding rhythm emerges over time.' : 'Zamanla günlük beslenme ritmi oluşur.'} asset="ui_nursing_dual_timer" tint="#C75B7A" />
 
-      {/* 10_FOREGROUND_INTERACTION_RULES: Anında Kayıt ve 8 sn Geri Al (Undo) */}
+      {/* 3'lü Mod Seçici Tablar (Spec 12_FEEDING) */}
+      <View style={{ flexDirection: 'row', backgroundColor: '#F6EFF4', borderRadius: 16, padding: 4 }}>
+        {[
+          { id: 'breast', label: isEn ? 'Breastfeeding' : 'Emzirme', icon: 'nursing' },
+          { id: 'bottle', label: isEn ? 'Bottle' : 'Biberon', icon: 'bottle' },
+          { id: 'pump', label: isEn ? 'Pumping' : 'Süt Sağımı', icon: 'drop' },
+        ].map(tab => (
+          <Tap
+            key={tab.id}
+            onPress={() => setActiveTab(tab.id)}
+            style={{
+              flex: 1,
+              paddingVertical: 10,
+              alignItems: 'center',
+              borderRadius: 12,
+              backgroundColor: activeTab === tab.id ? 'white' : 'transparent',
+              elevation: activeTab === tab.id ? 2 : 0,
+            }}
+          >
+            <T bold={activeTab === tab.id} style={{ fontSize: 13, color: activeTab === tab.id ? colors.purple : colors.muted }}>
+              {tab.label}
+            </T>
+          </Tap>
+        ))}
+      </View>
+
+      {/* Anında Kayıt ve 8 sn Geri Al (Undo) */}
       {justSavedEntry && (
         <Card style={{ backgroundColor: '#EEF7EE', borderColor: '#84B886', borderWidth: 1.5, padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flex: 1, gap: 2 }}>
@@ -199,280 +247,279 @@ export function NursingTimerScreen({ state, update, toast, lang = 'tr' }) {
         </Card>
       )}
 
-      {/* Metrik Göstergeleri */}
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <MetricCard
-          title={isEn ? 'LAST SESSION' : 'SON SEANS'}
-          value={lastFeed ? lastFeed.time : '--:--'}
-          unit={lastFeed ? (isEn && lastFeed.type === 'Emzirme' ? 'Nursing' : isEn && lastFeed.type === 'Biberon' ? 'Bottle' : lastFeed.type) : (isEn ? 'No logs' : 'Kayıt yok')}
-          subtext={lastSide ? (isEn ? `Last side: ${lastSide}` : `Son taraf: ${lastSide}`) : (isEn ? 'Start session' : 'Seans başlatın')}
-          icon="clock"
-        />
-        <MetricCard
-          title={isEn ? "TODAY'S SESSIONS" : 'BUGÜNKÜ SEANSLAR'}
-          value={feedRecordsToday.length}
-          unit={isEn ? 'feeds' : 'öğün'}
-          subtext={isEn ? '24-hour cycle' : '24 saatlik döngü'}
-          icon="heart"
-        />
-      </View>
-
-      {/* Sekmeler: Meme Emzirme / Biberon / Süt Sağma */}
-      <View style={pbs.segRow}>
-        <Tap
-          onPress={() => setFeedMode('breast')}
-          label={isEn ? 'Nursing' : 'Emzirme'}
-          style={[pbs.segBtn, feedMode === 'breast' && pbs.segBtnActive]}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            {generatedAssets['btn_nursing'] ? (
-              <Image source={generatedAssets['btn_nursing']} style={{ width: 18, height: 18 }} resizeMode="contain" />
-            ) : null}
-            <T bold={feedMode === 'breast'} style={[pbs.segText, feedMode === 'breast' && { color: 'white' }]}>
-              {isEn ? 'Breast' : 'Meme'}
-            </T>
-          </View>
-        </Tap>
-
-        <Tap
-          onPress={() => setFeedMode('bottle')}
-          label={isEn ? 'Bottle' : 'Biberon'}
-          style={[pbs.segBtn, feedMode === 'bottle' && pbs.segBtnActive]}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            {generatedAssets['btn_bottle'] ? (
-              <Image source={generatedAssets['btn_bottle']} style={{ width: 18, height: 18 }} resizeMode="contain" />
-            ) : null}
-            <T bold={feedMode === 'bottle'} style={[pbs.segText, feedMode === 'bottle' && { color: 'white' }]}>
-              {isEn ? 'Bottle' : 'Biberon'}
-            </T>
-          </View>
-        </Tap>
-
-        <Tap
-          onPress={() => setFeedMode('pump')}
-          label={isEn ? 'Pump' : 'Süt Sağma'}
-          style={[pbs.segBtn, feedMode === 'pump' && pbs.segBtnActive]}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            {generatedAssets['btn_breast_pump'] ? (
-              <Image source={generatedAssets['btn_breast_pump']} style={{ width: 18, height: 18 }} resizeMode="contain" />
-            ) : null}
-            <T bold={feedMode === 'pump'} style={[pbs.segText, feedMode === 'pump' && { color: 'white' }]}>
-              {isEn ? 'Pump' : 'Sağma'}
-            </T>
-          </View>
-        </Tap>
-      </View>
-
-      {/* MOD 1: MEME EMZİRME */}
-      {feedMode === 'breast' && (
+      {/* ─── TAB 1: EMZİRME DUAL TIMER (ONE-HAND USABLE) ─── */}
+      {activeTab === 'breast' && (
         <>
-          <View style={pbs.lastSideBanner}>
-            <Icon name="heart" size={14} color={colors.purple} />
-            <T bold style={{ fontSize: 12, color: colors.purple }}>
-              {isEn
-                ? `Tip: Last nursed side was ${lastSide}. We recommend starting with the other breast for balance.`
-                : `Öneri: Son emzirilen ${lastSide}. Denge için diğer memeyle başlaman önerilir.`}
+          {/* Son Meme Hatırlatıcısı */}
+          <Card style={{ padding: 12, backgroundColor: '#FDF7F9', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderColor: '#F2DDE6' }}>
+            <T style={{ fontSize: 12, color: colors.muted }}>
+              {isEn ? 'Last nursed side:' : 'En son emzirilen taraf:'}
             </T>
-          </View>
+            <T bold style={{ fontSize: 13, color: '#9E3A66' }}>
+              {lastSide}
+            </T>
+          </Card>
 
-          {/* Çift Dokunsal Meme Butonları (Sol / Sağ) */}
-          <View style={pbs.dualBtnRow}>
-            {/* Sol Meme */}
-            <Tap
-              onPress={() => setActiveSide(activeSide === 'left' ? null : 'left')}
-              label={isEn ? 'Start left breast timer' : 'Sol meme sayacını başlat'}
-              style={[pbs.breastBtn, activeSide === 'left' && pbs.breastBtnActive]}
-            >
-              <LinearGradient
-                colors={activeSide === 'left' ? ['#E8879E', '#CF5875'] : ['#FAF2F5', '#F5E6EC']}
-                style={pbs.breastGrad}
-              >
-                <T bold style={[pbs.breastSideText, activeSide === 'left' && { color: 'white' }]}>
-                  {isEn ? 'LEFT BREAST' : 'SOL MEME'}
-                </T>
-                <T bold style={[pbs.breastTimerText, activeSide === 'left' && { color: 'white' }]}>
+          {/* Çift Meme Sayacı Kartı */}
+          <Card style={{ padding: 20, alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', gap: 16, width: '100%', justifyContent: 'center' }}>
+              {/* Sol Meme */}
+              <View style={{ flex: 1, alignItems: 'center' }}>
+                <T bold style={{ fontSize: 15, color: colors.ink }}>{isEn ? 'Left Breast' : 'Sol Meme'}</T>
+                <T bold style={{ fontSize: 32, color: activeSide === 'left' ? '#B64A75' : colors.ink, marginVertical: 8 }}>
                   {secondsLabel(leftSecs)}
                 </T>
-                <View style={[pbs.liveDot, activeSide === 'left' ? { backgroundColor: '#FFF' } : { backgroundColor: '#C8A8B6' }]} />
-                <T style={[pbs.breastStatusText, activeSide === 'left' && { color: '#FFEBF1' }]}>
-                  {activeSide === 'left' ? (isEn ? 'Nursing...' : 'Emziriliyor...') : (isEn ? 'Tap to start' : 'Başlamak için dokun')}
-                </T>
-              </LinearGradient>
-            </Tap>
+                {activeSide === 'left' ? (
+                  <View style={{ paddingHorizontal: 12, paddingVertical: 4, borderRadius: 8, backgroundColor: '#FCEEF3' }}>
+                    <T bold style={{ fontSize: 11, color: '#B64A75' }}>{isEn ? '● Active' : '● Aktif'}</T>
+                  </View>
+                ) : (
+                  <Tap
+                    onPress={() => startNursing('left')}
+                    style={{ backgroundColor: '#B64A75', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 14, width: '100%', alignItems: 'center' }}
+                  >
+                    <T bold style={{ color: 'white', fontSize: 13 }}>{isEn ? 'Start Left' : 'Sol Başlat'}</T>
+                  </Tap>
+                )}
+              </View>
 
-            {/* Sağ Meme */}
-            <Tap
-              onPress={() => setActiveSide(activeSide === 'right' ? null : 'right')}
-              label={isEn ? 'Start right breast timer' : 'Sağ meme sayacını başlat'}
-              style={[pbs.breastBtn, activeSide === 'right' && pbs.breastBtnActive]}
-            >
-              <LinearGradient
-                colors={activeSide === 'right' ? ['#E8879E', '#CF5875'] : ['#FAF2F5', '#F5E6EC']}
-                style={pbs.breastGrad}
-              >
-                <T bold style={[pbs.breastSideText, activeSide === 'right' && { color: 'white' }]}>
-                  {isEn ? 'RIGHT BREAST' : 'SAĞ MEME'}
-                </T>
-                <T bold style={[pbs.breastTimerText, activeSide === 'right' && { color: 'white' }]}>
+              <View style={{ width: 1, backgroundColor: '#EFE7ED' }} />
+
+              {/* Sağ Meme */}
+              <View style={{ flex: 1, alignItems: 'center' }}>
+                <T bold style={{ fontSize: 15, color: colors.ink }}>{isEn ? 'Right Breast' : 'Sağ Meme'}</T>
+                <T bold style={{ fontSize: 32, color: activeSide === 'right' ? '#B64A75' : colors.ink, marginVertical: 8 }}>
                   {secondsLabel(rightSecs)}
                 </T>
-                <View style={[pbs.liveDot, activeSide === 'right' ? { backgroundColor: '#FFF' } : { backgroundColor: '#C8A8B6' }]} />
-                <T style={[pbs.breastStatusText, activeSide === 'right' && { color: '#FFEBF1' }]}>
-                  {activeSide === 'right' ? (isEn ? 'Nursing...' : 'Emziriliyor...') : (isEn ? 'Tap to start' : 'Başlamak için dokun')}
-                </T>
-              </LinearGradient>
-            </Tap>
-          </View>
+                {activeSide === 'right' ? (
+                  <View style={{ paddingHorizontal: 12, paddingVertical: 4, borderRadius: 8, backgroundColor: '#FCEEF3' }}>
+                    <T bold style={{ fontSize: 11, color: '#B64A75' }}>{isEn ? '● Active' : '● Aktif'}</T>
+                  </View>
+                ) : (
+                  <Tap
+                    onPress={() => startNursing('right')}
+                    style={{ backgroundColor: '#B64A75', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 14, width: '100%', alignItems: 'center' }}
+                  >
+                    <T bold style={{ color: 'white', fontSize: 13 }}>{isEn ? 'Start Right' : 'Sağ Başlat'}</T>
+                  </Tap>
+                )}
+              </View>
+            </View>
 
-          {/* Seansı Kaydet Butonu */}
-          {(leftSecs > 0 || rightSecs > 0) && (
-            <Tap onPress={saveNursing} label={isEn ? 'Save nursing' : 'Emzirmeyi kaydet'} style={pbs.saveBtn}>
-              <T bold style={{ color: 'white', fontSize: 15 }}>
-                {isEn ? `✓ Save Nursing (${Math.round((leftSecs + rightSecs) / 60)} min)` : `✓ Emzirmeyi Kaydet (${Math.round((leftSecs + rightSecs) / 60)} dk)`}
-              </T>
-            </Tap>
-          )}
+            {/* Aktif Seans Kontrolleri */}
+            {activeSide && (
+              <View style={{ width: '100%', marginTop: 20, gap: 10 }}>
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  <Tap
+                    onPress={switchSide}
+                    style={{ flex: 1, backgroundColor: '#F2E6ED', paddingVertical: 12, borderRadius: 14, alignItems: 'center' }}
+                  >
+                    <T bold style={{ color: '#9E3A66', fontSize: 13 }}>
+                      {isEn ? '⇄ Switch Side' : '⇄ Tarafı Değiştir'}
+                    </T>
+                  </Tap>
+                  <Tap
+                    onPress={() => setIsPaused(!isPaused)}
+                    style={{ flex: 1, backgroundColor: '#F0ECEE', paddingVertical: 12, borderRadius: 14, alignItems: 'center' }}
+                  >
+                    <T bold style={{ color: colors.ink, fontSize: 13 }}>
+                      {isPaused ? (isEn ? '▶ Resume' : '▶ Devam Et') : (isEn ? '⏸ Pause' : '⏸ Duraklat')}
+                    </T>
+                  </Tap>
+                </View>
 
-          <StatusCard
-            level="safe"
-            icon="heart"
-            title={isEn ? 'Nursing Rhythm Note' : 'Emzirme Ritmi Notu'}
-            description={isEn
-              ? "Recording side and duration helps you discuss feeding rhythm with your care team when needed."
-              : "Taraf ve süre kaydı, gerekirse beslenme ritmini bakım ekibinle konuşmanı kolaylaştırır."}
-          />
+                <Tap
+                  onPress={finishNursing}
+                  style={{ backgroundColor: '#2E663B', paddingVertical: 14, borderRadius: 14, alignItems: 'center' }}
+                >
+                  <T bold style={{ color: 'white', fontSize: 15 }}>
+                    {isEn ? '✓ Finish Nursing Session' : '✓ Emzirmeyi Tamamla'}
+                  </T>
+                </Tap>
+              </View>
+            )}
+          </Card>
         </>
       )}
 
-      {/* MOD 2: BİBERON TAKİBİ */}
-      {feedMode === 'bottle' && (
-        <Card style={{ padding: 20, alignItems: 'center' }}>
-          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
-            {['Anne Sütü', 'Formül Mama'].map(t => (
+      {/* ─── TAB 2: BİBERON (QUICK PRESETS & DIRECT INPUT) ─── */}
+      {activeTab === 'bottle' && (
+        <Card style={{ padding: 18, gap: 14 }}>
+          <T bold style={{ fontSize: 15, color: colors.ink }}>
+            {isEn ? 'Bottle Feed Amount' : 'Biberon Miktarı'}
+          </T>
+
+          {/* Hazır ml Butonları */}
+          <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+            {[60, 90, 120, 150, 180].map(ml => (
               <Tap
-                key={t}
-                onPress={() => setBottleType(t)}
-                label={t}
-                style={[pbs.mlPill, bottleType === t && pbs.mlPillActive]}
+                key={ml}
+                onPress={() => setBottleMl(ml)}
+                style={{
+                  paddingHorizontal: 14,
+                  paddingVertical: 8,
+                  borderRadius: 12,
+                  backgroundColor: bottleMl === ml ? colors.purple : '#F6EFF8',
+                }}
               >
-                <T bold={bottleType === t} style={{ fontSize: 12, color: bottleType === t ? 'white' : colors.ink }}>
-                  {t === 'Anne Sütü' ? (isEn ? '🥛 Breast Milk' : '🥛 Anne Sütü') : (isEn ? '🍼 Formula' : '🍼 Formül Mama')}
+                <T bold={bottleMl === ml} style={{ color: bottleMl === ml ? 'white' : colors.ink, fontSize: 13 }}>
+                  {ml} ml
                 </T>
               </Tap>
             ))}
           </View>
 
-          <T style={{ fontSize: 13, color: colors.muted }}>{isEn ? 'Liquid Amount Given' : 'Verilen Sıvı Miktarı'}</T>
-          <T bold style={{ fontSize: 40, color: colors.ink, marginVertical: 8 }}>{bottleMl} ml</T>
-
-          <View style={{ flexDirection: 'row', gap: 8, marginTop: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
-            {[30, 60, 90, 120, 150, 180, 210].map(amount => (
+          {/* Süt Tipi Seçici */}
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            {[
+              { id: 'breast_milk', label: isEn ? 'Breast Milk' : 'Anne Sütü' },
+              { id: 'formula', label: isEn ? 'Formula' : 'Mama' },
+              { id: 'mixed', label: isEn ? 'Mixed' : 'Karışık' },
+            ].map(type => (
               <Tap
-                key={amount}
-                onPress={() => setBottleMl(amount)}
-                label={`${amount} ml`}
-                style={[pbs.mlPill, bottleMl === amount && pbs.mlPillActive]}
+                key={type.id}
+                onPress={() => setBottleType(type.id)}
+                style={{
+                  flex: 1,
+                  paddingVertical: 10,
+                  borderRadius: 12,
+                  alignItems: 'center',
+                  backgroundColor: bottleType === type.id ? '#EDE4EF' : '#F9F5FA',
+                  borderWidth: 1,
+                  borderColor: bottleType === type.id ? colors.purple : '#EADCEE',
+                }}
               >
-                <T bold={bottleMl === amount} style={{ fontSize: 12, color: bottleMl === amount ? 'white' : colors.ink }}>
-                  {amount} ml
+                <T bold={bottleType === type.id} style={{ fontSize: 12, color: bottleType === type.id ? colors.purple : colors.muted }}>
+                  {type.label}
                 </T>
               </Tap>
             ))}
           </View>
 
-          <Tap onPress={saveBottle} label={isEn ? 'Save bottle' : 'Biberonu kaydet'} style={[pbs.saveBtn, { width: '100%', marginTop: 20 }]}>
-            <T bold style={{ color: 'white', fontSize: 15 }}>
-              {isEn ? `🍼 Add Bottle Entry (${bottleMl} ml)` : `🍼 Biberon Kaydını Ekle (${bottleMl} ml)`}
+          <Tap
+            onPress={saveBottle}
+            style={{ backgroundColor: colors.purple, paddingVertical: 14, borderRadius: 14, alignItems: 'center' }}
+          >
+            <T bold style={{ color: 'white', fontSize: 14 }}>
+              {isEn ? `Save ${bottleMl} ml Bottle` : `${bottleMl} ml Biberon Kaydet`}
             </T>
           </Tap>
         </Card>
       )}
 
-      {/* MOD 3: SÜT SAĞMA (PUMPING) */}
-      {feedMode === 'pump' && (
-        <>
-          <Card style={{ padding: 20, alignItems: 'center' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              {generatedAssets['btn_breast_pump'] ? (
-                <Image source={generatedAssets['btn_breast_pump']} style={{ width: 28, height: 28 }} resizeMode="contain" />
-              ) : null}
-              <T bold style={{ fontSize: 16, color: colors.ink }}>
-                {isEn ? 'Pumped Milk Amount' : 'Sağılan Süt Miktarı'}
-              </T>
-            </View>
-            <T bold style={{ fontSize: 40, color: colors.purple, marginVertical: 8 }}>{pumpMl} ml</T>
+      {/* ─── TAB 3: SAĞIM (PUMPING) ─── */}
+      {activeTab === 'pump' && (
+        <Card style={{ padding: 18, gap: 14 }}>
+          <T bold style={{ fontSize: 15, color: colors.ink }}>
+            {isEn ? 'Expressed Milk (Pumping)' : 'Süt Sağımı Kaydı'}
+          </T>
 
-            <View style={{ flexDirection: 'row', gap: 8, marginTop: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
-              {[40, 60, 80, 100, 120, 150, 180].map(amount => (
-                <Tap
-                  key={amount}
-                  onPress={() => setPumpMl(amount)}
-                  label={`${amount} ml`}
-                  style={[pbs.mlPill, pumpMl === amount && pbs.mlPillActive]}
-                >
-                  <T bold={pumpMl === amount} style={{ fontSize: 12, color: pumpMl === amount ? 'white' : colors.ink }}>
-                    {amount} ml
-                  </T>
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            <View style={{ flex: 1, padding: 12, borderRadius: 14, backgroundColor: '#F8F4F9', alignItems: 'center' }}>
+              <T style={{ fontSize: 12, color: colors.muted }}>{isEn ? 'Left Breast' : 'Sol Meme'}</T>
+              <T bold style={{ fontSize: 24, color: colors.ink, marginVertical: 4 }}>{pumpLeftMl} ml</T>
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                <Tap onPress={() => setPumpLeftMl(m => Math.max(0, m - 10))} style={{ padding: 6, backgroundColor: '#EAE0ED', borderRadius: 8 }}>
+                  <T bold style={{ fontSize: 12 }}>-10</T>
                 </Tap>
-              ))}
+                <Tap onPress={() => setPumpLeftMl(m => m + 10)} style={{ padding: 6, backgroundColor: '#EAE0ED', borderRadius: 8 }}>
+                  <T bold style={{ fontSize: 12 }}>+10</T>
+                </Tap>
+              </View>
             </View>
 
-            <Tap onPress={savePump} label={isEn ? 'Save pumping' : 'Sağmayı kaydet'} style={[pbs.saveBtn, { width: '100%', marginTop: 20 }]}>
-              <T bold style={{ color: 'white', fontSize: 15 }}>
-                {isEn ? `✨ Add Pump Entry (${pumpMl} ml)` : `✨ Sağma Kaydını Ekle (${pumpMl} ml)`}
-              </T>
-            </Tap>
-          </Card>
+            <View style={{ flex: 1, padding: 12, borderRadius: 14, backgroundColor: '#F8F4F9', alignItems: 'center' }}>
+              <T style={{ fontSize: 12, color: colors.muted }}>{isEn ? 'Right Breast' : 'Sağ Meme'}</T>
+              <T bold style={{ fontSize: 24, color: colors.ink, marginVertical: 4 }}>{pumpRightMl} ml</T>
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                <Tap onPress={() => setPumpRightMl(m => Math.max(0, m - 10))} style={{ padding: 6, backgroundColor: '#EAE0ED', borderRadius: 8 }}>
+                  <T bold style={{ fontSize: 12 }}>-10</T>
+                </Tap>
+                <Tap onPress={() => setPumpRightMl(m => m + 10)} style={{ padding: 6, backgroundColor: '#EAE0ED', borderRadius: 8 }}>
+                  <T bold style={{ fontSize: 12 }}>+10</T>
+                </Tap>
+              </View>
+            </View>
+          </View>
 
-          {/* Süt Saklama Rehberi Kartı */}
-          <Card style={pbs.storageCard}>
-            <T bold style={{ fontSize: 14, color: '#3A2E44', marginBottom: 8 }}>
-              {isEn ? '🧊 Golden Rules of Breast Milk Storage (3-3-3 Rule)' : '🧊 Anne Sütü Saklama Altın Kuralları (3-3-3 Kuralı)'}
+          <Tap
+            onPress={savePumping}
+            style={{ backgroundColor: colors.purple, paddingVertical: 14, borderRadius: 14, alignItems: 'center' }}
+          >
+            <T bold style={{ color: 'white', fontSize: 14 }}>
+              {isEn ? `Save ${pumpLeftMl + pumpRightMl} ml Expressed Milk` : `Toplam ${pumpLeftMl + pumpRightMl} ml Sağımı Kaydet`}
             </T>
-            <View style={{ gap: 8 }}>
-              <View style={pbs.storageRow}>
-                <T bold style={{ fontSize: 12, color: colors.purple, width: 80 }}>{isEn ? '3 HOURS' : '3 SAAT'}</T>
-                <T style={{ fontSize: 12, color: colors.ink, flex: 1 }}>{isEn ? 'At room temperature (19-26°C)' : 'Oda sıcaklığında (19-26°C)'}</T>
+          </Tap>
+        </Card>
+      )}
+
+      {/* Günlük Beslenme Geçmişi */}
+      <Section title={isEn ? "Today's Feeding Timeline" : "Bugünkü Beslenme Kayıtları"} />
+      {feedRecordsToday.length === 0 ? (
+        <Card style={{ alignItems: 'center', padding: 20 }}>
+          <T style={{ color: colors.muted, fontSize: 13 }}>
+            {isEn ? 'No feeding records logged yet today.' : 'Bugün henüz beslenme kaydı girilmedi.'}
+          </T>
+        </Card>
+      ) : (
+        feedRecordsToday.map(r => (
+          <Card key={r.id} style={{ padding: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F8EEF5', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name={r.type === 'Emzirme' ? 'nursing' : 'bottle'} size={18} color="#B66C7E" />
               </View>
-              <View style={pbs.storageRow}>
-                <T bold style={{ fontSize: 12, color: colors.purple, width: 80 }}>{isEn ? '3 DAYS' : '3 GÜN'}</T>
-                <T style={{ fontSize: 12, color: colors.ink, flex: 1 }}>{isEn ? 'On refrigerator shelf (0-4°C, not door)' : 'Buzdolabı rafında (0-4°C, kapakta değil)'}</T>
-              </View>
-              <View style={pbs.storageRow}>
-                <T bold style={{ fontSize: 12, color: colors.purple, width: 80 }}>{isEn ? '3 MONTHS' : '3 AY'}</T>
-                <T style={{ fontSize: 12, color: colors.ink, flex: 1 }}>{isEn ? 'In deep freezer (-18°C)' : 'Derin dondurucuda (-18°C)'}</T>
+              <View>
+                <T bold style={{ fontSize: 14, color: colors.ink }}>{r.type}</T>
+                <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>{r.value}</T>
               </View>
             </View>
+            <T style={{ fontSize: 12, color: colors.muted }}>{r.time}</T>
           </Card>
-        </>
+        ))
       )}
     </View>
   );
 }
 
-// ─── EKRAN 23: BEBEK UYKU TAKİBİ & BEYAZ GÜRÜLTÜ (SLEEP & WHITE NOISE) ────────
+// ─── EKRAN 23: UYKU & BEYAZ GÜRÜLTÜ (SPEC 13_SLEEP_WHITE_NOISE) ────────────────
 export function SleepWhiteNoiseScreen({ state, update, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
-  const [isAsleep, setIsAsleep] = useState(false);
+  const [activeTab, setActiveTab] = useState('sleep'); // 'sleep' | 'sounds'
   const [playingNoise, setPlayingNoise] = useState(null);
   const [volume, setVolume] = useState(0.8);
   const [timerMins, setTimerMins] = useState(30);
 
+  // Sleep tracking state (tracker-data driven)
+  const isAsleep = !!state?.activeSleep;
+  const [sleepElapsedSecs, setSleepElapsedSecs] = useState(0);
+  const sleepTimerRef = useRef(null);
+
+  useEffect(() => {
+    if (state?.activeSleep?.startedAt) {
+      function updateSleepSecs() {
+        const diff = Math.max(0, Math.round((Date.now() - state.activeSleep.startedAt) / 1000));
+        setSleepElapsedSecs(diff);
+      }
+      updateSleepSecs();
+      sleepTimerRef.current = setInterval(updateSleepSecs, 1000);
+    } else {
+      if (sleepTimerRef.current) clearInterval(sleepTimerRef.current);
+      setSleepElapsedSecs(0);
+    }
+    return () => { if (sleepTimerRef.current) clearInterval(sleepTimerRef.current); };
+  }, [state?.activeSleep]);
+
   const whiteNoises = isEn ? [
-    { id: 'womb', name: 'Womb Sounds', icon: 'heart', desc: 'Rhythmic blood flow & amniotic hum' },
-    { id: 'hairdryer', name: 'Hair Dryer', icon: 'milestone', desc: 'Classic soothing pink noise' },
-    { id: 'rain', name: 'Gentle Rain', icon: 'drop', desc: 'Serene and relaxing nature sound' },
-    { id: 'vacuum', name: 'Vacuum Cleaner', icon: 'bell', desc: 'Continuous steady motor hum' },
-    { id: 'lullaby', name: 'Music Box & Lullaby', icon: 'star', desc: 'Brahms kalimba sleep melody' },
-    { id: 'ocean', name: 'Ocean Waves', icon: 'water', desc: 'Peaceful rolling surf' },
+    { id: 'womb', name: 'Womb Rhythm', icon: 'heart', desc: 'Blood flow & maternal heartbeat' },
+    { id: 'rain', name: 'Gentle Rain', icon: 'drop', desc: 'Serene rainfall nature sound' },
+    { id: 'fan', name: 'Fan & Air', icon: 'milestone', desc: 'Continuous calm airflow' },
+    { id: 'shh', name: 'Rhythmic Shh', icon: 'star', desc: 'Gentle soothing whisper shh' },
+    { id: 'ocean', name: 'Ocean Surf', icon: 'water', desc: 'Peaceful rolling sea waves' },
   ] : [
-    { id: 'womb', name: 'Anne Karnı Sesi', icon: 'heart', desc: 'Ritmik kan akışı & amniyon uğultusu' },
-    { id: 'hairdryer', name: 'Fön Makinesi', icon: 'milestone', desc: 'Klasik sakinleştirici pembe gürültü' },
+    { id: 'womb', name: 'Anne Karnı Sesi', icon: 'heart', desc: 'Amniyotik sıvı ve kalp ritmi' },
     { id: 'rain', name: 'Ilık Yağmur', icon: 'drop', desc: 'Dingin ve rahatlatıcı doğa sesi' },
-    { id: 'vacuum', name: 'Süpürge Sesi', icon: 'bell', desc: 'Sürekli monoton motor frekansı' },
-    { id: 'lullaby', name: 'Müzik Kutusu & Ninni', icon: 'star', desc: 'Brahms kalimba uyku melodisi' },
+    { id: 'fan', name: 'Vantilatör Sesi', icon: 'milestone', desc: 'Sürekli sakin hava akımı' },
+    { id: 'shh', name: 'Pişt Pişt / Shh', icon: 'star', desc: 'Yatıştırıcı ritmik ninni fısıltısı' },
     { id: 'ocean', name: 'Okyanus Dalgaları', icon: 'water', desc: 'Kıyıya vuran huzurlu dalgalar' },
   ];
 
@@ -503,262 +550,236 @@ export function SleepWhiteNoiseScreen({ state, update, toast, lang = 'tr' }) {
     }
   }
 
-  function handleVolumeChange(vol) {
-    setVolume(vol);
-    setEngineVolume(vol);
-  }
+  function toggleSleepSession() {
+    if (!isAsleep) {
+      // UYUDU (Baby fell asleep)
+      const now = Date.now();
+      update({ activeSleep: { startedAt: now } });
+      toast && toast(isEn ? '💤 Baby logged as asleep' : '💤 Bebek uykuya daldı');
+    } else {
+      // UYANDI (Baby woke up)
+      const now = Date.now();
+      const startedAt = state?.activeSleep?.startedAt || now;
+      const durationSecs = Math.max(60, Math.round((now - startedAt) / 1000));
+      const durationMins = Math.round(durationSecs / 60);
+      const hours = Math.floor(durationMins / 60);
+      const mins = durationMins % 60;
+      const timeStr = hours > 0
+        ? (isEn ? `${hours}h ${mins}m` : `${hours} sa ${mins} dk`)
+        : (isEn ? `${mins} min` : `${mins} dk`);
 
-  function handleTimerChange(mins) {
-    setTimerMins(mins);
-    if (playingNoise) {
-      playSound(playingNoise, { volume, timerMinutes: mins });
-      toast && toast(mins
-        ? (isEn ? `⏱️ Timer: Set to ${mins} minutes` : `⏱️ Zamanlayıcı: ${mins} dakika ayarlandı`)
-        : (isEn ? '⏱️ Continuous playback mode' : '⏱️ Sürekli çalma modu'));
+      const newRecord = {
+        id: uid(),
+        type: 'Uyku',
+        value: isEn ? `Slept ${timeStr}` : `${timeStr} uyudu`,
+        time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
+        createdAt: new Date().toISOString(),
+      };
+
+      update(old => ({
+        activeSleep: null,
+        records: [newRecord, ...(old.records || [])],
+      }));
+
+      offlineSyncQueue.enqueue(createTrackerEvent({
+        type: 'sleep',
+        metadata: { durationSecs, durationMins },
+      })).catch(() => {});
+
+      toast && toast(isEn ? `☀️ Baby woke up (${timeStr})` : `☀️ Bebek uyandı (${timeStr})`);
     }
   }
 
-  function toggleSleep() {
-    const nextState = !isAsleep;
-    setIsAsleep(nextState);
-    update(old => ({
-      records: [{
-        id: uid(),
-        type: 'Uyku',
-        value: nextState ? (isEn ? 'Fell asleep' : 'Uykuya daldı') : (isEn ? 'Woke up' : 'Uyandı'),
-        time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
-        createdAt: new Date().toISOString(),
-      }, ...(old.records || [])],
-    }));
-    toast && toast(nextState
-      ? (isEn ? '💤 Baby logged as asleep' : '💤 Bebek uykuya kaydedildi')
-      : (isEn ? '☀️ Baby woke up' : '☀️ Bebek uyandı'));
-  }
-
-  const activeSoundObj = whiteNoises.find(w => w.id === playingNoise);
+  const sleepRecords = (state?.records || []).filter(r => r.type === 'Uyku');
 
   return (
     <View style={pbs.container}>
       <ScreenHero
-        kicker={isEn ? 'SLEEP RHYTHM' : 'UYKU RİTMİ'}
-        title={isEn ? 'Sleep and Soothing Sounds' : 'Uyku ve Sakin Sesler'}
-        body={isEn ? 'Log sleep state, observe wake windows, and play white noise with controlled timers.' : 'Uyku durumunu kaydet, uyanıklık penceresini izle ve beyaz gürültüyü kontrollü zamanlayıcıyla çal.'}
+        kicker={isEn ? 'REST & CALM' : 'DİNLENME & UYKU'}
+        title={isEn ? 'Sleep Tracker & White Noise' : 'Uyku Takibi & Beyaz Gürültü'}
+        body={isEn ? 'Track sleep intervals cleanly and play soothing nature sounds without screen clutter.' : 'Uyanıklık ve uyku pencerelerini takip edin, bebeği rahatlatan sakin frekansları çalın.'}
         icon="moon"
         asset="ui_white_noise_headphones"
-        stat={isEn ? (isAsleep ? 'asleep' : 'awake') : (isAsleep ? 'uykuda' : 'uyanık')}
-        tint="#6E5A96"
+        stat={isAsleep ? (isEn ? 'Baby is asleep' : 'Bebek uykuda') : (isEn ? 'Baby is awake' : 'Bebek uyanık')}
+        tint="#4F6D96"
       />
-      <ToolExperienceCard lang={lang} title={isEn ? 'Create a sleep ritual' : 'Uyku ritüeli oluştur'} steps={isEn ? ['Choose a calming sound.', 'Set the timer.', 'Save what worked for next time.'] : ['Sakinleştirici sesi seç.', 'Zamanlayıcıyı ayarla.', 'İşe yarayanı sonraki uyku için sakla.']} outcome={isEn ? 'This becomes a repeatable bedtime routine.' : 'Tekrarlanabilir uyku rutini hissi verir.'} asset="ui_white_noise_headphones" tint="#6E5A96" />
 
-      {/* Metrik Göstergeleri */}
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <MetricCard
-          title={isEn ? 'CURRENT STATUS' : 'MEVCUT DURUM'}
-          value={isEn ? (isAsleep ? 'Asleep' : 'Awake') : (isAsleep ? 'Uykuda' : 'Uyanık')}
-          unit={isEn ? (isAsleep ? '🌙 Resting' : '☀️ Active') : (isAsleep ? '🌙 Dinleniyor' : '☀️ Aktif')}
-          subtext={isEn ? (isAsleep ? 'Growth accelerates in sleep' : 'Window: ~60-90 min') : (isAsleep ? 'Gelişim uykuda hızlanır' : 'Pencere: ~60-90 dk')}
-          icon="moon"
-        />
-        <MetricCard
-          title={isEn ? 'SOUND PLAYER' : 'SES ÇALAR'}
-          value={activeSoundObj ? activeSoundObj.name.split(' ')[0] : (isEn ? 'Off' : 'Kapalı')}
-          unit={activeSoundObj ? `${timerMins || '∞'} ${isEn ? 'min' : 'dk'}` : (isEn ? 'Ready' : 'Hazır')}
-          subtext={activeSoundObj ? (isEn ? 'White noise active' : 'Beyaz gürültü aktif') : (isEn ? 'Tap to play' : 'Dinletmek için dokun')}
-          icon="volume"
-        />
+      {/* 2 Temiz Tab: Uyku Takibi vs Beyaz Gürültü (Spec 13_SLEEP_WHITE_NOISE) */}
+      <View style={{ flexDirection: 'row', backgroundColor: '#EDF2F7', borderRadius: 16, padding: 4 }}>
+        <Tap
+          onPress={() => setActiveTab('sleep')}
+          style={{
+            flex: 1,
+            paddingVertical: 10,
+            alignItems: 'center',
+            borderRadius: 12,
+            backgroundColor: activeTab === 'sleep' ? 'white' : 'transparent',
+            elevation: activeTab === 'sleep' ? 2 : 0,
+          }}
+        >
+          <T bold={activeTab === 'sleep'} style={{ fontSize: 13, color: activeTab === 'sleep' ? '#3B597F' : colors.muted }}>
+            {isEn ? '💤 Sleep Tracker' : '💤 Uyku Takibi'}
+          </T>
+        </Tap>
+        <Tap
+          onPress={() => setActiveTab('sounds')}
+          style={{
+            flex: 1,
+            paddingVertical: 10,
+            alignItems: 'center',
+            borderRadius: 12,
+            backgroundColor: activeTab === 'sounds' ? 'white' : 'transparent',
+            elevation: activeTab === 'sounds' ? 2 : 0,
+          }}
+        >
+          <T bold={activeTab === 'sounds'} style={{ fontSize: 13, color: activeTab === 'sounds' ? '#3B597F' : colors.muted }}>
+            {isEn ? '🎵 White Noise' : '🎵 Beyaz Gürültü'}
+          </T>
+        </Tap>
       </View>
 
-      {/* Gece Göğü / Uyku Durumu Kartı */}
-      <Card style={[pbs.sleepStatusCard, isAsleep && { backgroundColor: '#181222' }]}>
-        <LinearGradient
-          colors={isAsleep ? ['#2A1D3B', '#150E20'] : ['#FAF4FB', '#EDE2EE']}
-          style={StyleSheet.absoluteFill}
-        />
-        <View style={{ alignItems: 'center' }}>
-          <T style={{ fontSize: 44 }}>{isAsleep ? '🌙' : '☀️'}</T>
-          <T bold style={{ fontSize: 20, color: isAsleep ? 'white' : colors.ink, marginTop: 8 }}>
-            {isAsleep
-              ? (isEn ? 'Your Baby is Currently Asleep' : 'Bebeğiniz Şu An Uykuda')
-              : (isEn ? 'Your Baby is Awake' : 'Bebeğiniz Uyanık')}
-          </T>
-          <T style={{ fontSize: 12, color: isAsleep ? '#C6B2D4' : colors.muted, marginTop: 4 }}>
-            {isAsleep
-              ? (isEn ? 'Wishing a calm and peaceful sleep...' : 'Sessiz ve huzurlu bir uyku diliyoruz...')
-              : (isEn ? 'Ideal newborn wake window: 60 - 90 minutes' : 'Yenidoğan ideal uyanıklık penceresi: 60 - 90 dakika')}
-          </T>
-
-          <Tap
-            onPress={toggleSleep}
-            label={isAsleep
-              ? (isEn ? 'Mark as awake' : 'Uyandı olarak işaretle')
-              : (isEn ? 'Mark as asleep' : 'Uyudu olarak işaretle')}
-            style={[pbs.sleepToggleBtn, isAsleep && { backgroundColor: colors.purple }]}
-          >
-            <T bold style={{ color: 'white', fontSize: 14 }}>
-              {isAsleep
-                ? (isEn ? '☀️ Baby Woke Up' : '☀️ Bebek Uyandı')
-                : (isEn ? '🌙 Put to Sleep' : '🌙 Uykuya Yattı')}
-            </T>
-          </Tap>
-        </View>
-      </Card>
-
-      {/* Aktif Çalan Ses Kontrol Paneli */}
-      {playingNoise && (
-        <Card style={{ padding: 16, backgroundColor: '#FAF3FB', borderColor: colors.purple, borderWidth: 1.5 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors.purple, alignItems: 'center', justifyContent: 'center' }}>
-                <T style={{ fontSize: 18 }}>🔊</T>
-              </View>
-              <View style={{ flex: 1 }}>
-                <T bold style={{ fontSize: 15, color: colors.ink }}>
-                  {activeSoundObj ? activeSoundObj.name : (isEn ? 'White Noise' : 'Beyaz Gürültü')}
+      {/* ─── TAB 1: UYKU TAKİBİ (IDLE: UYUDU / ACTIVE: UYANDI) ─── */}
+      {activeTab === 'sleep' && (
+        <>
+          <Card style={{ padding: 24, alignItems: 'center', borderRadius: 24, backgroundColor: isAsleep ? '#F0F4FA' : 'white', borderColor: isAsleep ? '#3B597F' : '#E6ECF2', borderWidth: 1.5 }}>
+            {isAsleep ? (
+              <View style={{ alignItems: 'center', width: '100%' }}>
+                <T bold style={{ fontSize: 13, color: '#3B597F', letterSpacing: 1 }}>
+                  {isEn ? '● BABY IS ASLEEP' : '● BEBEK UYUYOR'}
                 </T>
-                <T style={{ fontSize: 11.5, color: colors.purple, marginTop: 2 }}>
-                  {timerMins
-                    ? (isEn ? `⏳ Timer: shuts off in ~${timerMins} min` : `⏳ Zamanlayıcı: ~${timerMins} dk sonra kapanacak`)
-                    : (isEn ? '♾️ Continuous Playback Mode' : '♾️ Kesintisiz Çalma Modu')}
+                <T bold style={{ fontSize: 44, color: '#264268', marginVertical: 10 }}>
+                  {secondsLabel(sleepElapsedSecs)}
                 </T>
-              </View>
-            </View>
-
-            <Tap onPress={() => stopSound()} label={isEn ? 'Stop Sound' : 'Sesi Durdur'} style={{ backgroundColor: '#D8465C', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 }}>
-              <T bold style={{ color: 'white', fontSize: 12 }}>{isEn ? '⏹️ Stop' : '⏹️ Durdur'}</T>
-            </Tap>
-          </View>
-
-          {/* Animasyonlu Ses Dalgaları */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, height: 28, marginVertical: 12 }}>
-            {[14, 24, 18, 28, 12, 22, 16, 26, 20, 14, 24, 18].map((h, i) => (
-              <View
-                key={i}
-                style={{
-                  width: 3.5,
-                  height: h,
-                  backgroundColor: colors.purple,
-                  borderRadius: 2,
-                  opacity: 0.85,
-                }}
-              />
-            ))}
-          </View>
-
-          {/* Ses Seviyesi (Volume) */}
-          <View style={{ marginTop: 4 }}>
-            <T bold style={{ fontSize: 11, color: colors.muted, marginBottom: 6 }}>
-              {isEn ? 'VOLUME LEVEL:' : 'SES SEVİYESİ:'}
-            </T>
-            <View style={{ flexDirection: 'row', gap: 6 }}>
-              {[
-                { label: isEn ? 'Quiet · 25%' : 'Sessiz · %25', val: 0.25 },
-                { label: isEn ? 'Med · 50%' : 'Orta · %50', val: 0.5 },
-                { label: isEn ? 'Ideal · 80%' : 'İdeal · %80', val: 0.8 },
-                { label: isEn ? 'Max · 100%' : 'Yüksek · %100', val: 1.0 },
-              ].map(v => (
+                <T style={{ fontSize: 12, color: colors.muted, marginBottom: 18 }}>
+                  {isEn ? 'Tracking restorative nap & night sleep' : 'Dinlendirici uyku penceresi kaydediliyor'}
+                </T>
                 <Tap
-                  key={v.val}
-                  onPress={() => handleVolumeChange(v.val)}
-                  label={v.label}
-                  style={{
-                    flex: 1,
-                    paddingVertical: 5,
-                    alignItems: 'center',
-                    borderRadius: 10,
-                    backgroundColor: volume === v.val ? colors.purple : '#EFE8F2'
-                  }}
+                  onPress={toggleSleepSession}
+                  style={{ width: '100%', maxWidth: 260, backgroundColor: '#2E663B', paddingVertical: 14, borderRadius: 16, alignItems: 'center' }}
                 >
-                  <T bold={volume === v.val} style={{ fontSize: 10, color: volume === v.val ? 'white' : colors.ink }}>
-                    {v.label.split(' ')[0]}
+                  <T bold style={{ color: 'white', fontSize: 16 }}>
+                    {isEn ? '☀️ UYANDI (Baby Woke Up)' : '☀️ UYANDI'}
                   </T>
                 </Tap>
-              ))}
-            </View>
-          </View>
-
-          {/* Zamanlayıcı (Timer) */}
-          <View style={{ marginTop: 10 }}>
-            <T bold style={{ fontSize: 11, color: colors.muted, marginBottom: 6 }}>
-              {isEn ? 'SLEEP TIMER:' : 'UYKU ZAMANLAYICISI:'}
-            </T>
-            <View style={{ flexDirection: 'row', gap: 6 }}>
-              {[
-                { label: isEn ? '15 min' : '15 dk', val: 15 },
-                { label: isEn ? '30 min' : '30 dk', val: 30 },
-                { label: isEn ? '45 min' : '45 dk', val: 45 },
-                { label: isEn ? '60 min' : '60 dk', val: 60 },
-                { label: isEn ? 'Continuous' : 'Sürekli', val: null },
-              ].map(t => (
+              </View>
+            ) : (
+              <View style={{ alignItems: 'center', width: '100%' }}>
+                <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#EDF3FA', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+                  <Icon name="moon" size={32} color="#3B597F" />
+                </View>
+                <T bold style={{ fontSize: 16, color: colors.ink }}>
+                  {isEn ? 'Baby is currently awake' : 'Bebek şu an uyanık'}
+                </T>
+                <T style={{ fontSize: 12, color: colors.muted, marginTop: 4, marginBottom: 18 }}>
+                  {isEn ? 'Tap below when your baby drifts off to sleep' : 'Bebeğiniz uykuya daldığında dokunun'}
+                </T>
                 <Tap
-                  key={String(t.val)}
-                  onPress={() => handleTimerChange(t.val)}
-                  label={t.label}
-                  style={{
-                    flex: 1,
-                    paddingVertical: 5,
-                    alignItems: 'center',
-                    borderRadius: 10,
-                    backgroundColor: timerMins === t.val ? '#8A6D96' : '#EFE8F2'
-                  }}
+                  onPress={toggleSleepSession}
+                  style={{ width: '100%', maxWidth: 260, backgroundColor: '#3B597F', paddingVertical: 14, borderRadius: 16, alignItems: 'center' }}
                 >
-                  <T bold={timerMins === t.val} style={{ fontSize: 10, color: timerMins === t.val ? 'white' : colors.ink }}>
-                    {t.label}
+                  <T bold style={{ color: 'white', fontSize: 16 }}>
+                    {isEn ? '💤 UYUDU (Fell Asleep)' : '💤 UYUDU'}
                   </T>
                 </Tap>
-              ))}
-            </View>
-          </View>
-        </Card>
+              </View>
+            )}
+          </Card>
+
+          {/* 24 Saatlik Uyku Geçmişi */}
+          <Section title={isEn ? "24h Sleep Logs" : "Son Uyku Kayıtları"} />
+          {sleepRecords.length === 0 ? (
+            <Card style={{ alignItems: 'center', padding: 20 }}>
+              <T style={{ color: colors.muted, fontSize: 13 }}>
+                {isEn ? 'No sleep sessions recorded yet today.' : 'Bugün henüz uyku seansı kaydedilmedi.'}
+              </T>
+            </Card>
+          ) : (
+            sleepRecords.map(r => (
+              <Card key={r.id} style={{ padding: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#EDF3FA', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name="moon" size={16} color="#3B597F" />
+                  </View>
+                  <T bold style={{ fontSize: 14, color: colors.ink }}>{r.value}</T>
+                </View>
+                <T style={{ fontSize: 12, color: colors.muted }}>{r.time}</T>
+              </Card>
+            ))
+          )}
+        </>
       )}
 
-      {/* Dâhili Beyaz Gürültü Çalar Listesi */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
-        <Section title={isEn ? 'Soothing White Noise & Sounds' : 'Sakinleştirici Beyaz Gürültü & Sesler'} />
-        {generatedAssets['btn_sleep'] && (
-          <Image source={generatedAssets['btn_sleep']} style={{ width: 32, height: 32 }} resizeMode="contain" />
-        )}
-      </View>
-      <View style={{ gap: 10 }}>
-        {whiteNoises.map(n => {
-          const isPlaying = playingNoise === n.id;
-          return (
-            <Card key={n.id} style={[pbs.noiseCard, isPlaying && pbs.noiseCardActive]}>
-              <View style={[pbs.noiseIconBox, isPlaying && { backgroundColor: colors.purple, borderRadius: 19 }]}>
-                <Icon name={n.icon} size={20} color={isPlaying ? 'white' : colors.purple} />
-              </View>
-              <View style={{ flex: 1, marginLeft: 12 }}>
-                <T bold style={{ fontSize: 14.5, color: isPlaying ? colors.purple : colors.ink }}>{n.name}</T>
-                <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2 }}>{n.desc}</T>
-              </View>
-              <Tap
-                onPress={() => handlePlayToggle(n.id)}
-                label={isPlaying ? (isEn ? 'Stop' : 'Durdur') : (isEn ? 'Play' : 'Çal')}
-                style={[pbs.noisePlayBtn, isPlaying && { backgroundColor: '#E8D4E8' }]}
-              >
-                <T style={{ fontSize: 16 }}>{isPlaying ? '⏸️' : '▶️'}</T>
-              </Tap>
-            </Card>
-          );
-        })}
-      </View>
+      {/* ─── TAB 2: BEYAZ GÜRÜLTÜ SESLERİ & PLAYER ─── */}
+      {activeTab === 'sounds' && (
+        <>
+          <Card style={{ padding: 14 }}>
+            <T bold style={{ fontSize: 14, color: colors.ink, marginBottom: 8 }}>
+              {isEn ? 'Auto-Off Sleep Timer:' : 'Kapanma Zamanlayıcısı:'}
+            </T>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              {[15, 30, 45, 60, 0].map(m => (
+                <Tap
+                  key={m}
+                  onPress={() => setTimerMins(m)}
+                  style={{
+                    paddingHorizontal: 12,
+                    paddingVertical: 7,
+                    borderRadius: 10,
+                    backgroundColor: timerMins === m ? '#3B597F' : '#F0F3F7',
+                  }}
+                >
+                  <T bold={timerMins === m} style={{ fontSize: 12, color: timerMins === m ? 'white' : colors.ink }}>
+                    {m === 0 ? (isEn ? 'Inf' : 'Sürekli') : `${m} dk`}
+                  </T>
+                </Tap>
+              ))}
+            </View>
+          </Card>
 
-      <StatusCard
-        level="safe"
-        icon="moon"
-        title={isEn ? 'Safe Baby Sleep Guidelines' : 'Güvenli Bebek Uykusu Kılavuzu'}
-        description={isEn
-          ? 'Always place baby on their back to sleep. Never keep pillows, plush toys, or heavy blankets inside the crib.'
-          : 'Bebeği daima sırtüstü yatırın, beşik içinde yastık, pelüş oyuncak veya kalın battaniye bulundurmayın.'}
-      />
+          <View style={{ gap: 10 }}>
+            {whiteNoises.map(noise => {
+              const isPlaying = playingNoise === noise.id;
+              return (
+                <Card key={noise.id} style={{ padding: 14, borderColor: isPlaying ? '#3B597F' : '#EAEFF4', borderWidth: isPlaying ? 1.5 : 1 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <View style={{ flex: 1, paddingRight: 10 }}>
+                      <T bold style={{ fontSize: 15, color: isPlaying ? '#27476F' : colors.ink }}>
+                        {noise.name}
+                      </T>
+                      <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
+                        {noise.desc}
+                      </T>
+                    </View>
+                    <Tap
+                      onPress={() => handlePlayToggle(noise.id)}
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 22,
+                        backgroundColor: isPlaying ? '#27476F' : '#EDF2F7',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Icon name={isPlaying ? 'pause' : 'play'} size={20} color={isPlaying ? 'white' : '#3B597F'} />
+                    </Tap>
+                  </View>
+                </Card>
+              );
+            })}
+          </View>
+        </>
+      )}
     </View>
   );
 }
 
-// ─── EKRAN 24: BEZ DEĞİŞTİRME GÜNLÜĞÜ (DIAPER TRACKER) ───────────────────────
+// ─── EKRAN 24: BEZ DEĞİŞTİRME GÜNLÜĞÜ (FAST ACTION PER SPEC 14_DIAPER) ─────────
 export function DiaperTrackerScreen({ state, update, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
   const [justSavedDiaper, setJustSavedDiaper] = useState(null);
   const [undoCountdown, setUndoCountdown] = useState(8);
+  const [showColorGuide, setShowColorGuide] = useState(false);
   const [selectedStoolColor, setSelectedStoolColor] = useState(null);
   const undoTimerRef = useRef(null);
 
@@ -781,29 +802,30 @@ export function DiaperTrackerScreen({ state, update, toast, lang = 'tr' }) {
   }, [justSavedDiaper]);
 
   const stoolColorGuide = isEn ? [
-    { id: 'meconium', day: 'Days 1-2', name: 'Meconium', desc: 'Dark black / tarry green, sticky texture. The first natural postpartum clearing.', color: '#2B2E28' },
-    { id: 'transitional', day: 'Days 3-4', name: 'Transitional Stool', desc: 'Greenish brown, looser consistency. Marks transition from colostrum to mature milk.', color: '#65683F' },
-    { id: 'mustard', day: 'Day 5+', name: 'Mature Breast Milk Stool', desc: 'Golden mustard yellow, seedy/curdy texture. Ideal and healthy digestion.', color: '#D4A017' },
-    { id: 'warning', day: 'Warning', name: 'When to Consult a Doctor', desc: 'Consult your pediatrician immediately if stool is chalky white/clay-colored or contains bright red blood.', color: '#D9534F' },
+    { id: 'meconium', day: 'Days 1-2', name: 'Meconium', desc: 'Dark black / tarry green. The first natural clearing.', color: '#2B2E28' },
+    { id: 'transitional', day: 'Days 3-4', name: 'Transitional Stool', desc: 'Greenish brown, looser consistency.', color: '#65683F' },
+    { id: 'mustard', day: 'Day 5+', name: 'Mature Milk Stool', desc: 'Golden mustard yellow, seedy texture. Ideal.', color: '#D4A017' },
+    { id: 'warning', day: 'Notice', name: 'Pediatric Warning', desc: 'Consult your doctor if chalky white or blood-streaked.', color: '#D9534F' },
   ] : [
     { id: 'meconium', day: '1-2. Gün', name: 'Mekonyum', desc: 'Koyu siyah / katran yeşili, yapışkan kıvam. Doğum sonrası ilk doğal temizlik.', color: '#2B2E28' },
-    { id: 'transitional', day: '3-4. Gün', name: 'Geçiş Dışkısı', desc: 'Yeşilimsi kahverengi, gevşek kıvam. Kolostrumdan olgun süte geçiş belirtisi.', color: '#65683F' },
-    { id: 'mustard', day: '5+ Gün', name: 'Olgun Anne Sütü Kakası', desc: 'Altın hardal sarısı, hafif taneli/pütürlü. İdeal ve çok sağlıklı sindirim.', color: '#D4A017' },
-    { id: 'warning', day: 'Uyarı', name: 'Dikkat Edilmesi Gerekenler', desc: 'Kireç beyazı/kil rengi veya parlak kırmızı kan izi durumunda derhal hekime danışın.', color: '#D9534F' },
+    { id: 'transitional', day: '3-4. Gün', name: 'Geçiş Dışkısı', desc: 'Yeşilimsi kahverengi, gevşek kıvam. Olgun süte geçiş belirtisi.', color: '#65683F' },
+    { id: 'mustard', day: '5+ Gün', name: 'Olgun Anne Sütü Kakası', desc: 'Altın hardal sarısı, pütürlü doku. Çok sağlıklı.', color: '#D4A017' },
+    { id: 'warning', day: 'Uyarı', name: 'Doktora Danışma', desc: 'Kireç beyazı veya kan izi durumunda hekiminize danışın.', color: '#D9534F' },
   ];
 
   const records = state?.records || [];
   const diaperRecords = records.filter(r => r.type === 'Bez');
-  const wetCount = diaperRecords.filter(r => r.value?.includes('Islak') || r.value?.includes('Wet') || r.value?.includes('Karışık') || r.value?.includes('Mixed')).length;
-  const targetWet = 6;
-  const wetPercent = Math.min(100, Math.round((wetCount / targetWet) * 100));
+  const todayCount = diaperRecords.length;
 
-  function saveDiaper(typeId) {
+  // Single tap fast action logging (spec 14_DIAPER: ISLAK, KİRLİ, İKİSİ)
+  function fastLogDiaper(typeId) {
     const colorSuffix = selectedStoolColor ? ` (${selectedStoolColor})` : '';
-    const valText = isEn
-      ? `${typeId === 'Islak' ? 'Wet' : typeId === 'Kirli' ? 'Dirty' : 'Mixed'} diaper${colorSuffix}`
-      : `${typeId} bez${colorSuffix}`;
-    
+    const valText = typeId === 'Islak'
+      ? (isEn ? 'Wet diaper' : 'Islak bez')
+      : typeId === 'Kirli'
+      ? (isEn ? `Dirty diaper${colorSuffix}` : `Kirli bez${colorSuffix}`)
+      : (isEn ? `Wet & Dirty diaper${colorSuffix}` : `Islak & Kirli bez${colorSuffix}`);
+
     const newRecord = {
       id: uid(),
       type: 'Bez',
@@ -817,13 +839,12 @@ export function DiaperTrackerScreen({ state, update, toast, lang = 'tr' }) {
     }));
 
     setJustSavedDiaper(newRecord);
-
     offlineSyncQueue.enqueue(createTrackerEvent({
       type: 'diaper',
-      metadata: { type: typeId, color: selectedStoolColor, valText },
+      metadata: { diaperType: typeId, color: selectedStoolColor },
     })).catch(() => {});
 
-    toast && toast(isEn ? `✨ ${typeId === 'Islak' ? 'Wet' : typeId === 'Kirli' ? 'Dirty' : 'Mixed'} diaper logged` : `✨ ${typeId} bez kaydedildi`);
+    toast && toast(isEn ? `✓ ${valText} logged` : `✓ ${valText} kaydedildi`);
     setSelectedStoolColor(null);
   }
 
@@ -841,47 +862,16 @@ export function DiaperTrackerScreen({ state, update, toast, lang = 'tr' }) {
   return (
     <View style={pbs.container}>
       <ScreenHero
-        kicker={isEn ? 'CARE TRACKING' : 'BAKIM TAKİBİ'}
-        title={isEn ? 'Diaper Changes and Hydration' : 'Bez Değiştirme ve Hidrasyon'}
-        body={isEn ? 'Quickly log wet, dirty, and mixed diapers; track your daily target of 6+ wet diapers.' : 'Islak, kirli ve karışık bez kayıtlarını anında işle; günlük 6+ ıslak bez hedefini takip et.'}
+        kicker={isEn ? 'CARE TRACKING' : 'BEBEK BAKIMI'}
+        title={isEn ? 'Diaper Change Log' : 'Bez Değiştirme Günlüğü'}
+        body={isEn ? 'One-tap logging for wet, dirty, and mixed diapers. Observe hydration rhythm naturally.' : 'Islak, kirli ve karışık bezleri tek dokunuşla kaydedin. Hidrasyon ve bağırsak düzenini izleyin.'}
         icon="diaper"
         asset="ui_diaper_wet_drop"
-        stat={isEn ? `${wetCount}/6 wet diapers` : `${wetCount}/6 ıslak bez`}
+        stat={`${todayCount} ${isEn ? 'diapers logged today' : 'bez bugün kaydedildi'}`}
         tint="#4896BC"
       />
-      <ToolExperienceCard lang={lang} title={isEn ? 'See the care rhythm quickly' : 'Bakım ritmini hızlı gör'} steps={isEn ? ['Choose wet, dirty, or mixed.', 'Add the moment to today.', 'Review the 24-hour pattern.'] : ['Islak, kirli veya karışık seç.', 'Bugünün akışına ekle.', '24 saatlik düzeni gözden geçir.']} outcome={isEn ? 'The tool becomes a clear daily care log.' : 'Araç net bir günlük bakım günlüğüne dönüşür.'} asset="ui_diaper_wet_drop" tint="#3E7B54" />
 
-      {/* 24 Saatlik Hidrasyon & Bez Hedef Kartı */}
-      <Card style={{ padding: 16 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <View style={{ flex: 1, paddingRight: 12 }}>
-            <T bold style={{ fontSize: 16, color: colors.ink }}>
-              {isEn ? 'Daily Hydration Target' : 'Günlük Hidrasyon Hedefi'}
-            </T>
-            <T style={{ fontSize: 12, color: colors.muted, marginTop: 4, lineHeight: 18 }}>
-              {wetCount >= targetWet
-                ? (isEn
-                    ? '🎉 Congratulations! Your baby reached the daily 6+ wet diaper goal, indicating good feeding and hydration.'
-                    : '🎉 Tebrikler! Bebeğin günlük 6+ ıslak bez hedefine ulaştı, beslenme ve sıvı alımı gayet iyi.')
-                : (isEn
-                    ? `${wetCount} wet diapers logged today. In newborns, at least 6 wet diapers a day is the main sign of adequate milk intake.`
-                    : `Bugün ${wetCount} ıslak bez kaydedildi. Yenidoğanda yeterli süt alımının ana göstergesi günde en az 6 ıslak bezdir.`)}
-            </T>
-          </View>
-          <ProgressRing
-            size={72}
-            strokeWidth={7}
-            progress={wetPercent}
-            color="#4896BC"
-            trackColor="#E1EFF5"
-          >
-            <T bold style={{ fontSize: 15, color: '#4896BC' }}>{wetCount}/6</T>
-            <T style={{ fontSize: 9, color: colors.muted }}>{isEn ? 'wet' : 'ıslak'}</T>
-          </ProgressRing>
-        </View>
-      </Card>
-
-      {/* 10_FOREGROUND_INTERACTION_RULES: Anında Kayıt ve 8 sn Geri Al (Undo) */}
+      {/* Anında Kayıt ve 8 sn Geri Al (Undo) */}
       {justSavedDiaper && (
         <Card style={{ backgroundColor: '#EEF7EE', borderColor: '#84B886', borderWidth: 1.5, padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flex: 1, gap: 2 }}>
@@ -898,65 +888,122 @@ export function DiaperTrackerScreen({ state, update, toast, lang = 'tr' }) {
         </Card>
       )}
 
-      {/* 3 Hızlı Dokunsal Seçici */}
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        {[
-          { id: 'Islak', asset: 'ui_diaper_wet_drop', label: isEn ? 'Wet Diaper' : 'Islak Bez', tint: '#4896BC', bg: '#EDF6FA' },
-          { id: 'Kirli', asset: 'ui_diaper_dirty', label: isEn ? 'Dirty Diaper' : 'Kirli Bez', tint: '#8A6840', bg: '#F9F4EE' },
-          { id: 'Karışık', asset: 'btn_diaper', label: isEn ? 'Mixed Diaper' : 'Karışık', tint: '#6E4D84', bg: '#F6EFF8' },
-        ].map(item => (
-          <Tap
-            key={item.id}
-            onPress={() => saveDiaper(item.id)}
-            label={item.label}
-            style={[pbs.diaperBtn, { backgroundColor: item.bg }]}
-          >
-            {generatedAssets[item.asset] ? (
-              <Image source={generatedAssets[item.asset]} style={{ width: 44, height: 44 }} resizeMode="contain" />
-            ) : null}
-            <T bold style={{ fontSize: 13, color: item.tint, marginTop: 8 }}>{item.label}</T>
-            <T style={{ fontSize: 10, color: colors.muted, marginTop: 2 }}>{isEn ? 'Log' : 'Kaydet'}</T>
-          </Tap>
-        ))}
-      </View>
+      {/* 3 FAST ACTION BUTONU (SPEC 14_DIAPER: ISLAK, KİRLİ, İKİSİ) */}
+      <Card style={{ padding: 18, gap: 12 }}>
+        <T bold style={{ fontSize: 15, color: colors.ink }}>
+          {isEn ? 'Fast Diaper Log (One Tap):' : 'Hızlı Bez Kaydet (Tek Dokunuş):'}
+        </T>
 
-      {/* Yenidoğan Dışkı (Kaka) Renk Skalası */}
-      <Card style={pbs.colorGuideCard}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-          <Icon name="palette" size={16} color={colors.purple} />
-          <T bold style={{ fontSize: 14, color: colors.ink }}>
-            {isEn ? 'Newborn Stool Color Guide' : 'Yenidoğan Dışkı (Kaka) Renk Skalası'}
-          </T>
-        </View>
-        <View style={{ gap: 10 }}>
-          {stoolColorGuide.map((item, idx) => (
-            <View key={idx} style={pbs.colorGuideRow}>
-              <View style={[pbs.colorSwatch, { backgroundColor: item.color }]} />
-              <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <T bold style={{ fontSize: 13, color: colors.ink }}>{item.name}</T>
-                  <View style={pbs.dayPill}>
-                    <T style={{ fontSize: 9, color: colors.purple }}>{item.day}</T>
-                  </View>
-                </View>
-                <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>{item.desc}</T>
-              </View>
-            </View>
-          ))}
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <Tap
+            onPress={() => fastLogDiaper('Islak')}
+            style={{ flex: 1, backgroundColor: '#E9F3F9', paddingVertical: 18, borderRadius: 16, alignItems: 'center', borderWidth: 1.5, borderColor: '#C3DFEE' }}
+          >
+            <T style={{ fontSize: 26 }}>💧</T>
+            <T bold style={{ fontSize: 14, color: '#2B668B', marginTop: 4 }}>
+              {isEn ? 'WET' : 'ISLAK'}
+            </T>
+          </Tap>
+
+          <Tap
+            onPress={() => fastLogDiaper('Kirli')}
+            style={{ flex: 1, backgroundColor: '#FAF1E8', paddingVertical: 18, borderRadius: 16, alignItems: 'center', borderWidth: 1.5, borderColor: '#EDD6BE' }}
+          >
+            <T style={{ fontSize: 26 }}>💩</T>
+            <T bold style={{ fontSize: 14, color: '#88582B', marginTop: 4 }}>
+              {isEn ? 'DIRTY' : 'KİRLİ'}
+            </T>
+          </Tap>
+
+          <Tap
+            onPress={() => fastLogDiaper('İkisi')}
+            style={{ flex: 1, backgroundColor: '#F4EEF7', paddingVertical: 18, borderRadius: 16, alignItems: 'center', borderWidth: 1.5, borderColor: '#DFCDE4' }}
+          >
+            <T style={{ fontSize: 26 }}>✨</T>
+            <T bold style={{ fontSize: 14, color: '#68367A', marginTop: 4 }}>
+              {isEn ? 'BOTH' : 'İKİSİ'}
+            </T>
+          </Tap>
         </View>
       </Card>
 
-      <StatusCard
-        level="info"
-        icon="info"
-        title={isEn ? 'Pink / Orange Stains (Urate Crystals)' : 'Pembe / Turuncu Leke (Ürat Kristalleri)'}
-        description={isEn
-          ? 'Brick-colored stains in the diaper in the first few days are usually urate crystals from concentrated urine. If it continues, consult your pediatrician regarding fluid intake.'
-          : 'İlk birkaç günde bezde görülen kiremit rengi leke genellikle yoğun idrardaki ürat kristalleridir. Devam ederse sıvı alımı açısından doktorunuza danışın.'}
-      />
+      {/* Dışkı Renk Rehberi Butonu & Modalı (Spec 14: separate sheet, does not dominate logger) */}
+      <Tap
+        onPress={() => setShowColorGuide(true)}
+        style={{ padding: 12, borderRadius: 14, backgroundColor: '#FAF6F4', borderWidth: 1, borderColor: '#EFE7E4', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <T style={{ fontSize: 16 }}>🩺</T>
+          <T bold style={{ fontSize: 13, color: colors.ink }}>
+            {isEn ? 'Stool Color & Consistency Guide' : 'Dışkı Renk & Kıvam Rehberi'}
+          </T>
+        </View>
+        <T bold style={{ fontSize: 12, color: colors.purple }}>
+          {isEn ? 'View →' : 'İncele →'}
+        </T>
+      </Tap>
+
+      <Modal visible={showColorGuide} transparent animationType="fade" onRequestClose={() => setShowColorGuide(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(20,10,25,0.6)', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <Card style={{ width: '100%', maxWidth: 360, padding: 20, borderRadius: 22, backgroundColor: 'white', gap: 12 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <T bold style={{ fontSize: 17, color: colors.ink }}>
+                {isEn ? 'Stool Color Guide' : 'Dışkı Renk Rehberi'}
+              </T>
+              <Tap onPress={() => setShowColorGuide(false)} style={{ padding: 6 }}>
+                <Icon name="close" size={18} color={colors.muted} />
+              </Tap>
+            </View>
+
+            <ScrollView style={{ maxHeight: 380 }} showsVerticalScrollIndicator={false}>
+              <View style={{ gap: 10 }}>
+                {stoolColorGuide.map(guide => (
+                  <View key={guide.id} style={{ padding: 12, borderRadius: 12, backgroundColor: '#FDFBF9', borderWidth: 1, borderColor: '#EEE7E4' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: guide.color }} />
+                      <T bold style={{ fontSize: 13, color: colors.ink }}>{guide.name}</T>
+                      <T style={{ fontSize: 11, color: colors.muted }}>({guide.day})</T>
+                    </View>
+                    <T style={{ fontSize: 11.5, color: '#554B58', marginTop: 4, lineHeight: 16 }}>
+                      {guide.desc}
+                    </T>
+                  </View>
+                ))}
+              </View>
+            </ScrollView>
+
+            <Tap onPress={() => setShowColorGuide(false)} style={{ backgroundColor: colors.purple, paddingVertical: 12, borderRadius: 14, alignItems: 'center' }}>
+              <T bold style={{ color: 'white', fontSize: 13 }}>{isEn ? 'Close' : 'Kapat'}</T>
+            </Tap>
+          </Card>
+        </View>
+      </Modal>
+
+      {/* Günlük Bez Geçmişi */}
+      <Section title={isEn ? "Today's Diaper Logs" : "Bugünkü Bez Kayıtları"} />
+      {diaperRecords.length === 0 ? (
+        <Card style={{ alignItems: 'center', padding: 20 }}>
+          <T style={{ color: colors.muted, fontSize: 13 }}>
+            {isEn ? 'No diaper changes recorded yet today.' : 'Bugün henüz bez kaydı girilmedi.'}
+          </T>
+        </Card>
+      ) : (
+        diaperRecords.map(r => (
+          <Card key={r.id} style={{ padding: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#E9F3F9', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="diaper" size={16} color="#4896BC" />
+              </View>
+              <T bold style={{ fontSize: 14, color: colors.ink }}>{r.value}</T>
+            </View>
+            <T style={{ fontSize: 12, color: colors.muted }}>{r.time}</T>
+          </Card>
+        ))
+      )}
     </View>
   );
 }
+
 
 // ─── EKRAN 25: ANNE İYİLEŞME & LOHUSA RUH HALİ (POSTPARTUM SELF-CARE) ─────────
 export function PostpartumSelfCareScreen({ state, update, toast, lang = 'tr' }) {

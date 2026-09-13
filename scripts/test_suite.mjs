@@ -173,4 +173,58 @@ console.log('--- RUNNING MOMORA AUTOMATED TEST SUITE ---');
   console.log('✓ Sprint 4 Pregnancy Trackers tests passed.');
 }
 
-console.log('--- ALL MOMORA SPRINT 3 & 4 TESTS PASSED SUCCESFULLY ---');
+// 7. Sprint 5 Baby Tracker Domain Tests
+{
+  console.log('Testing Sprint 5 Baby Trackers...');
+
+  // Feeding: Nursing dual side calculation
+  const nursingRecord = createTrackerRecord({
+    type: TrackerTypes.NURSING,
+    value: 'Sol 12 dk + Sağ 10 dk (Top. 22 dk)',
+    metadata: {
+      side: 'Left Breast',
+      leftSecs: 720,
+      rightSecs: 600,
+      totalMins: 22,
+    },
+  });
+  assert.strictEqual(nursingRecord.type, 'nursing');
+  assert.strictEqual(nursingRecord.metadata.totalMins, 22);
+
+  // Feeding: Bottle entry
+  const bottleRecord = createTrackerRecord({
+    type: TrackerTypes.BOTTLE,
+    value: '120 ml · Anne Sütü',
+    metadata: {
+      amountMl: 120,
+      bottleType: 'breast_milk',
+    },
+  });
+  assert.strictEqual(bottleRecord.type, 'bottle');
+  assert.strictEqual(bottleRecord.metadata.amountMl, 120);
+
+  // Sleep: Timestamp-based session
+  const sleepRecord = createTrackerRecord({
+    type: TrackerTypes.SLEEP,
+    startedAt: '2026-09-13T13:00:00.000Z',
+    endedAt: '2026-09-13T14:30:00.000Z',
+    value: '1 sa 30 dk uyudu',
+  });
+  assert.strictEqual(sleepRecord.type, 'sleep');
+  assert.strictEqual(sleepRecord.durationSeconds, 5400);
+
+  // Diaper: Fast action entry
+  const diaperRecord = createTrackerRecord({
+    type: TrackerTypes.DIAPER,
+    value: 'Islak bez',
+    metadata: {
+      diaperType: 'Islak',
+    },
+  });
+  assert.strictEqual(diaperRecord.type, 'diaper');
+  assert.strictEqual(diaperRecord.metadata.diaperType, 'Islak');
+
+  console.log('✓ Sprint 5 Baby Trackers tests passed.');
+}
+
+console.log('--- ALL MOMORA SPRINT 3, 4 & 5 TESTS PASSED SUCCESFULLY ---');
