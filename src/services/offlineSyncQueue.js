@@ -68,39 +68,32 @@ class OfflineSyncQueue {
           // Attempt table insert depending on event type
           let res = null;
           if (item.type === 'contraction') {
-            res = await supabase.from('contraction_sessions').upsert({
-              id: item.clientGeneratedId || item.id,
+            res = await supabase.from('momora_contraction_sessions').insert({
               user_id: userData.user.id,
               started_at: item.metadata?.startedAt || item.occurredAt,
-              duration_sec: item.metadata?.durationSecs || 0,
+              duration_seconds: item.metadata?.durationSecs || 0,
+              interval_seconds: item.metadata?.intervalSecs || null,
               intensity: item.metadata?.intensity || 'Orta',
               status_alert: item.metadata?.statusAlert || null,
               created_at: item.occurredAt,
             });
           } else if (item.type === 'movement') {
-            res = await supabase.from('movement_sessions').upsert({
-              id: item.clientGeneratedId || item.id,
+            res = await supabase.from('momora_kick_sessions').insert({
               user_id: userData.user.id,
-              kicks: item.metadata?.kicks || 0,
-              duration_secs: item.metadata?.durationSecs || 0,
-              created_at: item.occurredAt,
-            });
-          } else if (item.type === 'diaper') {
-            res = await supabase.from('diaper_entries').upsert({
-              id: item.clientGeneratedId || item.id,
-              user_id: userData.user.id,
-              type: item.metadata?.type || 'wet',
-              color: item.metadata?.color || null,
+              kick_count: item.metadata?.kicks || 10,
+              duration_seconds: item.metadata?.durationSecs || 0,
+              pregnancy_week: item.metadata?.week || 24,
+              started_at: item.metadata?.startedAt || item.occurredAt,
+              finished_at: item.occurredAt,
               created_at: item.occurredAt,
             });
           } else {
             // General event store
-            res = await supabase.from('tracker_events').upsert({
-              id: item.clientGeneratedId || item.id,
+            res = await supabase.from('momora_tracking_events').insert({
               user_id: userData.user.id,
-              type: item.type,
-              metadata: item.metadata,
-              created_at: item.occurredAt,
+              event_type: item.type,
+              payload: item.metadata || {},
+              occurred_at: item.occurredAt,
             });
           }
 
