@@ -372,7 +372,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                 {(() => {
                   const featImg = generatedAssets[featuredArticle?.image] || getAsset(featuredArticle?.image) || generatedAssets['blog_pregnant_morning'];
                   return featImg ? (
-                    <Image source={featImg} style={StyleSheet.absoluteFill} resizeMode="contain" />
+                    <Image source={featImg} style={es.fitImage} resizeMode="contain" />
                   ) : null;
                 })()}
                 <View style={es.featuredHeroBadge}>
@@ -440,7 +440,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                   <View style={es.blogPostImgBox}>
                     <Image
                       source={imgAsset}
-                      style={StyleSheet.absoluteFill}
+                      style={es.fitImage}
                       resizeMode="contain"
                     />
                     <View style={es.blogPostCategoryBadge}>
@@ -578,7 +578,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
               <Card key={info.id} style={{ padding: 0, overflow: 'hidden', borderRadius: 24, borderWidth: 1, borderColor: '#E8DCE4' }}>
                 <View style={{ height: 210, width: '100%', backgroundColor: '#201525', overflow: 'hidden' }}>
                   {imgSource && (
-                    <Image source={imgSource} style={StyleSheet.absoluteFill} resizeMode="contain" />
+                    <Image source={imgSource} style={es.fitImage} resizeMode="contain" />
                   )}
                   <LinearGradient
                     colors={['rgba(25,12,30,0.1)', 'rgba(25,12,30,0.82)']}
@@ -689,7 +689,7 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
       {/* 1. Büyük Editoryal Kapak (16:9 Hero Image with Vignette Gradient) */}
       <View style={es.articleCoverBox}>
         {coverAsset ? (
-          <Image source={coverAsset} style={StyleSheet.absoluteFill} resizeMode="contain" />
+          <Image source={coverAsset} style={es.fitImage} resizeMode="contain" />
         ) : (
           <LinearGradient colors={['#9A779A', '#664566']} style={StyleSheet.absoluteFill} />
         )}
@@ -823,7 +823,7 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
                 {inlineAsset && (
                   <View style={es.inlineFigureBox}>
                     <View style={es.inlineImgFrame}>
-                      <Image source={inlineAsset} style={StyleSheet.absoluteFill} resizeMode="contain" />
+                      <Image source={inlineAsset} style={es.fitImage} resizeMode="contain" />
                     </View>
                     <View style={es.inlineCaptionRow}>
                       <Icon name="search" size={12} color="#7E6D82" style={{ marginRight: 5 }} />
@@ -921,6 +921,7 @@ const es = StyleSheet.create({
   layoutToggleTextActive: { color: colors.purple },
   libraryRitualStrip: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFBF7', borderWidth: 1, borderColor: '#E7DAD1', borderRadius: 17, padding: 12 },
   libraryRitualIcon: { width: 34, height: 34, borderRadius: 14, backgroundColor: '#F1E7DE', alignItems: 'center', justifyContent: 'center' },
+  fitImage: { width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center', alignSelf: 'center' },
   // Featured Lead Story Hero (Full uncropped 16:9 photo + editorial white body)
   featuredHeroCard: { backgroundColor: '#FFFFFF', borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: '#ECE2EC', ...shadow },
   featuredHeroImgBox: { width: '100%', aspectRatio: 640 / 349, backgroundColor: '#F6F0F3', position: 'relative', overflow: 'hidden' },
