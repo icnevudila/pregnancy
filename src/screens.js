@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { assets, colors, fonts, shadow } from './theme';
 import { Icon, BrandMark, ProductArt, FruitArt, ComparisonArt } from './Icons';
 import { generatedAssets, getAsset } from './generatedAssets';
-import { T, Tap, Card, RoundButton, Section, Tabs, MoodPicker, Progress, SmallStat, Page, ScreenHero } from './ui';
+import { T, Tap, Card, RoundButton, Section, Tabs, MoodPicker, Progress, SmallStat, Page, ScreenHero, ToolExperienceCard } from './ui';
 import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel, pregnancyProgress, TOTAL_WEEKS } from './weekData';
 import { usePulse, useCrossFade } from './anim';
 import { articles, searchArticles, searchFaqs } from './content';
@@ -971,6 +971,18 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
 
     <PremiumWeeklyPlan week={week} state={state} update={update} open={open} lang={lang} />
 
+
+    <ToolExperienceCard
+      title={isEn ? 'Your reason to open Momora today' : 'Bugün Momora’yı açma sebebin'}
+      steps={isEn
+        ? ['Read the baby letter before the day gets busy.', 'Complete water, vitamin, movement, and mood in the daily log.', 'Open one weekly guide or tool that matches today’s question.']
+        : ['Gün yoğunlaşmadan bebeğinin mektubunu oku.', 'Su, vitamin, hareket ve ruh halini günlük kayıtta tamamla.', 'Bugünkü soruna uyan bir rehber veya aracı aç.']}
+      outcome={isEn ? 'The home screen becomes a calm daily ritual, not a static week counter.' : 'Ana ekran statik hafta sayacı değil, sakin bir günlük ritüel gibi çalışır.'}
+      asset="onboarding_daily_guidance"
+      tint="#8A5BA4"
+      lang={lang}
+    />
+
     {/* ─── 2. HAFTA ŞERİDİ ─── */}
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.weekStrip}>
       {strip.map(n => (
@@ -1404,6 +1416,17 @@ export function Postpartum({state,update,open,lang='tr'}) {
       stat={`${state.tasks.filter(Boolean).length}/5 ${isEn ? 'steps' : 'adım'}`}
       tint="#86518A"
     />
+
+    <ToolExperienceCard
+      title={isEn ? 'A gentle check-in for today' : 'Bugün için nazik kontrol'}
+      steps={isEn
+        ? ['Mark one recovery action you can actually do.', 'Log mood before it becomes a blur.', 'Use rest, feeding, or notes when you need support.']
+        : ['Gerçekten yapabileceğin bir toparlanma adımını işaretle.', 'Günün hissi bulanıklaşmadan ruh halini kaydet.', 'Destek gerektiğinde dinlenme, beslenme veya not ekranını aç.']}
+      outcome={isEn ? 'Postpartum feels cared for day by day.' : 'Lohusalık gün gün sahiplenilmiş hissedilir.'}
+      asset="ui_postpartum_lotus"
+      tint="#B66C7E"
+      lang={lang}
+    />
     <View style={s.topline}>
       <View>
         <T bold style={s.pageTitle}>{isEn ? 'Postpartum · Day 12' : 'Lohusalık · 12. gün'}</T>
@@ -1431,6 +1454,17 @@ export function Baby({state,open,lang='tr'}) {
     <ScreenHero kicker={isEn ? 'BABY CARE' : 'BEBEK BAKIMI'} title={`${state.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · ${isEn ? '6 weeks old' : '6 haftalık'}`} body={isEn ? 'Feeding, sleep, diaper logs, and milestone guides gathered in one daily dashboard.' : 'Beslenme, uyku, bez kayıtları ve bakım rehberleri tek günlük panelde birleşir.'} icon="baby" asset="ui_baby_crib" stat={`${records.length} ${isEn ? 'logs' : 'kayıt'}`} tint="#6E5A96" />
     <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage} resizeMode="cover"/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · {isEn ? '6 weeks old' : '6 haftalık'}</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>{isEn ? "Today's daily rhythm" : 'Bugünün bakım ritmi'}</T></View></View><RoundButton icon="down" label={isEn ? 'Change journey' : 'Yolculuğunu değiştir'} onPress={()=>open('journey')}/></View>
     <BabyDaySummary state={state} open={open} lang={lang} />
+
+    <ToolExperienceCard
+      title={isEn ? 'One-handed care flow' : 'Tek elle bakım akışı'}
+      steps={isEn
+        ? ['Start the next feed, diaper, or sleep log fast.', 'Check the 24-hour pattern before adding another record.', 'Open guides when the day feels uncertain.']
+        : ['Sıradaki beslenme, bez veya uyku kaydını hızlı başlat.', 'Yeni kayıt eklemeden 24 saatlik ritmi gör.', 'Gün karışık hissettirdiğinde rehberi aç.']}
+      outcome={isEn ? 'Baby care feels practical even on tired days.' : 'Bebek bakımı yorgun günlerde bile pratik hissedilir.'}
+      asset="ui_baby_crib"
+      tint="#6E5A96"
+      lang={lang}
+    />
     <View style={s.babyGrid}>
       {babyActions.map(a=>(
         <Tap

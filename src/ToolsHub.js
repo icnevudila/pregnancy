@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Image, ScrollView } from 'react-native';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
-import { T, Tap, Card, ScreenHero } from './ui';
+import { T, Tap, Card, ScreenHero, ToolExperienceCard } from './ui';
 import { generatedAssets } from './generatedAssets';
 import { secondsLabel } from './domain.mjs';
 
@@ -260,6 +260,17 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
         icon="track"
         stat={`${kickSessions.length + contractionSessions.length + weights.length} ${isEn ? 'records' : 'kayıt'}`}
         tint={colors.purple}
+      />
+
+      <ToolExperienceCard
+        title={isEn ? 'Follow the suite, not a random list' : 'Liste değil, profesyonel set gibi kullan'}
+        steps={isEn
+          ? ['Start with daily logs.', 'Move to medical or preparation tools only when needed.', 'Keep newborn and postpartum tools ready for the next phase.']
+          : ['Önce günlük kayıtlarla başla.', 'İhtiyaç olduğunda medikal veya hazırlık araçlarına geç.', 'Yenidoğan ve lohusalık araçlarını sonraki faz için hazır tut.']}
+        outcome={isEn ? 'The hub feels like an organized maternity operating system.' : 'Araç merkezi düzenli bir annelik işletim sistemi gibi hissettirir.'}
+        asset="settings_premium_crown"
+        tint="#8A5BA4"
+        lang={lang}
       />
 
       {/* ─── ÜST İKİLİ SEKME (TAKİP KAYITLARIM vs TÜM ARAÇLAR) ─── */}
