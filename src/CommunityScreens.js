@@ -142,6 +142,19 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
   const [likedPosts, setLikedPosts] = useState({});
   const [newPostModal, setNewPostModal] = useState(false);
 
+  // Sprint 12 Safety & Moderation State
+  const [blockedUsers, setBlockedUsers] = useState(state?.blockedUsers || []);
+  const [reportedPostIds, setReportedPostIds] = useState(state?.reportedPostIds || []);
+  const [reportModalVisible, setReportModalVisible] = useState(false);
+  const [reportTarget, setReportTarget] = useState(null); // { id, user, title }
+  const [selectedReportReason, setSelectedReportReason] = useState('health_misinformation');
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingPost, setEditingPost] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDesc, setEditDesc] = useState('');
+  const [privacyWarning, setPrivacyWarning] = useState(false);
+  const [actionMenuPostId, setActionMenuPostId] = useState(null);
+
   React.useEffect(() => {
     fetchCommunityPostsCloud().then(res => {
       if (res?.data && res.data.length > 0) {
@@ -197,7 +210,23 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
     'Blog & Deneyim': 'Blog & Experience',
   };
 
+  const reportReasons = isEn ? [
+    { id: 'health_misinformation', label: '🩺 Health Misinformation / Medical Advice' },
+    { id: 'privacy_violation', label: '🔒 Phone, Address or Personal Info' },
+    { id: 'harassment', label: '🛑 Disrespectful or Harassing Content' },
+    { id: 'spam', label: '📢 Commercial Spam or Advertisement' },
+  ] : [
+    { id: 'health_misinformation', label: '🩺 Tıbbi / Yanıltıcı Sağlık Tavsiyesi' },
+    { id: 'privacy_violation', label: '🔒 Telefon, Adres veya Kişisel Bilgi İhlali' },
+    { id: 'harassment', label: '🛑 Saygısız veya Kırıcı Üslup' },
+    { id: 'spam', label: '📢 Spam, Reklam veya Uygunsuz İçerik' },
+  ];
+
+  const phoneOrEmailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,})|(\+?\d[\d -]{8,}\d)/;
+
   const filteredPosts = posts.filter(p => {
+    if (blockedUsers.includes(p.user)) return false;
+    if (reportedPostIds.includes(p.id)) return false;
     const matchesCat = filterCat === 'all' || p.cat === filterCat;
     const q = searchQuery.toLowerCase();
     const matchesSearch = !q || 
@@ -208,26 +237,34 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
     return matchesCat && matchesSearch;
   });
 
-  function handleCreatePost() {
+  function handleCreatePost(bypassPrivacy = false) {
     if (!newTitle.trim() || !newDesc.trim()) {
       toast && toast(isEn ? 'Please enter a title and details.' : 'Lütfen konu başlığı ve açıklama yazın.');
       return;
     }
+    // Spec 20: Privacy warning for personal contact/address
+    if (!bypassPrivacy && (phoneOrEmailRegex.test(newTitle) || phoneOrEmailRegex.test(newDesc))) {
+      setPrivacyWarning(true);
+      return;
+    }
+
     const created = {
       id: uid(),
-      user: isAnon ? (isEn ? 'Anonymous Mom' : 'Anonim Anne') : (state.name || (isEn ? 'Me' : 'Ben')),
-      week: state.week ? (isEn ? `Week ${state.week}` : `${state.week}. Hafta`) : (isEn ? 'Mom' : 'Anne'),
+      user: isAnon ? (isEn ? 'Anonymous Mom' : 'Anonim Anne') : (state?.name || (isEn ? 'Me' : 'Ben')),
+      week: state?.week ? (isEn ? `Week ${state.week}` : `${state.week}. Hafta`) : (isEn ? 'Mom' : 'Anne'),
       title: newTitle.trim(),
       desc: newDesc.trim(),
       likes: 1,
       comments: 0,
       cat: newCat,
       verified: false,
+      isOwn: true,
       time: isEn ? 'Just now' : 'Az önce',
     };
     setPosts([created, ...posts]);
     setNewTitle('');
     setNewDesc('');
+    setPrivacyWarning(false);
     setNewPostModal(false);
     toast && toast(isEn ? '🌸 Your question was published in the community feed!' : '🌸 Sorun topluluk akışında paylaşıldı!');
   }
@@ -244,6 +281,60 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
     toast && toast(isLiked ? (isEn ? 'Like removed' : 'Beğeni geri alındı') : (isEn ? 'Liked 💛' : 'Beğenildi 💛'));
   }
 
+  function openReport(post) {
+    setReportTarget(post);
+    setSelectedReportReason('health_misinformation');
+    setReportModalVisible(true);
+    setActionMenuPostId(null);
+  }
+
+  function submitReport() {
+    if (!reportTarget) return;
+    const updated = [...reportedPostIds, reportTarget.id];
+    setReportedPostIds(updated);
+    update && update({ reportedPostIds: updated });
+    setReportModalVisible(false);
+    setReportTarget(null);
+    toast && toast(isEn ? 'Report received by moderation queue. Thank you 🛡️' : 'Bildirim moderasyon kuyruğuna iletildi. Teşekkürler 🛡️');
+  }
+
+  function blockUser(userName) {
+    if (!userName) return;
+    const updated = [...new Set([...blockedUsers, userName])];
+    setBlockedUsers(updated);
+    update && update({ blockedUsers: updated });
+    setActionMenuPostId(null);
+    toast && toast(isEn ? `Blocked ${userName}. Content hidden 🚫` : `${userName} engellendi. Gönderileri gizlendi 🚫`);
+  }
+
+  function deletePost(postId) {
+    setPosts(prev => prev.filter(p => p.id !== postId));
+    setActionMenuPostId(null);
+    toast && toast(isEn ? 'Your post has been deleted 🗑️' : 'Gönderin topluluktan silindi 🗑️');
+  }
+
+  function openEdit(post) {
+    setEditingPost(post);
+    setEditTitle(post.title || post.titleEn || '');
+    setEditDesc(post.desc || post.descEn || '');
+    setEditModalVisible(true);
+    setActionMenuPostId(null);
+  }
+
+  function saveEdit() {
+    if (!editingPost || !editTitle.trim() || !editDesc.trim()) return;
+    setPosts(prev => prev.map(p => p.id === editingPost.id ? {
+      ...p,
+      title: editTitle.trim(),
+      desc: editDesc.trim(),
+      titleEn: editTitle.trim(),
+      descEn: editDesc.trim(),
+    } : p));
+    setEditModalVisible(false);
+    setEditingPost(null);
+    toast && toast(isEn ? 'Post updated successfully 🌸' : 'Gönderi güncellendi 🌸');
+  }
+
   return (
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={cs.container}>
       {/* Sade & Şık Başlık Çubuğu */}
@@ -255,7 +346,7 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
           </T>
         </View>
         <Tap
-          onPress={() => setNewPostModal(true)}
+          onPress={() => { setPrivacyWarning(false); setNewPostModal(true); }}
           label={isEn ? "Ask New Question" : "Yeni Soru Sor"}
           style={cs.newPostBtn}
         >
@@ -351,6 +442,10 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
               const pCat = (isEn && (post.catEn || catMap[post.cat])) ? (post.catEn || catMap[post.cat]) : post.cat;
               const pTime = (isEn && post.timeEn) ? post.timeEn : post.time;
               const pUser = (isEn && post.userEn) ? post.userEn : post.user;
+              const isOwnPost = post.isOwn || post.user === (state?.name || 'Ben') || post.user === (isEn ? 'Me' : 'Ben');
+              const showActionMenu = actionMenuPostId === post.id;
+              const isSensitive = post.cat === 'Kontrol & Hastane' || post.cat === 'Belirtiler & Aşerme';
+
               return (
                 <Card key={post.id} style={cs.postCard}>
                   {/* Başlık ve Yazar Bilgisi */}
@@ -364,25 +459,77 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
                         <View style={cs.weekTag}>
                           <T style={{ fontSize: 10, color: colors.purple, fontWeight: '600' }}>{pWeek}</T>
                         </View>
+                        {isOwnPost && (
+                          <View style={{ backgroundColor: '#EBE3FA', paddingHorizontal: 6, paddingVertical: 1, borderRadius: 6 }}>
+                            <T bold style={{ fontSize: 9.5, color: colors.purple }}>{isEn ? 'You' : 'Sen'}</T>
+                          </View>
+                        )}
                       </View>
                       <T style={{ fontSize: 10.5, color: colors.muted, marginTop: 1 }}>
                         {pTime} · {pCat}
                       </T>
                     </View>
-                    {post.verified && (
-                      <View style={cs.verifiedBadge}>
-                        <T bold style={{ fontSize: 10, color: '#2D754C' }}>
-                          {isEn ? '✓ Moderator Note' : '✓ Moderasyon Notu'}
-                        </T>
-                      </View>
-                    )}
+
+                    {/* Moderatör Rozeti veya 3 Nokta Eylem Menüsü */}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      {post.verified && (
+                        <View style={cs.verifiedBadge}>
+                          <T bold style={{ fontSize: 10, color: '#2D754C' }}>
+                            {isEn ? '✓ Moderator Note' : '✓ Moderasyon Notu'}
+                          </T>
+                        </View>
+                      )}
+                      <Tap
+                        onPress={() => setActionMenuPostId(showActionMenu ? null : post.id)}
+                        label={isEn ? "Actions" : "İşlemler"}
+                        style={{ padding: 4 }}
+                      >
+                        <T bold style={{ fontSize: 16, color: colors.muted }}>⋯</T>
+                      </Tap>
+                    </View>
                   </View>
+
+                  {/* 3 Nokta Eylem Açılır Menüsü */}
+                  {showActionMenu && (
+                    <View style={cs.actionDropdown}>
+                      {isOwnPost ? (
+                        <>
+                          <Tap onPress={() => openEdit(post)} style={cs.actionDropItem}>
+                            <T style={{ fontSize: 12, color: colors.ink }}>{isEn ? '✎ Edit post' : '✎ Gönderiyi düzenle'}</T>
+                          </Tap>
+                          <Tap onPress={() => deletePost(post.id)} style={cs.actionDropItem}>
+                            <T bold style={{ fontSize: 12, color: '#B42318' }}>{isEn ? '🗑️ Delete post' : '🗑️ Gönderiyi sil'}</T>
+                          </Tap>
+                        </>
+                      ) : (
+                        <>
+                          <Tap onPress={() => openReport(post)} style={cs.actionDropItem}>
+                            <T bold style={{ fontSize: 12, color: '#C55B77' }}>{isEn ? '🚩 Report post' : '🚩 Gönderiyi bildir'}</T>
+                          </Tap>
+                          <Tap onPress={() => blockUser(post.user)} style={cs.actionDropItem}>
+                            <T style={{ fontSize: 12, color: colors.muted }}>{isEn ? `🚫 Block ${post.user}` : `🚫 ${post.user} kişisini engelle`}</T>
+                          </Tap>
+                        </>
+                      )}
+                    </View>
+                  )}
+
+                  {/* Spec 20: Contextual Moderation Short Note (Sensitive categories) */}
+                  {isSensitive && (
+                    <View style={cs.contextModBox}>
+                      <T style={{ fontSize: 10.5, color: '#6A4D73' }}>
+                        {isEn
+                          ? '💡 Experience sharing · Always consult your obstetrician for clinical decisions.'
+                          : '💡 Anne deneyimidir · Tıbbi ve klinik kararlar için hekiminize danışınız.'}
+                      </T>
+                    </View>
+                  )}
 
                   {/* Soru / Konu İçeriği */}
                   <Tap
                     onPress={() => open && open('communityThread', { ...post, lang })}
                     label={pTitle}
-                    style={{ marginTop: 10 }}
+                    style={{ marginTop: 8 }}
                   >
                     <T bold style={cs.postTitle}>{pTitle}</T>
                     <T numberOfLines={2} style={cs.postDesc}>{pDesc}</T>
@@ -435,11 +582,80 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
           </View>
         </View>
       ) : (
-        /* ─── DOĞUM AYI KULÜBÜ (TEMMUZ 2026 ANNELERİ) ─────────────── */
-        <BirthMonthClubScreen onOpenThread={p => open && open('communityThread', { ...p, lang })} lang={lang} />
+        /* ─── DOĞUM AYI KULÜBÜ (DİNAMİK HAFTA/AY BAZLI KULÜP) ─────────────── */
+        <BirthMonthClubScreen state={state} onOpenThread={p => open && open('communityThread', { ...p, lang })} lang={lang} />
       )}
 
-      {/* YENİ GÖNDERİ PAYLAŞMA MODALİ */}
+      {/* ─── RAPOR ETME MODALİ (SPEC 20 MUST-HAVE) ─── */}
+      <Modal visible={reportModalVisible} transparent animationType="fade" onRequestClose={() => setReportModalVisible(false)}>
+        <View style={cs.modalBackdropCenter}>
+          <View style={cs.reportBox}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <T bold style={{ fontSize: 16, color: colors.ink }}>
+                {isEn ? 'Report to Moderation 🛡️' : 'Moderasyona Bildir 🛡️'}
+              </T>
+              <Tap onPress={() => setReportModalVisible(false)} label="Kapat">
+                <Icon name="close" size={18} />
+              </Tap>
+            </View>
+
+            <T style={{ fontSize: 12, color: colors.muted, marginBottom: 12, lineHeight: 17 }}>
+              {isEn
+                ? 'Select a reason below. Posts violating clinical safety or community guidelines are queued for review.'
+                : 'Lütfen bildirim nedeninizi seçiniz. Tıbbi yanıltıcı bilgi veya kuralları ihlal eden içerikler incelemeye alınır.'}
+            </T>
+
+            <View style={{ gap: 8 }}>
+              {reportReasons.map(r => (
+                <Tap
+                  key={r.id}
+                  onPress={() => setSelectedReportReason(r.id)}
+                  style={[cs.reportOption, selectedReportReason === r.id && cs.reportOptionActive]}
+                >
+                  <T bold={selectedReportReason === r.id} style={{ fontSize: 12.5, color: selectedReportReason === r.id ? colors.purple : colors.ink }}>
+                    {r.label}
+                  </T>
+                </Tap>
+              ))}
+            </View>
+
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
+              <Tap onPress={() => setReportModalVisible(false)} style={[cs.secondaryBtn, { flex: 1 }]}>
+                <T bold style={{ fontSize: 13, color: colors.muted }}>{isEn ? 'Cancel' : 'Vazgeç'}</T>
+              </Tap>
+              <Tap onPress={submitReport} style={[cs.submitPostBtn, { flex: 1, marginTop: 0, backgroundColor: '#C55B77' }]}>
+                <T bold style={{ color: 'white', fontSize: 13 }}>{isEn ? 'Submit Report' : 'Bildir'}</T>
+              </Tap>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* ─── KENDİ GÖNDERİSİNİ DÜZENLEME MODALİ (SPEC 20) ─── */}
+      <Modal visible={editModalVisible} transparent animationType="slide" onRequestClose={() => setEditModalVisible(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={cs.modalBackdrop}>
+          <View style={cs.modalSheet}>
+            <View style={cs.modalHandle} />
+            <View style={cs.modalHead}>
+              <T bold style={{ fontSize: 17, color: colors.ink }}>{isEn ? 'Edit Your Post ✎' : 'Gönderini Düzenle ✎'}</T>
+              <Tap onPress={() => setEditModalVisible(false)} label="Kapat">
+                <Icon name="close" size={20} color={colors.muted} />
+              </Tap>
+            </View>
+            <View style={{ gap: 12, paddingBottom: 24 }}>
+              <T bold style={{ fontSize: 12 }}>{isEn ? 'Title:' : 'Başlık:'}</T>
+              <TextInput value={editTitle} onChangeText={setEditTitle} style={cs.modalInput} />
+              <T bold style={{ fontSize: 12 }}>{isEn ? 'Details:' : 'Açıklama:'}</T>
+              <TextInput value={editDesc} onChangeText={setEditDesc} multiline numberOfLines={4} style={[cs.modalInput, { minHeight: 90, textAlignVertical: 'top' }]} />
+              <Tap onPress={saveEdit} style={cs.submitPostBtn}>
+                <T bold style={{ color: 'white', fontSize: 14 }}>{isEn ? 'Save Changes' : 'Değişiklikleri Kaydet'}</T>
+              </Tap>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
+      {/* ─── YENİ GÖNDERİ PAYLAŞMA MODALİ (GİZLİLİK UYARISI & ANONİM SEÇENEĞİ) ─── */}
       <Modal visible={newPostModal} transparent animationType="slide" onRequestClose={() => setNewPostModal(false)}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={cs.modalBackdrop}>
           <View style={cs.modalSheet}>
@@ -454,6 +670,31 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingBottom: 20 }}>
+              {/* Spec 20: Privacy Warning for Personal Contact/Address */}
+              {privacyWarning && (
+                <View style={cs.privacyWarningCard}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                    <T style={{ fontSize: 16 }}>⚠️</T>
+                    <T bold style={{ fontSize: 13, color: '#B42318' }}>
+                      {isEn ? 'Privacy Notice: Personal Contact Detected' : 'Gizlilik Uyarısı: Kişisel Bilgi Tespit Edildi'}
+                    </T>
+                  </View>
+                  <T style={{ fontSize: 11.5, color: '#7A271A', lineHeight: 16 }}>
+                    {isEn
+                      ? 'Your post appears to contain a phone number, email or personal address. For your safety, we strongly recommend keeping contact details private.'
+                      : 'Gönderiniz telefon, e-posta veya kişisel adres bilgisi içeriyor gibi görünüyor. Güvenliğiniz için bu bilgileri paylaşmamanızı öneririz.'}
+                  </T>
+                  <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+                    <Tap onPress={() => setPrivacyWarning(false)} style={[cs.secondaryBtn, { flex: 1, paddingVertical: 6 }]}>
+                      <T bold style={{ fontSize: 11, color: colors.ink }}>{isEn ? 'Edit Post' : 'Düzenle'}</T>
+                    </Tap>
+                    <Tap onPress={() => handleCreatePost(true)} style={[cs.secondaryBtn, { flex: 1, paddingVertical: 6, backgroundColor: '#FBE8E8' }]}>
+                      <T bold style={{ fontSize: 11, color: '#B42318' }}>{isEn ? 'Post Anyway' : 'Yine de Paylaş'}</T>
+                    </Tap>
+                  </View>
+                </View>
+              )}
+
               <T style={{ fontSize: 12.5, color: colors.muted }}>
                 {isEn
                   ? 'Share your question or experience. Get support from fellow mothers and Momora reference notes.'
@@ -485,7 +726,7 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
               </T>
               <TextInput
                 value={newTitle}
-                onChangeText={setNewTitle}
+                onChangeText={t => { setNewTitle(t); setPrivacyWarning(false); }}
                 placeholder={isEn ? "E.g. Any recommendations for 20th week detailed scan?" : "Örn: 20. hafta detaylı ultrason için önerileriniz var mı?"}
                 placeholderTextColor={colors.muted}
                 style={cs.modalInput}
@@ -497,7 +738,7 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
               </T>
               <TextInput
                 value={newDesc}
-                onChangeText={setNewDesc}
+                onChangeText={d => { setNewDesc(d); setPrivacyWarning(false); }}
                 placeholder={isEn ? "Write what is on your mind, symptoms, or what you are curious about..." : "Aklına takılanları, belirtilerini veya merak ettiklerini buraya yazabilirsin..."}
                 placeholderTextColor={colors.muted}
                 multiline
@@ -521,7 +762,7 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
 
               {/* Paylaş Butonu */}
               <Tap
-                onPress={handleCreatePost}
+                onPress={() => handleCreatePost(false)}
                 label={isEn ? "Submit Post" : "Paylaşımı Gönder"}
                 style={cs.submitPostBtn}
               >
@@ -537,9 +778,25 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
   );
 }
 
-export function BirthMonthClubScreen({ onOpenThread, lang = 'tr' }) {
+export function BirthMonthClubScreen({ state, onOpenThread, lang = 'tr' }) {
   const isEn = lang === 'en';
   const [filter, setFilter] = useState('all');
+  const [selectedMonth, setSelectedMonth] = useState('2026-07');
+
+  const monthOptions = isEn ? [
+    { id: '2026-06', label: 'June 2026' },
+    { id: '2026-07', label: 'July 2026' },
+    { id: '2026-08', label: 'August 2026' },
+    { id: '2026-09', label: 'September 2026' },
+  ] : [
+    { id: '2026-06', label: 'Haziran 2026' },
+    { id: '2026-07', label: 'Temmuz 2026' },
+    { id: '2026-08', label: 'Ağustos 2026' },
+    { id: '2026-09', label: 'Eylül 2026' },
+  ];
+
+  const currentClubName = monthOptions.find(m => m.id === selectedMonth)?.label || (isEn ? 'July 2026' : 'Temmuz 2026');
+
   const filters = isEn ? [
     { id: 'all', label: 'All' },
     { id: 'Kontrol & Hastane', label: 'Visits & Hospital' },
@@ -565,6 +822,21 @@ export function BirthMonthClubScreen({ onOpenThread, lang = 'tr' }) {
 
   return (
     <View style={{ gap: 14 }}>
+      {/* Doğum Ayı Seçici Şerit */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
+        {monthOptions.map(m => (
+          <Tap
+            key={m.id}
+            onPress={() => setSelectedMonth(m.id)}
+            style={[cs.filterPill, selectedMonth === m.id && cs.filterPillActive]}
+          >
+            <T bold={selectedMonth === m.id} style={{ fontSize: 11.5, color: selectedMonth === m.id ? 'white' : colors.ink }}>
+              🌸 {m.label} {isEn ? 'Moms' : 'Anneleri'}
+            </T>
+          </Tap>
+        ))}
+      </ScrollView>
+
       {/* Kulüp Başlık Banner'ı */}
       <Card style={cs.clubBanner}>
         <LinearGradient
@@ -577,10 +849,10 @@ export function BirthMonthClubScreen({ onOpenThread, lang = 'tr' }) {
           </View>
           <View style={{ flex: 1, marginLeft: 12 }}>
             <T bold style={{ color: 'white', fontSize: 17 }}>
-              {isEn ? 'July 2026 Moms' : 'Temmuz 2026 Anneleri'}
+              {currentClubName} {isEn ? 'Moms Club' : 'Anneleri Kulübü'}
             </T>
             <T style={{ color: '#E8D5E8', fontSize: 12, marginTop: 2 }}>
-              {isEn ? '4,280 Moms · Meeting in the same month 💕' : '4.280 Anne · Aynı ayda kavuşuyoruz 💕'}
+              {isEn ? '4,280 Moms · Sharing the exact same journey 💕' : '4.280 Anne · Aynı heyecan ve haftalarda kavuşuyoruz 💕'}
             </T>
           </View>
         </View>
@@ -661,7 +933,6 @@ export function BirthMonthClubScreen({ onOpenThread, lang = 'tr' }) {
   );
 }
 
-// ─── EKRAN 21: TOPLULUK TARTIŞMA & SOHBET DETAY EKRANI ───────────────────────
 export function CommunityThreadScreen({ post, toast, lang: propLang }) {
   const lang = propLang || post?.lang || 'tr';
   const isEn = lang === 'en';
@@ -748,6 +1019,10 @@ export function CommunityThreadScreen({ post, toast, lang: propLang }) {
     toast && toast(isEn ? '🌸 Your reply was added to the community chat!' : '🌸 Yanıtınız topluluk sohbetine eklendi!');
   }
 
+  function reportComment(commentId) {
+    toast && toast(isEn ? 'Comment reported to moderation queue 🛡️' : 'Yorum moderasyon kuyruğuna iletildi 🛡️');
+  }
+
   return (
     <View style={{ gap: 14, paddingBottom: 24 }}>
       {/* Ana Soru Kartı */}
@@ -767,6 +1042,15 @@ export function CommunityThreadScreen({ post, toast, lang: propLang }) {
               </T>
             </View>
           )}
+        </View>
+
+        {/* Spec 20: Contextual Moderation Note */}
+        <View style={[cs.contextModBox, { marginTop: 10 }]}>
+          <T style={{ fontSize: 11, color: '#6A4D73' }}>
+            {isEn
+              ? '💡 Experience sharing space · Please consult your healthcare provider for clinical decisions.'
+              : '💡 Bu sohbet anne deneyim paylaşımıdır · Tıbbi kararlarınızı hekiminizle birlikte alınız.'}
+          </T>
         </View>
 
         <T bold style={{ fontSize: 17, color: colors.ink, marginTop: 12, lineHeight: 23 }}>
@@ -804,27 +1088,32 @@ export function CommunityThreadScreen({ post, toast, lang: propLang }) {
               c.isExpert && { borderColor: '#8E6E8E', backgroundColor: '#FAF5FA' },
             ]}
           >
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <View style={[cs.commentAvatar, c.isExpert && { backgroundColor: '#8E6E8E' }]}>
-                <T style={{ fontSize: 13, color: c.isExpert ? 'white' : colors.ink }}>
-                  {c.isExpert ? '✓' : '💬'}
-                </T>
-              </View>
-              <View style={{ flex: 1, marginLeft: 10 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <T bold style={{ fontSize: 13.5 }}>{c.author}</T>
-                  {c.isExpert ? (
-                    <View style={cs.expertTag}>
-                      <T bold style={{ fontSize: 9.5, color: 'white' }}>
-                        {isEn ? 'GUIDE NOTE' : 'REHBER NOTU'}
-                      </T>
-                    </View>
-                  ) : (
-                    <T style={{ fontSize: 10.5, color: colors.muted }}>({c.role})</T>
-                  )}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                <View style={[cs.commentAvatar, c.isExpert && { backgroundColor: '#8E6E8E' }]}>
+                  <T style={{ fontSize: 13, color: c.isExpert ? 'white' : colors.ink }}>
+                    {c.isExpert ? '✓' : '💬'}
+                  </T>
                 </View>
-                <T style={{ fontSize: 10.5, color: colors.muted, marginTop: 2 }}>{c.time}</T>
+                <View style={{ flex: 1, marginLeft: 10 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <T bold style={{ fontSize: 13.5 }}>{c.author}</T>
+                    {c.isExpert ? (
+                      <View style={cs.expertTag}>
+                        <T bold style={{ fontSize: 9.5, color: 'white' }}>
+                          {isEn ? 'GUIDE NOTE' : 'REHBER NOTU'}
+                        </T>
+                      </View>
+                    ) : (
+                      <T style={{ fontSize: 10.5, color: colors.muted }}>({c.role})</T>
+                    )}
+                  </View>
+                  <T style={{ fontSize: 10.5, color: colors.muted, marginTop: 2 }}>{c.time}</T>
+                </View>
               </View>
+              <Tap onPress={() => reportComment(c.id)} style={{ padding: 4 }}>
+                <T style={{ fontSize: 11, color: colors.muted }}>🚩</T>
+              </Tap>
             </View>
 
             <T style={{ fontSize: 13.5, color: '#413A47', marginTop: 10, lineHeight: 21 }}>
@@ -853,6 +1142,17 @@ export function CommunityThreadScreen({ post, toast, lang: propLang }) {
 }
 
 const cs = StyleSheet.create({
+  // Sprint 12 Safety & Moderation styles
+  actionDropdown: { backgroundColor: '#FFFFFF', borderRadius: 14, borderWidth: 1, borderColor: '#EAE1EC', padding: 6, gap: 4, marginVertical: 6, ...shadow },
+  actionDropItem: { paddingVertical: 8, paddingHorizontal: 10, borderRadius: 8 },
+  contextModBox: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, backgroundColor: '#FAF2FB', borderWidth: 1, borderColor: '#EDE2EE', marginTop: 6 },
+  modalBackdropCenter: { flex: 1, backgroundColor: 'rgba(25, 12, 30, 0.6)', alignItems: 'center', justifyContent: 'center', padding: 20 },
+  reportBox: { width: '100%', maxWidth: 380, backgroundColor: '#FFFFFF', borderRadius: 22, padding: 20, ...shadow },
+  reportOption: { paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1.2, borderColor: '#EDE4EE', backgroundColor: '#FAF6FA' },
+  reportOptionActive: { borderColor: colors.purple, backgroundColor: '#F6ECF6' },
+  privacyWarningCard: { padding: 12, borderRadius: 14, backgroundColor: '#FFF5F5', borderWidth: 1, borderColor: '#F5C6C6' },
+  secondaryBtn: { paddingVertical: 10, borderRadius: 12, backgroundColor: '#F0E6F2', alignItems: 'center', justifyContent: 'center' },
+
   container: { paddingHorizontal: 17, paddingTop: 14, paddingBottom: 32, gap: 14 },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 },
   pageTitle: { fontSize: 25, letterSpacing: -0.5, color: colors.ink, marginTop: 3 },

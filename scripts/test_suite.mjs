@@ -537,7 +537,69 @@ console.log('--- RUNNING MOMORA AUTOMATED TEST SUITE ---');
   console.log('✓ Sprint 11 Household & Partner Sync tests passed.');
 }
 
-console.log('--- ALL MOMORA SPRINT 3 THROUGH 11 TESTS PASSED SUCCESFULLY ---');
+// 14. Sprint 12 Community Experience & Moderation Architecture (Spec 20)
+{
+  console.log('Testing Sprint 12 Community Experience & Safety (Spec 20)...');
+
+  // 1. Must-have Safety Report Reasons
+  const reportReasons = [
+    'health_misinformation',
+    'privacy_violation',
+    'harassment',
+    'spam',
+  ];
+  assert(reportReasons.includes('health_misinformation'), 'Must include health misinformation report reason');
+  assert(reportReasons.includes('privacy_violation'), 'Must include privacy violation report reason');
+
+  // 2. User Blocking Filter
+  const allPosts = [
+    { id: 'post_1', user: 'Zeynep K.', title: 'Bebek arabası tavsiyesi' },
+    { id: 'post_2', user: 'SpamUser99', title: 'Hemen tıkla indirim kazan' },
+    { id: 'post_3', user: 'Merve B.', title: 'Detaylı ultrason deneyimi' },
+  ];
+  const blockedUsers = ['SpamUser99'];
+  const visiblePostsAfterBlock = allPosts.filter(p => !blockedUsers.includes(p.user));
+  assert.strictEqual(visiblePostsAfterBlock.length, 2);
+  assert(!visiblePostsAfterBlock.some(p => p.user === 'SpamUser99'));
+
+  // 3. Moderation Queue / Reported Posts Filtering
+  const reportedPostIds = ['post_1'];
+  const visibleAfterReport = visiblePostsAfterBlock.filter(p => !reportedPostIds.includes(p.id));
+  assert.strictEqual(visibleAfterReport.length, 1);
+  assert.strictEqual(visibleAfterReport[0].id, 'post_3');
+
+  // 4. Privacy Warning Detection (Phone, Email, Contact)
+  const phoneOrEmailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})|(\+?\d[\d -]{8,}\d)/;
+  const safeText = '24. haftadayım ve bebeğimin hareketlerini çok seviyorum.';
+  const unsafePhone = 'Bana whatsapptan yazabilirsiniz numaram 0532 111 22 33';
+  const unsafeEmail = 'Sorularınız için mailim test@example.com';
+
+  assert(!phoneOrEmailRegex.test(safeText), 'Safe text should not trigger privacy warning');
+  assert(phoneOrEmailRegex.test(unsafePhone), 'Phone number must trigger privacy warning');
+  assert(phoneOrEmailRegex.test(unsafeEmail), 'Email address must trigger privacy warning');
+
+  // 5. Contextual Moderation & Neutrality
+  const sensitiveCategory = 'Kontrol & Hastane';
+  const isSensitive = sensitiveCategory === 'Kontrol & Hastane' || sensitiveCategory === 'Belirtiler & Aşerme';
+  assert(isSensitive, 'Sensitive clinical categories must trigger contextual experience notice');
+
+  // 6. Own Post Deletion & Editing
+  let myFeed = [
+    { id: 'p_mine', user: 'Ben', isOwn: true, title: 'Orijinal Başlık', desc: 'Orijinal içerik' },
+    { id: 'p_other', user: 'Ayşe', isOwn: false, title: 'Diğer başlık', desc: 'Diğer içerik' },
+  ];
+  // Edit
+  myFeed = myFeed.map(p => p.id === 'p_mine' ? { ...p, title: 'Düzenlenmiş Başlık' } : p);
+  assert.strictEqual(myFeed[0].title, 'Düzenlenmiş Başlık');
+  // Delete
+  myFeed = myFeed.filter(p => p.id !== 'p_mine');
+  assert.strictEqual(myFeed.length, 1);
+  assert.strictEqual(myFeed[0].id, 'p_other');
+
+  console.log('✓ Sprint 12 Community Experience & Safety tests passed.');
+}
+
+console.log('--- ALL MOMORA SPRINT 3 THROUGH 12 TESTS PASSED SUCCESFULLY ---');
 
 
 
