@@ -203,7 +203,6 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
   const [hubTab, setHubTab] = useState(initialTab); // 'articles' | 'food' | 'infographics' | 'topics'
   const [articleQuery, setArticleQuery] = useState('');
   const [articleFilter, setArticleFilter] = useState('all');
-  const [coverLayout, setCoverLayout] = useState('magazine'); // 'magazine' | 'compact'
 
   const topicFilters = isEn ? [
     { id: 'all', label: 'All' },
@@ -424,27 +423,6 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
               )}
             </View>
 
-            {/* Kapak Görünüm Ayarı (Geniş Kapak vs Kompakt Liste) */}
-            <View style={es.layoutToggleBox}>
-              <Tap
-                onPress={() => setCoverLayout('magazine')}
-                label={isEn ? "Magazine View" : "Geniş Kapak"}
-                style={[es.layoutToggleBtn, coverLayout === 'magazine' && es.layoutToggleBtnActive]}
-              >
-                <T bold={coverLayout === 'magazine'} style={[es.layoutToggleText, coverLayout === 'magazine' && es.layoutToggleTextActive]}>
-                  {isEn ? "🖼️ Magazine" : "🖼️ Geniş Kapak"}
-                </T>
-              </Tap>
-              <Tap
-                onPress={() => setCoverLayout('compact')}
-                label={isEn ? "Compact View" : "Kompakt Liste"}
-                style={[es.layoutToggleBtn, coverLayout === 'compact' && es.layoutToggleBtnActive]}
-              >
-                <T bold={coverLayout === 'compact'} style={[es.layoutToggleText, coverLayout === 'compact' && es.layoutToggleTextActive]}>
-                  {isEn ? "📑 Compact" : "📑 Kompakt"}
-                </T>
-              </Tap>
-            </View>
           </View>
 
           {/* Makale Kartları Listesi (Vogue / Flo Kalitesinde Görsel Kartlar) */}
@@ -452,42 +430,6 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
             {listArticles.map(a => {
               const imgAsset = generatedAssets[a.image] || getAsset(a.image) || generatedAssets['blog_pregnant_morning'];
               
-              if (coverLayout === 'compact') {
-                return (
-                  <Tap
-                    key={a.id}
-                    onPress={() => openArticle && openArticle(a)}
-                    label={a.title}
-                    style={es.compactArticleCard}
-                  >
-                    <View style={{ flex: 1, paddingVertical: 2 }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 5 }}>
-                        <View style={es.compactCategoryBadge}>
-                          <T bold style={{ fontSize: 9.5, color: colors.purple }}>
-                            {a.categoryName || (isEn ? 'Guide' : 'Rehber')}
-                          </T>
-                        </View>
-                        <T style={{ fontSize: 11, color: colors.muted }}>• {a.minutes} {isEn ? 'min read' : 'dk okuma'}</T>
-                      </View>
-                      <T bold numberOfLines={2} style={es.compactArticleTitle}>{a.title}</T>
-                      <T numberOfLines={1} style={es.compactArticleSub}>{a.subtitle}</T>
-                      {a.doctor && (
-                        <T numberOfLines={1} style={{ fontSize: 11, color: '#7E6B82', marginTop: 6 }}>
-                          🩺 {a.doctor.split('·')[0]}
-                        </T>
-                      )}
-                    </View>
-                    <View style={es.compactImgBox}>
-                      <Image
-                        source={imgAsset}
-                        style={StyleSheet.absoluteFill}
-                        resizeMode="contain"
-                      />
-                    </View>
-                  </Tap>
-                );
-              }
-
               return (
                 <Tap
                   key={a.id}
