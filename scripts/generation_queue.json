@@ -971,14 +971,14 @@
       "filename": "sweet_birthdaycake.png",
       "prompt": "High-end 3D claymorphic two-tier pastel celebration birthday cake with delicate white piped frosting and golden candle, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
-      "status": "processing",
+      "status": "done",
       "attempts": 1,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789286176909,
       "platform": "unknown",
-      "updatedAt": 1789285005355,
-      "thumb": "blob:https://gemini.google.com/75b12202-ab4d-4878-abe0-47d188f47b02"
+      "updatedAt": 1789286205392,
+      "thumb": "blob:https://gemini.google.com/c684a30f-3994-4b0d-915a-012ccfafe3a2"
     },
     {
       "id": "job_1789250674098_nxqq4",
@@ -986,13 +986,14 @@
       "prompt": "High-end 3D claymorphic cute segmented pastel green baby caterpillar with tiny friendly smiling face, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "error",
+      "attempts": 1,
       "createdAt": 1789250674099,
-      "startedAt": 1789263700740,
+      "startedAt": 1789286205602,
       "platform": "unknown",
-      "updatedAt": 1789285005322,
-      "thumb": "blob:https://gemini.google.com/5c653716-751d-443a-94f0-ac88dfcbdb08"
+      "updatedAt": 1789286348638,
+      "thumb": "blob:https://gemini.google.com/5c653716-751d-443a-94f0-ac88dfcbdb08",
+      "error": "Capture timeout"
     },
     {
       "id": "job_1789250674100_udr27",
@@ -1000,13 +1001,13 @@
       "prompt": "High-end 3D claymorphic cute delicate baby dragonfly with iridescent pastel turquoise wings, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789263880736,
+      "startedAt": 1789286352727,
       "platform": "unknown",
-      "updatedAt": 1789285005322,
-      "thumb": "blob:https://gemini.google.com/1fe9e710-1234-4f6a-b62a-5a468e2892c2"
+      "updatedAt": 1789286385942,
+      "thumb": "blob:https://gemini.google.com/9fa85998-3d4a-4894-a344-755274a751e9"
     },
     {
       "id": "job_1789250674100_3tw5u",
@@ -1014,13 +1015,13 @@
       "prompt": "High-end 3D claymorphic cute friendly green grasshopper with tiny antennae sitting peacefully, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789264060727,
+      "startedAt": 1789286387789,
       "platform": "unknown",
-      "updatedAt": 1789285005323,
-      "thumb": "blob:https://gemini.google.com/9028f9bf-2de5-4eb3-b40c-28c0a6ccf33c"
+      "updatedAt": 1789286428028,
+      "thumb": "blob:https://gemini.google.com/35fc7437-ed00-44c0-b28e-94b0b149b8fe"
     },
     {
       "id": "job_1789250674100_pin8i",
@@ -1028,10 +1029,10 @@
       "prompt": "High-end 3D claymorphic cute chubby goldfish with wavy translucent fins and friendly eyes, pastel orange and gold, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "processing",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789264240788,
+      "startedAt": 1789286432829,
       "platform": "unknown",
       "updatedAt": 1789285005323,
       "thumb": "blob:https://gemini.google.com/5f287cf2-9134-464b-b1d1-fc1928d65809"

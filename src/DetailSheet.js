@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, View, StyleSheet, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { colors, fonts } from './theme';
-import { T, Tap, Card } from './ui';
+import { T, Tap, Card, ToolExperienceCard } from './ui';
 import { Icon, BrandMark, FruitArt, ComparisonArt, MoodFace } from './Icons';
 import { journeys, RecordList, sampleRecords } from './screens';
 import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel } from './weekData';
@@ -50,7 +50,19 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
   const input=(label,value,onChange,props={})=><View style={{marginTop:16}}><T bold style={s.label}>{label}</T><TextInput accessibilityLabel={label} value={value} onChangeText={onChange} placeholderTextColor="#A79AA7" style={[s.input,props.multiline&&{minHeight:100,textAlignVertical:'top'}]} maxLength={props.multiline?1000:80} {...props}/></View>;
   const button=(label,onPress,secondary=false)=><Tap onPress={onPress} style={[s.button,secondary&&s.secondary]}><T bold style={{color:secondary?colors.purple:'white',fontSize:16}}>{label}</T></Tap>;
   const sheetTitle = t('sheets.titles.' + kind, lang) || (kind === 'log' ? (isEn ? `${data.type} entry` : `${data.type} kaydı`) : kind);
+
+  const premiumSheetIntro = {
+    journey: [isEn ? 'Choose the right journey' : 'Doğru yolculuğu seç', isEn ? ['Pick pregnancy, postpartum, or baby care.', 'Momora adjusts daily cards and tools.', 'You can change it later from profile.'] : ['Hamilelik, lohusalık veya bebek bakımını seç.', 'Momora günlük kartları ve araçları buna göre ayarlar.', 'Sonra profilden değiştirebilirsin.'], 'onboarding_fetal_journey', '#8A5BA4'],
+    appointment: [isEn ? 'Prepare the visit cleanly' : 'Kontrolü düzenli hazırla', isEn ? ['Name the visit.', 'Add date and time.', 'Use reminders and doctor questions together.'] : ['Randevuyu adlandır.', 'Tarih ve saati ekle.', 'Hatırlatma ve doktor sorularını birlikte kullan.'], 'card_appointment', '#7B5FA3'],
+    log: [isEn ? 'Add one clean care record' : 'Tek temiz bakım kaydı ekle', isEn ? ['Choose the right type.', 'Enter only the needed amount or duration.', 'Save it to the daily rhythm.'] : ['Doğru kayıt türünü seç.', 'Sadece gerekli miktar veya süreyi gir.', 'Günün ritmine kaydet.'], 'ui_nursing_dual_timer', '#B66C7E'],
+    records: [isEn ? 'Review the day before the next log' : 'Yeni kayıttan önce günü oku', isEn ? ['Latest records stay at the top.', 'Look for rhythm, not perfection.', 'Cloud sync keeps the family aligned.'] : ['Son kayıtlar üstte kalır.', 'Mükemmellik değil ritim ara.', 'Bulut eşitleme aileyi aynı yerde tutar.'], 'settings_cloud_sync_backup', '#6E5A96'],
+    note: [isEn ? 'Save the moment while it is fresh' : 'Anı tazeyken sakla', isEn ? ['Write a feeling or question.', 'Keep it short.', 'Return from notes or week screens later.'] : ['Bir his veya soru yaz.', 'Kısa tut.', 'Sonra notlar veya hafta ekranından dön.'], 'blog_postpartum_selfcare', '#A75E7B'],
+    notes: [isEn ? 'Your private memory shelf' : 'Sana ait anı rafı', isEn ? ['Review saved notes.', 'Remove what no longer matters.', 'Add today’s small memory.'] : ['Kayıtlı notları gözden geçir.', 'Artık gerekmeyeni sil.', 'Bugünün küçük anısını ekle.'], 'ui_baby_letter_envelope', '#8A5BA4'],
+    dailyMood: [isEn ? 'Start with yourself' : 'Önce kendini dinle', isEn ? ['Pick the closest feeling.', 'Add a small note if needed.', 'Continue the day with one gentle cue.'] : ['Sana en yakın hissi seç.', 'Gerekirse küçük not ekle.', 'Güne tek nazik ipucuyla devam et.'], 'mood_good', '#B66C7E'],
+  }[kind];
   return <Modal visible transparent animationType="fade" onRequestClose={close}><KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':undefined} style={s.backdrop}><Tap label="Pencereyi kapat" style={StyleSheet.absoluteFill} onPress={close}/><View style={s.sheet}><View style={s.handle}/><View style={s.heading}><View style={{flex:1}}><T style={s.kicker}>MOMORA · {isEn ? 'WITH YOU' : 'YANINDA'}</T><T bold style={s.title}>{sheetTitle}</T></View><Tap onPress={close} label="Kapat" style={s.close}><Icon name="close" size={22}/></Tap></View><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{paddingBottom:28}} showsVerticalScrollIndicator={false}>
+
+    {premiumSheetIntro&&<ToolExperienceCard title={premiumSheetIntro[0]} steps={premiumSheetIntro[1]} outcome={isEn ? 'This keeps the sheet focused and useful.' : 'Bu pencereyi odaklı ve işe yarar tutar.'} asset={premiumSheetIntro[2]} tint={premiumSheetIntro[3]} lang={lang} style={{marginTop:14}}/>}
     {kind==='journey'&&journeys.map(j=><Tap key={j.key} onPress={()=>{choose(j.key);close()}} style={s.option}><T bold style={{flex:1}}>{j.title.replace('\n',' ')}</T><Icon name="chevron"/></Tap>)}
     {kind==='profile'&&<ProfileScreen state={state} update={update} open={open} toast={toast} choose={choose} close={close} lang={lang}/>}
     {kind==='appointment'&&<>{input(isEn?'Appointment Title':'Randevu adı',text,setText)}{input(isEn?'Date':'Tarih',secondary,setSecondary,{placeholder:isEn?'Friday, May 16':'16 Mayıs Cuma'})}{input(isEn?'Time':'Saat',time,setTime,{placeholder:'10:00',maxLength:5})}{button(isEn?'Save Appointment':'Randevuyu kaydet',save)}<T style={s.helper}>{isEn?'Saved to your appointment diary; can be used as a reminder.':'Randevu günlüğüne kaydedilir; bildirim ayarı bağlandığında hatırlatma olarak kullanılabilir.'}</T></>}

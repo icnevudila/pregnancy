@@ -370,40 +370,40 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
             ))}
           </ScrollView>
 
-          {/* Öne Çıkan Başyazı (Featured Lead Story Hero) */}
+          {/* Öne Çıkan Başyazı (Featured Lead Story Hero - TAM RESİM) */}
           {!articleQuery && articleFilter === 'all' && featuredArticle && (
             <Tap
               onPress={() => openArticle && openArticle(featuredArticle)}
               label={isEn ? "Featured Lead Story" : "Öne Çıkan Başyazı"}
               style={es.featuredHeroCard}
             >
-              {(() => {
-                const featImg = generatedAssets[featuredArticle?.image] || getAsset(featuredArticle?.image) || generatedAssets['blog_pregnant_morning'];
-                return featImg ? (
-                  <Image source={featImg} style={StyleSheet.absoluteFill} resizeMode="cover" />
-                ) : null;
-              })()}
-              {/* Sadece alt %45'lik alanda degrade — Üstteki fotoğraf pırıl pırıl ve aydınlık kalır */}
-              <LinearGradient
-                colors={['transparent', 'rgba(20, 10, 24, 0.45)', 'rgba(18, 9, 22, 0.92)']}
-                style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 165 }}
-              />
-              <View style={es.featuredHeroBadge}>
-                <Icon name="sparkle" size={12} color={colors.purple} />
-                <T bold style={{ fontSize: 10.5, color: colors.purple, letterSpacing: 0.8 }}>
-                  {isEn ? "TODAY'S LEAD STORY" : "GÜNÜN BAŞYAZISI"}
-                </T>
+              {/* Üst Kısım: Tam 16:9 Kesilmemiş Orijinal Fotoğraf */}
+              <View style={es.featuredHeroImgBox}>
+                {(() => {
+                  const featImg = generatedAssets[featuredArticle?.image] || getAsset(featuredArticle?.image) || generatedAssets['blog_pregnant_morning'];
+                  return featImg ? (
+                    <Image source={featImg} style={StyleSheet.absoluteFill} resizeMode="contain" />
+                  ) : null;
+                })()}
+                <View style={es.featuredHeroBadge}>
+                  <Icon name="sparkle" size={12} color={colors.purple} />
+                  <T bold style={{ fontSize: 10.5, color: colors.purple, letterSpacing: 0.8 }}>
+                    {isEn ? "TODAY'S LEAD STORY" : "GÜNÜN BAŞYAZISI"}
+                  </T>
+                </View>
               </View>
-              <View style={es.featuredHeroContent}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+
+              {/* Alt Kısım: Beyaz Editoryal Gövde */}
+              <View style={es.featuredHeroBody}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                   <View style={es.featuredCatPill}>
-                    <T bold style={{ fontSize: 9.5, color: 'white', letterSpacing: 0.5 }}>
+                    <T bold style={{ fontSize: 9.5, color: colors.purple, letterSpacing: 0.5 }}>
                       {featuredArticle.categoryName ? featuredArticle.categoryName.toLocaleUpperCase('tr') : (isEn ? 'GUIDE' : 'REHBER')}
                     </T>
                   </View>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                    <Icon name="clock" size={11} color="#F0E5F2" />
-                    <T style={{ fontSize: 11, color: '#F0E5F2' }}>{featuredArticle.minutes} {isEn ? 'min read' : 'dk okuma'}</T>
+                    <Icon name="clock" size={11} color={colors.muted} />
+                    <T style={{ fontSize: 11, color: colors.muted }}>{featuredArticle.minutes} {isEn ? 'min read' : 'dk okuma'}</T>
                   </View>
                 </View>
                 <T bold style={es.featuredHeroTitle}>{featuredArticle.title}</T>
@@ -413,7 +413,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                     {featuredArticle.doctor ? `🩺 ${featuredArticle.doctor.split('·')[0].trim()}` : (isEn ? '🩺 Momora Editorial Archive' : '🩺 Momora Editoryal Arşivi')}
                   </T>
                   <View style={es.featuredHeroReadBtn}>
-                    <T bold style={{ fontSize: 11, color: colors.purple }}>{isEn ? 'Read →' : 'İncele →'}</T>
+                    <T bold style={{ fontSize: 11.5, color: colors.purple }}>{isEn ? 'Read Guide →' : 'Rehberi Oku →'}</T>
                   </View>
                 </View>
               </View>
@@ -508,11 +508,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                     <Image
                       source={imgAsset}
                       style={StyleSheet.absoluteFill}
-                      resizeMode="cover"
-                    />
-                    <LinearGradient
-                      colors={['transparent', 'rgba(25, 12, 30, 0.35)']}
-                      style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 45 }}
+                      resizeMode="contain"
                     />
                     <View style={es.blogPostCategoryBadge}>
                       <T bold style={{ fontSize: 10, color: colors.purple }}>
@@ -978,19 +974,20 @@ const es = StyleSheet.create({
   layoutToggleBtnActive: { backgroundColor: '#FFFFFF', ...shadow },
   layoutToggleText: { fontSize: 11, color: '#7A6780' },
   layoutToggleTextActive: { color: colors.purple },
-  // Featured Lead Story Hero (Apple News / Vogue Quality)
-  featuredHeroCard: { height: 260, borderRadius: 24, overflow: 'hidden', justifyContent: 'flex-end', padding: 18, position: 'relative', borderWidth: 1, borderColor: '#EBDDE8', ...shadow },
-  featuredHeroBadge: { position: 'absolute', top: 14, left: 14, backgroundColor: 'rgba(255, 255, 255, 0.94)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.6)', ...shadow },
-  featuredCatPill: { backgroundColor: 'rgba(255, 255, 255, 0.22)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.35)' },
-  featuredHeroContent: { gap: 4 },
-  featuredHeroTitle: { fontSize: 18, color: '#FFFFFF', lineHeight: 24, textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 3 },
-  featuredHeroSub: { fontSize: 12.5, color: '#F5EEF8', lineHeight: 18, textShadowColor: 'rgba(0,0,0,0.4)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 },
-  featuredHeroFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 6, paddingTop: 6, borderTopWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' },
-  featuredHeroAuthor: { fontSize: 11.5, color: '#F0E5F2', flex: 1, marginRight: 8 },
-  featuredHeroReadBtn: { backgroundColor: '#FFFFFF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-  // Blog Post Card styles (Magazine layout)
+  // Featured Lead Story Hero (Full uncropped 16:9 photo + editorial white body)
+  featuredHeroCard: { backgroundColor: '#FFFFFF', borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: '#ECE2EC', ...shadow },
+  featuredHeroImgBox: { width: '100%', aspectRatio: 640 / 349, backgroundColor: '#FAF6FA', position: 'relative', overflow: 'hidden' },
+  featuredHeroBadge: { position: 'absolute', top: 12, left: 12, backgroundColor: 'rgba(255, 255, 255, 0.94)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.6)', ...shadow },
+  featuredHeroBody: { padding: 16 },
+  featuredCatPill: { backgroundColor: '#F4EDF6', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
+  featuredHeroTitle: { fontSize: 17, color: '#241828', lineHeight: 23 },
+  featuredHeroSub: { fontSize: 12.5, color: '#5E5466', marginTop: 4, lineHeight: 18 },
+  featuredHeroFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#F5EDF6' },
+  featuredHeroAuthor: { fontSize: 11.5, color: colors.muted, flex: 1, marginRight: 8 },
+  featuredHeroReadBtn: { backgroundColor: '#F4EDF6', paddingHorizontal: 11, paddingVertical: 5, borderRadius: 10 },
+  // Blog Post Card styles (Magazine layout - Full uncropped 16:9 photo)
   blogPostCard: { backgroundColor: '#FFFFFF', borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: '#ECE2EC', ...shadow },
-  blogPostImgBox: { height: 165, width: '100%', backgroundColor: '#F0EAF1', position: 'relative', overflow: 'hidden' },
+  blogPostImgBox: { width: '100%', aspectRatio: 640 / 349, backgroundColor: '#FAF6FA', position: 'relative', overflow: 'hidden' },
   blogPostCategoryBadge: { position: 'absolute', top: 12, left: 12, backgroundColor: 'rgba(255, 255, 255, 0.94)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.6)', ...shadow },
   blogPostTimeTag: { position: 'absolute', top: 12, right: 12, backgroundColor: 'rgba(0, 0, 0, 0.58)', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 10, flexDirection: 'row', alignItems: 'center', gap: 4 },
   blogPostTitle: { fontSize: 16, color: '#241828', lineHeight: 22 },
@@ -1009,7 +1006,7 @@ const es = StyleSheet.create({
   faqTagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
   faqTag: { backgroundColor: '#F5EDF7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
   // Editorial Article Reader styles
-  articleCoverBox: { height: 270, borderRadius: 24, overflow: 'hidden', justifyContent: 'flex-end', padding: 18, position: 'relative', ...shadow },
+  articleCoverBox: { width: '100%', aspectRatio: 640 / 349, backgroundColor: '#FAF6FA', position: 'relative', overflow: 'hidden' },
   coverMeta: { gap: 6 },
   coverBadgeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
   categoryPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: 'rgba(255, 255, 255, 0.94)' },

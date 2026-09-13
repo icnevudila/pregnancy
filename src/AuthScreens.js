@@ -192,6 +192,20 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
           </T>
         </View>
 
+
+        <View style={s.valueCard}>
+          {[
+            isEn ? ['Shared family timeline', 'Partner, baby and daily logs stay together.'] : ['Ortak aile zaman çizgisi', 'Partner, bebek ve günlük kayıtlar aynı yerde kalır.'],
+            isEn ? ['Daily return habit', 'Letters, trackers and guides continue from the right week.'] : ['Günlük geri dönüş sebebi', 'Mektuplar, takipler ve rehberler doğru haftadan devam eder.'],
+            isEn ? ['Private by design', 'Guest mode stays available; cloud sync starts after sign-in.'] : ['Mahremiyet odaklı', 'Misafir kullanım kalır; bulut eşitleme girişten sonra başlar.'],
+          ].map(([title, body]) => (
+            <View key={title} style={s.valueRow}>
+              <View style={s.valueDot}><Icon name="check" size={13} color={colors.purple} /></View>
+              <View style={{ flex: 1 }}><T bold style={s.valueTitle}>{title}</T><T style={s.valueText}>{body}</T></View>
+            </View>
+          ))}
+        </View>
+
         {/* Proje Durumu / Key Uyarısı */}
         {!configured && tab !== 'key' && (
           <View style={s.keyNotice}>
@@ -509,7 +523,7 @@ const s = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 16,
   },
   brandRow: {
     flexDirection: 'row',
@@ -529,6 +543,40 @@ const s = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
     maxWidth: 320,
+  },
+
+  valueCard: {
+    backgroundColor: '#FFFCF8',
+    borderWidth: 1,
+    borderColor: '#E9DDE8',
+    borderRadius: 22,
+    padding: 14,
+    gap: 11,
+    marginBottom: 18,
+  },
+  valueRow: {
+    flexDirection: 'row',
+    gap: 10,
+    alignItems: 'flex-start',
+  },
+  valueDot: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#F1E7F3',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+  },
+  valueTitle: {
+    fontSize: 13,
+    color: colors.ink,
+  },
+  valueText: {
+    fontSize: 11.5,
+    color: colors.muted,
+    lineHeight: 16,
+    marginTop: 2,
   },
   keyNotice: {
     flexDirection: 'row',
