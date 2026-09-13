@@ -108,23 +108,29 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
             <T style={{fontSize:12,color:'#C4A8D0',marginTop:6}}>{isEn ? `Size of a ${wi.fruitName}` : `${wi.fruitName} büyüklüğünde`}</T>
           </View>
         </View>
-        {/* 3'lü Kıyaslama Şeridi */}
-        <View style={{flexDirection:'row',gap:8,marginTop:12,backgroundColor:'#F4EEF7',padding:10,borderRadius:14}}>
+        {/* 3'lü Kıyaslama Şeridi (Gerçek 3D Porselen Kil Modellerimiz) */}
+        <View style={{flexDirection:'row',gap:8,marginTop:12,backgroundColor:'#F4EEF7',padding:10,borderRadius:16}}>
           <View style={{flex:1,alignItems:'center'}}>
-            <T style={{fontSize:16}}>🍏</T>
-            <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:2}}>{wi.fruitName}</T>
+            <View style={{width:34,height:34,alignItems:'center',justifyContent:'center'}}>
+              <FruitArt type={wi.fruit} size={32}/>
+            </View>
+            <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:3}}>{wi.fruitName}</T>
             <T style={{fontSize:9,color:'#8C709A'}}>{isEn ? 'Fruit' : 'Meyve'}</T>
           </View>
           <View style={{width:1,backgroundColor:'#E1D2E6'}}/>
           <View style={{flex:1,alignItems:'center'}}>
-            <T style={{fontSize:16}}>{wi.animalEmoji || '🐾'}</T>
-            <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:2}}>{wi.animalName || (isEn ? 'Animal' : 'Yavru')}</T>
+            <View style={{width:34,height:34,alignItems:'center',justifyContent:'center'}}>
+              <ComparisonArt mode="animal" type={wi.animal} size={32} info={wi} week={data.week||24}/>
+            </View>
+            <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:3}}>{wi.animalName || (isEn ? 'Animal' : 'Yavru')}</T>
             <T style={{fontSize:9,color:'#8C709A'}}>{isEn ? 'Animal' : 'Hayvan'}</T>
           </View>
           <View style={{width:1,backgroundColor:'#E1D2E6'}}/>
           <View style={{flex:1,alignItems:'center'}}>
-            <T style={{fontSize:16}}>{wi.sweetEmoji || '🧁'}</T>
-            <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:2}}>{wi.sweetName || (isEn ? 'Sweet' : 'Tatlı')}</T>
+            <View style={{width:34,height:34,alignItems:'center',justifyContent:'center'}}>
+              <ComparisonArt mode="sweet" type={wi.sweet} size={32} info={wi} week={data.week||24}/>
+            </View>
+            <T bold numberOfLines={1} style={{fontSize:11,color:'#5C396B',marginTop:3}}>{wi.sweetName || (isEn ? 'Sweet' : 'Tatlı')}</T>
             <T style={{fontSize:9,color:'#8C709A'}}>{isEn ? 'Sweet / Object' : 'Tatlı / Nesne'}</T>
           </View>
         </View>
@@ -144,13 +150,13 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
           </View>
         )}
         {/* Bebek bu hafta */}
-        <T bold style={{fontSize:16,marginTop:18,marginBottom:8}}>{isEn ? '🍼 Your baby this week' : '🍼 Bebeğinde bu hafta'}</T>
+        <T bold style={{fontSize:16,marginTop:18,marginBottom:8}}>{isEn ? 'Your baby this week' : 'Bebeğinde bu hafta'}</T>
         {wi.baby.map((b,i)=><View key={i} style={ds.bulletRow}><View style={ds.dot}/><T style={ds.bulletText}>{b}</T></View>)}
         {/* Anne bu hafta */}
-        <T bold style={{fontSize:16,marginTop:16,marginBottom:8}}>{isEn ? '💜 In your body this week' : '💜 Sende bu hafta'}</T>
+        <T bold style={{fontSize:16,marginTop:16,marginBottom:8}}>{isEn ? 'In your body this week' : 'Sende bu hafta'}</T>
         {wi.mom.map((m,i)=><View key={i} style={ds.bulletRow}><View style={[ds.dot,{backgroundColor:'#D4A0C0'}]}/><T style={ds.bulletText}>{m}</T></View>)}
         <View style={ds.divider}/>
-        {input(isEn ? 'Leave a note for this week ✍️' : 'Bu haftana bir not bırak ✍️',text,setText,{multiline:true,placeholder:isEn ? 'Felt it for the first time today...' : 'Bugün ilk kez hissettim…'})}
+        {input(isEn ? 'Leave a note for this week' : 'Bu haftana bir not bırak',text,setText,{multiline:true,placeholder:isEn ? 'Felt it for the first time today...' : 'Bugün ilk kez hissettim…'})}
         {button(isEn ? 'Save Note' : 'Notumu sakla',save)}
       </>;
     })()}
