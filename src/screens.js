@@ -83,6 +83,16 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
 
   const currentJourneys = role === 'father' ? fatherJourneys : motherJourneys;
 
+  const selectedJourneyCopy = currentJourneys.find(j => j.key === pendingJourney) || currentJourneys[0];
+  const focusCopy = {
+    daily: isEn ? 'Daily letters, reminders and week cards are prioritized.' : 'Günlük mektuplar, hatırlatmalar ve hafta kartları öne alındı.',
+    tools: isEn ? 'Kick, contraction, bag and practical trackers are placed closer.' : 'Tekme, sancı, çanta ve pratik takipler daha yakına alındı.',
+    calm: isEn ? 'Breath, affirmations and calm sound scenes are ready for quick access.' : 'Nefes, olumlama ve sakin ses sahneleri hızlı erişime hazırlandı.',
+  };
+  const roleReadyText = role === 'father'
+    ? (isEn ? 'Partner support mode is ready.' : 'Baba ve eş desteği modu hazırlandı.')
+    : (isEn ? 'Mother care mode is ready.' : 'Anne bakım modu hazırlandı.');
+
   function selectJourney(key) {
     const defaultDueDate = calculateDueDateFromWeek(24, 5);
     const guestUser = {
@@ -152,9 +162,9 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
     <Page contentStyle={s.onboarding}>
       {/* ─── ÜST NAVİGASYON VE ATLA BAR (KİLİTLENMEYİ ÖNLER) ─── */}
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, width: '100%' }}>
-        {setPage && state?.mode ? (
+        {(onboardingStep > 1 || (setPage && state?.mode)) ? (
           <Tap
-            onPress={() => setPage(state.mode)}
+            onPress={() => { if (onboardingStep > 1) setOnboardingStep(onboardingStep - 1); else if (setPage && state?.mode) setPage(state.mode); }}
             label={isEn ? 'Back' : 'Geri'}
             style={{ paddingVertical: 6, paddingHorizontal: 10, borderRadius: 12, backgroundColor: '#F0EAF2' }}
           >
@@ -335,9 +345,9 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
         <Card style={{ padding: 18, alignItems: 'center', gap: 14, backgroundColor: '#FFFCF8', borderColor: '#EFE4EA' }}>
           <View style={s.obPrepLogoBox}><BrandMark size={54} /></View>
           <T bold style={{ fontSize: 23, color: colors.ink, textAlign: 'center' }}>{isEn ? 'Your Momora is ready' : 'Momora’n hazır'}</T>
-          <T style={{ fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 19 }}>{isEn ? 'Daily feed, tools, calm sessions and family sync are prepared for your journey.' : 'Günlük akış, araçlar, sakinlik seansları ve aile senkronu yolculuğuna göre hazırlandı.'}</T>
+          <T style={{ fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 19 }}>{selectedJourneyCopy?.title?.replace('\n', ' ')} · {role === 'father' ? (isEn ? 'family support' : 'aile desteği') : (isEn ? 'mother care' : 'anne bakımı')} · {babyNameInput.trim() || (isEn ? 'Maya' : 'Ada')}</T>
           <View style={s.obChecklist}>
-            {[isEn ? 'Journey mode selected' : 'Yolculuk modu seçildi', isEn ? 'Daily content personalized' : 'Günlük içerik kişiselleştirildi', isEn ? 'Calm tools activated' : 'Sakinlik araçları etkinleştirildi'].map(x => <View key={x} style={s.obCheckItem}><View style={[s.obMiniCheck, s.obMiniCheckDone]}><Icon name='check' size={11} color='white' /></View><T bold style={s.obCheckLabelDone}>{x}</T></View>)}
+            {[roleReadyText, selectedJourneyCopy?.title ? (isEn ? `${selectedJourneyCopy.title.replace('\n', ' ')} journey prepared` : `${selectedJourneyCopy.title.replace('\n', ' ')} yolculuğu hazırlandı`) : (isEn ? 'Journey mode selected' : 'Yolculuk modu seçildi'), focusCopy[careFocus]].map(x => <View key={x} style={s.obCheckItem}><View style={[s.obMiniCheck, s.obMiniCheckDone]}><Icon name='check' size={11} color='white' /></View><T bold style={s.obCheckLabelDone}>{x}</T></View>)}
           </View>
           <Tap onPress={() => selectJourney(pendingJourney)} style={[s.obPrimaryBtn, { width: '100%' }]}><T bold style={s.obPrimaryBtnText}>{isEn ? 'Start Momora' : 'Momora’ya Başla'} →</T></Tap>
         </Card>

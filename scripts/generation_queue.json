@@ -2784,22 +2784,26 @@
       "filename": "usg_2d_w38_full_term_cheeks_profile.png",
       "prompt": "Clinical 2D ultrasound sonogram of a 38-week full-term fetus facial profile, showing rounded plump buccal fat cheek cushions, pursed lips in sucking motion, and umbilical cord loop, hospital diagnostic monitor display, grayscale, no text, no watermark.",
       "transparent": false,
-      "status": "processing",
+      "status": "done",
       "attempts": 1,
       "createdAt": 1789308089199,
       "preferredPlatform": "chatgpt",
       "startedAt": 1789310269197,
-      "platform": "chatgpt"
+      "platform": "chatgpt",
+      "updatedAt": 1789310334183,
+      "thumb": "https://chatgpt.com/backend-api/estuary/content?id=file_0000000090a481fd962e102d97de3840&ts=497030&p=fs&cid=1&sig=c2de0ed59814b34d44f771c4693eb9f8214c95a2b4e3d3740daf606e279e66e6&v=0"
     },
     {
       "id": "job_usg_1789308089199_w39",
       "filename": "usg_2d_w39_cervical_length_internal_os.png",
       "prompt": "Clinical obstetric 2D ultrasound sonogram of a 39-week pregnancy at cervix level, showing internal cervical os with presenting fetal cranial pole resting against cervix, authentic hospital sonography display, monochrome grayscale, no text, no watermark.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 0,
+      "status": "processing",
+      "attempts": 1,
       "createdAt": 1789308089199,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "chatgpt",
+      "startedAt": 1789310335424,
+      "platform": "chatgpt"
     },
     {
       "id": "job_usg_1789308089199_w40",
