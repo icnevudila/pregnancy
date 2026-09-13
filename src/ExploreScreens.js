@@ -412,19 +412,6 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
           )}
 
           {/* Makale Sayacı & Kapak Görünüm Ayarı */}
-
-          <ToolExperienceCard
-                  title={isEn ? 'Open with a purpose' : 'Kütüphaneyi amaçla aç'}
-                  steps={isEn
-                    ? ['Pick today: article, food, infographic, or topic.', 'Save one useful answer for later.', 'Come back when a symptom, craving, or plan changes.']
-                    : ['Bugünün ihtiyacını seç: makale, besin, infografik veya konu.', 'İşe yarayan bir cevabı sonra için kaydet.', 'Belirti, aşerme veya plan değişince tekrar dön.']}
-                  outcome={isEn ? 'The library becomes a daily decision tool.' : 'Kütüphane günlük karar aracına dönüşür.'}
-                  asset="topic_prenatal_nutrition"
-                  tint="#7C5B3F"
-                  lang={lang}
-                />
-
-          {/* Makale Sayacı & Kapak Görünüm Ayarı */}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 2 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <T bold style={{ fontSize: 13, color: colors.muted }}>
@@ -544,6 +531,18 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                 </Tap>
               );
             })}
+          </View>
+
+          <View style={es.libraryRitualStrip}>
+            <View style={es.libraryRitualIcon}>
+              <Icon name="book" size={15} color="#7C5B3F" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <T bold style={{ fontSize: 12.5, color: colors.ink }}>{isEn ? 'Open with one purpose' : 'Tek amaçla aç'}</T>
+              <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2, lineHeight: 16 }}>
+                {isEn ? 'Read one guide, save one answer, return when a symptom or plan changes.' : 'Bir rehber oku, bir cevabı kaydet, belirti veya plan değişince geri dön.'}
+              </T>
+            </View>
           </View>
         </View>
       ) : hubTab === 'infographics' ? (
@@ -978,6 +977,8 @@ const es = StyleSheet.create({
   layoutToggleBtnActive: { backgroundColor: '#FFFFFF', ...shadow },
   layoutToggleText: { fontSize: 11, color: '#7A6780' },
   layoutToggleTextActive: { color: colors.purple },
+  libraryRitualStrip: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFBF7', borderWidth: 1, borderColor: '#E7DAD1', borderRadius: 17, padding: 12 },
+  libraryRitualIcon: { width: 34, height: 34, borderRadius: 14, backgroundColor: '#F1E7DE', alignItems: 'center', justifyContent: 'center' },
   // Featured Lead Story Hero (Full uncropped 16:9 photo + editorial white body)
   featuredHeroCard: { backgroundColor: '#FFFFFF', borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: '#ECE2EC', ...shadow },
   featuredHeroImgBox: { width: '100%', aspectRatio: 640 / 349, backgroundColor: '#F6F0F3', position: 'relative', overflow: 'hidden' },

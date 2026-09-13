@@ -128,10 +128,10 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
               <Image
                 source={generatedAssets['blog_pregnant_morning'] || generatedAssets['pregnancy']}
                 style={StyleSheet.absoluteFill}
-                resizeMode="cover"
+                resizeMode="contain"
               />
               <LinearGradient
-                colors={['rgba(25,12,30,0.05)', 'rgba(30,15,35,0.72)']}
+                colors={['rgba(255,250,246,0.02)', 'rgba(45,26,54,0.22)']}
                 style={StyleSheet.absoluteFill}
               />
               <View style={s.obRoleBadge}>
@@ -161,10 +161,10 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
               <Image
                 source={generatedAssets['blog_father_baby_bond'] || generatedAssets['blog_couple_bump']}
                 style={StyleSheet.absoluteFill}
-                resizeMode="cover"
+                resizeMode="contain"
               />
               <LinearGradient
-                colors={['rgba(15,22,35,0.05)', 'rgba(18,28,45,0.72)']}
+                colors={['rgba(247,250,252,0.02)', 'rgba(18,28,45,0.22)']}
                 style={StyleSheet.absoluteFill}
               />
               <View style={[s.obRoleBadge, { backgroundColor: '#3A5A78' }]}>
@@ -1616,7 +1616,7 @@ const s=StyleSheet.create({
 
   obRoleCard: { borderRadius: 22, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#EFE6EE', overflow: 'hidden', ...shadow },
   obRoleCardActive: { borderColor: colors.purple, backgroundColor: '#FAF5FB' },
-  obRolePhotoBox: { height: 124, width: '100%', backgroundColor: '#EADCE8', overflow: 'hidden' },
+  obRolePhotoBox: { height: 132, width: '100%', backgroundColor: '#F6F0F3', overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   obRoleBadge: { position: 'absolute', top: 10, left: 12, backgroundColor: colors.purple, paddingHorizontal: 9, paddingVertical: 3.5, borderRadius: 8 },
   obRoleContent: { padding: 14 },
   obRoleTitle: { fontSize: 17, letterSpacing: -0.3, color: colors.ink },
