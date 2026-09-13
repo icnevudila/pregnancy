@@ -1440,12 +1440,13 @@
       "prompt": "High-end 3D claymorphic waffle cone holding a tall swirl of pastel strawberry and vanilla soft serve ice cream, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "processing",
+      "status": "done",
       "attempts": 1,
       "createdAt": 1789250674101,
-      "updatedAt": 1789285005354,
+      "updatedAt": 1789289023057,
       "startedAt": 1789288996439,
-      "platform": "gemini"
+      "platform": "gemini",
+      "thumb": "blob:https://gemini.google.com/4008800b-c501-43e7-ac46-c58cde0940e0"
     },
     {
       "id": "job_1789250674101_overm",
@@ -1453,10 +1454,13 @@
       "prompt": "High-end 3D claymorphic cute miniature ceramic honey pot with golden dripping wooden dipper, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674101,
-      "updatedAt": 1789285005354
+      "updatedAt": 1789289062657,
+      "startedAt": 1789289024678,
+      "platform": "gemini",
+      "thumb": "blob:https://gemini.google.com/77afb5fa-dfed-485a-aeb0-cd61ff1d440c"
     },
     {
       "id": "job_1789250674104_ha6kz",
@@ -1464,10 +1468,13 @@
       "prompt": "High-end 3D claymorphic slice of New York cheesecake with graham crust and glossy raspberry coulis swirl, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005354
+      "updatedAt": 1789289097087,
+      "startedAt": 1789289062943,
+      "platform": "gemini",
+      "thumb": "blob:https://gemini.google.com/b459ce1b-9ece-4ea9-82f9-4b630ab7a67a"
     },
     {
       "id": "job_1789250674104_iwmaq",
@@ -1475,10 +1482,13 @@
       "prompt": "High-end 3D claymorphic miniature lattice-crust baked apple pie with golden fluted pastry rim, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005354
+      "updatedAt": 1789289137198,
+      "startedAt": 1789289097925,
+      "platform": "gemini",
+      "thumb": "blob:https://gemini.google.com/a54adc16-649f-40ad-a43d-6f34e91b83ca"
     },
     {
       "id": "job_1789250674104_glz3l",
@@ -1486,10 +1496,13 @@
       "prompt": "High-end 3D claymorphic tall glass parfait with visible layers of yogurt, granola, and strawberry puree, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005355
+      "updatedAt": 1789289248508,
+      "startedAt": 1789289138433,
+      "platform": "gemini",
+      "thumb": "blob:https://gemini.google.com/5e8b78ad-cbd6-4183-b78a-3980d91f34fc"
     },
     {
       "id": "job_1789250674104_fcxn5",
@@ -1497,10 +1510,12 @@
       "prompt": "High-end 3D claymorphic elegant heart-shaped pink chocolate gift box tied with a satin gold ribbon, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "processing",
+      "attempts": 1,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005355
+      "updatedAt": 1789285005355,
+      "startedAt": 1789289249128,
+      "platform": "gemini"
     },
     {
       "id": "job_1789250674104_umtdr",

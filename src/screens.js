@@ -127,7 +127,7 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
             <View style={s.obRolePhotoBox}>
               <Image
                 source={generatedAssets['blog_pregnant_morning'] || generatedAssets['pregnancy']}
-                style={[StyleSheet.absoluteFill, s.containImage]}
+                style={s.fitImage}
                 resizeMode="contain"
               />
             </View>
@@ -153,7 +153,7 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
             <View style={s.obRolePhotoBox}>
               <Image
                 source={generatedAssets['blog_father_baby_bond'] || generatedAssets['blog_couple_bump']}
-                style={[StyleSheet.absoluteFill, s.containImage]}
+                style={s.fitImage}
                 resizeMode="contain"
               />
             </View>
@@ -278,7 +278,7 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
                 style={[s.obStageCard, isSelected && s.obStageCardActive]}
               >
                 <View style={s.obStagePhotoBox}>
-                  <Image source={st.photo} style={[StyleSheet.absoluteFill, s.containImage]} resizeMode="contain" />
+                  <Image source={st.photo} style={s.fitImage} resizeMode="contain" />
                 </View>
                 <View style={s.obStageContent}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1603,7 +1603,8 @@ const s=StyleSheet.create({
 
   obRoleCard: { borderRadius: 22, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#EFE6EE', overflow: 'hidden', ...shadow },
   obRoleCardActive: { borderColor: colors.purple, backgroundColor: '#FAF5FB' },
-  obRolePhotoBox: { width: '100%', aspectRatio: 16 / 9, backgroundColor: '#FFFFFF', overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
+  obRolePhotoBox: { width: '100%', aspectRatio: 640 / 349, backgroundColor: '#F6F0F3', overflow: 'hidden', position: 'relative', alignItems: 'center', justifyContent: 'center' },
+  fitImage: { width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center', alignSelf: 'center' },
   obRoleBadge: { position: 'absolute', top: 10, left: 12, backgroundColor: colors.purple, paddingHorizontal: 9, paddingVertical: 3.5, borderRadius: 8 },
   obRoleContent: { padding: 14 },
   obRoleTitle: { fontSize: 17, letterSpacing: -0.3, color: colors.ink },
@@ -1619,7 +1620,7 @@ const s=StyleSheet.create({
 
   obStageCard: { flexDirection: 'row', alignItems: 'center', borderRadius: 20, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#EFE6EE', padding: 10, ...shadow },
   obStageCardActive: { borderColor: colors.purple, backgroundColor: '#FAF5FB' },
-  obStagePhotoBox: { width: 82, height: 82, borderRadius: 16, overflow: 'hidden', backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
+  obStagePhotoBox: { width: 82, height: 82, borderRadius: 16, overflow: 'hidden', backgroundColor: '#F6F0F3', alignItems: 'center', justifyContent: 'center', position: 'relative' },
   obStageContent: { flex: 1, marginLeft: 12, paddingRight: 4 },
   obStageTitle: { fontSize: 15.5, letterSpacing: -0.2, color: colors.ink },
   obStageDesc: { fontSize: 11.5, color: colors.muted, marginTop: 4, lineHeight: 16 },
