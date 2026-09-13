@@ -23,723 +23,173 @@ export const getJourneys = (lang = 'tr') => [
 ];
 export const journeys = getJourneys('tr');
 
-export function Onboarding({ choose, update, toast, lang = 'tr', open, setPage }) {
+export function Onboarding({ choose, update, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
-  // 5 Aşamalı İnteraktif Onboarding (Flo / Apple Health Stili)
-  const [step, setStep] = useState(1);
-
-  // Kullanıcı Seçimleri
   const [role, setRole] = useState('mother'); // 'mother' | 'father'
-  const [stage, setStage] = useState('pregnancy'); // 'pregnancy' | 'postpartum' | 'baby'
-  const [week, setWeek] = useState(24);
-  const [gender, setGender] = useState('surprise'); // 'girl' | 'boy' | 'surprise'
-  const [firstBaby, setFirstBaby] = useState(true);
-  const [babyAge, setBabyAge] = useState('newborn');
-  const [babyName, setBabyName] = useState('Ada');
-  const [selectedInterests, setSelectedInterests] = useState([
-    'fetal3d', 'foodSafety', 'hospitalBag', 'counters'
-  ]);
   const [showSyncInput, setShowSyncInput] = useState(false);
   const [partnerCode, setPartnerCode] = useState('');
 
-  // 5. Adım: Analiz ve Hazırlanıyor Animasyonu
-  const [prepProgress, setPrepProgress] = useState(0);
-  const [prepComplete, setPrepComplete] = useState(false);
+  const motherJourneys = [
+    { key: 'pregnancy', title: isEn ? "I'm Pregnant" : 'Hamileyim', sub: isEn ? 'Preparing to meet\nmy baby' : 'Bebeğimle tanışmaya\nhazırlanıyorum', image: assets.pregnancy, tint: '#F5E7E8' },
+    { key: 'postpartum', title: isEn ? 'Recently Delivered' : 'Yeni doğum yaptım', sub: isEn ? 'Be by my side in\npostpartum recovery' : 'Lohusalık sürecimde\nyanımda ol', image: assets.mother, tint: '#F5E5E7' },
+    { key: 'baby', title: isEn ? 'Raising My Baby' : 'Bebeğimi\nbüyütüyorum', sub: isEn ? 'Together every single day' : 'Her gününde birlikte', image: assets.baby, tint: '#EAEAE3' },
+  ];
 
-  React.useEffect(() => {
-    if (step === 5) {
-      let current = 0;
-      const interval = setInterval(() => {
-        current += 10;
-        if (current >= 100) {
-          current = 100;
-          clearInterval(interval);
-          setPrepProgress(100);
-          setPrepComplete(true);
-        } else {
-          setPrepProgress(current);
-        }
-      }, 140);
-      return () => clearInterval(interval);
-    }
-  }, [step]);
+  const fatherJourneys = [
+    { key: 'pregnancy', title: isEn ? 'Expecting Our Baby' : 'Bebeğimizi Bekliyoruz', sub: isEn ? 'By my partner’s side,\npreparing together' : 'Eşimin yanında, bebeğimizle\ntanışmaya hazırlanıyorum', image: assets.pregnancy, tint: '#EBF2F7' },
+    { key: 'postpartum', title: isEn ? 'Postpartum Support' : 'Lohusalık Desteği', sub: isEn ? 'Best support for partner\nand our newborn' : 'Eşime ve bebeğime lohusalıkta\nen iyi desteği veriyorum', image: assets.mother, tint: '#EAF0F6' },
+    { key: 'baby', title: isEn ? 'Raising Our Baby' : 'Bebeğimizi Büyütüyoruz', sub: isEn ? 'Tracking growth together\nevery day' : 'Gelişimini her gün\nbirlikte takip ediyoruz', image: assets.baby, tint: '#ECEEE7' },
+  ];
 
-  function handleComplete() {
-    const calculatedDueDate = calculateDueDateFromWeek(stage === 'pregnancy' ? week : 24);
-    const assignedName = role === 'father' ? (isEn ? 'Alex' : 'Mehmet') : (isEn ? 'Emma' : 'Zeynep');
-    const assignedPartnerName = role === 'father' ? (isEn ? 'Emma' : 'Zeynep') : (isEn ? 'Alex' : 'Mehmet');
-    const effectiveBabyName = babyName.trim() || (isEn ? 'Maya' : 'Ada');
-    const effectiveGender = gender === 'girl' ? (isEn ? 'Girl' : 'Kız') : gender === 'boy' ? (isEn ? 'Boy' : 'Erkek') : (isEn ? 'Surprise' : 'Henüz Sürpriz');
+  const currentJourneys = role === 'father' ? fatherJourneys : motherJourneys;
 
+  function selectJourney(key) {
     if (update) {
       update({
-        hasCompletedOnboarding: true,
         role,
-        mode: stage,
-        week: stage === 'pregnancy' ? week : 24,
-        dueDate: calculatedDueDate,
-        babyGender: effectiveGender,
-        babyName: effectiveBabyName,
-        name: assignedName,
-        partnerName: assignedPartnerName,
+        mode: key,
+        hasCompletedOnboarding: true,
+        name: role === 'father' ? (isEn ? 'Alex' : 'Mehmet') : (isEn ? 'Emma' : 'Zeynep'),
+        partnerName: role === 'father' ? (isEn ? 'Emma' : 'Zeynep') : (isEn ? 'Alex' : 'Mehmet'),
         partnerRole: role === 'father' ? 'mother' : 'father',
         partnerConnected: true,
-        firstBaby,
-        interests: selectedInterests,
-        user: {
-          id: 'local-guest',
-          isGuest: true,
-          role,
-          name: assignedName,
-        },
-        household: {
-          id: 'hh-local-1',
-          name: isEn ? 'Our Family' : 'Bizim Ailemiz',
-          role,
-          members: [
-            { id: 'user-1', name: assignedName, role },
-            { id: 'user-2', name: assignedPartnerName, role: role === 'father' ? 'mother' : 'father' },
-          ],
-        },
-        pregnancy: {
-          dueDate: calculatedDueDate,
-          week: stage === 'pregnancy' ? week : 24,
-          babyGender: effectiveGender,
-          babyName: effectiveBabyName,
-        },
-        baby: {
-          name: effectiveBabyName,
-          gender: effectiveGender,
-          birthDate: new Date().toISOString().slice(0, 10),
-        },
       });
     }
     toast && toast(role === 'father'
-      ? (isEn ? 'Welcome Father! Your family journey has begun.' : 'Hoş geldin Baba! Aile yolculuğunuz başladı.')
-      : (isEn ? 'Welcome Mother! Your personalized journey is ready.' : 'Hoş geldin Anne! Kişisel yolculuğun hazır.'));
-    choose(stage);
+      ? (isEn ? 'Welcome Dad! 👨‍🍼 Your family journey has begun.' : 'Hoş geldin Baba! 👨‍🍼 Ortak yolculuğunuz başladı.')
+      : (isEn ? 'Welcome Mom! 🌸 Your miracle journey has begun.' : 'Hoş geldin Anne! 🌸 Mucizeniz başladı.'));
+    choose(key);
   }
 
   function handleSyncSubmit() {
     if (!partnerCode.trim()) return;
-    toast && toast(isEn ? 'Successfully connected to partner account!' : 'Eşinin aile hesabına başarıyla bağlandın!');
-    if (update) {
-      update({
-        role,
-        partnerConnected: true,
-        partnerSyncCode: partnerCode.trim(),
-      });
-    }
-    setStep(3);
-  }
-
-  function toggleInterest(id) {
-    if (selectedInterests.includes(id)) {
-      setSelectedInterests(selectedInterests.filter(i => i !== id));
-    } else {
-      setSelectedInterests([...selectedInterests, id]);
-    }
-  }
-
-  // ─── ADIM 1: ROL SEÇİMİ ───
-  function renderStep1() {
-    return (
-      <View style={{ gap: 16 }}>
-        <View style={s.obHeading}>
-          <T bold style={s.obStepKicker}>{isEn ? 'STEP 1 · CHOOSE YOUR ROLE' : 'ADIM 1 · ROLÜNÜ SEÇ'}</T>
-          <T bold style={s.obTitle}>{isEn ? 'Welcome to Momora' : "Momora'ya Hoş Geldin"}</T>
-          <T style={s.obSubtitle}>
-            {isEn ? 'Let us get to know you first so we can offer the right guidance for you and your family.' : 'Sana ve ailene en doğru rehberliği sunabilmemiz için önce seni tanıyalım.'}
-          </T>
-        </View>
-
-        {/* 2 Büyük Fotoğraflı Rol Kartı (No cheap emojis) */}
-        <View style={{ gap: 14 }}>
-          {/* Ben Anneyim */}
-          <Tap
-            onPress={() => setRole('mother')}
-            label={isEn ? "I'm the Mother" : 'Ben Anneyim'}
-            style={[s.obRoleCard, role === 'mother' && s.obRoleCardActive]}
-          >
-            <View style={s.obRolePhotoBox}>
-              <Image
-                source={generatedAssets['blog_pregnant_morning'] || generatedAssets['pregnancy']}
-                style={StyleSheet.absoluteFill}
-                resizeMode="contain"
-              />
-            </View>
-            <View style={s.obRoleContent}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <T bold style={s.obRoleTitle}>{isEn ? "I'm the Mother" : 'Ben Anneyim'}</T>
-                <View style={[s.obCheckCircle, role === 'mother' && s.obCheckCircleActive]}>
-                  {role === 'mother' && <Icon name="check" size={13} color="white" />}
-                </View>
-              </View>
-              <T style={s.obRoleDesc}>
-                {isEn ? 'Pregnancy tracking, bodily wellness, fetal movements, and postpartum recovery guide.' : 'Hamilelik takibi, beden sağlığı, fetal hareketler ve doğum sonrası iyileşme rehberi.'}
-              </T>
-            </View>
-          </Tap>
-
-          {/* Ben Babayım */}
-          <Tap
-            onPress={() => setRole('father')}
-            label={isEn ? "I'm the Father" : 'Ben Babayım'}
-            style={[s.obRoleCard, role === 'father' && s.obRoleCardActive]}
-          >
-            <View style={s.obRolePhotoBox}>
-              <Image
-                source={generatedAssets['blog_father_baby_bond'] || generatedAssets['blog_couple_bump']}
-                style={StyleSheet.absoluteFill}
-                resizeMode="contain"
-              />
-            </View>
-            <View style={s.obRoleContent}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <T bold style={s.obRoleTitle}>{isEn ? "I'm the Father" : 'Ben Babayım'}</T>
-                <View style={[s.obCheckCircle, role === 'father' && s.obCheckCircleActive]}>
-                  {role === 'father' && <Icon name="check" size={13} color="white" />}
-                </View>
-              </View>
-              <T style={s.obRoleDesc}>
-                {isEn ? 'Partner support, mutual growth tracking, baby care preparation, and family synchronization.' : 'Eş desteği, ortak gelişim takibi, bebek bakımı hazırlığı ve aile senkronizasyonu.'}
-              </T>
-            </View>
-          </Tap>
-        </View>
-
-        {/* Eşimin Aile Kodu Var Bağlantısı */}
-        <View style={s.obSyncSection}>
-          <Tap
-            onPress={() => setShowSyncInput(!showSyncInput)}
-            label="Eşimin aile kodu var"
-            style={s.obSyncToggleBtn}
-          >
-            <Icon name="community" size={16} color={colors.purple} />
-            <T bold style={{ fontSize: 12.5, color: colors.purple }}>
-              {showSyncInput ? (isEn ? 'Close Input' : 'Girişi Kapat') : (isEn ? "I Have Partner's Code · Link Account" : 'Eşimin Aile Kodu Var · Ortak Hesaba Bağlan')}
-            </T>
-          </Tap>
-
-          {showSyncInput && (
-            <View style={s.obSyncInputRow}>
-              <TextInput
-                value={partnerCode}
-                onChangeText={setPartnerCode}
-                placeholder="MOM-7829-TR"
-                placeholderTextColor={colors.muted}
-                style={s.obSyncInput}
-              />
-              <Tap onPress={handleSyncSubmit} label="Bağlan" style={s.obSyncSubmitBtn}>
-                <T bold style={{ color: 'white', fontSize: 12 }}>{isEn ? 'Link' : 'Bağlan'}</T>
-              </Tap>
-            </View>
-          )}
-        </View>
-
-
-        <Card style={{ padding: 15, backgroundColor: '#FFFCF8', borderColor: '#EEE2EA' }}>
-          <T bold style={{ fontSize: 16, color: colors.ink }}>{isEn ? 'Why you will open Momora every day' : 'Momora’yı her gün açma sebebin'}</T>
-          <View style={{ gap: 9, marginTop: 12 }}>
-            {[
-              [isEn ? 'A new baby letter' : 'Yeni bebek mektubu', isEn ? 'A small emotional update every morning.' : 'Her sabah küçük, duygusal bir gelişim notu.', 'ui_baby_letter_envelope'],
-              [isEn ? 'Today’s tracker ritual' : 'Bugünün takip ritüeli', isEn ? 'Water, mood, movement and prep in one flow.' : 'Su, ruh hali, hareket ve hazırlık tek akışta.', 'ui_timeline_sun_moon'],
-              [isEn ? 'Weekly 3D growth' : 'Haftalık 3D gelişim', isEn ? 'See the week, compare size, save memories.' : 'Haftayı gör, boyutu kıyasla, anı sakla.', 'fetus'],
-            ].map(([title, sub, asset]) => (
-              <View key={title} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <CleanIcon asset={asset} size={36} imgSize={32} />
-                <View style={{ flex: 1 }}><T bold style={{ fontSize: 13.5 }}>{title}</T><T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2 }}>{sub}</T></View>
-              </View>
-            ))}
-          </View>
-        </Card>
-
-        {/* Devam Butonu */}
-        <Tap onPress={() => setStep(2)} label={isEn ? 'Continue' : 'Devam Et'} style={s.obPrimaryBtn}>
-          <T bold style={s.obPrimaryBtnText}>{isEn ? 'Continue' : 'Devam Et'}</T>
-          <Icon name="chevron" size={16} color="white" />
-        </Tap>
-
-        {/* Zaten Hesabım Var Bağlantısı */}
-        <View style={{ alignItems: 'center', marginTop: 4 }}>
-          <Tap
-            onPress={() => {
-              if (setPage) setPage('auth');
-              else if (open) open('auth');
-            }}
-            label={isEn ? 'Already have an account? Sign In' : 'Zaten bir hesabın var mı? Giriş Yap'}
-          >
-            <T style={{ fontSize: 13, color: colors.purple, fontWeight: '600' }}>
-              {isEn ? 'Already have an account? Sign In →' : 'Zaten bir hesabın var mı? Giriş Yap →'}
-            </T>
-          </Tap>
-        </View>
-      </View>
-    );
-  }
-
-  // ─── ADIM 2: YOLCULUK AŞAMASI ───
-  function renderStep2() {
-    const stages = [
-      {
-        id: 'pregnancy',
-        title: role === 'father'
-          ? (isEn ? 'Expecting Our Baby' : 'Bebeğimizi Bekliyoruz')
-          : (isEn ? "I'm Pregnant" : 'Hamileyim'),
-        desc: isEn ? 'Weekly 3D fetal growth, movements, body changes, and birth preparation.' : 'Haftalık 3D fetal gelişim, hareketler, beden değişimleri ve doğuma hazırlık.',
-        photo: generatedAssets['pregnancy'] || generatedAssets['blog_pregnant_morning'],
-      },
-      {
-        id: 'postpartum',
-        title: role === 'father'
-          ? (isEn ? 'In Postpartum Period' : 'Lohusalık Dönemindeyiz')
-          : (isEn ? 'Recently Delivered' : 'Yeni Doğum Yaptım'),
-        desc: isEn ? 'Physical recovery, postpartum support, nursing, and first weeks care.' : 'Fiziksel toparlanma, lohusa desteği, emzirme ve ilk haftaların bakımı.',
-        photo: generatedAssets['mother-baby'] || generatedAssets['blog_skin_to_skin'],
-      },
-      {
-        id: 'baby',
-        title: role === 'father'
-          ? (isEn ? 'Raising Our Baby' : 'Bebeğimizi Büyütüyoruz')
-          : (isEn ? 'Raising My Baby' : 'Bebeğimi Büyütüyorum'),
-        desc: isEn ? 'Feeding schedule, sleep rhythm, vaccine schedule, and growth leaps.' : 'Beslenme saatleri, uyku ritmi, aşı takvimi ve büyüme atakları takibi.',
-        photo: generatedAssets['baby'] || generatedAssets['blog_baby_massage'],
-      },
-    ];
-
-    return (
-      <View style={{ gap: 16 }}>
-        <View style={s.obHeading}>
-          <T bold style={s.obStepKicker}>{isEn ? 'STEP 2 · CHOOSE STAGE' : 'ADIM 2 · AŞAMA SEÇİMİ'}</T>
-          <T bold style={s.obTitle}>{isEn ? 'Where Are You on Your Journey?' : 'Yolculuğun Hangi Aşamada?'}</T>
-          <T style={s.obSubtitle}>
-            {isEn ? 'Select your current stage so we can curate a custom timeline for you and your family.' : 'Sana ve ailene özel takvimi hazırlayabilmemiz için mevcut döneminizi seçin.'}
-          </T>
-        </View>
-
-        <View style={{ gap: 12 }}>
-          {stages.map(st => {
-            const isSelected = stage === st.id;
-            return (
-              <Tap
-                key={st.id}
-                onPress={() => setStage(st.id)}
-                label={st.title}
-                style={[s.obStageCard, isSelected && s.obStageCardActive]}
-              >
-                <View style={s.obStagePhotoBox}>
-                  <Image source={st.photo} style={StyleSheet.absoluteFill} resizeMode="contain" />
-                </View>
-                <View style={s.obStageContent}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <T bold style={s.obStageTitle}>{st.title}</T>
-                    <View style={[s.obCheckCircle, isSelected && s.obCheckCircleActive]}>
-                      {isSelected && <Icon name="check" size={13} color="white" />}
-                    </View>
-                  </View>
-                  <T style={s.obStageDesc}>{st.desc}</T>
-                </View>
-              </Tap>
-            );
-          })}
-        </View>
-
-        {/* Butonlar */}
-        <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
-          <Tap onPress={() => setStep(1)} label={isEn ? 'Back' : 'Geri'} style={s.obSecondaryBtn}>
-            <T bold style={s.obSecondaryBtnText}>{isEn ? '← Back' : '← Geri'}</T>
-          </Tap>
-          <Tap onPress={() => setStep(3)} label={isEn ? 'Continue' : 'Devam Et'} style={[s.obPrimaryBtn, { flex: 2 }]}>
-            <T bold style={s.obPrimaryBtnText}>{isEn ? 'Continue' : 'Devam Et'}</T>
-            <Icon name="chevron" size={16} color="white" />
-          </Tap>
-        </View>
-      </View>
-    );
-  }
-
-  // ─── ADIM 3: ZAMANLAMA & KİŞİSELLEŞTİRME ───
-  function renderStep3() {
-    const weeksList = [
-      4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40
-    ];
-
-    const trimester = week <= 12
-      ? (isEn ? '1st Trimester' : '1. Trimester')
-      : week <= 27
-        ? (isEn ? '2nd Trimester' : '2. Trimester')
-        : (isEn ? '3rd Trimester' : '3. Trimester');
-
-    return (
-      <View style={{ gap: 16 }}>
-        <View style={s.obHeading}>
-          <T bold style={s.obStepKicker}>{isEn ? 'STEP 3 · DETAILS & TIMING' : 'ADIM 3 · DETAYLAR VE ZAMANLAMA'}</T>
-          <T bold style={s.obTitle}>
-            {stage === 'pregnancy'
-              ? (isEn ? 'Which Week Are You In?' : 'Kaçıncı Haftadasın?')
-              : (isEn ? "Baby's Details" : 'Bebeğinin Detayları')}
-          </T>
-          <T style={s.obSubtitle}>
-            {isEn ? 'Let’s pinpoint the details so we can deliver timely guidance and trackers.' : 'İçerikleri ve sayaçları sana tam zamanında sunabilmemiz için detayları belirleyelim.'}
-          </T>
-        </View>
-
-        {stage === 'pregnancy' ? (
-          <>
-            {/* Seçili Hafta Göstergesi */}
-            <Card style={s.obWeekHeroCard}>
-              <T style={{ fontSize: 11, color: colors.purple, letterSpacing: 1, fontWeight: '700' }}>
-                {isEn ? 'SELECTED PREGNANCY PERIOD' : 'SEÇİLEN HAMİLELİK DÖNEMİ'}
-              </T>
-              <T bold style={{ fontSize: 32, color: colors.ink, marginTop: 2 }}>{isEn ? `Week ${week}` : `${week}. Hafta`}</T>
-              <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 2 }}>
-                {trimester} · {isEn ? `Approx. ${(40 - week) * 7} days until arrival` : `Doğuma yaklaşık ${(40 - week) * 7} gün kaldı`}
-              </T>
-            </Card>
-
-            {/* Yatay Hafta Şeridi */}
-            <View>
-              <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
-                {isEn ? 'Select Pregnancy Week:' : 'Hamilelik Haftanı Seç:'}
-              </T>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
-                {weeksList.map(w => (
-                  <Tap
-                    key={w}
-                    onPress={() => setWeek(w)}
-                    label={`${w}. hafta`}
-                    style={[s.obWeekPill, week === w && s.obWeekPillActive]}
-                  >
-                    <T bold={week === w} style={{ fontSize: 14, color: week === w ? 'white' : colors.ink }}>
-                      {w}
-                    </T>
-                    <T style={{ fontSize: 9.5, color: week === w ? '#E8DAEE' : colors.muted, marginTop: 1 }}>
-                      {isEn ? 'Wk' : 'Hafta'}
-                    </T>
-                  </Tap>
-                ))}
-              </ScrollView>
-            </View>
-
-            {/* Cinsiyet Seçimi */}
-            <View>
-              <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
-                {isEn ? "Baby's Gender:" : 'Bebeğin Cinsiyeti:'}
-              </T>
-              <View style={{ flexDirection: 'row', gap: 8 }}>
-                {[
-                  { id: 'girl', label: isEn ? 'Girl' : 'Kız' },
-                  { id: 'boy', label: isEn ? 'Boy' : 'Erkek' },
-                  { id: 'surprise', label: isEn ? 'Surprise / Not Yet' : 'Henüz Öğrenmedik' },
-                ].map(g => (
-                  <Tap
-                    key={g.id}
-                    onPress={() => setGender(g.id)}
-                    label={g.label}
-                    style={[s.obOptionPill, gender === g.id && s.obOptionPillActive]}
-                  >
-                    <T bold={gender === g.id} style={{ fontSize: 12.5, color: gender === g.id ? 'white' : colors.ink }}>
-                      {g.label}
-                    </T>
-                  </Tap>
-                ))}
-              </View>
-            </View>
-
-            {/* İlk Bebek mi? */}
-            <View>
-              <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
-                {isEn ? 'Birth Experience:' : 'Doğum Deneyimi:'}
-              </T>
-              <View style={{ flexDirection: 'row', gap: 8 }}>
-                <Tap
-                  onPress={() => setFirstBaby(true)}
-                  label="İlk Bebeğim"
-                  style={[s.obOptionPill, firstBaby && s.obOptionPillActive]}
-                >
-                  <T bold={firstBaby} style={{ fontSize: 12.5, color: firstBaby ? 'white' : colors.ink }}>
-                    {isEn ? 'First Baby' : 'İlk Bebeğim'}
-                  </T>
-                </Tap>
-                <Tap
-                  onPress={() => setFirstBaby(false)}
-                  label="Daha Önce Doğum Yaptım"
-                  style={[s.obOptionPill, !firstBaby && s.obOptionPillActive]}
-                >
-                  <T bold={!firstBaby} style={{ fontSize: 12.5, color: !firstBaby ? 'white' : colors.ink }}>
-                    {isEn ? 'Experienced Parent' : 'Daha Önce Doğum Yaptım'}
-                  </T>
-                </Tap>
-              </View>
-            </View>
-          </>
-        ) : (
-          /* Postpartum veya Bebek Detayları */
-          <>
-            <View>
-              <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
-                {isEn ? "Baby's Name / Nickname:" : 'Bebeğinin Adı veya Lakabı:'}
-              </T>
-              <TextInput
-                value={babyName}
-                onChangeText={setBabyName}
-                placeholder={isEn ? 'e.g. Maya' : 'Örn: Ada'}
-                placeholderTextColor={colors.muted}
-                style={s.obTextInput}
-              />
-            </View>
-
-            <View>
-              <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
-                {isEn ? "Baby's Gender:" : 'Bebeğin Cinsiyeti:'}
-              </T>
-              <View style={{ flexDirection: 'row', gap: 8 }}>
-                {[
-                  { id: 'girl', label: isEn ? 'Girl' : 'Kız' },
-                  { id: 'boy', label: isEn ? 'Boy' : 'Erkek' },
-                  { id: 'surprise', label: isEn ? 'Prefer not to say' : 'Belirtmek İstemiyorum' },
-                ].map(g => (
-                  <Tap
-                    key={g.id}
-                    onPress={() => setGender(g.id)}
-                    label={g.label}
-                    style={[s.obOptionPill, gender === g.id && s.obOptionPillActive]}
-                  >
-                    <T bold={gender === g.id} style={{ fontSize: 12.5, color: gender === g.id ? 'white' : colors.ink }}>
-                      {g.label}
-                    </T>
-                  </Tap>
-                ))}
-              </View>
-            </View>
-
-            <View>
-              <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
-                {isEn ? "Baby's Age:" : 'Bebeğin Dönemi:'}
-              </T>
-              <View style={{ gap: 8 }}>
-                {[
-                  { id: 'newborn', label: isEn ? 'Newborn · First 40 Days' : 'Yenidoğan · İlk 40 Gün' },
-                  { id: 'month1_3', label: isEn ? '1 - 3 Months' : '1 - 3 Aylık' },
-                  { id: 'month3_6', label: isEn ? '3 - 6 Months' : '3 - 6 Aylık' },
-                  { id: 'month6_plus', label: isEn ? '6 Months & Above' : '6 Ay ve Üzeri' },
-                ].map(a => (
-                  <Tap
-                    key={a.id}
-                    onPress={() => setBabyAge(a.id)}
-                    label={a.label}
-                    style={[s.obOptionRow, babyAge === a.id && s.obOptionRowActive]}
-                  >
-                    <T bold={babyAge === a.id} style={{ fontSize: 13, color: babyAge === a.id ? colors.purple : colors.ink }}>
-                      {a.label}
-                    </T>
-                    <View style={[s.obCheckCircle, babyAge === a.id && s.obCheckCircleActive]}>
-                      {babyAge === a.id && <Icon name="check" size={13} color="white" />}
-                    </View>
-                  </Tap>
-                ))}
-              </View>
-            </View>
-          </>
-        )}
-
-        {/* Butonlar */}
-        <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
-          <Tap onPress={() => setStep(2)} label={isEn ? 'Back' : 'Geri'} style={s.obSecondaryBtn}>
-            <T bold style={s.obSecondaryBtnText}>{isEn ? '← Back' : '← Geri'}</T>
-          </Tap>
-          <Tap onPress={() => setStep(4)} label={isEn ? 'Continue' : 'Devam Et'} style={[s.obPrimaryBtn, { flex: 2 }]}>
-            <T bold style={s.obPrimaryBtnText}>{isEn ? 'Continue' : 'Devam Et'}</T>
-            <Icon name="chevron" size={16} color="white" />
-          </Tap>
-        </View>
-      </View>
-    );
-  }
-
-  // ─── ADIM 4: ÖNCELİKLİ İLGİ ALANLARI ───
-  function renderStep4() {
-    const interestOptions = [
-      { id: 'fetal3d', label: isEn ? '3D Fetal Growth & Comparison' : '3D Fetal Gelişim & Kıyaslama', icon: 'heart', sub: isEn ? 'Weekly organ and size atlas' : 'Haftalık organ ve boyut atlası' },
-      { id: 'foodSafety', label: isEn ? 'Food Safety Guide' : 'Besin Güvenliği Kılavuzu', icon: 'leaf', sub: isEn ? 'Can I eat this? / Is it safe?' : 'Yenebilir mi / Güvenli mi?' },
-      { id: 'hospitalBag', label: isEn ? 'Hospital Bag & Birth Plan' : 'Hastane Çantası & Doğum Planı', icon: 'bag', sub: isEn ? 'Mom, baby, and birth preference lists' : 'Anne, bebek ve doğum tercihi listeleri' },
-      { id: 'counters', label: isEn ? 'Kick & Contraction Timers' : 'Tekme & Kasılma Sayaçları', icon: 'footprint', sub: isEn ? 'Fetal movements and 5-1-1 alarms' : 'Fetal hareket ve 5-1-1 kuralı alarmları' },
-      { id: 'partnerSync', label: isEn ? 'Partner Sync & Notes' : 'Eş Senkronizasyonu & Ortak Notlar', icon: 'community', sub: isEn ? 'Messaging and shared milestones' : 'Eşler arası mesajlaşma ve ortak takip' },
-      { id: 'babyNames', label: isEn ? 'Baby Names Directory' : 'Geniş Bebek İsimleri Keşfi', icon: 'book', sub: isEn ? '9000+ meaningful names with origins' : '9000+ anlamlı Türkçe ve evrensel isim' },
-      { id: 'whiteNoise', label: isEn ? 'White Noise & Soothing Sounds' : 'Beyaz Gürültü & Uyku Sesleri', icon: 'moon', sub: isEn ? 'Womb, rain, and calming sounds' : 'Rahim içi, fön ve sakinleştirici sesler' },
-      { id: 'library', label: isEn ? 'Curated Momora Library' : 'Momora Editoryal Kütüphanesi', icon: 'search', sub: isEn ? 'Week-by-week guides and practical notes' : 'Hafta hafta rehberler ve pratik kaynak notları' },
-    ];
-
-    return (
-      <View style={{ gap: 16 }}>
-        <View style={s.obHeading}>
-          <T bold style={s.obStepKicker}>{isEn ? 'STEP 4 · INTERESTS' : 'ADIM 4 · İLGİ ALANLARI'}</T>
-          <T bold style={s.obTitle}>{isEn ? 'Your Priority Topics' : 'Öncelikli Konuların'}</T>
-          <T style={s.obSubtitle}>
-            {isEn ? 'Which topics would you like Momora to focus on? Select as many as you like.' : 'Momora sana en çok hangi konularda eşlik etsin? İstediklerini seçebilirsin.'}
-          </T>
-        </View>
-
-        <View style={{ gap: 9 }}>
-          {interestOptions.map(item => {
-            const active = selectedInterests.includes(item.id);
-            return (
-              <Tap
-                key={item.id}
-                onPress={() => toggleInterest(item.id)}
-                label={item.label}
-                style={[s.obInterestCard, active && s.obInterestCardActive]}
-              >
-                <View style={[s.obInterestIconBox, active && { backgroundColor: colors.purple + '18' }]}>
-                  <Icon name={item.icon} size={18} color={active ? colors.purple : colors.muted} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <T bold style={[s.obInterestTitle, active && { color: colors.purple }]}>{item.label}</T>
-                  <T style={s.obInterestSub}>{item.sub}</T>
-                </View>
-                <View style={[s.obCheckCircle, active && s.obCheckCircleActive]}>
-                  {active && <Icon name="check" size={13} color="white" />}
-                </View>
-              </Tap>
-            );
-          })}
-        </View>
-
-        {/* Butonlar */}
-        <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
-          <Tap onPress={() => setStep(3)} label={isEn ? 'Back' : 'Geri'} style={s.obSecondaryBtn}>
-            <T bold style={s.obSecondaryBtnText}>{isEn ? '← Back' : '← Geri'}</T>
-          </Tap>
-          <Tap onPress={() => setStep(5)} label={isEn ? 'Create My Plan' : 'Planımı Oluştur'} style={[s.obPrimaryBtn, { flex: 2 }]}>
-            <T bold style={s.obPrimaryBtnText}>{isEn ? 'Create My Plan' : 'Planımı Oluştur'}</T>
-            <Icon name="chevron" size={16} color="white" />
-          </Tap>
-        </View>
-      </View>
-    );
-  }
-
-  // ─── ADIM 5: HAZIRLANIYOR ───
-  function renderStep5() {
-    return (
-      <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 24, gap: 20 }}>
-        <View style={s.obPrepLogoBox}>
-          <BrandMark size={64} />
-        </View>
-
-        <View style={{ alignItems: 'center', gap: 6 }}>
-          <T bold style={{ fontSize: 24, letterSpacing: -0.5, color: colors.ink, textAlign: 'center' }}>
-            {prepComplete
-              ? (isEn ? 'Your Momora Experience is Ready' : 'Momora Deneyimin Hazır')
-              : (isEn ? 'Curating Your Personal Experience...' : 'Kişisel Deneyimin Hazırlanıyor')}
-          </T>
-          <T style={{ fontSize: 13, color: colors.muted, textAlign: 'center', maxWidth: 300 }}>
-            {prepComplete
-              ? (isEn ? 'All health trackers and your weekly development plan have been configured for you.' : 'Tüm sağlık araçları ve haftalık gelişim planın senin için yapılandırıldı.')
-              : (isEn ? 'Analyzing preferences, personalizing weekly biological timeline...' : 'Verilerin analiz ediliyor, haftalık biyolojik akışın yapılandırılıyor...')}
-          </T>
-        </View>
-
-        {/* Progress Bar */}
-        <View style={s.obProgressTrack}>
-          <View style={[s.obProgressFill, { width: `${prepProgress}%` }]} />
-        </View>
-        <T bold style={{ fontSize: 13, color: colors.purple }}>%{prepProgress}</T>
-
-        {/* Onay Adımları Listesi */}
-        <View style={s.obChecklist}>
-          <View style={s.obCheckItem}>
-            <View style={[s.obMiniCheck, prepProgress >= 25 && s.obMiniCheckDone]}>
-              {prepProgress >= 25 ? <Icon name="check" size={11} color="white" /> : <View style={s.obMiniDot} />}
-            </View>
-            <T style={[s.obCheckLabel, prepProgress >= 25 && s.obCheckLabelDone]}>
-              {isEn ? `Week ${week} biological growth timeline loaded` : `${week}. hafta biyolojik gelişim takvimi yüklendi`}
-            </T>
-          </View>
-
-          <View style={s.obCheckItem}>
-            <View style={[s.obMiniCheck, prepProgress >= 50 && s.obMiniCheckDone]}>
-              {prepProgress >= 50 ? <Icon name="check" size={11} color="white" /> : <View style={s.obMiniDot} />}
-            </View>
-            <T style={[s.obCheckLabel, prepProgress >= 50 && s.obCheckLabelDone]}>
-              {isEn ? 'Trimester and food safety guides integrated' : 'Trimester ve besin güvenliği kılavuzları entegre edildi'}
-            </T>
-          </View>
-
-          <View style={s.obCheckItem}>
-            <View style={[s.obMiniCheck, prepProgress >= 75 && s.obMiniCheckDone]}>
-              {prepProgress >= 75 ? <Icon name="check" size={11} color="white" /> : <View style={s.obMiniDot} />}
-            </View>
-            <T style={[s.obCheckLabel, prepProgress >= 75 && s.obCheckLabelDone]}>
-              {isEn ? 'Partner sync code MOM-7829-TR configured' : 'Eş senkronizasyon kodu MOM-7829-TR tanımlandı'}
-            </T>
-          </View>
-
-          <View style={s.obCheckItem}>
-            <View style={[s.obMiniCheck, prepProgress >= 100 && s.obMiniCheckDone]}>
-              {prepProgress >= 100 ? <Icon name="check" size={11} color="white" /> : <View style={s.obMiniDot} />}
-            </View>
-            <T style={[s.obCheckLabel, prepProgress >= 100 && s.obCheckLabelDone]}>
-              {isEn ? '15 smart trackers and daily baby letter ready' : '15 akıllı sayaç ve bebeğin günlük mektubu hazır'}
-            </T>
-          </View>
-        </View>
-
-
-        {prepComplete && (
-          <Card style={{ width: '100%', padding: 15, backgroundColor: '#FFFCF8', borderColor: '#EDE1EA' }}>
-            <T bold style={{ fontSize: 16, color: colors.ink }}>{isEn ? 'Tomorrow is already waiting' : 'Yarınki akışın hazır'}</T>
-            <T style={{ fontSize: 12, color: colors.muted, lineHeight: 18, marginTop: 4 }}>{isEn ? 'Momora will bring a new baby letter, a weekly insight, and one small action when you return.' : 'Tekrar geldiğinde yeni bebek mektubu, haftalık içgörü ve tek küçük aksiyon seni bekleyecek.'}</T>
-          </Card>
-        )}
-
-        {/* Başlama Butonu */}
-        {prepComplete && (
-          <Tap onPress={handleComplete} label={isEn ? 'Start Exploring Momora' : "Momora'yı Keşfetmeye Başla"} style={[s.obPrimaryBtn, { width: '100%', marginTop: 10 }]}>
-            <T bold style={s.obPrimaryBtnText}>{isEn ? 'Start Exploring Momora' : "Momora'yı Keşfetmeye Başla"}</T>
-            <Icon name="chevron" size={16} color="white" />
-          </Tap>
-        )}
-      </View>
-    );
+    toast && toast(isEn ? 'Connected to family account! 💚' : 'Eşinin aile hesabına başarıyla bağlandın! 💚');
+    selectJourney('pregnancy');
   }
 
   return (
-    <Page contentStyle={s.obContainer}>
-      {/* Üst Logo ve İlerleme Çubuğu */}
-      {step < 5 && (
-        <View style={s.obNavHeader}>
-          <View style={[s.obBrandRow, { position: 'relative', width: '100%' }]}>
-            <BrandMark size={32} />
-            <T style={s.obWordmark}>MOMORA</T>
-            <Tap
-              onPress={() => {
-                if (update) update({ hasCompletedOnboarding: true });
-                if (choose) choose(stage || 'pregnancy');
-              }}
-              label={isEn ? "Skip" : "Geç"}
-              style={{ position: 'absolute', right: 0, paddingHorizontal: 12, paddingVertical: 5, borderRadius: 12, backgroundColor: '#F3ECF6' }}
-            >
-              <T bold style={{ fontSize: 12, color: colors.purple }}>{isEn ? 'Skip' : 'Geç'}</T>
+    <Page contentStyle={s.onboarding}>
+      <View style={s.brand}>
+        <BrandMark size={38} />
+        <T style={s.wordmark}>MOMORA</T>
+      </View>
+
+      <View style={s.welcome}>
+        <T bold style={s.welcomeTitle}>{isEn ? 'Where Is Your Journey?' : 'Yolculuğun Nerede?'}</T>
+        <T style={s.welcomeText}>
+          {isEn
+            ? 'Mother and father can track together from one home.\nLet us tailor the best experience for you.'
+            : 'Anne ve baba aynı hesaptan birlikte takip edebilir.\nSana en uygun deneyimi sunalım.'}
+        </T>
+      </View>
+
+      {/* ─── ANNE / BABA ROL SEÇİCİ ─── */}
+      <View style={{ marginBottom: 20 }}>
+        <T bold style={{ fontSize: 13, color: colors.purple, marginBottom: 8, textAlign: 'center' }}>
+          {isEn ? 'WHO AM I?' : 'BEN KİMİM?'}
+        </T>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <Tap
+            onPress={() => setRole('mother')}
+            label={isEn ? "I'm the Mother" : 'Anne Adayıyım'}
+            style={[
+              { flex: 1, paddingVertical: 14, paddingHorizontal: 10, borderRadius: 18, alignItems: 'center', backgroundColor: '#FAF6FA', borderWidth: 2, borderColor: '#ECE0EE' },
+              role === 'mother' && { backgroundColor: '#F7EDF5', borderColor: colors.purple, ...shadow },
+            ]}
+          >
+            <T style={{ fontSize: 26 }}>🤰</T>
+            <T bold style={{ fontSize: 13, color: role === 'mother' ? colors.purple : colors.ink, marginTop: 4 }}>
+              {isEn ? "I'm the Mother" : 'Ben Anneyim'}
+            </T>
+            <T style={{ fontSize: 10, color: colors.muted, marginTop: 2, textAlign: 'center' }}>
+              {isEn ? 'Pregnancy & Body Rhythm' : 'Hamilelik & Beden Takibi'}
+            </T>
+          </Tap>
+
+          <Tap
+            onPress={() => setRole('father')}
+            label={isEn ? "I'm the Father" : 'Baba Adayıyım'}
+            style={[
+              { flex: 1, paddingVertical: 14, paddingHorizontal: 10, borderRadius: 18, alignItems: 'center', backgroundColor: '#F6F9FB', borderWidth: 2, borderColor: '#DCE8F2' },
+              role === 'father' && { backgroundColor: '#EBF3F9', borderColor: '#3E76A8', ...shadow },
+            ]}
+          >
+            <T style={{ fontSize: 26 }}>👨‍🍼</T>
+            <T bold style={{ fontSize: 13, color: role === 'father' ? '#3E76A8' : colors.ink, marginTop: 4 }}>
+              {isEn ? "I'm the Father" : 'Ben Babayım'}
+            </T>
+            <T style={{ fontSize: 10, color: colors.muted, marginTop: 2, textAlign: 'center' }}>
+              {isEn ? 'Partner Support & Sync' : 'Eş Desteği & Ortak Takip'}
+            </T>
+          </Tap>
+        </View>
+      </View>
+
+      {/* EŞİNİN AİLE KODU İLE BAĞLAN BUTONU */}
+      <View style={{ marginBottom: 18, alignItems: 'center' }}>
+        <Tap
+          onPress={() => setShowSyncInput(!showSyncInput)}
+          label={isEn ? 'I have a family invite code' : 'Eşimin aile kodu var'}
+          style={{ paddingVertical: 6, paddingHorizontal: 12, borderRadius: 12, backgroundColor: '#F0EAF2' }}
+        >
+          <T bold style={{ fontSize: 11, color: colors.purple }}>
+            {showSyncInput
+              ? (isEn ? '✕ Close' : '✕ Kapat')
+              : (isEn ? '📲 I Have an Invite Code · Connect to Partner' : '📲 Eşimin Aile Kodu Var · Ortak Hesaba Bağlan')}
+          </T>
+        </Tap>
+
+        {showSyncInput && (
+          <View style={{ width: '100%', marginTop: 10, flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+            <TextInput
+              value={partnerCode}
+              onChangeText={setPartnerCode}
+              placeholder="MOM-7829-TR"
+              placeholderTextColor={colors.muted}
+              style={{ flex: 1, height: 42, borderRadius: 12, borderWidth: 1, borderColor: colors.purple, paddingHorizontal: 12, backgroundColor: '#FFFFFF', fontSize: 13 }}
+            />
+            <Tap onPress={handleSyncSubmit} label={isEn ? 'Connect' : 'Bağlan'} style={{ height: 42, paddingHorizontal: 14, borderRadius: 12, backgroundColor: colors.purple, alignItems: 'center', justifyContent: 'center' }}>
+              <T bold style={{ color: 'white', fontSize: 12 }}>{isEn ? 'Connect' : 'Eşime Bağlan'}</T>
             </Tap>
           </View>
+        )}
+      </View>
 
-          {/* İlerleme Çubuğu */}
-          <View style={s.obStepTracker}>
-            <View style={s.obStepBarTrack}>
-              <View style={[s.obStepBarFill, { width: `${(step / 4) * 100}%` }]} />
+      {/* YOLCULUK KARTLARI — 1 DOKUNUŞLA ANINDA GİRİŞ & MÜKEMMEL RESİM FİTİ */}
+      <View style={{ gap: 16 }}>
+        {currentJourneys.map(j => (
+          <Tap
+            key={j.key}
+            label={j.title.replace('\n', ' ')}
+            onPress={() => selectJourney(j.key)}
+            style={[s.journey, { backgroundColor: j.tint }]}
+          >
+            <View style={s.journeyPhoto}>
+              <Image source={j.image} style={s.journeyImage} resizeMode="cover" />
+              <LinearGradient
+                colors={['transparent', j.tint]}
+                start={{ x: 0.72, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={StyleSheet.absoluteFill}
+              />
             </View>
-            <T style={s.obStepCountText}>{step} / 4</T>
-          </View>
-        </View>
-      )}
+            <View style={s.journeyCopy}>
+              <T bold style={s.journeyTitle}>{j.title}</T>
+              <T style={s.journeySub}>{j.sub}</T>
+            </View>
+            <Icon name="chevron" size={22} color={colors.purple} />
+          </Tap>
+        ))}
+      </View>
 
-      {/* Dinamik Adım */}
-      {step === 1 && renderStep1()}
-      {step === 2 && renderStep2()}
-      {step === 3 && renderStep3()}
-      {step === 4 && renderStep4()}
-      {step === 5 && renderStep5()}
+      <View style={s.motto}>
+        <Icon name="heart" color="#A68A9C" size={29} />
+        <T style={s.handwritten}>
+          {isEn
+            ? 'Mother and Father hand in hand,\nfor a peaceful journey'
+            : 'Anne ve Baba el ele,\nhuzurlu bir yolculuk için'}
+        </T>
+      </View>
     </Page>
   );
 }
@@ -1012,7 +462,9 @@ function BabyDaySummary({ state, open, lang = 'tr' }) {
 export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
   const isEn = lang === 'en';
   const [timelineDay, setTimelineDay] = useState('bugun'); // 'dun' | 'bugun' | 'yarin'
-  const week = state.week ?? 24;
+  const journey = resolveJourneyState(state);
+  const week = journey.week ?? state.week ?? 24;
+  const currentDay = journey.day ?? 3;
   const info = getWeekInfo(week, lang);
   const letter = getBabyLetterForWeek(week, lang);
 
@@ -2281,16 +1733,25 @@ export function Postpartum({ state, update, open, toast, lang = 'tr' }) {
 
 export function Baby({state,open,lang='tr'}) {
   const isEn = lang === 'en';
+  const babyAge = state?.babyAge || 'newborn';
+  const babyAgeText = babyAge === 'newborn'
+    ? (isEn ? 'Newborn (0-40 days)' : 'Yenidoğan (0-40 gün)')
+    : babyAge === 'month1_3'
+    ? (isEn ? '1-3 Months' : '1-3 Aylık')
+    : babyAge === 'month3_6'
+    ? (isEn ? '3-6 Months' : '3-6 Aylık')
+    : (isEn ? '6+ Months' : '6+ Aylık');
+
   const babyActions=[
     {type:'Emzirme',display:isEn ? 'Nursing' : 'Emzirme',key:'btn_nursing',icon:'nursing',bg:'#FCF4F7',border:'#F5E1EC',titleColor:'#6E3958',sub:isEn ? 'Right breast • 15 m' : 'Sağ meme • 15 dk'},
     {type:'Biberon',display:isEn ? 'Bottle' : 'Biberon',key:'btn_bottle',icon:'bottle',bg:'#F7F4FB',border:'#EBE1F8',titleColor:'#523977',sub:'120 ml'},
     {type:'Uyku',display:isEn ? 'Sleep' : 'Uyku',key:'btn_sleep',icon:'moon',bg:'#F2F5FB',border:'#DFE8F8',titleColor:'#38517B',sub:isEn ? '1 h 20 m' : '1 sa 20 dk'},
     {type:'Bez',display:isEn ? 'Diaper' : 'Bez',key:'btn_diaper',icon:'diaper',bg:'#F2F7F4',border:'#DDEEE4',titleColor:'#305D44',sub:isEn ? 'Clean' : 'Temiz'}
   ];
-  const records=[...state.records,...sampleRecords].slice(0,4);
+  const records=[...(state?.records || []),...sampleRecords].slice(0,4);
   return <Page>
-    <ScreenHero kicker={isEn ? 'BABY CARE' : 'BEBEK BAKIMI'} title={`${state.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · ${babyAgeText}`} body={isEn ? 'Feeding, sleep, diaper logs, and milestone guides gathered in one daily dashboard.' : 'Beslenme, uyku, bez kayıtları ve bakım rehberleri tek günlük panelde birleşir.'} icon="baby" asset="ui_baby_crib" stat={`${records.length} ${isEn ? 'logs' : 'kayıt'}`} tint="#6E5A96" />
-    <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage} resizeMode="cover"/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · ${babyAgeText}</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>{isEn ? "Today's daily rhythm" : 'Bugünün bakım ritmi'}</T></View></View><RoundButton icon="down" label={isEn ? 'Change journey' : 'Yolculuğunu değiştir'} onPress={()=>open('journey')}/></View>
+    <ScreenHero kicker={isEn ? 'BABY CARE' : 'BEBEK BAKIMI'} title={`${state?.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · ${babyAgeText}`} body={isEn ? 'Feeding, sleep, diaper logs, and milestone guides gathered in one daily dashboard.' : 'Beslenme, uyku, bez kayıtları ve bakım rehberleri tek günlük panelde birleşir.'} icon="baby" asset="ui_baby_crib" stat={`${records.length} ${isEn ? 'logs' : 'kayıt'}`} tint="#6E5A96" />
+    <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage} resizeMode="cover"/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state?.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · {babyAgeText}</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>{isEn ? "Today's daily rhythm" : 'Bugünün bakım ritmi'}</T></View></View><RoundButton icon="down" label={isEn ? 'Change journey' : 'Yolculuğunu değiştir'} onPress={()=>open('journey')}/></View>
     <BabyDaySummary state={state} open={open} lang={lang} />
 
     

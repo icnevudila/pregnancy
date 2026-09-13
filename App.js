@@ -41,7 +41,7 @@ function Momora() {
   const [page,setPage]=useState(null);const [sheet,setSheet]=useState(null);const [notice,setNotice]=useState('');
   const insets=useSafeAreaInsets();const {width,height}=useWindowDimensions();
   const desktop=Platform.OS==='web'&&width>=850;
-  const active = page || (!state.hasCompletedOnboarding ? 'onboarding' : (state.mode || 'pregnancy'));
+  const active = page || state.mode || (state.hasCompletedOnboarding === false ? 'onboarding' : 'pregnancy');
   const lang=state.lang||'tr';
 
   const previewScreens=[
@@ -177,14 +177,14 @@ function Momora() {
         <View style={{ height: Math.max(insets.top, Platform.OS === 'ios' ? 44 : 0) }} />
       )}
       <View style={{flex:1}} key={active}>{renderPage()}</View>
-      {!['onboarding', 'auth'].includes(active)&&<View style={[s.nav,{paddingBottom:desktop?19:Math.max(12,insets.bottom)}]}>{[
+      {active !== 'auth' && <View style={[s.nav,{paddingBottom:desktop?19:Math.max(12,insets.bottom)}]}>{[
         {label:t('nav.today', lang),icon:'home',selected:['pregnancy','postpartum','baby'].includes(active),action:()=>setPage(state.mode||'pregnancy')},
         {label:t('nav.tools', lang),icon:'track',selected:active==='tools',action:()=>setPage('tools')},
         {label:t('nav.discover', lang),icon:'book',selected:active==='discover',action:()=>setPage('discover')},
         {label:t('nav.community', lang),icon:'community',selected:active==='assistant',action:()=>setPage('assistant')},
         {label:t('nav.profile', lang),icon:'profile',selected:active==='profile',action:()=>setPage('profile')},
       ].map(tab=><Tap key={tab.label} label={tab.label} onPress={tab.action} accessibilityState={{selected:tab.selected}} style={s.navItem}><Icon name={tab.icon} size={22} color={tab.selected?'#5F4D7D':'#7C7E83'} fill={tab.selected&&(tab.icon==='home'||tab.icon==='book')?'#5F4D7D':'none'}/><T style={[s.navLabel,tab.selected&&{color:'#5F4D7D',fontFamily:fonts.bold}]}>{tab.label}</T></Tap>)}</View>}
-      {['onboarding', 'auth'].includes(active)&&!desktop&&<View style={{height:insets.bottom}}/>}
+      {active === 'auth' && !desktop && <View style={{height:insets.bottom}}/>}
       <InAppNotificationBanner
         lang={lang}
         onOpen={(data) => {

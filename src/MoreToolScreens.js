@@ -6,6 +6,8 @@ import { T, Tap, Card, Section, Progress, ScreenHero, InfoNote, MetricCard, Stat
 import { uid, localDay } from './domain.mjs';
 import { babyNamesList, nameThemes, nameOrigins, getLocalizedBabyName } from './babyNamesData';
 import { speakText, isSpeaking, stopSpeech } from './speechService';
+import { offlineSyncQueue } from './services/offlineSyncQueue';
+import { createTrackerEvent } from './domain/types';
 
 // ─── 4. KİLO TAKİBİ (SPEC 04_WEIGHT_TRACKER) ─────────────────────────────────
 export function WeightTracker({ state, update, toast, lang = 'tr' }) {
@@ -42,6 +44,11 @@ export function WeightTracker({ state, update, toast, lang = 'tr' }) {
     update(old => ({
       weights: [newEntry, ...(old.weights || [])],
     }));
+    offlineSyncQueue.enqueue(createTrackerEvent({
+      type: 'weight',
+      occurredAt: new Date().toISOString(),
+      metadata: { value: parseFloat(val.toFixed(1)), week: state.week || 24, baseline: startWeight },
+    })).catch(() => {});
     setWeightInput('');
     setNoteInput('');
     toast && toast(isEn ? `⚖️ Weight logged: ${val.toFixed(1)} kg` : `⚖️ Kilo kaydedildi: ${val.toFixed(1)} kg`);

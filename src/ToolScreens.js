@@ -163,6 +163,12 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
       notes: `${feelingLabel} ${sessionNote ? '· ' + sessionNote : ''}`.trim(),
     }).catch(() => {});
 
+    offlineSyncQueue.enqueue(createTrackerEvent({
+      type: 'movement',
+      occurredAt: new Date().toISOString(),
+      metadata: { kicks, durationSecs: finalSecs, feeling: selectedFeeling, breakdown: typeCounts },
+    })).catch(() => {});
+
     toast && toast(isEn ? `🌸 ${kicks} movements saved (${secondsLabel(finalSecs)})` : `🌸 ${kicks} hareket kaydedildi (${secondsLabel(finalSecs)})`);
     setKicks(0);
     setSeconds(0);
@@ -416,8 +422,10 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
 // ─── 2. KASILMA SAYACI (ONE-TAP TIMER PER SPEC 01_CONTRACTION_COUNTER) ────────
 export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
-  const [active, setActive] = useState(false);
-  const [duration, setDuration] = useState(0);
+  const contractions = state?.contractionSessions || [];
+  const initialStartedAt = state?.activeContraction?.startedAt || null;
+  const [active, setActive] = useState(Boolean(initialStartedAt));
+  const [duration, setDuration] = useState(() => initialStartedAt ? Math.max(0, Math.floor((Date.now() - initialStartedAt) / 1000)) : 0);
   const [intensity, setIntensity] = useState('Orta'); // 'Hafif' | 'Orta' | 'Güçlü'
   const [position, setPosition] = useState('sitting'); // 'standing' | 'sitting' | 'side'
   const [note, setNote] = useState('');
@@ -426,9 +434,8 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
   const [undoCountdown, setUndoCountdown] = useState(8);
   const [showWaterNotice, setShowWaterNotice] = useState(false);
 
-  const contractions = state?.contractionSessions || [];
   const timerRef = useRef(null);
-  const startedAtRef = useRef(null);
+  const startedAtRef = useRef(initialStartedAt);
   const undoTimerRef = useRef(null);
 
   const waveAnim = usePulse(0.96, 1.05, 800);
@@ -565,6 +572,17 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
         intensity,
         notes: note.trim(),
       }).catch(() => {});
+
+      offlineSyncQueue.enqueue(createTrackerEvent({
+        type: 'contraction',
+        occurredAt: now.toISOString(),
+        metadata: {
+          startedAt: new Date(startedAtRef.current || (now.getTime() - finalDuration * 1000)).toISOString(),
+          durationSecs: finalDuration,
+          intervalSecs,
+          intensity,
+        },
+      })).catch(() => {});
 
       toast && toast(isEn ? `Contraction saved (${finalDuration}s)` : `Kasılma kaydedildi (${finalDuration} sn)`);
       setDuration(0);

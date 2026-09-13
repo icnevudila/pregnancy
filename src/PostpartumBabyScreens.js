@@ -16,10 +16,12 @@ export function NursingTimerScreen({ state, update, toast, lang = 'tr' }) {
   const [activeTab, setActiveTab] = useState('breast'); // 'breast' | 'bottle' | 'pump'
   
   // Breastfeeding State
-  const [activeSide, setActiveSide] = useState(null); // 'left' | 'right' | null
+  const initialFeeding = state?.activeFeeding || null;
+  const initialElapsed = initialFeeding?.startedAt ? Math.max(0, Math.floor((Date.now() - initialFeeding.startedAt) / 1000)) : 0;
+  const [activeSide, setActiveSide] = useState(initialFeeding?.side || null); // 'left' | 'right' | null
   const [lastSide, setLastSide] = useState(state.lastNursingSide || (isEn ? 'Right Breast' : 'Sağ Meme'));
-  const [leftSecs, setLeftSecs] = useState(0);
-  const [rightSecs, setRightSecs] = useState(0);
+  const [leftSecs, setLeftSecs] = useState(initialFeeding?.side === 'left' ? initialElapsed : 0);
+  const [rightSecs, setRightSecs] = useState(initialFeeding?.side === 'right' ? initialElapsed : 0);
   const [isPaused, setIsPaused] = useState(false);
 
   // Bottle State
@@ -37,7 +39,7 @@ export function NursingTimerScreen({ state, update, toast, lang = 'tr' }) {
   const [justSavedEntry, setJustSavedEntry] = useState(null);
   const [undoCountdown, setUndoCountdown] = useState(8);
   const timerRef = useRef(null);
-  const startedAtRef = useRef(null);
+  const startedAtRef = useRef(initialFeeding?.startedAt || null);
   const undoTimerRef = useRef(null);
 
   useEffect(() => {
