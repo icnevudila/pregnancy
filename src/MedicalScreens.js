@@ -13,27 +13,54 @@ import { getUltrasoundDetails, decodeBiometryReport, ULTRASOUND_MILESTONES, HADL
 // ─── EKRAN 10: 3'LÜ BOYUT KIYASLAMA REHBERİ (SIZE GUIDE HUB) ─────────────────
 export function SizeComparisonHub({ state, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
-  const [week, setWeek] = useState(state.week || 24);
-  const [mode, setMode] = useState('fruit'); // 'fruit' | 'animal' | 'sweet'
+  const [week, setWeek] = useState(state?.week || 24);
+  const [mode, setMode] = useState('baby'); // 'baby' | 'fruit' | 'animal' | 'sweet'
+  const [rotation, setRotation] = useState(0);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [showDelta, setShowDelta] = useState(true);
+
   const info = getWeekInfo(week, lang);
+  const prevWeek = Math.max(4, week - 1);
+  const prevInfo = getWeekInfo(prevWeek, lang);
+
+  const deltaLength = (info.lengthCm - prevInfo.lengthCm).toFixed(1);
+  const deltaWeight = Math.max(0, info.weightG - prevInfo.weightG);
+
+  // Asset selection for 3D baby / fetus
+  const fetusAssetKey = 'fetus_w' + String(Math.min(40, Math.max(4, week))).padStart(2, '0');
+  const fetusAsset = generatedAssets[fetusAssetKey] || generatedAssets.fetus;
+
+  function rotate3d() {
+    setRotation(r => (r + 45) % 360);
+  }
+
+  function toggleZoom() {
+    setIsZoomed(z => !z);
+  }
+
+  function resetView() {
+    setRotation(0);
+    setIsZoomed(false);
+  }
 
   return (
     <View style={ms.container}>
       <ScreenHero
-        kicker={isEn ? 'WEEK-BY-WEEK SIZE' : 'HAFTA HAFTA BOYUT'}
-        title={isEn ? "Feel your baby's scale" : "Bebeğinin ölçeğini hisset"}
-        body={isEn ? "See the same week warmly and memorably through fruit, animal, or sweet metaphors." : "Meyve, hayvan veya tatlı metaforuyla aynı haftayı daha sıcak ve akılda kalıcı gör."}
-        icon="melon"
-        asset="sweet_macaron"
+        kicker={isEn ? '3D SCALE & VISUAL DISCOVERY' : '3D BOYUT & GÖRSEL KEŞİF'}
+        title={isEn ? "Feel your baby's real scale" : "Bebeğinin gerçek ölçeğini hisset"}
+        body={isEn
+          ? "Screen-scale 3D fetus renders, fruit, animal, and sweet comparisons week by week."
+          : "Büyük ekran 3D fetüs modeli, meyve, sevimli hayvan ve tatlı metaforlarıyla haftalık gelişim."}
+        icon="sparkles"
+        asset={fetusAssetKey}
         tint="#7B4C80"
       />
-      <ToolExperienceCard lang={lang} title={isEn ? 'Make growth tangible' : 'Boyutu üç farklı dille anlat'} steps={isEn ? ['Switch between fruit, animal, and sweet comparisons.', 'Move week by week.', 'Open the weekly detail when curious.'] : ['Meyve, hayvan ve tatlı kıyasını değiştir.', 'Hafta hafta ilerle.', 'Merak ettiğinde hafta detayını aç.']} outcome={isEn ? 'Growth feels visual and memorable.' : 'Gelişim görsel ve akılda kalıcı hale gelir.'} asset="fruit_apple" tint="#7B4C80" />
 
-      {/* 4'lü Segment Seçici (Lüks İkonlu Tasarım) */}
+      {/* 4'lü Kategori Seçici Sekmeler (Spec 05: Bebek, Meyve, Hayvan, Tatlı) */}
       <View style={ms.segRow}>
         {[
+          { id: 'baby', label: isEn ? '3D Baby' : '3D Bebek', icon: 'heart' },
           { id: 'fruit', label: isEn ? 'Fruit' : 'Meyve', icon: 'apple' },
-          { id: 'ultrasound', label: isEn ? 'Ultrasound' : 'Ultrason', icon: 'ultrasound' },
           { id: 'animal', label: isEn ? 'Animal' : 'Hayvan', icon: 'paw' },
           { id: 'sweet', label: isEn ? 'Sweet' : 'Tatlı', icon: 'cupcake' },
         ].map(s => (
@@ -53,56 +80,111 @@ export function SizeComparisonHub({ state, toast, lang = 'tr' }) {
         ))}
       </View>
 
-      {/* Ana Boyut Kartı */}
-      <Card style={ms.heroCard}>
+      {/* Büyük Hero Sahne Kartı (~Yarım Ekran Vurgusu) */}
+      <Card style={[ms.heroCard, { minHeight: 310, paddingVertical: 16 }]}>
         <LinearGradient
-          colors={['#F7EFF5', '#FDF8F5']}
+          colors={['#F9F2F7', '#FCF8FB', '#F4ECF5']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFill}
         />
+
+        {/* Hafta & Trimester Başlığı */}
         <View style={ms.heroMeta}>
-          <T bold style={{ fontSize: 13, color: colors.purple }}>
-            {week}. {isEn ? 'WEEK' : 'HAFTA'} · {trimesterLabel(info.trimester, lang).toLocaleUpperCase(isEn ? 'en' : 'tr')}
-          </T>
-          <T style={{ fontSize: 11, color: colors.muted }}>
-            {isEn ? "Baby's Size Comparison" : "Bebeğin Boyut Eşleşmesi"}
-          </T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <View style={{ backgroundColor: colors.purple, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 }}>
+              <T bold style={{ fontSize: 13, color: 'white' }}>
+                {week}. {isEn ? 'WEEK' : 'HAFTA'}
+              </T>
+            </View>
+            <T style={{ fontSize: 12, color: colors.muted, fontWeight: '600' }}>
+              {trimesterLabel(info.trimester, lang).toLocaleUpperCase(isEn ? 'en' : 'tr')}
+            </T>
+          </View>
         </View>
 
         {/* Görsel Sahne */}
-        <View style={ms.stage}>
-          {mode === 'fruit' ? (
-            <FruitArt type={info.fruit} size={150} />
-          ) : mode === 'ultrasound' ? (
-            <ComparisonArt mode="ultrasound" size={150} week={week} info={info} />
+        <View style={[ms.stage, { minHeight: 180, justifyContent: 'center' }]}>
+          {mode === 'baby' ? (
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+              <Image
+                source={fetusAsset}
+                style={{
+                  width: 210,
+                  height: 190,
+                  transform: [
+                    { rotate: `${rotation}deg` },
+                    { scale: isZoomed ? 1.25 : 1.0 },
+                  ],
+                }}
+                resizeMode="contain"
+              />
+            </View>
+          ) : mode === 'fruit' ? (
+            <FruitArt type={info.fruit} size={170} />
           ) : (
             <ComparisonArt
               mode={mode}
               type={mode === 'animal' ? info.animal : info.sweet}
-              size={130}
+              size={155}
               emoji={mode === 'animal' ? (info.animalEmoji || '🐾') : (info.sweetEmoji || '🧁')}
               info={info}
               week={week}
             />
           )}
 
-          <T bold style={ms.stageTitle}>
-            {mode === 'fruit'
+          <T bold style={[ms.stageTitle, { fontSize: 24, marginTop: 10 }]}>
+            {mode === 'baby'
+              ? (isEn ? `Week ${week} Fetal Anatomy` : `${week}. Hafta Fetal Anatomi`)
+              : mode === 'fruit'
               ? `${info.fruitName}`
               : mode === 'animal'
               ? `${info.animalName}`
-              : mode === 'ultrasound'
-              ? (info.ultrasound?.scan || (isEn ? 'Ultrasound Anatomy' : 'Ultrason Anatomisi'))
               : `${info.sweetName}`}
           </T>
-          <T style={ms.stageSub}>{mode === 'ultrasound' ? (info.ultrasound?.badge || (isEn ? 'Growth scan' : 'Gelişim taraması')) : (isEn ? 'in size' : 'büyüklüğünde')}</T>
+          <T style={ms.stageSub}>
+            {mode === 'baby'
+              ? (isEn ? '3D Render scale & orientation' : 'Ölçekli 3D fetal modelleme')
+              : (isEn ? 'approximate size metaphor' : 'büyüklüğünde')}
+          </T>
         </View>
+
+        {/* 3D İnteraksiyon Kontrolleri (Döndür, Yakınlaş, Sıfırla) */}
+        {mode === 'baby' && (
+          <View style={{ flexDirection: 'row', gap: 10, marginVertical: 6 }}>
+            <Tap
+              onPress={rotate3d}
+              label={isEn ? "Rotate" : "Döndür"}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(255,255,255,0.85)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, borderWidth: 1, borderColor: '#E5D6E6' }}
+            >
+              <T style={{ fontSize: 13 }}>🔄</T>
+              <T bold style={{ fontSize: 11, color: colors.purple }}>{isEn ? `Rotate (${rotation}°)` : `Döndür (${rotation}°)`}</T>
+            </Tap>
+            <Tap
+              onPress={toggleZoom}
+              label={isEn ? "Zoom" : "Yakınlaş"}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: isZoomed ? colors.purple : 'rgba(255,255,255,0.85)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, borderWidth: 1, borderColor: '#E5D6E6' }}
+            >
+              <T style={{ fontSize: 13 }}>🔍</T>
+              <T bold style={{ fontSize: 11, color: isZoomed ? 'white' : colors.purple }}>{isEn ? (isZoomed ? 'Zoom 1.25x' : 'Zoom 1x') : (isZoomed ? '1.25x Yakın' : '1x Normal')}</T>
+            </Tap>
+            {(rotation !== 0 || isZoomed) && (
+              <Tap
+                onPress={resetView}
+                label={isEn ? "Reset" : "Sıfırla"}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(255,255,255,0.85)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 14, borderWidth: 1, borderColor: '#E5D6E6' }}
+              >
+                <T style={{ fontSize: 12 }}>↺</T>
+                <T bold style={{ fontSize: 11, color: colors.muted }}>{isEn ? 'Reset' : 'Sıfırla'}</T>
+              </Tap>
+            )}
+          </View>
+        )}
 
         {/* Boy & Ağırlık Şeridi */}
         <View style={ms.metricsRow}>
           <View style={ms.metricItem}>
-            <Icon name="ruler" size={16} color={colors.purple} />
+            <Icon name="ruler" size={18} color={colors.purple} />
             <View>
               <T style={ms.metricLabel}>{isEn ? 'Approx. Length' : 'Yaklaşık Boy'}</T>
               <T bold style={ms.metricVal}>{formatLength(info.lengthCm)}</T>
@@ -110,7 +192,7 @@ export function SizeComparisonHub({ state, toast, lang = 'tr' }) {
           </View>
           <View style={ms.metricDivider} />
           <View style={ms.metricItem}>
-            <Icon name="scale" size={16} color={colors.purple} />
+            <Icon name="scale" size={18} color={colors.purple} />
             <View>
               <T style={ms.metricLabel}>{isEn ? 'Approx. Weight' : 'Yaklaşık Ağırlık'}</T>
               <T bold style={ms.metricVal}>{formatWeight(info.weightG)}</T>
@@ -119,8 +201,63 @@ export function SizeComparisonHub({ state, toast, lang = 'tr' }) {
         </View>
       </Card>
 
-      {/* Hafta Seçici Şerit */}
-      <Section title={isEn ? 'Change Week' : 'Haftayı Değiştir'} />
+      {/* Karşılaştırma & Delta Kartı (Spec 05: 23 -> 24 week silhouette / delta) */}
+      <Card style={{ padding: 14, backgroundColor: '#FAF6FA', borderColor: '#EBDDEB' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Icon name="chart" size={18} color={colors.purple} />
+            <View>
+              <T bold style={{ fontSize: 13.5, color: colors.ink }}>
+                {isEn ? `Week-over-Week Delta (${prevWeek}w → ${week}w)` : `Haftalık Büyüme Farkı (${prevWeek}hf → ${week}hf)`}
+              </T>
+              <T style={{ fontSize: 11, color: colors.muted }}>
+                {isEn ? 'Estimated 7-day developmental leap' : 'Tahmini 7 günlük gelişim sıçraması'}
+              </T>
+            </View>
+          </View>
+          <Tap
+            onPress={() => setShowDelta(s => !s)}
+            style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, backgroundColor: '#EDE0EF' }}
+          >
+            <T bold style={{ fontSize: 11, color: colors.purple }}>{showDelta ? (isEn ? 'Hide' : 'Gizle') : (isEn ? 'Show' : 'Gör')}</T>
+          </Tap>
+        </View>
+
+        {showDelta && (
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#EDE2EE' }}>
+            <View style={{ flex: 1, backgroundColor: 'white', padding: 10, borderRadius: 12, alignItems: 'center' }}>
+              <T style={{ fontSize: 10.5, color: colors.muted }}>{isEn ? 'Length Delta' : 'Boy Artışı'}</T>
+              <T bold style={{ fontSize: 15, color: '#317349', marginTop: 2 }}>+{deltaLength} cm</T>
+            </View>
+            <View style={{ flex: 1, backgroundColor: 'white', padding: 10, borderRadius: 12, alignItems: 'center' }}>
+              <T style={{ fontSize: 10.5, color: colors.muted }}>{isEn ? 'Weight Delta' : 'Kilo Artışı'}</T>
+              <T bold style={{ fontSize: 15, color: '#8A4A7A', marginTop: 2 }}>+{deltaWeight} g</T>
+            </View>
+          </View>
+        )}
+      </Card>
+
+      {/* Hafta Seçici Şerit (4-40 Scrubber) */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+        <T bold style={{ fontSize: 13, color: colors.ink }}>
+          {isEn ? 'Week Scrubber (4–40)' : 'Hafta Cetveli (4–40)'}
+        </T>
+        <View style={{ flexDirection: 'row', gap: 6 }}>
+          <Tap
+            onPress={() => setWeek(w => Math.max(4, w - 1))}
+            style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, backgroundColor: '#EFE5F0' }}
+          >
+            <T bold style={{ fontSize: 11, color: colors.purple }}>← {isEn ? 'Prev' : 'Önceki'}</T>
+          </Tap>
+          <Tap
+            onPress={() => setWeek(w => Math.min(40, w + 1))}
+            style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, backgroundColor: '#EFE5F0' }}
+          >
+            <T bold style={{ fontSize: 11, color: colors.purple }}>{isEn ? 'Next' : 'Sonraki'} →</T>
+          </Tap>
+        </View>
+      </View>
+
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
         {Array.from({ length: 37 }, (_, i) => i + 4).map(w => (
           <Tap
@@ -752,103 +889,216 @@ export function MedicalTimeline({ state, update, open, lang = 'tr' }) {
 // ─── EKRAN 13: AYRINTILI ORGAN GELİŞİMİ & KALP SESİ ─────────────────────────
 export function OrganDevelopment({ state, lang = 'tr' }) {
   const isEn = lang === 'en';
-  const [activeTab, setActiveTab] = useState('heart');
+  const [week, setWeek] = useState(state?.week || 24);
+  const [activeTab, setActiveTab] = useState('heart'); // 'heart' | 'brain' | 'lungs' | 'senses' | 'bones'
   const [playing, setPlaying] = useState(false);
   const pulse = usePulse(0.9, 1.1, 800);
 
-  const organs = isEn ? [
+  useEffect(() => {
+    return () => {
+      stopSound();
+    };
+  }, []);
+
+  function toggleHeartSound() {
+    if (playing) {
+      stopSound();
+      setPlaying(false);
+    } else {
+      playSound('fetalHeartbeat', { volume: 0.85 });
+      setPlaying(true);
+    }
+  }
+
+  // 5 Organ Tanımı (Spec 07: Kalp, Beyin, Akciğer, Duyular, Kemikler)
+  const organs = [
     {
       id: 'heart',
-      title: 'Heart & Circulation',
-      tabLabel: 'Heart',
-      bpm: '145 BPM',
+      title: isEn ? 'Heart & Circulation' : 'Kalp & Dolaşım',
+      tabLabel: isEn ? 'Heart' : 'Kalp',
       icon: 'heart',
-      desc: "Your baby's heart beats about 140-150 times per minute (twice an adult's!). Heart valves and 4 chambers are working perfectly.",
+      bpm: '~140-150 BPM',
+      hotspotCoord: { top: '48%', left: '46%' },
+      current: isEn
+        ? "The fetal heart beats about 140-150 times per minute (twice an adult rate). All four chambers and vital valves are fully functioning."
+        : "Bebeğin kalbi dakikada yaklaşık 140-150 kez atıyor (yetişkinin iki katı!). Dört odacık ve kalbin ana kapakçıkları kusursuz çalışıyor.",
+      developing: isEn
+        ? "Cardiovascular network branches out to supply oxygen to the rapid brain growth and budding extremities."
+        : "Hızla büyüyen beyin dokusu ve uzuvları beslemek için kılcal damar ağı genişliyor, kan hacmi haftalık artış gösteriyor.",
+      next: isEn
+        ? "Postnatal circulation bypass (ductus arteriosus) will train to close immediately after the first breath at birth."
+        : "Doğum anında ilk nefesle birlikte kapanacak olan fetal dolaşım köprüsü (duktus arteriozus) olgunlaşmaya devam edecek.",
     },
     {
       id: 'brain',
-      title: 'Brain & Nerves',
-      tabLabel: 'Brain',
-      bpm: null,
+      title: isEn ? 'Brain & Nervous System' : 'Beyin & Sinir Sistemi',
+      tabLabel: isEn ? 'Brain' : 'Beyin',
       icon: 'milestone',
-      desc: 'Tens of thousands of new nerve cells connect every second. Centers for processing taste, smell, and sounds have activated.',
+      bpm: null,
+      hotspotCoord: { top: '24%', left: '50%' },
+      current: isEn
+        ? "Tens of thousands of new neuronal synaptic connections are established every single second."
+        : "Her saniye on binlerce yeni nöron ve sinirsel sinaps bağlantısı kuruluyor; temel beyin korteksi kıvrımları derinleşiyor.",
+      developing: isEn
+        ? "Cerebral cortex forms its characteristic gyri and sulci for advanced sensory processing and memory retention."
+        : "Tat, koku ve sesleri işleme merkezleri elektriksel olarak aktifleşti; bebeğin uyku ve uyanıklık döngüleri belirginleşti.",
+      next: isEn
+        ? "Rapid myelination of nerve fibers begins, protecting nerve pathways and accelerating impulse transmission."
+        : "Sinir iletim hızını artıran miyelin kılıfı oluşumu başlayacak ve refleks yanıtları daha koordineli hale gelecek.",
+    },
+    {
+      id: 'lungs',
+      title: isEn ? 'Lungs & Respiratory Tract' : 'Akciğer & Solunum',
+      tabLabel: isEn ? 'Lungs' : 'Akciğer',
+      icon: 'wind',
+      bpm: null,
+      hotspotCoord: { top: '44%', left: '54%' },
+      current: isEn
+        ? "Baby practices breathing movements by rhythmically inhaling and exhaling amniotic fluid through developing bronchi."
+        : "Bebek, amniyon sıvısını ritmik olarak soluyup bırakarak diyafram ve göğüs kafesi solunum antrenmanları yapıyor.",
+      developing: isEn
+        ? "Surfactant-producing type II alveolar cells are actively forming inside primitive air sacs."
+        : "Alveol keseciklerinin birbirine yapışmasını önleyen hayati sürfaktan maddesini üreten hücreler aktifleşmeye başladı.",
+      next: isEn
+        ? "Terminal alveolar capillary beds multiply by millions to ensure effortless atmospheric oxygen transfer at birth."
+        : "Doğumdan sonraki ilk atmosferik nefes için milyonlarca yeni mikroskobik hava keseciği damarlanacak.",
     },
     {
       id: 'senses',
-      title: 'Senses & Movement',
-      tabLabel: 'Senses',
-      bpm: null,
+      title: isEn ? 'Senses & Reflexes' : 'Duyular & Hareket',
+      tabLabel: isEn ? 'Senses' : 'Duyular',
       icon: 'footprint',
-      desc: 'Eyelids react to light, recognizing your voice. Grasping reflex is practiced by clenching fingers.',
+      bpm: null,
+      hotspotCoord: { top: '30%', left: '42%' },
+      current: isEn
+        ? "Auditory nerve structures can distinguish maternal voice tone, heartbeat vibrations, and ambient domestic sounds."
+        : "İşitme kemikçikleri ses titreşimlerini iletiyor; annenin ses tonu, kalp atımı ve dış dünya sesleri ayırt ediliyor.",
+      developing: isEn
+        ? "Retinal photoreceptors react to strong light sources directed toward the maternal abdomen; blinking reflex is primed."
+        : "Göz kapakları ışığa tepki veriyor, el parmaklarını sıkarak kavrama refleksini ve yüzüne dokunma alışkanlığını çalıştırıyor.",
+      next: isEn
+        ? "Taste buds on the tongue distinguish sweet flavours from swallowed amniotic fluid after meals."
+        : "Amniyon sıvısına geçen aromatik moleküller sayesinde tat alma reseptörleri anne sütüne hazırlık yapacak.",
     },
     {
       id: 'bones',
-      title: 'Bones & Fat',
-      tabLabel: 'Bones',
-      bpm: null,
+      title: isEn ? 'Bones, Muscle & Strength' : 'Kemikler & Kaslar',
+      tabLabel: isEn ? 'Bones' : 'Kemikler',
       icon: 'scale',
-      desc: 'Cartilage transforms into strong bone by storing calcium. Protective brown fat tissue accumulates under the skin.',
-    },
-  ] : [
-    {
-      id: 'heart',
-      title: 'Kalp & Dolaşım',
-      tabLabel: 'Kalp',
-      bpm: '145 BPM',
-      icon: 'heart',
-      desc: 'Bebeğin kalbi dakikada yaklaşık 140-150 kez atar (yetişkinin iki katı!). Kalp kapakçıkları ve 4 odacık kusursuz çalışıyor.',
-    },
-    {
-      id: 'brain',
-      title: 'Beyin & Sinirler',
-      tabLabel: 'Beyin',
       bpm: null,
-      icon: 'milestone',
-      desc: 'Her saniye on binlerce yeni sinir hücresi bağlantı kuruyor. Tat, koku ve sesleri işleme merkezleri aktifleşti.',
-    },
-    {
-      id: 'senses',
-      title: 'Duyular & Hareket',
-      tabLabel: 'Duyular',
-      bpm: null,
-      icon: 'footprint',
-      desc: 'Göz kapakları ışığa tepki veriyor, sesinizi tanıyor. El parmaklarını sıkarak kavrama refleksini çalıştırıyor.',
-    },
-    {
-      id: 'bones',
-      title: 'Kemikler & Yağ',
-      tabLabel: 'Kemikler',
-      bpm: null,
-      icon: 'scale',
-      desc: 'Kıkırdaklar kalsiyum depolayarak güçlü kemiklere dönüşüyor. Cilt altında koruyucu kahverengi yağ dokusu birikiyor.',
+      hotspotCoord: { top: '65%', left: '48%' },
+      current: isEn
+        ? "Cartilage skeleton continues progressive ossification by mineralizing calcium and phosphorus from maternal stores."
+        : "Kıkırdak iskelet, anne depolarından çekilen kalsiyum ve fosfor ile sağlam kemik dokusuna dönüşmeye devam ediyor.",
+      developing: isEn
+        ? "Long bones in legs and arms reinforce, producing strong coordinated kicks, stretches, and somatic somersaults."
+        : "Kol ve bacaklardaki uzun kemikler güçlendikçe tekmeler, gerinmeler ve pozisyon değişiklikleri daha belirgin hissediliyor.",
+      next: isEn
+        ? "Cranial skull plates remain soft and separated by flexible fontanelles to safeguard safe passage through the birth canal."
+        : "Kafatası kemikleri doğum kanalından kolay ve güvenli geçişi sağlamak için bıngıldaklarla esnek ve ayrı kalacak.",
     },
   ];
 
   const currentOrgan = organs.find(o => o.id === activeTab) || organs[0];
+  const fetusAssetKey = 'fetus_w' + String(Math.min(40, Math.max(4, week))).padStart(2, '0');
+  const fetusAsset = generatedAssets[fetusAssetKey] || generatedAssets.fetus;
 
   return (
     <View style={ms.container}>
       <ScreenHero
-        kicker={isEn ? 'DEVELOPMENT FOCUS' : 'GELİŞİM ODAKLARI'}
-        title={isEn ? 'Explore organ development' : 'Organ gelişimini bölümlere ayır'}
-        body={isEn ? 'Follow heart, brain, senses, and bone development on a single screen with clear headings.' : 'Kalp, beyin, duyular ve kemik gelişimini tek ekranda sade başlıklarla takip et.'}
+        kicker={isEn ? 'ORGAN DEVELOPMENT & HEARTBEAT' : 'ORGAN GELİŞİMİ & KALP RİTİMİ'}
+        title={isEn ? 'Explore bodily systems in depth' : 'Bebeğinin organ gelişimini adım adım keşfet'}
+        body={isEn
+          ? 'Track heart, brain, lungs, senses, and bone maturation with layered developmental notes.'
+          : 'Kalp, beyin, akciğer, duyu ve iskelet sisteminin gelişimini katmanlı klinik açıklamalarla incele.'}
         icon="heart"
-        asset="ui_fetal_heart_3d"
+        asset={fetusAssetKey}
         tint="#A84D67"
       />
 
-      <ToolExperienceCard
-        title={isEn ? 'Follow one system at a time' : 'Her sistemi tek tek izle'}
-        steps={isEn
-          ? ['Choose heart, brain, senses, or bones.', 'Read the current development note.', 'Return weekly to see what changed.']
-          : ['Kalp, beyin, duyular veya kemikleri seç.', 'O haftanın gelişim notunu oku.', 'Haftalık değişimi görmek için geri dön.']}
-        outcome={isEn ? 'Development feels visible, not abstract.' : 'Gelişim soyut değil, görünür hissedilir.'}
-        asset="ui_fetal_heart_3d"
-        tint="#A84D67"
-        lang={lang}
-      />
+      {/* 5'li Organ Seçici Sekmeler (Spec 07) */}
+      <View style={ms.segRow}>
+        {organs.map(o => (
+          <Tap
+            key={o.id}
+            onPress={() => setActiveTab(o.id)}
+            label={o.title}
+            style={[ms.segBtn, activeTab === o.id && ms.segBtnActive]}
+          >
+            <T bold={activeTab === o.id} style={[ms.segText, activeTab === o.id && { color: 'white' }]}>
+              {o.tabLabel}
+            </T>
+          </Tap>
+        ))}
+      </View>
 
-      {/* Kalp Atış Simülatörü Kartı */}
+      {/* Fetus Görseli & Hotspot Göstergesi */}
+      <Card style={{ padding: 14, alignItems: 'center', backgroundColor: '#FAF3F7', borderColor: '#EBDCE6', overflow: 'hidden' }}>
+        <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <T bold style={{ fontSize: 13, color: colors.purple }}>
+            {week}. {isEn ? 'WEEK VISUAL FOCUS' : 'HAFTA GELİŞİM ODAĞI'}
+          </T>
+          <View style={{ backgroundColor: '#EDE0EE', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+            <T bold style={{ fontSize: 11, color: colors.purple }}>{currentOrgan.tabLabel}</T>
+          </View>
+        </View>
+
+        <View style={{ width: 220, height: 180, alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+          <Image source={fetusAsset} style={{ width: 190, height: 160 }} resizeMode="contain" />
+
+          {/* Dinamik Organ Sıcak Noktası (Hotspot) */}
+          <View style={[ms.hotspot, currentOrgan.hotspotCoord]}>
+            <Animated.View style={[ms.hotspotRing, { transform: [{ scale: pulse }] }]} />
+            <View style={[ms.hotspotDot, ms.hotspotDotActive]}>
+              <View style={ms.hotspotInner} />
+            </View>
+          </View>
+        </View>
+      </Card>
+
+      {/* 3 Katmanlı İçerik Kartı (Spec 07: Şu anda, Bu hafta gelişen, Sonraki adım) */}
+      <Card style={{ padding: 16, gap: 12 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <T bold style={{ fontSize: 16, color: colors.ink }}>{currentOrgan.title}</T>
+          {currentOrgan.bpm && (
+            <View style={ms.bpmBadge}>
+              <T bold style={{ fontSize: 11, color: '#C24D68' }}>{currentOrgan.bpm}</T>
+            </View>
+          )}
+        </View>
+
+        {/* 1. Katman: Şu Anda */}
+        <View style={{ backgroundColor: '#FAF5FA', padding: 12, borderRadius: 14, borderWidth: 1, borderColor: '#EDE2EE' }}>
+          <T bold style={{ fontSize: 11.5, color: colors.purple, letterSpacing: 0.8 }}>
+            {isEn ? '📍 CURRENT STATUS (NOW)' : '📍 ŞU ANDA'}
+          </T>
+          <T style={{ fontSize: 13, color: '#4E4856', lineHeight: 19, marginTop: 4 }}>
+            {currentOrgan.current}
+          </T>
+        </View>
+
+        {/* 2. Katman: Bu Hafta Gelişen */}
+        <View style={{ backgroundColor: '#FFFDF7', padding: 12, borderRadius: 14, borderWidth: 1, borderColor: '#EFE2CC' }}>
+          <T bold style={{ fontSize: 11.5, color: '#8F6122', letterSpacing: 0.8 }}>
+            {isEn ? '🌱 DEVELOPING THIS WEEK' : '🌱 BU HAFTA GELİŞEN'}
+          </T>
+          <T style={{ fontSize: 13, color: '#564634', lineHeight: 19, marginTop: 4 }}>
+            {currentOrgan.developing}
+          </T>
+        </View>
+
+        {/* 3. Katman: Sonraki Adım */}
+        <View style={{ backgroundColor: '#F5FAF6', padding: 12, borderRadius: 14, borderWidth: 1, borderColor: '#D4E8DA' }}>
+          <T bold style={{ fontSize: 11.5, color: '#2E7543', letterSpacing: 0.8 }}>
+            {isEn ? '⏭️ NEXT STEP' : '⏭️ SONRAKİ ADIM'}
+          </T>
+          <T style={{ fontSize: 13, color: '#3A5242', lineHeight: 19, marginTop: 4 }}>
+            {currentOrgan.next}
+          </T>
+        </View>
+      </Card>
+
+      {/* Kalp Atışı Simülatörü Kartı + ZORUNLU MEDİKAL SORUMLULUK REDDİ */}
       <Card style={ms.heartPlayerCard}>
         <LinearGradient
           colors={['#4A2E44', '#2B1A28']}
@@ -857,61 +1107,58 @@ export function OrganDevelopment({ state, lang = 'tr' }) {
         <View style={ms.heartPlayerContent}>
           <Animated.View style={{ transform: [{ scale: playing ? pulse : 1 }] }}>
             <Tap
-              onPress={() => setPlaying(!playing)}
+              onPress={toggleHeartSound}
               label={isEn ? 'Listen to heartbeat' : 'Kalp atışını dinle'}
               style={ms.heartBtn}
             >
-              {generatedAssets['ui_fetal_heart_3d'] ? (
-                <Image source={generatedAssets['ui_fetal_heart_3d']} style={{ width: 44, height: 44 }} resizeMode="contain" />
-              ) : (
-                <Icon name="heart" size={38} color="#FF6E8F" fill={playing ? '#FF6E8F' : 'none'} />
-              )}
+              <Icon name="heart" size={34} color="#FF6E8F" fill={playing ? '#FF6E8F' : 'none'} />
             </Tap>
           </Animated.View>
           <View style={{ flex: 1, marginLeft: 14 }}>
-            <T bold style={{ color: 'white', fontSize: 16 }}>
-              {isEn ? 'Average Fetal Heart Rate' : 'Ortalama Fetal Kalp Atımı'}
+            <T bold style={{ color: 'white', fontSize: 15 }}>
+              {isEn ? 'Representative Fetal Heart Sound' : 'Temsili Fetal Kalp Sesi'}
             </T>
-            <T style={{ color: '#FFB8CA', fontSize: 13, marginTop: 2 }}>
-              {isEn ? '~145 BPM · Dynamic Rhythm' : '~145 BPM · Dinamik Ritim'}
+            <T style={{ color: '#FFB8CA', fontSize: 12.5, marginTop: 2 }}>
+              ~140-150 BPM · Rhythmic Demo
             </T>
             <T style={{ color: '#D9C1CE', fontSize: 11, marginTop: 4 }}>
               {playing
-                ? (isEn ? '🎵 Heart rhythm playing...' : '🎵 Kalp ritmi çalıyor...')
+                ? (isEn ? '🎵 Audio rhythm playing...' : '🎵 Temsili ses çalıyor...')
                 : (isEn ? 'Tap to listen' : 'Dinlemek için dokunun')}
             </T>
           </View>
         </View>
+
+        {/* SPEC 07 ZORUNLU UYARI NOTU */}
+        <View style={{ marginTop: 12, backgroundColor: 'rgba(0,0,0,0.3)', padding: 8, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}>
+          <T style={{ fontSize: 11, color: '#E8D4E2', lineHeight: 15, textAlign: 'center' }}>
+            ⚠️ <T bold style={{ color: 'white' }}>{isEn ? 'Educational simulation only — not a clinical measurement.' : 'Temsili eğitim sesi — gerçek ölçüm değildir.'}</T> {isEn ? 'Never use as diagnostic fetal heart monitoring.' : 'Gerçek fetal kalp atımı teşhisi amacıyla kullanılamaz.'}
+          </T>
+        </View>
       </Card>
 
-      {/* Organ Seçici Butonlar */}
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        {organs.map(o => (
+      {/* Hafta Kaydırıcı Şerit */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+        <T bold style={{ fontSize: 12.5, color: colors.ink }}>
+          {isEn ? 'Organ Timeline (4–40w)' : 'Organ Gelişim Haftası (4–40)'}
+        </T>
+        <T style={{ fontSize: 11, color: colors.purple }}>{week}. {isEn ? 'Week' : 'Hafta'}</T>
+      </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
+        {Array.from({ length: 37 }, (_, i) => i + 4).map(w => (
           <Tap
-            key={o.id}
-            onPress={() => setActiveTab(o.id)}
-            label={o.title}
-            style={[ms.organPill, activeTab === o.id && ms.organPillActive]}
+            key={w}
+            label={isEn ? `Week ${w}` : `${w}. Hafta`}
+            onPress={() => setWeek(w)}
+            style={[ms.weekPill, week === w && ms.weekPillActive]}
           >
-            <T bold={activeTab === o.id} style={{ fontSize: 12, color: activeTab === o.id ? 'white' : colors.ink }}>
-              {o.tabLabel}
+            <T bold={week === w} style={{ fontSize: 13, color: week === w ? 'white' : colors.ink }}>
+              {w}
             </T>
+            <T style={{ fontSize: 9, color: week === w ? '#EDE0EF' : colors.muted }}>{isEn ? 'wk' : 'hf'}</T>
           </Tap>
         ))}
-      </View>
-
-      {/* Detay Açıklama Kartı */}
-      <Card style={{ padding: 16 }}>
-        <T bold style={{ fontSize: 16, color: colors.purple }}>{currentOrgan.title}</T>
-        {currentOrgan.bpm && (
-          <View style={ms.bpmBadge}>
-            <T bold style={{ fontSize: 12, color: '#C24D68' }}>{currentOrgan.bpm}</T>
-          </View>
-        )}
-        <T style={{ fontSize: 14, color: '#4E4856', lineHeight: 22, marginTop: 10 }}>
-          {currentOrgan.desc}
-        </T>
-      </Card>
+      </ScrollView>
     </View>
   );
 }

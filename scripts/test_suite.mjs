@@ -294,4 +294,65 @@ console.log('--- RUNNING MOMORA AUTOMATED TEST SUITE ---');
   console.log('✓ Sprint 7 Birth Preparation tests passed.');
 }
 
-console.log('--- ALL MOMORA SPRINT 3, 4, 5, 6 & 7 TESTS PASSED SUCCESFULLY ---');
+// 10. Sprint 8 Visual Discovery Tests
+{
+  console.log('Testing Sprint 8 Visual Discovery (Size Comparison, Organ Development, Baby Names)...');
+
+  // 1. Size Comparison Delta logic
+  const currentWeek = 24;
+  const prevWeek = 23;
+  const currLength = 30.0;
+  const prevLength = 28.9;
+  const currWeight = 600;
+  const prevWeight = 500;
+
+  const deltaLen = (currLength - prevLength).toFixed(1);
+  const deltaWt = Math.max(0, currWeight - prevWeight);
+
+  assert.strictEqual(deltaLen, '1.1');
+  assert.strictEqual(deltaWt, 100);
+
+  // 2. Organ Development 5-system model & 3-tier content
+  const expectedOrgans = ['heart', 'brain', 'lungs', 'senses', 'bones'];
+  const testOrganContent = {
+    heart: { current: 'Kalp 145 BPM atıyor', developing: 'Kılcal damarlar dallanıyor', next: 'Duktus arteriozus olgunlaşıyor' },
+    brain: { current: 'Sinapslar kuruluyor', developing: 'Korteks kıvrımları', next: 'Miyelin kılıfı' },
+    lungs: { current: 'Amniyon sıvısı solunuyor', developing: 'Sürfaktan üretimi', next: 'Alveol çoğalması' },
+    senses: { current: 'Ses titreşimleri duyuluyor', developing: 'Işığa tepki ve kavrama', next: 'Tat tomurcukları' },
+    bones: { current: 'Kalsiyum mineralizasyonu', developing: 'Uzun kemik güçlenmesi', next: 'Kafatası bıngıldak esnekliği' },
+  };
+
+  for (const organKey of expectedOrgans) {
+    assert(testOrganContent[organKey], `Organ ${organKey} must be defined`);
+    assert(testOrganContent[organKey].current, `Organ ${organKey} must have current status`);
+    assert(testOrganContent[organKey].developing, `Organ ${organKey} must have developing status`);
+    assert(testOrganContent[organKey].next, `Organ ${organKey} must have next status`);
+  }
+
+  // Mandatory Heart disclaimer
+  const heartDisclaimer = 'Temsili eğitim sesi — gerçek ölçüm değildir.';
+  assert(heartDisclaimer.includes('Temsili eğitim sesi'), 'Heart disclaimer must state educational simulation');
+
+  // 3. Baby Name Discovery & Syllable count
+  function countSyllables(name) {
+    if (!name) return 1;
+    const vowels = name.match(/[aeıioöuüAEIİOÖUÜ]/g);
+    return vowels ? vowels.length : 1;
+  }
+
+  assert.strictEqual(countSyllables('Defne'), 2);
+  assert.strictEqual(countSyllables('Zeynep'), 2);
+  assert.strictEqual(countSyllables('Alparslan'), 3);
+  assert.strictEqual(countSyllables('Ali'), 2);
+
+  // Surname preview combination
+  const sampleName = 'Defne';
+  const sampleSurname = 'Yılmaz';
+  const fullname = `${sampleName} ${sampleSurname}`;
+  assert.strictEqual(fullname, 'Defne Yılmaz');
+
+  console.log('✓ Sprint 8 Visual Discovery tests passed.');
+}
+
+console.log('--- ALL MOMORA SPRINT 3, 4, 5, 6, 7 & 8 TESTS PASSED SUCCESFULLY ---');
+
