@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, TextInput, ScrollView, Switch, Image, Modal, Platform } from 'react-native';
+import { View, StyleSheet, TextInput, ScrollView, Switch, Image, Modal, Platform, TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, fonts, shadow } from './theme';
 import { Icon, BrandMark } from './Icons';
@@ -1069,7 +1069,7 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
         onRequestClose={() => setShowAvatarModal(false)}
       >
         <View style={ps.modalBackdrop}>
-          <Tap label="Kapat" style={StyleSheet.absoluteFill} onPress={() => setShowAvatarModal(false)} />
+          <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setShowAvatarModal(false)} />
           <View style={ps.avatarModalBox}>
             <View style={ps.modalHeader}>
               <View style={{ flex: 1 }}>
@@ -1150,7 +1150,7 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
         onRequestClose={() => setShowQrModal(false)}
       >
         <View style={ps.modalBackdrop}>
-          <Tap label="Kapat" style={StyleSheet.absoluteFill} onPress={() => setShowQrModal(false)} />
+          <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setShowQrModal(false)} />
           <View style={[ps.avatarModalBox, { alignItems: 'center', padding: 24 }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center', marginBottom: 12 }}>
               <T bold style={{ fontSize: 16, color: colors.ink }}>

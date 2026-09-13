@@ -119,49 +119,58 @@ export const HorizontalScroll = React.forwardRef(({ children, style, contentCont
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-    const el = scrollRef.current?.getScrollableNode ? scrollRef.current.getScrollableNode() : scrollRef.current;
-    if (!el) return;
+    const node = scrollRef.current?.getScrollableNode ? scrollRef.current.getScrollableNode() : scrollRef.current;
+    if (!node) return;
+
+    const getTarget = () => {
+      if (node.scrollWidth > node.clientWidth) return node;
+      if (node.firstElementChild && node.firstElementChild.scrollWidth > node.firstElementChild.clientWidth) {
+        return node.firstElementChild;
+      }
+      return node;
+    };
+
+    const target = getTarget();
 
     const handleMouseDown = (e) => {
       if (e.button !== 0) return;
       isDown.current = true;
-      startX.current = e.pageX - el.offsetLeft;
-      scrollLeft.current = el.scrollLeft;
-      el.style.cursor = 'grabbing';
-      el.style.userSelect = 'none';
+      startX.current = e.pageX;
+      scrollLeft.current = target.scrollLeft;
+      target.style.cursor = 'grabbing';
+      target.style.userSelect = 'none';
     };
 
     const handleMouseMove = (e) => {
       if (!isDown.current) return;
       e.preventDefault();
-      const x = e.pageX - el.offsetLeft;
-      const walk = (x - startX.current) * 1.35;
-      el.scrollLeft = scrollLeft.current - walk;
+      const walk = (e.pageX - startX.current) * 1.4;
+      target.scrollLeft = scrollLeft.current - walk;
     };
 
     const handleMouseUp = () => {
       if (!isDown.current) return;
       isDown.current = false;
-      el.style.cursor = 'grab';
-      el.style.removeProperty('user-select');
+      target.style.cursor = 'grab';
+      target.style.removeProperty('user-select');
     };
 
     const handleWheel = (e) => {
       if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && e.deltaY !== 0) {
-        el.scrollLeft += e.deltaY * 0.8;
+        target.scrollLeft += e.deltaY * 0.9;
       }
     };
 
-    el.addEventListener('mousedown', handleMouseDown);
+    target.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
-    el.addEventListener('wheel', handleWheel, { passive: true });
+    target.addEventListener('wheel', handleWheel, { passive: true });
 
     return () => {
-      el.removeEventListener('mousedown', handleMouseDown);
+      target.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
-      el.removeEventListener('wheel', handleWheel);
+      target.removeEventListener('wheel', handleWheel);
     };
   }, []);
 

@@ -30,15 +30,51 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
   const [partnerCode, setPartnerCode] = useState('');
 
   const motherJourneys = [
-    { key: 'pregnancy', title: isEn ? "I'm Pregnant" : 'Hamileyim', sub: isEn ? 'Preparing to meet\nmy baby' : 'Bebeğimle tanışmaya\nhazırlanıyorum', image: assets.pregnancy, tint: '#F5E7E8' },
-    { key: 'postpartum', title: isEn ? 'Recently Delivered' : 'Yeni doğum yaptım', sub: isEn ? 'Be by my side in\npostpartum recovery' : 'Lohusalık sürecimde\nyanımda ol', image: assets.mother, tint: '#F5E5E7' },
-    { key: 'baby', title: isEn ? 'Raising My Baby' : 'Bebeğimi\nbüyütüyorum', sub: isEn ? 'Together every single day' : 'Her gününde birlikte', image: assets.baby, tint: '#EAEAE3' },
+    {
+      key: 'pregnancy',
+      title: isEn ? "I'm Pregnant" : 'Hamileyim',
+      sub: isEn ? 'Preparing to meet\nmy baby' : 'Bebeğimle tanışmaya\nhazırlanıyorum',
+      image: generatedAssets.onboarding_mother_pregnancy || generatedAssets.onboarding_hero_pregnancy || assets.pregnancy,
+      tint: '#F5E7E8'
+    },
+    {
+      key: 'postpartum',
+      title: isEn ? 'Recently Delivered' : 'Yeni doğum yaptım',
+      sub: isEn ? 'Be by my side in\npostpartum recovery' : 'Lohusalık sürecimde\nyanımda ol',
+      image: generatedAssets.onboarding_mother_postpartum || generatedAssets.onboarding_postpartum_recovery || assets.mother,
+      tint: '#F5E5E7'
+    },
+    {
+      key: 'baby',
+      title: isEn ? 'Raising My Baby' : 'Bebeğimi\nbüyütüyorum',
+      sub: isEn ? 'Together every single day' : 'Her gününde birlikte',
+      image: generatedAssets.onboarding_mother_baby || generatedAssets.onboarding_first_baby_journey || assets.baby,
+      tint: '#EAEAE3'
+    },
   ];
 
   const fatherJourneys = [
-    { key: 'pregnancy', title: isEn ? 'Expecting Our Baby' : 'Bebeğimizi Bekliyoruz', sub: isEn ? 'By my partner’s side,\npreparing together' : 'Eşimin yanında, bebeğimizle\ntanışmaya hazırlanıyorum', image: assets.pregnancy, tint: '#EBF2F7' },
-    { key: 'postpartum', title: isEn ? 'Postpartum Support' : 'Lohusalık Desteği', sub: isEn ? 'Best support for partner\nand our newborn' : 'Eşime ve bebeğime lohusalıkta\nen iyi desteği veriyorum', image: assets.mother, tint: '#EAF0F6' },
-    { key: 'baby', title: isEn ? 'Raising Our Baby' : 'Bebeğimizi Büyütüyoruz', sub: isEn ? 'Tracking growth together\nevery day' : 'Gelişimini her gün\nbirlikte takip ediyoruz', image: assets.baby, tint: '#ECEEE7' },
+    {
+      key: 'pregnancy',
+      title: isEn ? 'Expecting Our Baby' : 'Bebeğimizi Bekliyoruz',
+      sub: isEn ? 'By my partner’s side,\npreparing together' : 'Eşimin yanında, bebeğimizle\ntanışmaya hazırlanıyorum',
+      image: generatedAssets.onboarding_father_pregnancy || generatedAssets.onboarding_partner_together || assets.pregnancy,
+      tint: '#EBF2F7'
+    },
+    {
+      key: 'postpartum',
+      title: isEn ? 'Postpartum Support' : 'Lohusalık Desteği',
+      sub: isEn ? 'Best support for partner\nand our newborn' : 'Eşime ve bebeğime lohusalıkta\nen iyi desteği veriyorum',
+      image: generatedAssets.onboarding_father_postpartum || generatedAssets.onboarding_father_mode || assets.mother,
+      tint: '#EAF0F6'
+    },
+    {
+      key: 'baby',
+      title: isEn ? 'Raising Our Baby' : 'Bebeğimizi Büyütüyoruz',
+      sub: isEn ? 'Tracking growth together\nevery day' : 'Gelişimini her gün\nbirlikte takip ediyoruz',
+      image: generatedAssets.onboarding_father_baby || generatedAssets.onboarding_first_baby_journey || assets.baby,
+      tint: '#ECEEE7'
+    },
   ];
 
   const currentJourneys = role === 'father' ? fatherJourneys : motherJourneys;
@@ -163,8 +199,14 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
               role === 'mother' && { backgroundColor: '#F7EDF5', borderColor: colors.purple, ...shadow },
             ]}
           >
-            <T style={{ fontSize: 26 }}>🤰</T>
-            <T bold style={{ fontSize: 13, color: role === 'mother' ? colors.purple : colors.ink, marginTop: 4 }}>
+            <View style={{ width: 50, height: 50, borderRadius: 25, overflow: 'hidden', backgroundColor: '#F0E4EE', borderWidth: 1.5, borderColor: role === 'mother' ? colors.purple : '#E8DCE8', marginBottom: 6 }}>
+              <Image
+                source={generatedAssets.onboarding_role_mother || generatedAssets.onboarding_hero_pregnancy || assets.pregnancy}
+                style={{ width: '100%', height: '100%' }}
+                resizeMode="cover"
+              />
+            </View>
+            <T bold style={{ fontSize: 13, color: role === 'mother' ? colors.purple : colors.ink }}>
               {isEn ? "I'm the Mother" : 'Ben Anneyim'}
             </T>
             <T style={{ fontSize: 10, color: colors.muted, marginTop: 2, textAlign: 'center' }}>
@@ -180,8 +222,14 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
               role === 'father' && { backgroundColor: '#EBF3F9', borderColor: '#3E76A8', ...shadow },
             ]}
           >
-            <T style={{ fontSize: 26 }}>👨‍🍼</T>
-            <T bold style={{ fontSize: 13, color: role === 'father' ? '#3E76A8' : colors.ink, marginTop: 4 }}>
+            <View style={{ width: 50, height: 50, borderRadius: 25, overflow: 'hidden', backgroundColor: '#E4EDF5', borderWidth: 1.5, borderColor: role === 'father' ? '#3E76A8' : '#D4E2EE', marginBottom: 6 }}>
+              <Image
+                source={generatedAssets.onboarding_role_father || generatedAssets.onboarding_father_mode || assets.pregnancy}
+                style={{ width: '100%', height: '100%' }}
+                resizeMode="cover"
+              />
+            </View>
+            <T bold style={{ fontSize: 13, color: role === 'father' ? '#3E76A8' : colors.ink }}>
               {isEn ? "I'm the Father" : 'Ben Babayım'}
             </T>
             <T style={{ fontSize: 10, color: colors.muted, marginTop: 2, textAlign: 'center' }}>
@@ -535,6 +583,41 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
   const currentDay = journey.day ?? 3;
   const info = getWeekInfo(week, lang);
   const letter = getBabyLetterForWeek(week, lang);
+  const weekScrollRef = useRef(null);
+
+  useEffect(() => {
+    if (weekScrollRef.current) {
+      const pillWidth = 65;
+      const targetX = Math.max(0, (week - 4) * pillWidth - 120);
+      try {
+        const node = weekScrollRef.current.getScrollableNode ? weekScrollRef.current.getScrollableNode() : weekScrollRef.current;
+        if (node && node.scrollTo) {
+          node.scrollTo({ left: targetX, behavior: 'smooth' });
+        } else if (node && node.scrollLeft !== undefined) {
+          node.scrollLeft = targetX;
+        } else if (weekScrollRef.current.scrollTo) {
+          weekScrollRef.current.scrollTo({ x: targetX, animated: true });
+        }
+      } catch (e) {}
+    }
+  }, [week]);
+
+  function scrollWeeks(delta) {
+    if (weekScrollRef.current) {
+      try {
+        const node = weekScrollRef.current.getScrollableNode ? weekScrollRef.current.getScrollableNode() : weekScrollRef.current;
+        if (node && node.scrollBy) {
+          node.scrollBy({ left: delta, behavior: 'smooth' });
+        } else if (node && node.scrollLeft !== undefined) {
+          node.scrollLeft += delta;
+        } else if (weekScrollRef.current.scrollTo) {
+          const pillWidth = 65;
+          const currentX = Math.max(0, (week - 4) * pillWidth - 120);
+          weekScrollRef.current.scrollTo({ x: currentX + delta, animated: true });
+        }
+      } catch (e) {}
+    }
+  }
 
   // Hafta şeridi: Kullanıcının tüm gebelik haftalarını (4-40) kaydırıp seçebilmesi
   const strip = [];
@@ -624,19 +707,48 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
 
 
     
-    {/* ─── 2. HAFTA ŞERİDİ ─── */}
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.weekStrip}>
-      {strip.map(n => (
-        <Tap key={n} label={n + (isEn ? ' week' : '. hafta')} onPress={() => { setSelectedWeek(n); update({ week: n }); }}
-          accessibilityState={{selected: week === n}}
-          style={[s.weekPill, week === n && s.weekActive]}>
-          <T style={[{fontSize:13}, week === n && {color:'white',fontFamily:fonts.bold}]}>{n}</T>
-          <T style={[{fontSize:9,marginTop:1,color: week===n?'#EEE5F4':colors.muted}]}>
-            {getWeekInfo(n, lang).fruitName.split(' ')[0]}
-          </T>
-        </Tap>
-      ))}
-    </ScrollView>
+    {/* ─── 2. HAFTA ŞERİDİ (KAYDIRILABİLİR, OKLAR VE MOUSE SÜRÜKLEME DESTEĞİ) ─── */}
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
+      <Tap
+        onPress={() => scrollWeeks(-195)}
+        label={isEn ? 'Scroll left' : 'Sola kaydır'}
+        style={{ width: 28, height: 46, borderRadius: 14, backgroundColor: '#FAF4F7', alignItems: 'center', justifyContent: 'center', marginRight: 6, borderWidth: 1, borderColor: '#EDE2E9' }}
+      >
+        <T bold style={{ fontSize: 18, color: colors.purple, lineHeight: 22 }}>‹</T>
+      </Tap>
+
+      <HorizontalScroll
+        ref={weekScrollRef}
+        contentContainerStyle={s.weekStrip}
+        style={{ flex: 1 }}
+      >
+        {strip.map(n => (
+          <Tap
+            key={n}
+            label={n + (isEn ? ' week' : '. hafta')}
+            onPress={() => {
+              setSelectedWeek(n);
+              update({ week: n });
+            }}
+            accessibilityState={{ selected: week === n }}
+            style={[s.weekPill, week === n && s.weekActive]}
+          >
+            <T style={[{ fontSize: 13 }, week === n && { color: 'white', fontFamily: fonts.bold }]}>{n}</T>
+            <T style={[{ fontSize: 9, marginTop: 1, color: week === n ? '#EEE5F4' : colors.muted }]}>
+              {getWeekInfo(n, lang).fruitName.split(' ')[0]}
+            </T>
+          </Tap>
+        ))}
+      </HorizontalScroll>
+
+      <Tap
+        onPress={() => scrollWeeks(195)}
+        label={isEn ? 'Scroll right' : 'Sağa kaydır'}
+        style={{ width: 28, height: 46, borderRadius: 14, backgroundColor: '#FAF4F7', alignItems: 'center', justifyContent: 'center', marginLeft: 6, borderWidth: 1, borderColor: '#EDE2E9' }}
+      >
+        <T bold style={{ fontSize: 18, color: colors.purple, lineHeight: 22 }}>›</T>
+      </Tap>
+    </View>
 
     {/* ─── 3. 3'LÜ KIYASLAMA & ULTRASON HERO ─── */}
     <ComparisonHero week={week} info={info} onPress={() => open('week', {week})} open={open} lang={lang} />
@@ -1911,7 +2023,7 @@ const s=StyleSheet.create({
   onboarding:{paddingHorizontal:23,paddingTop:44,paddingBottom:24,gap:0},brand:{flexDirection:'row',justifyContent:'center',alignItems:'center',gap:8},wordmark:{fontSize:29,fontWeight:'300',letterSpacing:-0.7},
   welcome:{alignItems:'center',marginTop:29,marginBottom:35},welcomeTitle:{fontSize:26,letterSpacing:-0.5},welcomeText:{textAlign:'center',fontSize:15,lineHeight:22,marginTop:10},
   fitImage:{width:'100%',height:'100%',objectFit:'contain',objectPosition:'center',alignSelf:'center'},
-  journey:{minHeight:145,borderRadius:25,overflow:'hidden',flexDirection:'row',alignItems:'center',paddingRight:14,borderWidth:1,borderColor:'#EDE1E2',...shadow},journeyPhoto:{position:'absolute',left:10,top:10,bottom:10,width:114,borderRadius:20,overflow:'hidden',backgroundColor:'#F6EEF3',alignItems:'center',justifyContent:'center'},journeyImage:{width:'100%',height:'100%',objectFit:'contain',objectPosition:'center',alignSelf:'center'},journeyCopy:{marginLeft:136,flex:1,paddingVertical:20},journeyTitle:{fontSize:18,lineHeight:24},journeySub:{fontSize:13,lineHeight:20,marginTop:7},motto:{alignItems:'center',marginTop:30,gap:7},handwritten:{fontFamily:fonts.script,fontSize:23,lineHeight:25,color:'#9A8495',textAlign:'center'},
+  journey:{minHeight:145,borderRadius:25,overflow:'hidden',flexDirection:'row',alignItems:'center',paddingRight:14,borderWidth:1,borderColor:'#EDE1E2',...shadow},journeyPhoto:{position:'absolute',left:10,top:10,bottom:10,width:114,borderRadius:20,overflow:'hidden',backgroundColor:'#F6EEF3',alignItems:'center',justifyContent:'center'},journeyImage:{width:'100%',height:'100%',objectFit:'cover',objectPosition:'center',alignSelf:'center'},journeyCopy:{marginLeft:136,flex:1,paddingVertical:20},journeyTitle:{fontSize:18,lineHeight:24},journeySub:{fontSize:13,lineHeight:20,marginTop:7},motto:{alignItems:'center',marginTop:30,gap:7},handwritten:{fontFamily:fonts.script,fontSize:23,lineHeight:25,color:'#9A8495',textAlign:'center'},
   subtitle:{color:'#8C6B94',fontSize:15,marginTop:5},iconHit:{width:42,height:42,justifyContent:'center',alignItems:'center'},pageTitle:{fontSize:25,letterSpacing:-0.5},
   weekStrip:{flexDirection:'row',gap:7,paddingBottom:4},weekPill:{minWidth:58,alignItems:'center',paddingVertical:8,paddingHorizontal:6,borderRadius:20,backgroundColor:'#EEE8E6'},weekActive:{backgroundColor:'#A28ABB',shadowColor:'#9A80B4',shadowOpacity:0.35,shadowRadius:6,shadowOffset:{width:0,height:2}},
   // Comparison hero & tabs
