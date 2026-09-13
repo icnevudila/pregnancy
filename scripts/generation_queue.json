@@ -1265,11 +1265,13 @@
       "prompt": "High-end 3D claymorphic cute adorable baby skunk sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "processing",
+      "status": "done",
       "attempts": 1,
       "createdAt": 1789250674100,
       "startedAt": 1789283937024,
-      "platform": "unknown"
+      "platform": "unknown",
+      "updatedAt": 1789284164677,
+      "thumb": "blob:https://gemini.google.com/981a72fd-de45-415f-adfd-19af86f836ad"
     },
     {
       "id": "job_1789250674100_y18ve",
@@ -1277,9 +1279,13 @@
       "prompt": "High-end 3D claymorphic cute chubby giant panda cub chewing gently on a bamboo shoot, soft matte porcelain clay, isolated on pure solid white background, cut out style, 8k render, no text.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789250674100
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789250674100,
+      "startedAt": 1789284170513,
+      "platform": "unknown",
+      "updatedAt": 1789284222782,
+      "thumb": "blob:https://gemini.google.com/db23e8ad-3036-4494-b956-f2eef42246f3"
     },
     {
       "id": "job_1789250674100_bfdg5",
@@ -1287,9 +1293,13 @@
       "prompt": "High-end 3D claymorphic cute woolly baby lamb with curly clay fleece and gentle peaceful expression, soft ivory white, isolated on pure solid white background, cut out style, 8k render, no text.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789250674100
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789250674100,
+      "startedAt": 1789284223905,
+      "platform": "unknown",
+      "updatedAt": 1789284253259,
+      "thumb": "blob:https://gemini.google.com/f03ab8e5-e739-42cd-8c84-a24fa3b10d43"
     },
     {
       "id": "job_1789250674100_gr8s5",
@@ -1297,9 +1307,13 @@
       "prompt": "High-end 3D claymorphic cute white baby harp seal pup lying on soft ice belly down, big shiny black eyes, isolated on pure solid white background, cut out style, 8k render, no text.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789250674100
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789250674100,
+      "startedAt": 1789284255644,
+      "platform": "unknown",
+      "updatedAt": 1789284342859,
+      "thumb": "blob:https://gemini.google.com/acf3962a-72e0-44f3-8a36-16a351f6d25f"
     },
     {
       "id": "job_1789250674101_nzwg3",
@@ -1307,9 +1321,11 @@
       "prompt": "High-end 3D claymorphic cute adorable baby bear cub sitting peacefully, smooth porcelain clay finish, pastel tones, isolated on pure solid white background, cut out style, 8k render, no text.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789250674101
+      "status": "processing",
+      "attempts": 1,
+      "createdAt": 1789250674101,
+      "startedAt": 1789284343589,
+      "platform": "unknown"
     },
     {
       "id": "job_1789250674101_c512j",
