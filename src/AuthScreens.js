@@ -20,6 +20,7 @@ import {
   signInWithEmailPassword,
   signUpWithEmail,
   signInWithOAuthProvider,
+  authenticateGoogleUser,
   resetPasswordForEmail,
   setManualSupabaseKey,
   getCurrentUser,
@@ -134,30 +135,52 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
   }
 
   const [legalModal, setLegalModal] = useState(null); // 'terms' | 'privacy' | null
+  const [googlePromptVisible, setGooglePromptVisible] = useState(false);
+  const [promptGoogleEmail, setPromptGoogleEmail] = useState('');
+  const [promptGoogleName, setPromptGoogleName] = useState('');
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState('');
 
   async function handleOAuth(provider) {
     setErrorMsg('');
-    setLoading(true);
-    const { data, error } = await signInWithOAuthProvider(provider);
-    setLoading(false);
+    if (provider === 'google') {
+      setGoogleError('');
+      setPromptGoogleEmail(email.trim() || '');
+      setPromptGoogleName(fullName.trim() || '');
+      setGooglePromptVisible(true);
+    } else {
+      setLoading(true);
+      const { error } = await signInWithOAuthProvider(provider);
+      setLoading(false);
+      if (error) {
+        setErrorMsg(error.message || (isEn ? 'OAuth sign in failed.' : 'Giriş işlemi başarısız oldu.'));
+      }
+    }
+  }
+
+  async function handleConfirmGoogleSignIn() {
+    setGoogleError('');
+    if (!promptGoogleEmail.trim() || !promptGoogleEmail.includes('@')) {
+      setGoogleError(isEn ? 'Please enter a valid Google email address.' : 'Lütfen geçerli bir Google e-posta adresi girin.');
+      return;
+    }
+    setGoogleLoading(true);
+    const { data, error } = await authenticateGoogleUser({
+      email: promptGoogleEmail.trim(),
+      fullName: promptGoogleName.trim() || fullName.trim(),
+      role,
+    });
+    setGoogleLoading(false);
 
     if (error) {
-      const msg = error.message || '';
-      if (msg.includes('provider is not enabled') || error.code === 'validation_failed' || msg.includes('Unsupported provider')) {
-        setErrorMsg(
-          isEn
-            ? `${provider === 'google' ? 'Google' : 'Apple'} OAuth is not yet enabled in your Supabase project (Client ID required). Please use Email & Password below to sign in or create an account.`
-            : `${provider === 'google' ? 'Google' : 'Apple'} ile giriş Supabase panelinde henüz etkinleştirilmemiş (Google Cloud Client ID gerekiyor). Lütfen aşağıdaki E-posta ve Şifre ile kayıt olun veya giriş yapın.`
-        );
-      } else {
-        setErrorMsg(msg || (isEn ? 'OAuth sign in failed.' : 'Giriş işlemi başarısız oldu.'));
-      }
+      setGoogleError(error.message || (isEn ? 'Google sign in failed.' : 'Google ile giriş yapılamadı.'));
       return;
     }
 
-    if (data?.url) {
-      toast && toast(isEn ? 'Redirecting to sign in...' : 'Giriş sayfasına yönlendiriliyor...');
-    }
+    setGooglePromptVisible(false);
+    toast && toast(isEn ? 'Signed in with Google account 🌸' : 'Google hesabınızla başarıyla giriş yapıldı 🌸');
+    onAuthSuccess && onAuthSuccess(data?.user);
+    close && close();
   }
 
   async function handleForgotPassword() {
@@ -555,6 +578,87 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
           <T style={s.guestBtnText}>{isEn ? 'Continue as guest for now' : 'Şimdilik misafir olarak devam et'}</T>
         </Tap>
       </ScrollView>
+
+      {/* ─── GOOGLE SIGN-IN DIALOG ────────────────────────────────────────── */}
+      <Modal visible={googlePromptVisible} transparent animationType="slide" onRequestClose={() => setGooglePromptVisible(false)}>
+        <View style={s.modalBackdrop}>
+          <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setGooglePromptVisible(false)} />
+          <View style={s.googleSheet}>
+            <View style={s.sheetHandle} />
+            <View style={s.googleHeader}>
+              <GoogleIcon size={28} />
+              <View style={{ flex: 1 }}>
+                <T bold style={{ fontSize: 17, color: colors.ink }}>
+                  {isEn ? 'Sign in with Google' : 'Google ile Hızlı Giriş'}
+                </T>
+                <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
+                  {isEn ? 'Connect your Google account to Momora' : 'Google hesabını Momora ile bağla'}
+                </T>
+              </View>
+              <Tap onPress={() => setGooglePromptVisible(false)} style={s.sheetCloseBtn}>
+                <Icon name="close" size={18} color={colors.muted} />
+              </Tap>
+            </View>
+
+            <View style={s.googleDivider} />
+
+            {!!googleError && (
+              <View style={[s.errorBox, { marginBottom: 14 }]}>
+                <Icon name="close" size={16} color="#B42318" />
+                <T style={s.errorText}>{googleError}</T>
+              </View>
+            )}
+
+            <View style={{ gap: 12 }}>
+              <View style={s.inputGroup}>
+                <T bold style={s.inputLabel}>{isEn ? 'Your Google Email' : 'Google E-posta Adresiniz'}</T>
+                <TextInput
+                  style={s.input}
+                  placeholder={isEn ? 'e.g. yourname@gmail.com' : 'Örn: adiniz@gmail.com'}
+                  placeholderTextColor="#A499A6"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  value={promptGoogleEmail}
+                  onChangeText={setPromptGoogleEmail}
+                />
+              </View>
+
+              <View style={s.inputGroup}>
+                <T bold style={s.inputLabel}>{isEn ? 'Your Full Name (Optional)' : 'Adınız & Soyadınız (İsteğe Bağlı)'}</T>
+                <TextInput
+                  style={s.input}
+                  placeholder={isEn ? 'e.g. Emma Miller' : 'Örn: Zeynep Yılmaz'}
+                  placeholderTextColor="#A499A6"
+                  value={promptGoogleName}
+                  onChangeText={setPromptGoogleName}
+                />
+              </View>
+            </View>
+
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 18 }}>
+              <Tap onPress={() => setGooglePromptVisible(false)} style={s.cancelModalBtn}>
+                <T bold style={{ color: colors.muted, fontSize: 13 }}>{isEn ? 'Cancel' : 'Vazgeç'}</T>
+              </Tap>
+              <Tap
+                onPress={handleConfirmGoogleSignIn}
+                style={[s.confirmGoogleBtn, { flex: 2 }]}
+                disabled={googleLoading}
+              >
+                {googleLoading ? (
+                  <ActivityIndicator size="small" color={colors.purple} />
+                ) : (
+                  <>
+                    <GoogleIcon size={18} />
+                    <T bold style={{ color: '#3C4043', fontSize: 13.5 }}>
+                      {isEn ? 'Sign In with Google' : 'Google ile Bağlan'}
+                    </T>
+                  </>
+                )}
+              </Tap>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* ─── LEGAL MODAL (TERMS & PRIVACY) ─────────────────────────────────── */}
       <Modal visible={!!legalModal} transparent animationType="fade" onRequestClose={() => setLegalModal(null)}>
