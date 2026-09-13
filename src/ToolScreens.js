@@ -1668,10 +1668,10 @@ export function BirthAffirmationsScreen({ state, update, toast, lang = 'tr', ope
     { id: 'night', title: isEn ? 'Night release' : 'Gece bırakışı', minutes: 4, tint: '#3B7E58', bg: '#EEF6F1', cue: isEn ? 'Close the day without pressure or scoring.' : 'Günü puanlamadan, baskısız kapat.', lines: isEn ? ['I did enough for this day.', 'Rest is part of preparation.', 'Tomorrow can be handled one small step at a time.'] : ['Bugün için yeterince emek verdim.', 'Dinlenmek hazırlığın bir parçası.', 'Yarın tek küçük adımla ilerleyebilir.'] },
   ];
   const soundScenes = [
-    { id: 'lofi', icon: 'music', label: isEn ? 'Real lo-fi' : 'Gerçek lo-fi', sub: isEn ? 'Original calm music loop' : 'Orijinal sakin müzik loop’u' },
-    { id: 'nightPad', icon: 'moon', label: isEn ? 'Night pad' : 'Gece ambiyansı', sub: isEn ? 'Slow ambient layer' : 'Yavaş fon dokusu' },
-    { id: 'rain', icon: 'water', label: isEn ? 'Soft rain' : 'Yumuşak yağmur', sub: isEn ? 'White noise calm' : 'Hafif beyaz gürültü' },
-    { id: 'lullaby', icon: 'heart', label: isEn ? 'Music box' : 'Ninni kutusu', sub: isEn ? 'Tiny bell melody' : 'Minik melodi' },
+    { id: 'lofi', icon: 'music', label: isEn ? 'Momora Lo-fi Radio' : 'Momora Lo-fi Radyo', sub: isEn ? 'Live calm station' : 'Canlı sakin kanal' },
+    { id: 'nightPad', icon: 'moon', label: isEn ? 'Night Drift' : 'Gece Akışı', sub: isEn ? 'Slow ambient station' : 'Yavaş ambiyans kanalı' },
+    { id: 'rain', icon: 'water', label: isEn ? 'Rain Room' : 'Yağmur Odası', sub: isEn ? 'Soft rain station' : 'Yumuşak yağmur kanalı' },
+    { id: 'lullaby', icon: 'heart', label: isEn ? 'Tiny Lullaby FM' : 'Mini Ninni FM', sub: isEn ? 'Music box station' : 'Ninni kutusu kanalı' },
   ];
   const saved = state?.affirmationFavorites || [];
   const history = state?.affirmationSessions || [];
@@ -1730,7 +1730,7 @@ export function BirthAffirmationsScreen({ state, update, toast, lang = 'tr', ope
     }
     const ok = playSound(soundId, { volume: soundId === 'lofi' ? 0.22 : 0.28, timerMinutes: selected.minutes });
     setActiveSoundId(soundId);
-    toast && toast(ok ? (isEn ? 'Calm sound started' : 'Sakin ses başladı') : (isEn ? 'Sound is not available on this device' : 'Bu cihazda ses açılamadı'));
+    toast && toast(ok ? (soundId === 'lofi' ? (isEn ? 'Momora Lo-fi Radio started' : 'Momora Lo-fi Radyo başladı') : (isEn ? 'Calm station started' : 'Sakin kanal başladı')) : (isEn ? 'Sound is not available on this device' : 'Bu cihazda ses açılamadı'));
   };
   const completeSession = () => {
     const entry = { id: uid ? uid() : Date.now().toString(), mode: selected.id, title: selected.title, affirmation: dailyLine, minutes: selected.minutes, createdAt: new Date().toISOString() };
@@ -1779,10 +1779,17 @@ export function BirthAffirmationsScreen({ state, update, toast, lang = 'tr', ope
       <Card style={as.soundCard}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
           <View style={{ flex: 1 }}>
-            <T bold style={{ fontSize: 15.5, color: colors.ink }}>{isEn ? 'Calm sound scene' : 'Sakin ses sahnesi'}</T>
-            <T style={{ fontSize: 12, color: colors.muted, lineHeight: 17, marginTop: 3 }}>{isEn ? 'Optional background sound for this session.' : 'Bu seansa eşlik eden isteğe bağlı arka plan sesi.'}</T>
+            <T bold style={{ fontSize: 15.5, color: colors.ink }}>{isEn ? 'Momora Lo-fi Radio' : 'Momora Lo-fi Radyo'}</T>
+            <T style={{ fontSize: 12, color: colors.muted, lineHeight: 17, marginTop: 3 }}>{isEn ? 'A calm radio-style player for breathing, rest and night routines.' : 'Nefes, dinlenme ve gece rutini için radyo hissinde sakin çalar.'}</T>
           </View>
-          {activeSoundId ? <Tap onPress={() => { stopSound(); setActiveSoundId(null); }} style={as.stopSoundBtn}><T bold style={{ fontSize: 11, color: '#7A4F80' }}>{isEn ? 'Stop' : 'Durdur'}</T></Tap> : null}
+          {activeSoundId ? <Tap onPress={() => { stopSound(); setActiveSoundId(null); }} style={as.stopSoundBtn}><T bold style={{ fontSize: 11, color: '#7A4F80' }}>{isEn ? 'Stop radio' : 'Radyoyu durdur'}</T></Tap> : null}
+        </View>
+        <View style={as.radioNowPlaying}>
+          <View style={as.liveDot} />
+          <View style={{ flex: 1 }}>
+            <T bold style={{ fontSize: 12.5, color: colors.ink }}>{activeSoundId ? (isEn ? 'On air now' : 'Şu an yayında') : (isEn ? 'Choose a station' : 'Bir kanal seç')}</T>
+            <T numberOfLines={1} style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>{activeSoundId ? (soundScenes.find(x => x.id === activeSoundId)?.label || '') + ' · ' + selected.minutes + ' dk sleep timer' : (isEn ? 'Lo-fi, rain and night channels stay inside Momora.' : 'Lo-fi, yağmur ve gece kanalları Momora içinde çalışır.')}</T>
+          </View>
         </View>
         <View style={as.soundGrid}>
           {soundScenes.map(scene => {
@@ -1884,6 +1891,8 @@ const as = StyleSheet.create({
   primaryBtn: { flex: 1, paddingVertical: 14, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   saveBtn: { width: 50, borderRadius: 16, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E8DCE8', alignItems: 'center', justifyContent: 'center' },
   soundCard: { padding: 15, borderRadius: 22, backgroundColor: '#FFFCF8', borderColor: '#EFE4EA', gap: 12 },
+  radioNowPlaying: { flexDirection: 'row', alignItems: 'center', gap: 9, padding: 11, borderRadius: 16, backgroundColor: '#F8F1F8', borderWidth: 1, borderColor: '#E9DCE9' },
+  liveDot: { width: 9, height: 9, borderRadius: 4.5, backgroundColor: '#3C9A65' },
   soundGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 9 },
   soundTile: { width: '48%', flexGrow: 1, minHeight: 62, flexDirection: 'row', alignItems: 'center', gap: 9, borderRadius: 16, padding: 10, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E9DFE9' },
   soundIcon: { width: 31, height: 31, borderRadius: 12, backgroundColor: '#F3ECF5', alignItems: 'center', justifyContent: 'center' },
