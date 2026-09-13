@@ -1319,10 +1319,39 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
   const [ambientSound, setAmbientSound] = useState('lofi'); // 'lofi' | 'waves' | 'rain' | 'silent'
 
   const circleScale = useRef(new Animated.Value(1)).current;
-  const circleOpacity = useRef(new Animated.Value(0.5)).current;
+  const circleOpacity = useRef(new Animated.Value(0.7)).current;
+  const pulseRing = useRef(new Animated.Value(0)).current;
   const cycleRef = useRef(null);
   const timerRef = useRef(null);
   const isRunning = useRef(false);
+
+  // Trigger tactile / haptic feedback across native & web
+  function triggerHaptic(targetPhase) {
+    try {
+      if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.vibrate) {
+        if (targetPhase === 'inhale') navigator.vibrate([25, 60, 25]);
+        else if (targetPhase === 'hold') navigator.vibrate(35);
+        else if (targetPhase === 'exhale') navigator.vibrate([15, 35]);
+      } else if (Vibration && typeof Vibration.vibrate === 'function') {
+        if (targetPhase === 'hold') Vibration.vibrate(35);
+        else Vibration.vibrate([0, 45, 25, 45]);
+      }
+    } catch (e) {}
+  }
+
+  // Idle gentle breathing loop when not running
+  useEffect(() => {
+    if (!running) {
+      const loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(circleScale, { toValue: 1.05, duration: 2400, useNativeDriver: false }),
+          Animated.timing(circleScale, { toValue: 1.0, duration: 2400, useNativeDriver: false }),
+        ])
+      );
+      loop.start();
+      return () => loop.stop();
+    }
+  }, [running]);
 
   // Parallel Contraction Integration (Spec 02: contraction continues, banner shows elapsed time)
   const activeContractionStart = state?.activeContraction?.startedAt;
@@ -1362,7 +1391,7 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
     setCycles(0);
     setTotalSecs(0);
     if (ambientSound !== 'silent') {
-      playSound(ambientSound, { volume: 0.32 });
+      playSound(ambientSound, { volume: 0.35 });
     }
     runPhase('inhale', customInhale);
   }
@@ -1379,7 +1408,7 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
     }
     Animated.parallel([
       Animated.timing(circleScale, { toValue: 1, duration: 400, useNativeDriver: false }),
-      Animated.timing(circleOpacity, { toValue: 0.5, duration: 400, useNativeDriver: false }),
+      Animated.timing(circleOpacity, { toValue: 0.7, duration: 400, useNativeDriver: false }),
     ]).start();
 
     if (cycles > 0) {
@@ -1406,45 +1435,51 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
     setCountdown(secondsRemaining);
 
     // Harmonic acoustic breath cue (Inhale rising tone / Hold bell / Exhale release)
-    if (guidanceType !== 'silent') {
+    if (guidanceType === 'chime') {
       playBreathCue(targetPhase);
     }
 
     // Voice cue
     if (guidanceType === 'voice') {
-      if (targetPhase === 'inhale') speakText(isEn ? 'Breathe in' : 'Nefes al');
-      else if (targetPhase === 'hold') speakText(isEn ? 'Hold' : 'Tut');
-      else if (targetPhase === 'exhale') speakText(isEn ? 'Breathe out' : 'Yavaşça ver');
+      playBreathCue(targetPhase);
+      if (targetPhase === 'inhale') speakText(isEn ? 'Breathe in' : 'Nefes al', { lang: isEn ? 'en' : 'tr' });
+      else if (targetPhase === 'hold') speakText(isEn ? 'Hold' : 'Nazikçe tut', { lang: isEn ? 'en' : 'tr' });
+      else if (targetPhase === 'exhale') speakText(isEn ? 'Breathe out' : 'Yavaşça ver', { lang: isEn ? 'en' : 'tr' });
     }
 
-    // Haptic cue (always on for tactile grounding)
-    try {
-      if (targetPhase === 'hold') Vibration.vibrate(40);
-      else Vibration.vibrate([0, 70, 35, 70]);
-    } catch (e) {}
+    // Haptic tactile cue
+    triggerHaptic(targetPhase);
+
+    // Visual haptic ripple pulse
+    pulseRing.setValue(0);
+    Animated.timing(pulseRing, {
+      toValue: 1,
+      duration: Math.min(2000, secondsRemaining * 1000),
+      useNativeDriver: false,
+    }).start();
 
     // Organic scale animation: grows on inhale, softens on exhale (reduceMotion fallback supported)
     if (reduceMotion) {
       Animated.timing(circleOpacity, {
-        toValue: targetPhase === 'inhale' ? 0.9 : targetPhase === 'hold' ? 0.7 : 0.4,
+        toValue: targetPhase === 'inhale' ? 0.95 : targetPhase === 'hold' ? 0.8 : 0.5,
         duration: secondsRemaining * 1000,
         useNativeDriver: false,
       }).start();
     } else {
       if (targetPhase === 'inhale') {
         Animated.parallel([
-          Animated.timing(circleScale, { toValue: 1.45, duration: secondsRemaining * 1000, useNativeDriver: false }),
-          Animated.timing(circleOpacity, { toValue: 0.85, duration: secondsRemaining * 1000, useNativeDriver: false }),
+          Animated.timing(circleScale, { toValue: 1.30, duration: secondsRemaining * 1000, useNativeDriver: false }),
+          Animated.timing(circleOpacity, { toValue: 0.95, duration: secondsRemaining * 1000, useNativeDriver: false }),
         ]).start();
       } else if (targetPhase === 'hold') {
         Animated.parallel([
-          Animated.timing(circleScale, { toValue: 1.42, duration: secondsRemaining * 1000, useNativeDriver: false }),
-          Animated.timing(circleOpacity, { toValue: 0.75, duration: secondsRemaining * 1000, useNativeDriver: false }),
+          Animated.timing(circleScale, { toValue: 1.28, duration: secondsRemaining * 1000, useNativeDriver: false }),
+          Animated.timing(circleOpacity, { toValue: 0.85, duration: secondsRemaining * 1000, useNativeDriver: false }),
         ]).start();
       } else if (targetPhase === 'exhale') {
         Animated.parallel([
           Animated.timing(circleScale, { toValue: 1.0, duration: secondsRemaining * 1000, useNativeDriver: false }),
-          Animated.timing(circleOpacity, { toValue: 0.45, duration: secondsRemaining * 1000, useNativeDriver: false }),
+          Animated.timing(circleOpacity, { toValue: 0.5, duration: secondsRemaining * 1000, useNativeDriver: false }),
         ]).start();
       }
     }
@@ -1562,9 +1597,10 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
                 key={s.id}
                 onPress={() => {
                   setAmbientSound(s.id);
-                  if (running) {
-                    if (s.id === 'silent') stopSound();
-                    else playSound(s.id, { volume: 0.32 });
+                  if (s.id === 'silent') {
+                    stopSound();
+                  } else {
+                    playSound(s.id, { volume: 0.35 });
                   }
                 }}
                 style={{
@@ -1595,7 +1631,14 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
           ].map(opt => (
             <Tap
               key={opt.id}
-              onPress={() => setGuidanceType(opt.id)}
+              onPress={() => {
+                setGuidanceType(opt.id);
+                if (opt.id === 'chime') {
+                  playNotificationChime();
+                } else if (opt.id === 'voice') {
+                  speakText(isEn ? 'Voice guide: Breathe in and release.' : 'Sesli rehber: Sakince nefes al ve gevşe.', { lang: isEn ? 'en' : 'tr' });
+                }
+              }}
               style={[
                 bs.guidanceChip,
                 guidanceType === opt.id && { backgroundColor: '#ECE4F0', borderColor: colors.purple },
@@ -1671,64 +1714,96 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
         </Card>
       )}
 
-      {/* 4. BÜYÜK ORGANİK MOMORA FORMU (SPEC 02_BREATHING_COACH) */}
+      {/* 4. BÜYÜK ORGANİK MOMORA FORMU (HAPTIC BREATHING CIRCLE) */}
       <Card style={bs.circleCard}>
-        <View style={{ alignItems: 'center', justifyContent: 'center', height: 260 }}>
+        <View style={bs.circleStage}>
+          {/* Katman 1: Dış Haptik Titreşim / Dalga Halesi (Pulsing Ripple Wave) */}
+          <Animated.View
+            style={[
+              bs.outerAuraRing,
+              {
+                borderColor: activeMode.ring,
+                transform: [
+                  {
+                    scale: pulseRing.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [1.0, 1.42],
+                    }),
+                  },
+                ],
+                opacity: pulseRing.interpolate({
+                  inputRange: [0, 0.4, 1],
+                  outputRange: [0.65, 0.3, 0],
+                }),
+              },
+            ]}
+          />
+
+          {/* Katman 2: Orta Ritmik Çember (Middle Halo Ring) */}
+          <Animated.View
+            style={[
+              bs.midRippleRing,
+              {
+                borderColor: activeMode.ring,
+                transform: [
+                  {
+                    scale: circleScale.interpolate({
+                      inputRange: [1, 1.3],
+                      outputRange: [1, 1.15],
+                    }),
+                  },
+                ],
+                opacity: Animated.multiply(circleOpacity, 0.55),
+              },
+            ]}
+          />
+
+          {/* Katman 3: Ana Organik Nefes Çemberi (Core Breathing Orb) */}
           <Animated.View
             style={[
               bs.organicCircle,
               {
                 backgroundColor: activeMode.bg,
-                borderColor: activeMode.ring,
+                borderColor: activeMode.color,
                 transform: [{ scale: circleScale }],
                 opacity: circleOpacity,
               },
             ]}
           />
 
-          {/* Dış Işık Halesi (Glowing Aura Ring) */}
-          <Animated.View
-            style={[
-              {
-                position: 'absolute',
-                width: 230,
-                height: 230,
-                borderRadius: 115,
-                borderWidth: 1.5,
-                borderColor: activeMode.ring,
-                transform: [{ scale: circleScale }],
-                opacity: Animated.multiply(circleOpacity, 0.4),
-              },
-            ]}
-          />
-
+          {/* Katman 4: Merkez Bilgi & Geri Sayım İçeriği */}
           <View style={bs.circleCenterContent}>
             {running ? (
               <>
-                <T bold style={[bs.phaseName, { color: activeMode.color }]}>
-                  {phase === 'inhale'
-                    ? (isEn ? 'Breathe In' : 'Nefes Al')
-                    : phase === 'hold'
-                    ? (isEn ? 'Soft Hold' : 'Nazikçe Tut')
-                    : (isEn ? 'Breathe Out' : 'Yavaşça Ver')}
-                </T>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: activeMode.color }} />
+                  <T bold style={[bs.phaseName, { color: activeMode.color }]}>
+                    {phase === 'inhale'
+                      ? (isEn ? 'Breathe In' : 'Nefes Al')
+                      : phase === 'hold'
+                      ? (isEn ? 'Soft Hold' : 'Nazikçe Tut')
+                      : (isEn ? 'Breathe Out' : 'Yavaşça Ver')}
+                  </T>
+                </View>
                 <T bold style={[bs.countdownBig, { color: activeMode.color }]}>
                   {countdown}
                 </T>
-                <T style={{ fontSize: 11.5, color: colors.muted, textAlign: 'center', marginBottom: 3 }}>
+                <T style={{ fontSize: 11.5, color: colors.muted, textAlign: 'center', marginBottom: 4, maxWidth: 180, lineHeight: 16 }}>
                   {phase === 'inhale'
                     ? (isEn ? 'Fill belly & chest gently' : 'Karnını ve göğsünü sakince doldur')
                     : phase === 'hold'
                     ? (isEn ? 'Relax shoulders & soften jaw' : 'Omuzlarını ve çeneni serbest bırak')
                     : (isEn ? 'Release tension smoothly' : 'Tüm gerginliği sakince üfle')}
                 </T>
-                <T style={bs.cycleCountText}>
-                  {isEn ? `Cycle ${cycles + 1}` : `${cycles + 1}. Döngü`}
-                </T>
+                <View style={{ backgroundColor: 'rgba(255,255,255,0.75)', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12 }}>
+                  <T bold style={[bs.cycleCountText, { color: activeMode.color }]}>
+                    {isEn ? `Cycle ${cycles + 1}` : `${cycles + 1}. Döngü`}
+                  </T>
+                </View>
               </>
             ) : (
               <>
-                <Icon name="leaf" size={32} color={activeMode.color} />
+                <Icon name="leaf" size={36} color={activeMode.color} />
                 <T bold style={[bs.idleTitle, { color: activeMode.color, marginTop: 8 }]}>
                   {activeMode.title}
                 </T>
@@ -1750,7 +1825,9 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, 
             ]}
           >
             <T bold style={{ color: 'white', fontSize: 16 }}>
-              {running ? (isEn ? 'End & Rest' : 'Bitir & Dinlen') : (isEn ? 'Start Breathing' : 'Nefese Başla')}
+              {running
+                ? (isEn ? 'End & Rest 🌸' : 'Bitir & Dinlen 🌸')
+                : (isEn ? 'Start Breathing Exercise 🌿' : 'Nefes Egzersizini Başlat 🌿')}
             </T>
           </Tap>
         </View>
@@ -2047,19 +2124,46 @@ const bs = StyleSheet.create({
   },
   circleCard: {
     backgroundColor: 'white',
-    borderRadius: 24,
-    overflow: 'hidden',
+    borderRadius: 28,
+    overflow: 'visible',
+    borderWidth: 1.5,
+    borderColor: '#F0E6F2',
+    ...shadow.soft,
+  },
+  circleStage: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 290,
+    position: 'relative',
+  },
+  outerAuraRing: {
+    position: 'absolute',
+    width: 250,
+    height: 250,
+    borderRadius: 125,
+    borderWidth: 2,
+  },
+  midRippleRing: {
+    position: 'absolute',
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    borderWidth: 2,
+    borderStyle: 'dashed',
   },
   organicCircle: {
     position: 'absolute',
-    width: 190,
-    height: 190,
-    borderRadius: 95,
-    borderWidth: 3,
+    width: 176,
+    height: 176,
+    borderRadius: 88,
+    borderWidth: 3.5,
+    ...shadow.card,
   },
   circleCenterContent: {
     alignItems: 'center',
-    paddingHorizontal: 24,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    zIndex: 5,
   },
   phaseName: {
     fontSize: 20,

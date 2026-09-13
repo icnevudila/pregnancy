@@ -17,14 +17,44 @@ export async function loadCloudState() {
     const { data: userData, error: userError } = await supabase.auth.getUser();
     if (userError || !userData?.user) return { state: null, user: null, error: userError || null };
 
-    const { data, error } = await supabase
-      .from('momora_state_snapshots')
-      .select('state, updated_at')
-      .eq('user_id', userData.user.id)
-      .maybeSingle();
+    const userId = userData.user.id;
 
-    if (error) return { state: null, user: userData.user, error };
-    return { state: data?.state || null, user: userData.user, error: null };
+    // Fetch snapshot and profile concurrently
+    const [snapshotRes, profileRes] = await Promise.all([
+      supabase
+        .from('momora_state_snapshots')
+        .select('state, updated_at')
+        .eq('user_id', userId)
+        .maybeSingle(),
+      supabase
+        .from('momora_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle(),
+    ]);
+
+    let state = snapshotRes.data?.state || null;
+    const profile = profileRes.data;
+
+    if (profile) {
+      state = {
+        ...(state || {}),
+        name: profile.display_name || state?.name,
+        role: profile.role || state?.role,
+        partnerName: profile.partner_name || state?.partnerName,
+        babyName: profile.baby_name || state?.babyName,
+        babyGender: profile.baby_gender || state?.babyGender,
+        mode: profile.journey_mode || state?.mode,
+        dueDate: profile.due_date || state?.dueDate,
+        bloodType: profile.blood_type || state?.bloodType,
+        doctor: profile.doctor_name || state?.doctor,
+        hospital: profile.hospital_name || state?.hospital,
+        familyCode: profile.family_code || state?.familyCode,
+        avatarUri: profile.avatar_url || state?.avatarUri,
+      };
+    }
+
+    return { state, user: userData.user, profile, error: null };
   } catch (err) {
     return { state: null, user: null, error: err };
   }
@@ -51,6 +81,7 @@ export async function saveCloudState(state) {
       blood_type: state.bloodType || null,
       doctor_name: state.doctor || null,
       hospital_name: state.hospital || null,
+      avatar_url: state.avatarUri || null,
       preferences: {
         remindWater: state.remindWater !== false,
         remindVitamin: state.remindVitamin !== false,

@@ -103,7 +103,66 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     );
   }
 
-  return <Modal visible transparent animationType="fade" onRequestClose={close}><KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':undefined} style={s.backdrop}><Tap label={isEn ? 'Close dialog' : 'Pencereyi kapat'} style={StyleSheet.absoluteFill} onPress={close}/><View style={s.sheet}><View style={s.handle}/><View style={s.heading}><View style={{flex:1}}><T style={s.kicker}>MOMORA · {isEn ? 'WITH YOU' : 'YANINDA'}</T><T bold style={s.title}>{sheetTitle}</T>{premiumSheetIntro&&<T style={{fontSize:12.5,color:colors.muted,marginTop:3}}>{premiumSheetIntro[0]}</T>}</View><Tap onPress={close} label={isEn ? 'Close' : 'Kapat'} style={s.close}><Icon name="close" size={22}/></Tap></View><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{paddingBottom:28}} showsVerticalScrollIndicator={false}>
+  const FULL_SCREEN_KINDS = new Set([
+    'babyNames',
+    'breathingGuide',
+    'kickCounter',
+    'contractionTimer',
+    'hospitalBag',
+    'birthPlan',
+    'doctorQuestions',
+    'weight',
+    'sizeGuide',
+    'ultrasoundAtlas',
+    'medicalTimeline',
+    'organDevelopment',
+    'foodSafety',
+    'topicHub',
+    'birthMonthClub',
+    'communityThread',
+    'nursingTimer',
+    'sleepWhiteNoise',
+    'diaperTracker',
+    'postpartumCare',
+    'milkStash',
+    'partnerTasks',
+    'toolsHub',
+    'profile',
+    'notifications',
+    'legal',
+    'babyLetter',
+    'timelineFeed',
+  ]);
+  const isFullScreen = FULL_SCREEN_KINDS.has(kind);
+
+  return (
+    <Modal visible transparent animationType={isFullScreen ? 'slide' : 'fade'} onRequestClose={close}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={isFullScreen ? s.fullscreenBackdrop : s.backdrop}>
+        {!isFullScreen && (
+          <Tap label={isEn ? 'Close dialog' : 'Pencereyi kapat'} style={StyleSheet.absoluteFill} onPress={close} />
+        )}
+        <View style={isFullScreen ? s.fullscreenSheet : s.sheet}>
+          {!isFullScreen && <View style={s.handle} />}
+          <View style={isFullScreen ? s.fullscreenHeading : s.heading}>
+            <View style={{ flex: 1 }}>
+              <T style={s.kicker}>MOMORA · {isEn ? 'WITH YOU' : 'YANINDA'}</T>
+              <T bold style={s.title}>{sheetTitle}</T>
+              {premiumSheetIntro && (
+                <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 3 }}>
+                  {premiumSheetIntro[0]}
+                </T>
+              )}
+            </View>
+            <Tap onPress={close} label={isEn ? 'Close' : 'Kapat'} style={s.close}>
+              <Icon name="close" size={22} />
+            </Tap>
+          </View>
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ paddingBottom: isFullScreen ? 44 : 28 }}
+            showsVerticalScrollIndicator={false}
+            style={{ flex: 1 }}
+          >
     {kind==='journey'&&journeys.map(j=><Tap key={j.key} onPress={()=>{choose(j.key);close()}} style={s.option}><T bold style={{flex:1}}>{j.title.replace('\n',' ')}</T><Icon name="chevron"/></Tap>)}
     {kind==='profile'&&<ProfileScreen state={state} update={update} open={open} toast={toast} choose={choose} close={close} lang={lang}/>}
     {kind==='appointment'&&(()=>{
@@ -299,7 +358,30 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     <InAppNotificationBanner lang={lang} onOpen={d => { if (d?.tool) open(d.tool); else if (d?.screen) choose(d.screen); }} />
     </Modal>;
 }
-const s=StyleSheet.create({fullscreenBackdrop:{flex:1,backgroundColor:'#1E142433',alignItems:'center',justifyContent:'center'},fullscreenReader:{flex:1,width:'100%',maxWidth:500,backgroundColor:colors.canvas,overflow:'hidden'},backdrop:{flex:1,backgroundColor:'#211A304D',alignItems:'center',justifyContent:'flex-end'},sheet:{width:'100%',maxWidth:440,maxHeight:'86%',backgroundColor:colors.canvas,borderTopLeftRadius:30,borderTopRightRadius:30,paddingHorizontal:24},handle:{height:4,width:40,borderRadius:3,backgroundColor:'#D9CDD7',alignSelf:'center',marginTop:10,marginBottom:23},heading:{flexDirection:'row',alignItems:'center',gap:12,paddingBottom:17,borderBottomWidth:1,borderColor:colors.line},kicker:{fontSize:10,letterSpacing:2,color:colors.purple,marginBottom:8},title:{fontSize:23},close:{height:38,width:38,borderRadius:19,alignItems:'center',justifyContent:'center',backgroundColor:'#F1EAEF'},body:{fontSize:15,color:'#787080',lineHeight:23,marginTop:12},label:{fontSize:14,marginBottom:8},input:{fontFamily:fonts.regular,fontSize:16,color:colors.ink,padding:14,borderWidth:1,borderColor:'#DED2DB',borderRadius:15,backgroundColor:'#FFFDFA',outlineStyle:'none'},button:{backgroundColor:colors.purple,borderRadius:18,minHeight:50,alignItems:'center',justifyContent:'center',marginTop:16,padding:12},secondary:{backgroundColor:'#F0E8F2'},option:{flexDirection:'row',alignItems:'center',padding:18,backgroundColor:'#F2EAEE',borderRadius:17,marginTop:13},profileHeader:{flexDirection:'row',alignItems:'center',gap:12,marginVertical:12},helper:{fontSize:12,color:colors.muted,lineHeight:19,marginTop:16},chips:{flexDirection:'row',gap:10,marginTop:18},chip:{padding:14,borderRadius:16,borderWidth:1,borderColor:colors.line},chipSelected:{backgroundColor:'#E7D8EB',borderColor:'#B89DC0'}});
+const s=StyleSheet.create({
+  fullscreenBackdrop:{flex:1,backgroundColor:'#1E142433',alignItems:'center',justifyContent:'center'},
+  fullscreenSheet:{flex:1,width:'100%',maxWidth:Platform.OS==='web'?500:'100%',height:'100%',maxHeight:'100%',backgroundColor:colors.canvas,paddingHorizontal:20,paddingTop:Platform.OS==='ios'?46:Platform.OS==='web'?20:24},
+  fullscreenHeading:{flexDirection:'row',alignItems:'center',gap:12,paddingBottom:16,paddingTop:6,borderBottomWidth:1,borderColor:colors.line,marginBottom:10},
+  fullscreenReader:{flex:1,width:'100%',maxWidth:500,backgroundColor:colors.canvas,overflow:'hidden'},
+  backdrop:{flex:1,backgroundColor:'#211A304D',alignItems:'center',justifyContent:'flex-end'},
+  sheet:{width:'100%',maxWidth:440,maxHeight:'86%',backgroundColor:colors.canvas,borderTopLeftRadius:30,borderTopRightRadius:30,paddingHorizontal:24},
+  handle:{height:4,width:40,borderRadius:3,backgroundColor:'#D9CDD7',alignSelf:'center',marginTop:10,marginBottom:23},
+  heading:{flexDirection:'row',alignItems:'center',gap:12,paddingBottom:17,borderBottomWidth:1,borderColor:colors.line},
+  kicker:{fontSize:10,letterSpacing:2,color:colors.purple,marginBottom:8},
+  title:{fontSize:23},
+  close:{height:38,width:38,borderRadius:19,alignItems:'center',justifyContent:'center',backgroundColor:'#F1EAEF'},
+  body:{fontSize:15,color:'#787080',lineHeight:23,marginTop:12},
+  label:{fontSize:14,marginBottom:8},
+  input:{fontFamily:fonts.regular,fontSize:16,color:colors.ink,padding:14,borderWidth:1,borderColor:'#DED2DB',borderRadius:15,backgroundColor:'#FFFDFA',outlineStyle:'none'},
+  button:{backgroundColor:colors.purple,borderRadius:18,minHeight:50,alignItems:'center',justifyContent:'center',marginTop:16,padding:12},
+  secondary:{backgroundColor:'#F0E8F2'},
+  option:{flexDirection:'row',alignItems:'center',padding:18,backgroundColor:'#F2EAEE',borderRadius:17,marginTop:13},
+  profileHeader:{flexDirection:'row',alignItems:'center',gap:12,marginVertical:12},
+  helper:{fontSize:12,color:colors.muted,lineHeight:19,marginTop:16},
+  chips:{flexDirection:'row',gap:10,marginTop:18},
+  chip:{padding:14,borderRadius:16,borderWidth:1,borderColor:colors.line},
+  chipSelected:{backgroundColor:'#E7D8EB',borderColor:'#B89DC0'}
+});
 const ds=StyleSheet.create({
   weekFruitBox:{flexDirection:'row',alignItems:'center',gap:16,marginTop:16,padding:16,backgroundColor:'#F7F0FA',borderRadius:20},
   weekFruitInfo:{flex:1},

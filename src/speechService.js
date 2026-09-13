@@ -114,7 +114,13 @@ export function speakText(text, options = {}) {
   // 1. Browser Web Speech API (Highest fidelity, zero dependency on web)
   if (typeof window !== 'undefined' && window.speechSynthesis) {
     try {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
       window.speechSynthesis.cancel();
+      if (window.speechSynthesis.resume) {
+        window.speechSynthesis.resume();
+      }
 
       const sentences = getCleanSentences(text);
       if (sentences.length === 0) {
@@ -126,7 +132,7 @@ export function speakText(text, options = {}) {
       utteranceQueue = sentences;
       currentUtteranceIndex = 0;
 
-      const voices = window.speechSynthesis.getVoices() || [];
+      let voices = window.speechSynthesis.getVoices() || [];
       const matchingVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith(lang === 'en' ? 'en' : 'tr'))
         || voices.find(v => v.default);
 

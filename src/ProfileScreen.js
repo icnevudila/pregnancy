@@ -58,6 +58,17 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
   const [newBabyLetter, setNewBabyLetter] = useState('');
   const [cloudUser, setCloudUser] = useState(null);
 
+  useEffect(() => {
+    if (state.name) setUserName(state.name);
+    if (state.partnerName) setPartnerName(state.partnerName);
+    if (state.babyName) setBabyName(state.babyName);
+    if (state.babyGender) setBabyGender(state.babyGender);
+    if (state.bloodType) setBloodType(state.bloodType);
+    if (state.doctor) setDoctor(state.doctor);
+    if (state.hospital) setHospital(state.hospital);
+    if (state.dueDate) setDueDate(state.dueDate);
+  }, [state.name, state.partnerName, state.babyName, state.babyGender, state.bloodType, state.doctor, state.hospital, state.dueDate]);
+
   const currentRole = state.role || 'mother'; // 'mother' | 'father'
   const journey = resolveJourneyState(state);
   const remainingLabel = journey.daysRemaining >= 0
@@ -247,11 +258,17 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
         mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 0.85,
+        quality: 0.8,
+        base64: true,
       });
-      if (!res.canceled && res.assets && res.assets[0]?.uri) {
-        const uri = res.assets[0].uri;
-        update({ avatarUri: uri, avatarPreset: null });
+      if (!res.canceled && res.assets && res.assets[0]) {
+        const asset = res.assets[0];
+        const uri = asset.base64
+          ? `data:image/jpeg;base64,${asset.base64}`
+          : asset.uri;
+        const patch = { avatarUri: uri, avatarPreset: null };
+        update(patch);
+        saveCloudState({ ...state, ...patch }).catch(() => {});
         setShowAvatarModal(false);
         toast && toast(isEn ? 'Profile photo updated! 🌸' : 'Profil fotoğrafın güncellendi! 🌸');
       }
@@ -261,19 +278,23 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
   }
 
   function selectPreset(emoji) {
-    update({ avatarPreset: emoji, avatarUri: null });
+    const patch = { avatarPreset: emoji, avatarUri: null };
+    update(patch);
+    saveCloudState({ ...state, ...patch }).catch(() => {});
     setShowAvatarModal(false);
     toast && toast(isEn ? `Avatar set to ${emoji} ✨` : `Avatar ${emoji} olarak seçildi ✨`);
   }
 
   function resetAvatar() {
-    update({ avatarUri: null, avatarPreset: null });
+    const patch = { avatarUri: null, avatarPreset: null };
+    update(patch);
+    saveCloudState({ ...state, ...patch }).catch(() => {});
     setShowAvatarModal(false);
     toast && toast(isEn ? 'Avatar reset to default.' : 'Avatar varsayılana sıfırlandı.');
   }
 
   function savePersonalInfo() {
-    update({
+    const patch = {
       name: userName.trim(),
       partnerName: partnerName.trim(),
       babyName: babyName.trim(),
@@ -282,7 +303,9 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
       doctor: doctor.trim(),
       hospital: hospital.trim(),
       dueDate: dueDate.trim(),
-    });
+    };
+    update(patch);
+    saveCloudState({ ...state, ...patch }).catch(() => {});
     toast && toast(isEn ? 'Profile details updated successfully 🌸' : 'Profil bilgilerin başarıyla güncellendi 🌸');
   }
 
