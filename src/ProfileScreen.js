@@ -7,10 +7,8 @@ import { T, Tap, Card, ScreenHero, ToolExperienceCard, LanguageToggle } from './
 import { babyNamesList } from './babyNamesData';
 import { dateLabel, pregnancyAt } from './domain.mjs';
 import { resolveJourneyState } from './domain/journeyState';
-import { isSupabaseConfigured, supabase } from './supabaseClient';
+import { isSupabaseConfigured, supabase, signOutUser } from './supabaseClient';
 import {
-  signInWithEmail,
-  signOut,
   cloudStatusLabel,
   saveCloudState,
   linkPartnerAccount,
@@ -82,12 +80,30 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
 
   useEffect(() => {
     if (!supabase) return undefined;
-    supabase.auth.getUser().then(({ data }) => setCloudUser(data.user || null));
+    supabase.auth.getUser().then(({ data }) => setCloudUser(data?.user || null));
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setCloudUser(session?.user || null);
     });
-    return () => listener.subscription.unsubscribe();
+    return () => listener?.subscription?.unsubscribe();
   }, []);
+
+  const activeUser = cloudUser || (state.user && !state.user.id?.startsWith('usr_local_') ? state.user : null);
+
+  useEffect(() => {
+    if (activeUser?.id && supabase) {
+      supabase
+        .from('momora_profiles')
+        .select('family_code, partner_name, role, display_name')
+        .eq('user_id', activeUser.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data?.family_code && data.family_code !== state.familyCode) {
+            update({ familyCode: data.family_code });
+          }
+        })
+        .catch(() => {});
+    }
+  }, [activeUser?.id]);
 
   // Eşler Arası Varsayılan Mesajlar
   const defaultPartnerMessages = isEn ? [
@@ -285,9 +301,19 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
   }
 
   async function handleSignOut() {
-    await signOut();
+    try {
+      await signOutUser();
+    } catch (e) {}
     setCloudUser(null);
-    toast && toast(isEn ? 'Signed out of cloud account.' : 'Bulut hesabından çıkıldı.');
+    update({
+      user: {
+        id: 'usr_local_' + (currentRole === 'father' ? 'father' : 'mother'),
+        displayName: userName,
+        locale: lang,
+        activeRole: currentRole,
+      },
+    });
+    toast && toast(isEn ? 'Signed out of cloud account.' : 'Oturum başarıyla kapatıldı.');
   }
 
   const bloodTypes = ['A Rh+', 'A Rh-', 'B Rh+', 'B Rh-', '0 Rh+', '0 Rh-', 'AB Rh+', 'AB Rh-'];
@@ -554,20 +580,20 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
                     {isEn ? 'Account & Cloud Sync' : 'Hesap & Momora Bulut'}
                   </T>
                   <T style={{ fontSize: 11, color: colors.muted, marginTop: 1 }}>
-                    {cloudUser
-                      ? `${isEn ? 'Connected:' : 'Bağlı:'} ${cloudUser.email}`
+                    {activeUser
+                      ? `${isEn ? 'Connected:' : 'Bağlı:'} ${activeUser.email || activeUser.user_metadata?.full_name || 'Momora Üyesi'}`
                       : (isEn ? 'Guest Mode · Local storage only' : 'Misafir Modu · Sadece bu cihazda')}
                   </T>
                 </View>
               </View>
-              <View style={{ backgroundColor: cloudUser ? '#EDF7ED' : '#F3EDF7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
-                <T bold style={{ fontSize: 10.5, color: cloudUser ? '#2E7D32' : colors.purple }}>
-                  {cloudUser ? (isEn ? 'Cloud Active' : 'Bulut Aktif') : (isEn ? 'Guest' : 'Misafir')}
+              <View style={{ backgroundColor: activeUser ? '#EDF7ED' : '#F3EDF7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+                <T bold style={{ fontSize: 10.5, color: activeUser ? '#2E7D32' : colors.purple }}>
+                  {activeUser ? (isEn ? 'Cloud Active' : 'Bulut Aktif') : (isEn ? 'Guest' : 'Misafir')}
                 </T>
               </View>
             </View>
 
-            {cloudUser ? (
+            {activeUser ? (
               <View style={{ marginTop: 10, gap: 8, paddingTop: 8, borderTopWidth: 1, borderColor: '#F0E6F0' }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <T style={{ fontSize: 12, color: colors.muted }}>{isEn ? 'Family Sync Code' : 'Aile Eşleşme Kodu'}</T>

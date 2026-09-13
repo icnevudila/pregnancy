@@ -1,6 +1,9 @@
-import { supabase, isSupabaseConfigured } from './supabaseClient';
+import { supabase, isSupabaseConfigured, signOutUser, signInWithEmailPassword } from './supabaseClient';
 
 const SYNC_VERSION = 2;
+
+export const signOut = signOutUser;
+export const signInWithEmail = signInWithEmailPassword;
 
 export function cloudStatusLabel() {
   return isSupabaseConfigured() ? 'Bulut eşitleme aktif' : 'Bulut eşitleme bekleniyor';

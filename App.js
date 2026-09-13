@@ -72,11 +72,20 @@ function Momora() {
 
   useEffect(() => {
     if (!supabase) return undefined;
+    supabase.auth.getSession().then(({ data }) => {
+      if (data?.session?.user) {
+        update(old => ({
+          user: data.session.user,
+          name: data.session.user.user_metadata?.full_name || data.session.user.user_metadata?.name || old.name,
+        }));
+      }
+    }).catch(() => {});
+
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         update(old => ({
           user: session.user,
-          name: session.user.user_metadata?.full_name || old.name,
+          name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || old.name,
         }));
         if (page === 'auth') {
           setPage(state.mode || 'pregnancy');
@@ -85,6 +94,15 @@ function Momora() {
           setSheet(null);
         }
         setNotice(t('common.toastSignedIn', lang));
+      } else if (event === 'SIGNED_OUT') {
+        update(old => ({
+          user: {
+            id: 'usr_local_' + (old.role || 'mother'),
+            displayName: old.name,
+            locale: old.lang || 'tr',
+            activeRole: old.role || 'mother',
+          },
+        }));
       }
     });
     return () => listener?.subscription?.unsubscribe();

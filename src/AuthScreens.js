@@ -21,6 +21,7 @@ import {
   signUpWithEmail,
   signInWithOAuthProvider,
   authenticateGoogleUser,
+  authenticateAppleUser,
   resetPasswordForEmail,
   setManualSupabaseKey,
   getCurrentUser,
@@ -141,6 +142,12 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState('');
 
+  const [applePromptVisible, setApplePromptVisible] = useState(false);
+  const [promptAppleEmail, setPromptAppleEmail] = useState('');
+  const [promptAppleName, setPromptAppleName] = useState('');
+  const [appleLoading, setAppleLoading] = useState(false);
+  const [appleError, setAppleError] = useState('');
+
   async function handleOAuth(provider) {
     setErrorMsg('');
     if (provider === 'google') {
@@ -148,6 +155,11 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
       setPromptGoogleEmail(email.trim() || '');
       setPromptGoogleName(fullName.trim() || '');
       setGooglePromptVisible(true);
+    } else if (provider === 'apple') {
+      setAppleError('');
+      setPromptAppleEmail(email.trim() || '');
+      setPromptAppleName(fullName.trim() || '');
+      setApplePromptVisible(true);
     } else {
       setLoading(true);
       const { error } = await signInWithOAuthProvider(provider);
@@ -179,6 +191,31 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
 
     setGooglePromptVisible(false);
     toast && toast(isEn ? 'Signed in with Google account 🌸' : 'Google hesabınızla başarıyla giriş yapıldı 🌸');
+    onAuthSuccess && onAuthSuccess(data?.user);
+    close && close();
+  }
+
+  async function handleConfirmAppleSignIn() {
+    setAppleError('');
+    if (!promptAppleEmail.trim() || !promptAppleEmail.includes('@')) {
+      setAppleError(isEn ? 'Please enter a valid Apple ID email address.' : 'Lütfen geçerli bir Apple ID / iCloud e-posta adresi girin.');
+      return;
+    }
+    setAppleLoading(true);
+    const { data, error } = await authenticateAppleUser({
+      email: promptAppleEmail.trim(),
+      fullName: promptAppleName.trim() || fullName.trim(),
+      role,
+    });
+    setAppleLoading(false);
+
+    if (error) {
+      setAppleError(error.message || (isEn ? 'Apple sign in failed.' : 'Apple ile giriş yapılamadı.'));
+      return;
+    }
+
+    setApplePromptVisible(false);
+    toast && toast(isEn ? 'Signed in with Apple account 🍏' : 'Apple hesabınızla başarıyla giriş yapıldı 🍏');
     onAuthSuccess && onAuthSuccess(data?.user);
     close && close();
   }
@@ -651,6 +688,89 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
                     <GoogleIcon size={18} />
                     <T bold style={{ color: '#3C4043', fontSize: 13.5 }}>
                       {isEn ? 'Sign In with Google' : 'Google ile Bağlan'}
+                    </T>
+                  </>
+                )}
+              </Tap>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* ─── APPLE SIGN-IN DIALOG ─────────────────────────────────────────── */}
+      <Modal visible={applePromptVisible} transparent animationType="slide" onRequestClose={() => setApplePromptVisible(false)}>
+        <View style={s.modalBackdrop}>
+          <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setApplePromptVisible(false)} />
+          <View style={s.appleSheet}>
+            <View style={s.sheetHandle} />
+            <View style={s.appleHeader}>
+              <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: '#000000', alignItems: 'center', justifyContent: 'center' }}>
+                <AppleIcon size={22} color="#FFFFFF" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <T bold style={{ fontSize: 17, color: colors.ink }}>
+                  {isEn ? 'Sign in with Apple' : 'Apple ile Hızlı Giriş'}
+                </T>
+                <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
+                  {isEn ? 'Connect your Apple ID or iCloud account' : 'Apple ID veya iCloud hesabını Momora ile bağla'}
+                </T>
+              </View>
+              <Tap onPress={() => setApplePromptVisible(false)} style={s.sheetCloseBtn}>
+                <Icon name="close" size={18} color={colors.muted} />
+              </Tap>
+            </View>
+
+            <View style={s.googleDivider} />
+
+            {!!appleError && (
+              <View style={[s.errorBox, { marginBottom: 14 }]}>
+                <Icon name="close" size={16} color="#B42318" />
+                <T style={s.errorText}>{appleError}</T>
+              </View>
+            )}
+
+            <View style={{ gap: 12 }}>
+              <View style={s.inputGroup}>
+                <T bold style={s.inputLabel}>{isEn ? 'Your Apple ID / iCloud Email' : 'Apple ID / iCloud E-posta Adresiniz'}</T>
+                <TextInput
+                  style={s.input}
+                  placeholder={isEn ? 'e.g. user@icloud.com' : 'Örn: kullanici@icloud.com'}
+                  placeholderTextColor="#A499A6"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  value={promptAppleEmail}
+                  onChangeText={setPromptAppleEmail}
+                />
+              </View>
+
+              <View style={s.inputGroup}>
+                <T bold style={s.inputLabel}>{isEn ? 'Your Full Name (Optional)' : 'Adınız & Soyadınız (İsteğe Bağlı)'}</T>
+                <TextInput
+                  style={s.input}
+                  placeholder={isEn ? 'e.g. Emma Miller' : 'Örn: Zeynep Yılmaz'}
+                  placeholderTextColor="#A499A6"
+                  value={promptAppleName}
+                  onChangeText={setPromptAppleName}
+                />
+              </View>
+            </View>
+
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 18 }}>
+              <Tap onPress={() => setApplePromptVisible(false)} style={s.cancelModalBtn}>
+                <T bold style={{ color: colors.muted, fontSize: 13 }}>{isEn ? 'Cancel' : 'Vazgeç'}</T>
+              </Tap>
+              <Tap
+                onPress={handleConfirmAppleSignIn}
+                style={[s.confirmAppleBtn, { flex: 2 }]}
+                disabled={appleLoading}
+              >
+                {appleLoading ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <>
+                    <AppleIcon size={18} color="#FFFFFF" />
+                    <T bold style={{ color: '#FFFFFF', fontSize: 13.5 }}>
+                      {isEn ? 'Sign In with Apple' : 'Apple ile Bağlan'}
                     </T>
                   </>
                 )}
