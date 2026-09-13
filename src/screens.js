@@ -127,16 +127,9 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
             <View style={s.obRolePhotoBox}>
               <Image
                 source={generatedAssets['blog_pregnant_morning'] || generatedAssets['pregnancy']}
-                style={StyleSheet.absoluteFill}
+                style={[StyleSheet.absoluteFill, s.containImage]}
                 resizeMode="contain"
               />
-              <LinearGradient
-                colors={['rgba(255,250,246,0.02)', 'rgba(45,26,54,0.22)']}
-                style={StyleSheet.absoluteFill}
-              />
-              <View style={s.obRoleBadge}>
-                <T bold style={{ fontSize: 10.5, color: 'white', letterSpacing: 0.8 }}>{isEn ? "MOTHER'S PROFILE" : 'ANNE PROFİLİ'}</T>
-              </View>
             </View>
             <View style={s.obRoleContent}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -160,16 +153,9 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
             <View style={s.obRolePhotoBox}>
               <Image
                 source={generatedAssets['blog_father_baby_bond'] || generatedAssets['blog_couple_bump']}
-                style={StyleSheet.absoluteFill}
+                style={[StyleSheet.absoluteFill, s.containImage]}
                 resizeMode="contain"
               />
-              <LinearGradient
-                colors={['rgba(247,250,252,0.02)', 'rgba(18,28,45,0.22)']}
-                style={StyleSheet.absoluteFill}
-              />
-              <View style={[s.obRoleBadge, { backgroundColor: '#3A5A78' }]}>
-                <T bold style={{ fontSize: 10.5, color: 'white', letterSpacing: 0.8 }}>{isEn ? "FATHER'S PROFILE" : 'BABA PROFİLİ'}</T>
-              </View>
             </View>
             <View style={s.obRoleContent}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -292,7 +278,7 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
                 style={[s.obStageCard, isSelected && s.obStageCardActive]}
               >
                 <View style={s.obStagePhotoBox}>
-                  <Image source={st.photo} style={StyleSheet.absoluteFill} resizeMode="contain" />
+                  <Image source={st.photo} style={[StyleSheet.absoluteFill, s.containImage]} resizeMode="contain" />
                 </View>
                 <View style={s.obStageContent}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1553,7 +1539,8 @@ const s=StyleSheet.create({
   row:{flexDirection:'row',alignItems:'center'},topline:{flexDirection:'row',alignItems:'center',justifyContent:'space-between'},
   onboarding:{paddingHorizontal:23,paddingTop:44,paddingBottom:24,gap:0},brand:{flexDirection:'row',justifyContent:'center',alignItems:'center',gap:8},wordmark:{fontSize:29,fontWeight:'300',letterSpacing:-0.7},
   welcome:{alignItems:'center',marginTop:29,marginBottom:35},welcomeTitle:{fontSize:26,letterSpacing:-0.5},welcomeText:{textAlign:'center',fontSize:15,lineHeight:22,marginTop:10},
-  journey:{minHeight:145,borderRadius:25,overflow:'hidden',flexDirection:'row',alignItems:'center',paddingRight:14,borderWidth:1,borderColor:'#EDE1E2',...shadow},journeyPhoto:{position:'absolute',left:10,top:10,bottom:10,width:114,borderRadius:20,overflow:'hidden',backgroundColor:'#F6EEF3'},journeyImage:{width:'100%',height:'100%'},journeyCopy:{marginLeft:136,flex:1,paddingVertical:20},journeyTitle:{fontSize:18,lineHeight:24},journeySub:{fontSize:13,lineHeight:20,marginTop:7},motto:{alignItems:'center',marginTop:30,gap:7},handwritten:{fontFamily:fonts.script,fontSize:23,lineHeight:25,color:'#9A8495',textAlign:'center'},
+  fitImage:{width:'100%',height:'100%',objectFit:'contain',objectPosition:'center',alignSelf:'center'},
+  journey:{minHeight:145,borderRadius:25,overflow:'hidden',flexDirection:'row',alignItems:'center',paddingRight:14,borderWidth:1,borderColor:'#EDE1E2',...shadow},journeyPhoto:{position:'absolute',left:10,top:10,bottom:10,width:114,borderRadius:20,overflow:'hidden',backgroundColor:'#F6EEF3',alignItems:'center',justifyContent:'center'},journeyImage:{width:'100%',height:'100%',objectFit:'contain',objectPosition:'center',alignSelf:'center'},journeyCopy:{marginLeft:136,flex:1,paddingVertical:20},journeyTitle:{fontSize:18,lineHeight:24},journeySub:{fontSize:13,lineHeight:20,marginTop:7},motto:{alignItems:'center',marginTop:30,gap:7},handwritten:{fontFamily:fonts.script,fontSize:23,lineHeight:25,color:'#9A8495',textAlign:'center'},
   subtitle:{color:'#8C6B94',fontSize:15,marginTop:5},iconHit:{width:42,height:42,justifyContent:'center',alignItems:'center'},pageTitle:{fontSize:25,letterSpacing:-0.5},
   weekStrip:{flexDirection:'row',gap:7,paddingBottom:4},weekPill:{minWidth:58,alignItems:'center',paddingVertical:8,paddingHorizontal:6,borderRadius:20,backgroundColor:'#EEE8E6'},weekActive:{backgroundColor:'#A28ABB',shadowColor:'#9A80B4',shadowOpacity:0.35,shadowRadius:6,shadowOffset:{width:0,height:2}},
   // Comparison hero & tabs
@@ -1616,7 +1603,7 @@ const s=StyleSheet.create({
 
   obRoleCard: { borderRadius: 22, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#EFE6EE', overflow: 'hidden', ...shadow },
   obRoleCardActive: { borderColor: colors.purple, backgroundColor: '#FAF5FB' },
-  obRolePhotoBox: { height: 132, width: '100%', backgroundColor: '#F6F0F3', overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
+  obRolePhotoBox: { width: '100%', aspectRatio: 16 / 9, backgroundColor: '#FFFFFF', overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   obRoleBadge: { position: 'absolute', top: 10, left: 12, backgroundColor: colors.purple, paddingHorizontal: 9, paddingVertical: 3.5, borderRadius: 8 },
   obRoleContent: { padding: 14 },
   obRoleTitle: { fontSize: 17, letterSpacing: -0.3, color: colors.ink },
@@ -1632,7 +1619,7 @@ const s=StyleSheet.create({
 
   obStageCard: { flexDirection: 'row', alignItems: 'center', borderRadius: 20, backgroundColor: '#FFFFFF', borderWidth: 1.5, borderColor: '#EFE6EE', padding: 10, ...shadow },
   obStageCardActive: { borderColor: colors.purple, backgroundColor: '#FAF5FB' },
-  obStagePhotoBox: { width: 82, height: 82, borderRadius: 16, overflow: 'hidden', backgroundColor: '#EAE0E9' },
+  obStagePhotoBox: { width: 82, height: 82, borderRadius: 16, overflow: 'hidden', backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
   obStageContent: { flex: 1, marginLeft: 12, paddingRight: 4 },
   obStageTitle: { fontSize: 15.5, letterSpacing: -0.2, color: colors.ink },
   obStageDesc: { fontSize: 11.5, color: colors.muted, marginTop: 4, lineHeight: 16 },

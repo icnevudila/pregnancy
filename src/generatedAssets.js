@@ -237,6 +237,7 @@ export const generatedAssets = {
   'sweet_donut': require('../assets/sweet_donut.png'),
   'sweet_gummybear': require('../assets/sweet_gummybear.png'),
   'sweet_macaron': require('../assets/sweet_macaron.png'),
+  'sweet_pancake': require('../assets/sweet_pancake.png'),
   'sweet_pancake_stack': require('../assets/sweet_pancake_stack.png'),
   'sweet_pretzel': require('../assets/sweet_pretzel.png'),
   'sweet_sprinkle': require('../assets/sweet_sprinkle.png'),

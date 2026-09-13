@@ -440,8 +440,8 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                   <View style={es.blogPostImgBox}>
                     <Image
                       source={imgAsset}
-                      style={es.fitImage}
-                      resizeMode="contain"
+                      style={es.coverImage}
+                      resizeMode="cover"
                     />
                     <View style={es.blogPostCategoryBadge}>
                       <T bold style={{ fontSize: 10, color: colors.purple }}>
@@ -922,6 +922,7 @@ const es = StyleSheet.create({
   libraryRitualStrip: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFBF7', borderWidth: 1, borderColor: '#E7DAD1', borderRadius: 17, padding: 12 },
   libraryRitualIcon: { width: 34, height: 34, borderRadius: 14, backgroundColor: '#F1E7DE', alignItems: 'center', justifyContent: 'center' },
   fitImage: { width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center', alignSelf: 'center' },
+  coverImage: { width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', alignSelf: 'center' },
   // Featured Lead Story Hero (Full uncropped 16:9 photo + editorial white body)
   featuredHeroCard: { backgroundColor: '#FFFFFF', borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: '#ECE2EC', ...shadow },
   featuredHeroImgBox: { width: '100%', aspectRatio: 640 / 349, backgroundColor: '#F6F0F3', position: 'relative', overflow: 'hidden' },

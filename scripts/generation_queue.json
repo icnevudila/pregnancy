@@ -1313,13 +1313,13 @@
       "prompt": "High-end 3D claymorphic cute white baby harp seal pup lying on soft ice belly down, big shiny black eyes, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "processing",
+      "status": "done",
       "attempts": 1,
       "createdAt": 1789250674100,
       "startedAt": 1789287752580,
       "platform": "unknown",
-      "updatedAt": 1789285005335,
-      "thumb": "blob:https://gemini.google.com/acf3962a-72e0-44f3-8a36-16a351f6d25f"
+      "updatedAt": 1789288419834,
+      "thumb": "/assets/animal_seal.png"
     },
     {
       "id": "job_1789250674101_nzwg3",
@@ -1327,12 +1327,13 @@
       "prompt": "High-end 3D claymorphic adorable chubby brown bear cub sitting with paws out, teddy bear aesthetic, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674101,
-      "startedAt": 1789284343589,
-      "platform": "unknown",
-      "updatedAt": 1789285005335
+      "startedAt": 1789288415438,
+      "platform": "gemini",
+      "updatedAt": 1789288488474,
+      "thumb": "blob:https://gemini.google.com/5e147cba-0216-4040-b8ca-fcf23e9eaeda"
     },
     {
       "id": "job_1789250674101_c512j",
@@ -1340,13 +1341,13 @@
       "prompt": "High-end 3D claymorphic glossy milk chocolate bonbon with delicate golden caramel drizzle and hazelnut, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674101,
-      "startedAt": 1789284760587,
-      "platform": "unknown",
-      "updatedAt": 1789285005340,
-      "thumb": "blob:https://gemini.google.com/f24ec6f7-88ab-4327-b3a5-5e8938091cb5"
+      "startedAt": 1789288489106,
+      "platform": "gemini",
+      "updatedAt": 1789288703114,
+      "thumb": "blob:https://gemini.google.com/8c712317-ee4f-4722-86bb-cdb0c56f0e3b"
     },
     {
       "id": "job_1789250674101_bcjap",
@@ -1354,13 +1355,14 @@
       "prompt": "High-end 3D claymorphic translucent glossy blueberry candy drop with crystalline sugar shimmer, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674101,
-      "startedAt": 1789284860930,
-      "platform": "unknown",
-      "updatedAt": 1789285005340,
-      "error": "Capture timeout"
+      "startedAt": 1789288703139,
+      "platform": "gemini",
+      "updatedAt": 1789288756652,
+      "error": "Capture timeout",
+      "thumb": "blob:https://gemini.google.com/f3cbe8b0-ac44-424f-af96-a68abc6e2119"
     },
     {
       "id": "job_1789250674101_60vog",
@@ -1368,13 +1370,13 @@
       "prompt": "High-end 3D claymorphic golden butter caramel cube with warm translucent gloss and sea salt flake, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674101,
-      "startedAt": 1789284895899,
-      "platform": "unknown",
-      "updatedAt": 1789285005340,
-      "thumb": "blob:https://gemini.google.com/166f9af4-b2b2-45f6-94c4-4da087796f8f"
+      "startedAt": 1789288758417,
+      "platform": "gemini",
+      "updatedAt": 1789288883815,
+      "thumb": "blob:https://gemini.google.com/6e81b318-d79c-442a-b61a-a0b8ec23f072"
     },
     {
       "id": "job_1789250674101_y0epv",
@@ -1382,13 +1384,13 @@
       "prompt": "High-end 3D claymorphic delicate pastel Jordan sugared almond with smooth matte porcelain finish, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674101,
-      "startedAt": 1789284924583,
-      "platform": "unknown",
-      "updatedAt": 1789285005341,
-      "thumb": "blob:https://gemini.google.com/7b572487-bd9f-4190-be5f-7bd4fac41803"
+      "startedAt": 1789288883963,
+      "platform": "gemini",
+      "updatedAt": 1789288911365,
+      "thumb": "blob:https://gemini.google.com/a894fd44-e65b-4605-92ec-f1eacf082259"
     },
     {
       "id": "job_1789250674101_q9p78",
@@ -1396,13 +1398,13 @@
       "prompt": "High-end 3D claymorphic rosewater Turkish delight cube dusted with velvety powdered sugar and a pistachio piece, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674101,
-      "startedAt": 1789284958912,
-      "platform": "unknown",
-      "updatedAt": 1789285005341,
-      "thumb": "blob:https://gemini.google.com/4d9fc9c7-8afe-46a4-999f-8925c9227f5a"
+      "startedAt": 1789288912426,
+      "platform": "gemini",
+      "updatedAt": 1789288964386,
+      "thumb": "blob:https://gemini.google.com/0169543e-e3f1-43df-abde-c14758647ba4"
     },
     {
       "id": "job_1789250674101_w8xea",
@@ -1424,10 +1426,13 @@
       "prompt": "High-end 3D claymorphic golden fluffy pancake topped with melting butter pat and dripping amber honey, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674101,
-      "updatedAt": 1789285005344
+      "updatedAt": 1789288994603,
+      "startedAt": 1789288965489,
+      "platform": "gemini",
+      "thumb": "blob:https://gemini.google.com/abe191f1-9620-4f20-b520-7fe0cf61b4ec"
     },
     {
       "id": "job_1789250674101_9ubfn",
@@ -1435,10 +1440,12 @@
       "prompt": "High-end 3D claymorphic waffle cone holding a tall swirl of pastel strawberry and vanilla soft serve ice cream, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "processing",
+      "attempts": 1,
       "createdAt": 1789250674101,
-      "updatedAt": 1789285005354
+      "updatedAt": 1789285005354,
+      "startedAt": 1789288996439,
+      "platform": "gemini"
     },
     {
       "id": "job_1789250674101_overm",
