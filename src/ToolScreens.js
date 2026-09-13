@@ -18,6 +18,7 @@ import { saveKickSessionCloud, saveContractionSessionCloud } from './backendSync
 import { offlineSyncQueue } from './services/offlineSyncQueue';
 import { createTrackerEvent } from './domain/types';
 import { playSound, stopSound, playBreathCue } from './soundEngine';
+import { speakText, stopSpeech } from './speechService';
 
 // ─── 1. TEKME SAYACI (ADVANCED KICK COUNTER) ──────────────────────────────────
 export function KickCounter({ state, update, toast, lang = 'tr' }) {
@@ -28,22 +29,28 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
   const [selectedType, setSelectedType] = useState('kick'); // 'kick' | 'flutter' | 'roll' | 'hiccup'
   const [typeCounts, setTypeCounts] = useState({ kick: 0, flutter: 0, roll: 0, hiccup: 0 });
   const [lastKickTime, setLastKickTime] = useState(null);
+  const [showFeelingModal, setShowFeelingModal] = useState(false);
   const [completedSummary, setCompletedSummary] = useState(null);
-  const [showCelebration, setShowCelebration] = useState(false);
+  const [selectedFeeling, setSelectedFeeling] = useState('normal');
+  const [sessionNote, setSessionNote] = useState('');
 
   const pulse = usePulse(0.96, 1.04, 1200);
   const timerRef = useRef(null);
+  const startedAtRef = useRef(null);
   const buttonScale = useRef(new Animated.Value(1)).current;
   const ripple1Scale = useRef(new Animated.Value(1)).current;
   const ripple1Opacity = useRef(new Animated.Value(0)).current;
   const ripple2Scale = useRef(new Animated.Value(1)).current;
   const ripple2Opacity = useRef(new Animated.Value(0)).current;
-  const celebrationScale = useRef(new Animated.Value(0.3)).current;
-  const celebrationOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (sessionActive) {
-      timerRef.current = setInterval(() => setSeconds(s => s + 1), 1000);
+      if (!startedAtRef.current) startedAtRef.current = Date.now();
+      timerRef.current = setInterval(() => {
+        if (startedAtRef.current) {
+          setSeconds(Math.floor((Date.now() - startedAtRef.current) / 1000));
+        }
+      }, 500);
     } else {
       if (timerRef.current) clearInterval(timerRef.current);
     }
@@ -51,21 +58,30 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
   }, [sessionActive]);
 
   const movementTypes = [
-    { id: 'kick', label: isEn ? 'Clear Kick' : 'Net Tekme', tint: '#9A5B80' },
+    { id: 'kick', label: isEn ? 'Kick' : 'Tekme', tint: '#9A5B80' },
     { id: 'flutter', label: isEn ? 'Flutter' : 'Kıpırtı', tint: '#B8789C' },
-    { id: 'roll', label: isEn ? 'Roll & Turn' : 'Dönüş & Dalga', tint: '#5C749A' },
+    { id: 'roll', label: isEn ? 'Roll' : 'Dönüş', tint: '#5C749A' },
     { id: 'hiccup', label: isEn ? 'Hiccup' : 'Hıçkırık', tint: '#6B8E71' },
+  ];
+
+  const feelingOptions = [
+    { id: 'normal', label: isEn ? '🌸 Usual rhythm' : '🌸 Her zamanki gibi' },
+    { id: 'lighter', label: isEn ? '🍃 Lighter than usual' : '🍃 Daha hafif' },
+    { id: 'stronger', label: isEn ? '⚡ Stronger & active' : '⚡ Daha güçlü' },
+    { id: 'different', label: isEn ? '❓ Different pattern' : '❓ Farklı hissettirdi' },
   ];
 
   function handleKick() {
     if (!sessionActive) {
       setSessionActive(true);
+      startedAtRef.current = Date.now();
+      setSeconds(0);
     }
     const nextKicks = kicks + 1;
     setKicks(nextKicks);
     setLastKickTime(new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }));
 
-    // 1. Tactile Elastic Spring Bounce on the Central Foot Button
+    // Tactile elastic spring bounce
     buttonScale.setValue(0.91);
     Animated.spring(buttonScale, {
       toValue: 1,
@@ -74,19 +90,19 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
       useNativeDriver: false,
     }).start();
 
-    // 2. Dual Ripple Waves Radiating Outward
+    // Dual ripple waves radiating outward
     ripple1Scale.setValue(1);
     ripple1Opacity.setValue(0.7);
     ripple2Scale.setValue(1);
     ripple2Opacity.setValue(0.5);
 
     Animated.parallel([
-      Animated.timing(ripple1Scale, { toValue: 1.45, duration: 650, useNativeDriver: false }),
+      Animated.timing(ripple1Scale, { toValue: 1.5, duration: 650, useNativeDriver: false }),
       Animated.timing(ripple1Opacity, { toValue: 0, duration: 650, useNativeDriver: false }),
       Animated.sequence([
-        Animated.delay(100),
+        Animated.delay(90),
         Animated.parallel([
-          Animated.timing(ripple2Scale, { toValue: 1.65, duration: 700, useNativeDriver: false }),
+          Animated.timing(ripple2Scale, { toValue: 1.7, duration: 700, useNativeDriver: false }),
           Animated.timing(ripple2Opacity, { toValue: 0, duration: 700, useNativeDriver: false }),
         ]),
       ]),
@@ -96,40 +112,37 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
       ...prev,
       [selectedType]: (prev[selectedType] || 0) + 1,
     }));
-
-    if (nextKicks >= 10) {
-      // 3. Milestone Confetti / Sparkle Burst at 10 Kicks
-      setShowCelebration(true);
-      celebrationScale.setValue(0.4);
-      celebrationOpacity.setValue(1);
-      Animated.sequence([
-        Animated.spring(celebrationScale, { toValue: 1.1, friction: 4, tension: 50, useNativeDriver: false }),
-        Animated.delay(1200),
-        Animated.timing(celebrationOpacity, { toValue: 0, duration: 400, useNativeDriver: false }),
-      ]).start(() => setShowCelebration(false));
-
-      finishSession(nextKicks, seconds);
-    }
   }
 
-  function finishSession(finalKicks = kicks, finalSecs = seconds) {
+  function promptFinishSession() {
+    if (kicks === 0) {
+      setSessionActive(false);
+      startedAtRef.current = null;
+      setSeconds(0);
+      return;
+    }
+    setShowFeelingModal(true);
+  }
+
+  function confirmFinishSession() {
+    setShowFeelingModal(false);
     setSessionActive(false);
-    if (finalKicks === 0) return;
+    const finalSecs = startedAtRef.current
+      ? Math.max(1, Math.round((Date.now() - startedAtRef.current) / 1000))
+      : Math.max(1, seconds);
+    startedAtRef.current = null;
 
-    let activityRating = isEn ? 'Normal Rhythm' : 'Normal Ritim';
-    if (finalSecs <= 1200) activityRating = isEn ? 'Very Active & Lively' : 'Çok Aktif & Canlı';
-    else if (finalSecs <= 2700) activityRating = isEn ? 'Healthy Regular Rhythm' : 'Sağlıklı Düzenli Ritim';
-    else activityRating = isEn ? 'Calm & Gentle Session' : 'Sakin & Yavaş Seans';
-
+    const feelingLabel = feelingOptions.find(f => f.id === selectedFeeling)?.label || '';
     const newSession = {
       id: uid(),
       date: localDay(),
       time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
-      kicks: finalKicks,
+      kicks,
       durationSecs: finalSecs,
       week: state?.week || 28,
-      rating: activityRating,
-      breakdown: { ...typeCounts, [selectedType]: (typeCounts[selectedType] || 0) + 1 },
+      feeling: selectedFeeling,
+      note: sessionNote.trim(),
+      breakdown: { ...typeCounts },
     };
 
     update(old => ({
@@ -138,25 +151,28 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
 
     setCompletedSummary({
       duration: finalSecs,
-      kicks: finalKicks,
-      rating: activityRating,
+      kicks,
+      feelingLabel,
+      note: sessionNote.trim(),
     });
 
     saveKickSessionCloud({
       durationSeconds: finalSecs,
-      kickCount: finalKicks,
+      kickCount: kicks,
       week: state?.week || 28,
-      notes: `${isEn ? 'Grade: ' : 'Derece: '}${activityRating}`,
+      notes: `${feelingLabel} ${sessionNote ? '· ' + sessionNote : ''}`.trim(),
     }).catch(() => {});
 
-    toast && toast(isEn ? `🌸 10 movements completed in ${secondsLabel(finalSecs)}!` : `🌸 10 hareket ${secondsLabel(finalSecs)} içinde tamamlandı!`);
+    toast && toast(isEn ? `🌸 ${kicks} movements saved (${secondsLabel(finalSecs)})` : `🌸 ${kicks} hareket kaydedildi (${secondsLabel(finalSecs)})`);
     setKicks(0);
     setSeconds(0);
     setTypeCounts({ flutter: 0, kick: 0, roll: 0, hiccup: 0 });
+    setSessionNote('');
   }
 
   function resetSession() {
     setSessionActive(false);
+    startedAtRef.current = null;
     setKicks(0);
     setSeconds(0);
     setTypeCounts({ flutter: 0, kick: 0, roll: 0, hiccup: 0 });
@@ -164,30 +180,20 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
   }
 
   const pastSessions = state?.kickSessions || [];
-  const percent10 = Math.min(100, Math.round((kicks / 10) * 100));
 
   return (
     <View style={ts.container}>
       <ScreenHero
         asset="card_kick_counter"
         icon="footprint"
-        kicker={isEn ? 'FETAL MOVEMENT PATTERN' : 'FETAL HAREKET DÜZENİ'}
-        title={isEn ? "Count Baby's Rhythm" : "Bebeğinin Ritmini Say"}
-        body={isEn ? 'Build a calm daily movement routine and compare sessions over time when your baby is active.' : 'Bebeğinin aktif olduğu saatlerde sakin bir hareket rutini oluştur; seansları zaman içinde karşılaştır.'}
-        stat={pastSessions[0] ? (isEn ? `Latest: ${pastSessions[0].kicks} kicks (${secondsLabel(pastSessions[0].durationSecs || 0)})` : `Son: ${pastSessions[0].kicks} hareket (${secondsLabel(pastSessions[0].durationSecs || 0)})`) : (isEn ? 'First session ready' : 'İlk seans hazır')}
+        kicker={isEn ? 'FETAL MOVEMENT & RHYTHM' : 'BEBEĞİN HAREKETLERİ'}
+        title={isEn ? "Baby's Personal Rhythm" : "Bebeğinin Kişisel Ritmi"}
+        body={isEn ? "Tune in to your baby's unique daily rhythm. Every baby moves at their own pace — track sessions when active." : "Bebeğinizin kendine özgü ritmini gözlemleyin. Her bebeğin hareket düzeni farklıdır; aktif hissettiğiniz anlarda sakince sayın."}
+        stat={pastSessions[0] ? (isEn ? `Latest: ${pastSessions[0].kicks} movements (${secondsLabel(pastSessions[0].durationSecs || 0)})` : `Son: ${pastSessions[0].kicks} hareket (${secondsLabel(pastSessions[0].durationSecs || 0)})`) : (isEn ? 'Session ready' : 'Seans hazır')}
         tint="#9D5C80"
       />
 
-      <ToolExperienceCard
-        lang={lang}
-        title={isEn ? 'Count, finish, compare' : 'Say, bitir, karşılaştır'}
-        steps={isEn ? ['Start when baby is active.', 'Tap each movement without leaving the screen.', 'Save the session and compare recent rhythm.'] : ['Bebeğin aktifken seansı başlat.', 'Ekrandan çıkmadan her hareketi işle.', 'Seansı kaydet ve son ritimle karşılaştır.']}
-        outcome={isEn ? 'The output is a clean session history, not a loose note.' : 'Çıktı dağınık bir not değil, okunur seans geçmişi olur.'}
-        asset="card_kick_counter"
-        tint="#B84570"
-      />
-
-      {/* Seans Tamamlanma Başarı Kartı */}
+      {/* Seans Tamamlanma Özeti */}
       {completedSummary && (
         <Card style={ts.summaryBanner}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -195,20 +201,13 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
               <Icon name="check" size={20} color={colors.purple} />
             </View>
             <View style={{ flex: 1 }}>
-              <T bold style={{ fontSize: 15, color: colors.purple }}>{isEn ? 'Session Completed Successfully' : 'Seans Başarıyla Tamamlandı'}</T>
+              <T bold style={{ fontSize: 15, color: colors.purple }}>{isEn ? 'Movement Session Saved' : 'Hareket Seansı Kaydedildi'}</T>
               <T style={{ fontSize: 12, color: colors.ink, marginTop: 2 }}>
-                {isEn ? `10 movements recorded in ` : `10 hareket `}
+                <T bold>{completedSummary.kicks} {isEn ? 'movements' : 'hareket'}</T>
+                {isEn ? ` recorded in ` : ` seans süresi: `}
                 <T bold>{secondsLabel(completedSummary.duration)}</T>
-                {isEn ? `. (${completedSummary.rating})` : ` içinde kaydedildi. (${completedSummary.rating})`}
+                {completedSummary.feelingLabel ? ` · ${completedSummary.feelingLabel}` : ''}
               </T>
-              <Tap
-                onPress={() => {
-                  toast && toast(isEn ? '✓ Report ready to share with your doctor!' : '✓ Doktorla paylaşılacak seans notu hazırlandı!');
-                }}
-                style={{ marginTop: 8, alignSelf: 'flex-start', backgroundColor: '#F2E8F4', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}
-              >
-                <T bold style={{ fontSize: 11.5, color: colors.purple }}>{isEn ? '📋 Copy for Doctor' : '📋 Doktora İlet / Kopyala'}</T>
-              </Tap>
             </View>
             <Tap onPress={() => setCompletedSummary(null)} style={{ padding: 6 }}>
               <Icon name="close" size={16} color={colors.muted} />
@@ -223,21 +222,21 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
           title={isEn ? "SESSION DURATION" : "SEANS SÜRESİ"}
           value={secondsLabel(seconds)}
           unit=""
-          subtext={sessionActive ? (isEn ? "Timer active" : "Sayaç aktif") : (isEn ? "Session ready" : "Seans bekleniyor")}
+          subtext={sessionActive ? (isEn ? "Counting in progress" : "Sayım devam ediyor") : (isEn ? "Tap button to start" : "Başlamak için dokunun")}
           icon="time"
           tint="#9D5C80"
         />
         <MetricCard
-          title={isEn ? "LAST MOVEMENT" : "SON HAREKET"}
-          value={lastKickTime || '--:--'}
+          title={isEn ? "RECORDED MOVEMENTS" : "KAYDEDİLEN HAREKET"}
+          value={`${kicks}`}
           unit=""
-          subtext={lastKickTime ? (isEn ? "Rhythm detected" : "Ritmik algılandı") : (isEn ? "No kicks yet" : "Henüz vuruş yok")}
+          subtext={lastKickTime ? (isEn ? `Last: ${lastKickTime}` : `Son: ${lastKickTime}`) : (isEn ? "Waiting for kick" : "İlk hareket bekleniyor")}
           icon="footprint"
           tint="#6B8E71"
         />
       </View>
 
-      {/* Hareket Türü Seçicisi (Canlı Sayaçlı) */}
+      {/* Hareket Türü Seçicisi (Opsiyonel Detay) */}
       <View style={ts.typeSelectorRow}>
         {movementTypes.map(t => {
           const isSelected = selectedType === t.id;
@@ -256,136 +255,134 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
         })}
       </View>
 
-      {/* MERKEZİ DOKUNSAL 3D TEKME ALANI (PROGRESS RING İLE) */}
+      {/* BÜYÜK MERKEZİ BUTON: HAREKET HİSSETTİM (SPEC 03_BABY_MOVEMENT) */}
       <Card style={ts.kickInteractiveCard}>
-        <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 14, position: 'relative' }}>
-          {/* Organik Dalga Yayılım Halkaları (Tactile Ripples) */}
+        <View style={{ position: 'relative', width: 230, height: 230, alignItems: 'center', justifyContent: 'center' }}>
+          {/* Arka plan dalga halkaları */}
           <Animated.View
-            pointerEvents="none"
             style={[
-              ts.kickRippleRing,
+              ts.rippleCircle,
               {
                 transform: [{ scale: ripple1Scale }],
                 opacity: ripple1Opacity,
+                borderColor: '#9D5C80',
               },
             ]}
           />
           <Animated.View
-            pointerEvents="none"
             style={[
-              ts.kickRippleRing,
+              ts.rippleCircle,
               {
-                borderColor: '#E8A6C5',
                 transform: [{ scale: ripple2Scale }],
                 opacity: ripple2Opacity,
+                borderColor: '#B8789C',
               },
             ]}
           />
 
-          <ProgressRing
-            size={190}
-            strokeWidth={10}
-            progress={percent10}
-            color={colors.purple}
-            bgColor="#F2E6F2"
-          >
-            <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
-              <Tap
-                onPress={handleKick}
-                label={isEn ? "I felt a kick" : "Tekme hissettim"}
-                style={ts.kickCenterTap}
+          <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+            <Tap
+              onPress={handleKick}
+              label={isEn ? "I felt a movement" : "Hareket hissettim"}
+              style={ts.kickMainBtn}
+            >
+              <LinearGradient
+                colors={['#A85885', '#863C65']}
+                style={ts.kickGradient}
               >
-                <LinearGradient
-                  colors={sessionActive ? ['#FAF0F6', '#F3DFEE', '#E9CDE3'] : ['#FAF6F9', '#F0E6F0', '#E5D6E6']}
-                  style={ts.kickCenterGradient}
-                >
-                  {generatedAssets['card_kick_counter'] ? (
-                    <Image
-                      source={generatedAssets['card_kick_counter']}
-                      style={{ width: 76, height: 76 }}
-                      resizeMode="contain"
-                    />
-                  ) : (
-                    <Icon name="footprint" size={54} color={colors.purple} />
-                  )}
-                  <T bold style={ts.kickBigCount}>{kicks} / 10</T>
-                  <T style={ts.kickSubPrompt}>
-                    {sessionActive ? (isEn ? 'Tap on Kick' : 'Vuruşta Dokun') : (isEn ? 'Start Counting' : 'Saymaya Başla')}
-                  </T>
-                </LinearGradient>
-              </Tap>
-            </Animated.View>
-          </ProgressRing>
-
-          {/* 10. Vuruş Kutlama Kıvılcımları (Celebration Burst) */}
-          {showCelebration && (
-            <Animated.View
-              pointerEvents="none"
-              style={[
-                ts.celebrationBurst,
-                {
-                  transform: [{ scale: celebrationScale }],
-                  opacity: celebrationOpacity,
-                },
-              ]}
-            >
-              <T style={{ fontSize: 32 }}>🎉 ✨ 🌸 ✨ 🎉</T>
-              <T bold style={{ fontSize: 13, color: colors.purple, marginTop: 4 }}>
-                {isEn ? '10 Movements Reached!' : '10 Hareket Tamamlandı!'}
-              </T>
-            </Animated.View>
-          )}
-        </View>
-
-        {/* 10 Adımlı Nokta İlerlemesi */}
-        <View style={ts.dotGrid}>
-          {Array.from({ length: 10 }).map((_, i) => (
-            <View
-              key={i}
-              style={[
-                ts.dotItem,
-                i < kicks && ts.dotItemFilled,
-                i === kicks - 1 && ts.dotItemActive,
-              ]}
-            >
-              {i < kicks ? (
-                <Icon name="check" size={12} color="white" />
-              ) : (
-                <T style={ts.dotItemNum}>{i + 1}</T>
-              )}
-            </View>
-          ))}
+                <Icon name="footprint" size={38} color="white" />
+                <T bold style={ts.kickMainText}>
+                  {isEn ? "I FELT A MOVEMENT" : "HAREKET HİSSETTİM"}
+                </T>
+                <T style={ts.kickSubCount}>
+                  {kicks > 0 ? `${kicks} ${isEn ? 'movements' : 'hareket'}` : (isEn ? 'Tap each kick' : 'Her harekette dokun')}
+                </T>
+              </LinearGradient>
+            </Tap>
+          </Animated.View>
         </View>
 
         {/* Seans Kontrol Aksiyonları */}
         {sessionActive && (
-          <View style={ts.sessionActions}>
+          <View style={[ts.sessionActions, { marginTop: 18 }]}>
             <Tap onPress={() => setKicks(k => Math.max(0, k - 1))} style={ts.actionMiniBtn}>
               <T style={{ fontSize: 12, color: colors.ink }}>{isEn ? '↩ Undo 1' : '↩ 1 Geri Al'}</T>
             </Tap>
-            <Tap onPress={() => finishSession(kicks, seconds)} style={[ts.actionMiniBtn, { backgroundColor: '#F0E4F2' }]}>
+            <Tap onPress={promptFinishSession} style={[ts.actionMiniBtn, { backgroundColor: '#F0E4F2' }]}>
               <T bold style={{ fontSize: 12, color: colors.purple }}>{isEn ? '✓ Finish Session' : '✓ Seansı Bitir'}</T>
             </Tap>
             <Tap onPress={resetSession} style={ts.actionMiniBtn}>
-              <T style={{ fontSize: 12, color: '#B35E6D' }}>{isEn ? '✕ Reset' : '✕ Sıfırla'}</T>
+              <T style={{ fontSize: 12, color: '#B35E6D' }}>{isEn ? '✕ Cancel' : '✕ İptal'}</T>
             </Tap>
           </View>
         )}
       </Card>
 
-      {/* Hareket Takibi Rehber Kartı */}
+      {/* Post-Session Feeling Modal */}
+      <Modal visible={showFeelingModal} transparent animationType="fade" onRequestClose={() => setShowFeelingModal(false)}>
+        <View style={ts.modalBackdrop}>
+          <Card style={ts.modalCard}>
+            <T bold style={{ fontSize: 17, color: colors.ink }}>
+              {isEn ? 'How did movements feel today?' : 'Bugünkü hareketler nasıl hissettirdi?'}
+            </T>
+            <T style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>
+              {isEn ? `${kicks} movements in ${secondsLabel(seconds)}` : `${secondsLabel(seconds)} içinde ${kicks} hareket`}
+            </T>
+
+            <View style={{ gap: 8, marginVertical: 14 }}>
+              {feelingOptions.map(f => (
+                <Tap
+                  key={f.id}
+                  onPress={() => setSelectedFeeling(f.id)}
+                  style={[
+                    ts.feelingOption,
+                    selectedFeeling === f.id && ts.feelingOptionSelected,
+                  ]}
+                >
+                  <T bold={selectedFeeling === f.id} style={{ fontSize: 13, color: selectedFeeling === f.id ? colors.purple : colors.ink }}>
+                    {f.label}
+                  </T>
+                </Tap>
+              ))}
+            </View>
+
+            <TextInput
+              value={sessionNote}
+              onChangeText={setSessionNote}
+              placeholder={isEn ? 'Optional note (e.g. after lunch, lying on left side)...' : 'İsteğe bağlı not (örn. yemek sonrası, sol yana uzanırken)...'}
+              placeholderTextColor="#A396A6"
+              style={ts.noteInput}
+              maxLength={140}
+            />
+
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
+              <Tap onPress={() => setShowFeelingModal(false)} style={[ts.modalBtn, { backgroundColor: '#F0ECE8' }]}>
+                <T bold style={{ color: colors.ink, fontSize: 13 }}>{isEn ? 'Back' : 'Geri'}</T>
+              </Tap>
+              <Tap onPress={confirmFinishSession} style={[ts.modalBtn, { backgroundColor: colors.purple, flex: 1 }]}>
+                <T bold style={{ color: 'white', fontSize: 13 }}>{isEn ? 'Save Session' : 'Seansı Kaydet'}</T>
+              </Tap>
+            </View>
+          </Card>
+        </View>
+      </Modal>
+
+      {/* Statik Medikal Güvenlik Notu (Spec 03_BABY_MOVEMENT) */}
       <StatusCard
         level="info"
-        title={isEn ? "Movement Tracking Note" : "Hareket Takibi Notu"}
-        body={isEn ? "Counting in a calm moment helps you notice your baby’s rhythm. If movement feels unusual, follow your own care team’s guidance." : "Sakin bir anda saymak bebeğinin ritmini fark etmeyi kolaylaştırır. Hareket düzeni olağan dışı gelirse kendi bakım ekibinin yönlendirmesini izle."}
+        title={isEn ? "Personal Rhythm & Clinical Guidance" : "Kişisel Ritim & Klinik Bilgilendirme"}
+        body={isEn
+          ? "Every baby establishes their own movement rhythm. If you notice a clear decrease, sudden cessation, or significant change in your baby's typical pattern, contact your obstetrician, midwife, or maternity unit without waiting. MOMORA does not produce medical diagnoses."
+          : "Her bebeğin kendine özgü bir hareket ve uyku ritmi vardır. Bebeğinizin her zamanki hareket düzeninde belirgin bir azalma, hareketlerin durması veya ani bir farklılık hissederseniz beklemeden doktorunuza, ebenize veya hastaneye başvurun. MOMORA tıbbi tanı üretmez."
+        }
         icon="heart"
       />
 
       {/* Son Seans Kayıtları */}
-      <Section title={isEn ? "Recent Kick Sessions" : "Son Seans Kayıtları"} />
+      <Section title={isEn ? "Recent Movement Sessions" : "Son Hareket Seansları"} />
       {pastSessions.length === 0 ? (
         <Card style={{ alignItems: 'center', padding: 20 }}>
-          <T style={{ color: colors.muted, fontSize: 13 }}>{isEn ? "No kick sessions recorded yet." : "Henüz kaydedilmiş tekme seansı bulunmuyor."}</T>
+          <T style={{ color: colors.muted, fontSize: 13 }}>{isEn ? "No movement sessions recorded yet." : "Henüz kaydedilmiş hareket seansı bulunmuyor."}</T>
         </Card>
       ) : (
         pastSessions.slice(0, 5).map(s => (
@@ -394,15 +391,19 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <CleanIcon asset="card_kick_counter" size={34} imgSize={30} />
                 <View>
-                  <T bold style={{ fontSize: 14 }}>{s.kicks || 10} {isEn ? "Movements Completed" : "Hareket Tamamlandı"}</T>
+                  <T bold style={{ fontSize: 14 }}>{s.kicks} {isEn ? "Movements" : "Hareket"}</T>
                   <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                    {s.date} · {s.time} · {isEn ? `Week ${s.week}` : `${s.week}. Hafta`}
+                    {s.date} · {s.time} {s.note ? `· ${s.note}` : ''}
                   </T>
                 </View>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <T bold style={{ fontSize: 14, color: colors.purple }}>{secondsLabel(s.durationSecs || s.duration || 0)}</T>
-                <T style={{ fontSize: 10, color: '#4B7B56', marginTop: 2 }}>{s.rating || (isEn ? 'Normal Rhythm' : 'Normal Ritim')}</T>
+                {s.feeling && (
+                  <T style={{ fontSize: 10, color: colors.purple, marginTop: 2 }}>
+                    {feelingOptions.find(f => f.id === s.feeling)?.label.split(' ')[0] || ''}
+                  </T>
+                )}
               </View>
             </View>
           </Card>
@@ -412,16 +413,19 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
   );
 }
 
-// ─── 2. KASILMA SAYACI & 5-1-1 DOĞUM KONSOLU (CLINICAL LABOR CONTRACTION SUITE) ───
+// ─── 2. KASILMA SAYACI (ONE-TAP TIMER PER SPEC 01_CONTRACTION_COUNTER) ────────
 export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
   const [active, setActive] = useState(false);
   const [duration, setDuration] = useState(0);
-  const [intensity, setIntensity] = useState('Orta'); // 'Hafif' | 'Orta' | 'Şiddetli'
-  const [showPartnerTips, setShowPartnerTips] = useState(false);
-  const [showReportModal, setShowReportModal] = useState(false);
-  const [justSavedEntry, setJustSavedEntry] = useState(null);
+  const [intensity, setIntensity] = useState('Orta'); // 'Hafif' | 'Orta' | 'Güçlü'
+  const [position, setPosition] = useState('sitting'); // 'standing' | 'sitting' | 'side'
+  const [note, setNote] = useState('');
+  const [showDetailSheet, setShowDetailSheet] = useState(false);
+  const [lastSavedEntry, setLastSavedEntry] = useState(null);
   const [undoCountdown, setUndoCountdown] = useState(8);
+  const [showWaterNotice, setShowWaterNotice] = useState(false);
+
   const contractions = state?.contractionSessions || [];
   const timerRef = useRef(null);
   const startedAtRef = useRef(null);
@@ -451,14 +455,14 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
   }, [active]);
 
   useEffect(() => {
-    if (justSavedEntry) {
+    if (lastSavedEntry) {
       setUndoCountdown(8);
       if (undoTimerRef.current) clearInterval(undoTimerRef.current);
       undoTimerRef.current = setInterval(() => {
         setUndoCountdown(c => {
           if (c <= 1) {
             clearInterval(undoTimerRef.current);
-            setJustSavedEntry(null);
+            setLastSavedEntry(null);
             return 0;
           }
           return c - 1;
@@ -466,7 +470,7 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
       }, 1000);
     }
     return () => { if (undoTimerRef.current) clearInterval(undoTimerRef.current); };
-  }, [justSavedEntry]);
+  }, [lastSavedEntry]);
 
   useEffect(() => {
     if (active) {
@@ -483,59 +487,59 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
   }, [active]);
 
   const lastContraction = contractions[0];
-  const lastIntervalSecs = lastContraction?.intervalSecs;
+  const lastDuration = lastContraction?.durationSecs || lastContraction?.duration || 0;
+  
+  // Calculate time elapsed since last contraction ended
+  const [timeSinceLast, setTimeSinceLast] = useState('--');
+  useEffect(() => {
+    if (!lastContraction || !lastContraction.timestamp) return;
+    function updateElapsed() {
+      const diffSecs = Math.max(0, Math.round((Date.now() - lastContraction.timestamp) / 1000));
+      if (diffSecs < 60) setTimeSinceLast(isEn ? `${diffSecs}s ago` : `${diffSecs} sn önce`);
+      else {
+        const mins = Math.floor(diffSecs / 60);
+        setTimeSinceLast(isEn ? `${mins}m ago` : `${mins} dk önce`);
+      }
+    }
+    updateElapsed();
+    const interval = setInterval(updateElapsed, 5000);
+    return () => clearInterval(interval);
+  }, [lastContraction]);
 
-  // ─── 5-1-1 & 4-1-1 ACOG Tıbbi Hesaplama Algoritması ───
-  let isFiveOneOneActive = false;
-  let statusLevel = 'safe';
-  let statusTitle = isEn ? 'Early Labor / Braxton Hicks Phase' : 'Erken Evre / Yalancı Kasılma (Braxton Hicks)';
-  let statusBody = isEn
-    ? 'Contractions are irregular or mild. Rest on your left side, drink warm water, and observe wave patterns.'
-    : 'Kasılmalar henüz düzensiz veya hafif. Sol yanınıza uzanıp ılık su için, dalgaları sakince gözlemleyin.';
-
+  // Average statistics
   let avgDurationSecs = 0;
   let avgIntervalMins = 0;
-
-  if (contractions.length >= 3) {
+  if (contractions.length >= 2) {
     const recent = contractions.slice(0, 5);
-    avgDurationSecs = Math.round(recent.reduce((sum, c) => sum + (c.durationSecs || 0), 0) / recent.length);
+    avgDurationSecs = Math.round(recent.reduce((sum, c) => sum + (c.durationSecs || c.duration || 0), 0) / recent.length);
     const intervals = recent.map(c => c.intervalSecs).filter(Boolean);
-    const avgIntervalSecs = intervals.length ? Math.round(intervals.reduce((sum, i) => sum + i, 0) / intervals.length) : null;
-    avgIntervalMins = avgIntervalSecs ? (avgIntervalSecs / 60).toFixed(1) : 0;
-
-    if (avgIntervalSecs && avgIntervalSecs <= 300 && avgDurationSecs >= 50) {
-      isFiveOneOneActive = true;
-      statusLevel = 'alert';
-      statusTitle = isEn ? '🚨 5-1-1 RULE: ACTIVE LABOR IN PROGRESS!' : '🚨 5-1-1 KURALI: AKTİF DOĞUM EVRESİ BAŞLADI!';
-      statusBody = isEn
-        ? 'Contractions are coming every 5 minutes and lasting at least 1 minute. Call your obstetrician and head to the hospital!'
-        : 'Kasılmalarınız her 5 dakikada bir geliyor ve en az 1 dakika sürüyor. Lütfen hekiminizi veya doğum hastanenizi arayarak yola çıkın!';
-    } else if (avgIntervalSecs && avgIntervalSecs <= 480) {
-      statusLevel = 'warning';
-      statusTitle = isEn ? 'Labor Accelerating (Getting Closer)' : 'Kasılmalar Sıklaşıyor & Düzenli Faz';
-      statusBody = isEn
-        ? 'Wave intervals dropped under 8 minutes. Double check your hospital bag and inform your birth partner.'
-        : 'Kasılma aralıkları 8 dakikanın altına indi. Hastane çantanızı kontrol edin ve refakatçinizi yanınıza çağırın.';
+    if (intervals.length) {
+      const avgIntervalSecs = Math.round(intervals.reduce((sum, i) => sum + i, 0) / intervals.length);
+      avgIntervalMins = (avgIntervalSecs / 60).toFixed(1);
     }
   }
 
   function toggleContraction() {
     if (!active) {
+      // START CONTRACTION
       setActive(true);
       startedAtRef.current = Date.now();
       setDuration(0);
-      setJustSavedEntry(null);
+      setLastSavedEntry(null);
+      update({ activeContraction: { startedAt: startedAtRef.current } });
     } else {
+      // STOP CONTRACTION
       setActive(false);
       const now = new Date();
       const finalDuration = startedAtRef.current
         ? Math.max(1, Math.round((now.getTime() - startedAtRef.current) / 1000))
         : Math.max(1, duration);
       startedAtRef.current = null;
+      update({ activeContraction: null });
 
       let intervalSecs = null;
       if (lastContraction && lastContraction.timestamp) {
-        intervalSecs = Math.round((now.getTime() - lastContraction.timestamp) / 1000);
+        intervalSecs = Math.max(0, Math.round((now.getTime() - lastContraction.timestamp) / 1000));
       }
 
       const entry = {
@@ -543,6 +547,8 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
         durationSecs: finalDuration,
         intervalSecs,
         intensity,
+        position,
+        note: note.trim(),
         timestamp: now.getTime(),
         time: now.toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
         date: localDay(now),
@@ -552,93 +558,85 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
         contractionSessions: [entry, ...(old.contractionSessions || [])],
       }));
 
-      setJustSavedEntry(entry);
-
-      offlineSyncQueue.enqueue(createTrackerEvent({
-        type: 'contraction',
-        metadata: {
-          durationSecs: finalDuration,
-          intervalSecs,
-          intensity,
-          startedAt: new Date(now.getTime() - finalDuration * 1000).toISOString(),
-          statusAlert: isFiveOneOneActive ? '5-1-1 Rule Met' : 'Regular Monitoring',
-        },
-      })).catch(() => {});
-
+      setLastSavedEntry(entry);
       saveContractionSessionCloud({
         durationSeconds: finalDuration,
         intervalSeconds: intervalSecs,
         intensity,
-        statusAlert: isFiveOneOneActive ? (isEn ? '5-1-1 Rule Met' : '5-1-1 Kuralı Karşılandı') : (isEn ? 'Regular Monitoring' : 'Normal Takip'),
+        notes: note.trim(),
       }).catch(() => {});
 
-      toast && toast(isEn ? `Contraction saved (${finalDuration}s)` : `Sancı kaydedildi (${finalDuration} sn) ✨`);
+      toast && toast(isEn ? `Contraction saved (${finalDuration}s)` : `Kasılma kaydedildi (${finalDuration} sn)`);
       setDuration(0);
     }
   }
 
   function handleUndoContraction() {
-    if (!justSavedEntry) return;
-    const targetId = justSavedEntry.id;
+    if (!lastSavedEntry) return;
+    const targetId = lastSavedEntry.id;
     update(old => ({
       contractionSessions: (old.contractionSessions || []).filter(c => c.id !== targetId),
     }));
-    setJustSavedEntry(null);
+    setLastSavedEntry(null);
     if (undoTimerRef.current) clearInterval(undoTimerRef.current);
-    toast && toast(isEn ? 'Contraction log undone.' : 'Sancı kaydı geri alındı.');
+    toast && toast(isEn ? 'Contraction log undone.' : 'Kasılma kaydı geri alındı.');
   }
 
-  function generateDoctorReport() {
-    const dateStr = new Date().toLocaleDateString(isEn ? 'en-US' : 'tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-    const count = contractions.length;
-    const reportText = isEn
-      ? `🏥 MOMORA LABOR CONTRACTION REPORT\n📅 Date: ${dateStr}\n🔢 Recorded Contractions: ${count}\n⏳ Avg Duration: ${avgDurationSecs}s\n🔄 Avg Frequency: every ${avgIntervalMins} mins\n💥 Current Intensity: ${intensity}\n🩺 Clinical Triage: ${statusTitle}\n📝 Status: ${statusBody}`
-      : `🏥 MOMORA DOĞUM SANCISI RAPORU\n📅 Tarih: ${dateStr}\n🔢 Kaydedilen Kasılma: ${count} adet\n⏳ Ortalama Süre: ${avgDurationSecs} sn\n🔄 Ortalama Sıklık: ${avgIntervalMins} dakikada bir\n💥 Son Şiddet: ${intensity}\n🩺 Klinik Durum: ${statusTitle}\n📝 Not: ${statusBody}`;
+  function markWaterBroke() {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' });
+    const dateStr = localDay(now);
 
-    if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(reportText).then(() => {
-        toast && toast(isEn ? '📋 Doctor report copied to clipboard!' : '📋 Hekim bilgilendirme raporu kopyalandı!');
-      }).catch(() => {});
-    } else {
-      toast && toast(isEn ? 'Report generated.' : 'Rapor hazırlandı.');
-    }
+    const waterEntry = {
+      id: uid ? uid() : Date.now().toString(),
+      type: 'water_broken',
+      title: isEn ? '💧 Water Broke (Amniotic fluid)' : '💧 Su Geldi (Amniyotik sıvı)',
+      timestamp: now.getTime(),
+      time: timeStr,
+      date: dateStr,
+      note: isEn ? 'Water rupture marked' : 'Su gelişi işaretlendi',
+    };
+
+    update(old => ({
+      waterBrokeEvent: waterEntry,
+      notes: [{ id: uid(), text: `💧 ${waterEntry.title} - ${timeStr}` }, ...(old.notes || [])],
+    }));
+
+    setShowWaterNotice(true);
   }
 
   const intensityOptions = [
-    { id: 'Hafif', label: isEn ? 'Mild 🟡' : 'Hafif 🟡', color: '#E5A93C', desc: isEn ? 'Can talk through it' : 'Konuşabiliyor' },
-    { id: 'Orta', label: isEn ? 'Moderate 🟠' : 'Orta 🟠', color: '#D9733A', desc: isEn ? 'Needs to focus' : 'Nefese odaklanıyor' },
-    { id: 'Şiddetli', label: isEn ? 'Intense 🔴' : 'Şiddetli 🔴', color: '#C93B58', desc: isEn ? 'Cannot speak, peak wave' : 'Zirve sancı, masaj şart' },
+    { id: 'Hafif', label: isEn ? 'Mild 🟡' : 'Hafif 🟡' },
+    { id: 'Orta', label: isEn ? 'Moderate 🟠' : 'Orta 🟠' },
+    { id: 'Güçlü', label: isEn ? 'Strong 🔴' : 'Güçlü 🔴' },
+  ];
+
+  const positionOptions = [
+    { id: 'standing', label: isEn ? 'Standing' : 'Ayakta' },
+    { id: 'sitting', label: isEn ? 'Sitting' : 'Oturarak' },
+    { id: 'side', label: isEn ? 'Left Side' : 'Sol Yana Yatarak' },
   ];
 
   return (
     <View style={ts.container}>
       {/* 1. Üst Hero */}
       <ScreenHero
-        title={isEn ? "Contraction & Labor Console" : "Sancı & Doğum Konsolu"}
+        title={isEn ? "Contraction Timer" : "Kasılma Sayacı"}
         subtitle={isEn
-          ? "ACOG 5-1-1 protocol labor decision engine. Real-time frequency, duration & triage alert."
-          : "ACOG 5-1-1 klinik doğum motoru. Gerçek zamanlı aralık, süre takibi ve hastaneye gidiş uyarısı."}
-        badge={isEn ? "ACOG 5-1-1 ENGINE" : "5-1-1 PROTOKOLÜ"}
-        badgeColor={isFiveOneOneActive ? '#C93B58' : '#3A688F'}
+          ? "Low-cognitive load, one-tap labor timer. Track duration, intervals, and pattern calmly."
+          : "Doğum anında tek dokunuşla çalışan sade sayaç. Süreyi, sıklığı ve ritmi sakince takip edin."}
+        badge={isEn ? "LABOR TIMER" : "KASILMA TAKİBİ"}
+        badgeColor="#7A5688"
         icon="contraction"
         lang={lang}
       />
 
-      {/* 2. 5-1-1 Klinik Tıbbi Durum Bildirim Kartı */}
-      <StatusCard
-        level={statusLevel}
-        title={statusTitle}
-        body={statusBody}
-        action={isFiveOneOneActive ? (isEn ? "🚨 Call Maternity Hospital" : "🚨 Doğum Hastanesini / Doktoru Ara") : null}
-        onAction={() => toast && toast(isEn ? 'Routing emergency call...' : 'Hekim / Hastane araması başlatılıyor...')}
-      />
-
       {/* Anında Kayıt ve 8 sn Geri Al (Undo) */}
-      {justSavedEntry && (
+      {lastSavedEntry && (
         <Card style={{ backgroundColor: '#EEF7EE', borderColor: '#84B886', borderWidth: 1.5, padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flex: 1, gap: 2 }}>
             <T bold style={{ fontSize: 13.5, color: '#2D6632' }}>
-              {isEn ? '✓ Contraction Logged' : '✓ Sancı Kaydedildi'} · {secondsLabel(justSavedEntry.durationSecs)} ({justSavedEntry.intensity})
+              {isEn ? '✓ Contraction Logged' : '✓ Kasılma Kaydedildi'} · {secondsLabel(lastSavedEntry.durationSecs)} ({lastSavedEntry.intensity})
             </T>
             <T style={{ fontSize: 11, color: '#4E8855' }}>
               {isEn ? `Tap Undo to cancel (${undoCountdown}s)` : `Geri almak için dokun (${undoCountdown} sn)`}
@@ -650,236 +648,165 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
         </Card>
       )}
 
-      {/* 3. Dev Taktil Canlı Sancı Düğmesi (Contraction Wave Console) */}
-      <Card style={[ts.counterBox, active && { borderColor: '#D95370', backgroundColor: '#FDF2F4' }]}>
-        <View style={{ alignItems: 'center', marginVertical: 10 }}>
-          {/* Canlı Dalgamsı Halka */}
-          <View style={{ width: 170, height: 170, alignItems: 'center', justifyContent: 'center' }}>
-            {active && (
-              <Animated.View
-                style={[
-                  ts.activeWaveRing,
-                  {
-                    transform: [{ scale: rippleScale }],
-                    opacity: rippleOpacity,
-                  },
-                ]}
-              />
-            )}
-            <Tap
-              onPress={toggleContraction}
-              style={[
-                ts.giantWaveBtn,
-                { backgroundColor: active ? '#C93B58' : '#3A688F' },
-              ]}
-            >
-              <Animated.View style={{ transform: [{ scale: active ? waveAnim : 1 }], alignItems: 'center' }}>
-                <Icon name="contraction" size={36} color="white" />
-                <T bold style={{ fontSize: 14, color: 'white', marginTop: 4, letterSpacing: 0.5 }}>
-                  {active ? (isEn ? 'STOP & SAVE' : 'SANCI BİTTİ') : (isEn ? 'START WAVE' : 'SANCI BAŞLADI')}
-                </T>
-                <T style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
-                  {active ? (isEn ? 'Tap when peak passes' : 'Dalga bitince dokun') : (isEn ? 'Tap to track duration' : 'Tek dokunuşla kaydet')}
-                </T>
-              </Animated.View>
-            </Tap>
-          </View>
-
-          {/* Sayaç Metni */}
-          <View style={{ alignItems: 'center', marginTop: 14 }}>
-            <T style={ts.counterLabel}>
-              {active ? (isEn ? '〰️ ACTIVE CONTRACTION WAVE 〰️' : '〰️ AKTİF DOĞUM KASILMASI 〰️') : (isEn ? 'CONTRACTION TIMER' : 'SANCI KRONOMETRESİ')}
-            </T>
-            <T bold style={[ts.counterNumber, active && { color: '#C93B58' }]}>
-              {secondsLabel(duration)}
-            </T>
-            {lastIntervalSecs && !active && (
-              <T style={ts.counterSub}>
-                {isEn ? 'Since last contraction: ' : 'Son kasılmadan bu yana: '}
-                <T bold>{Math.round(lastIntervalSecs / 60)} {isEn ? 'min' : 'dk'} {lastIntervalSecs % 60} {isEn ? 'sec' : 'sn'}</T>
-              </T>
-            )}
-          </View>
-        </View>
-
-        {/* Canlı Şiddet Seçici Segmenti */}
-        <View style={{ borderTopWidth: 1, borderColor: active ? '#F5CCD6' : '#ECE4EE', paddingTop: 12, marginTop: 6 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <T bold style={{ fontSize: 12.5, color: colors.ink }}>{isEn ? 'Wave Intensity:' : 'Kasılma Şiddeti:'}</T>
-            <T style={{ fontSize: 11, color: colors.muted }}>
-              {intensityOptions.find(o => o.id === intensity)?.desc}
-            </T>
-          </View>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            {intensityOptions.map(lvl => (
-              <Tap
-                key={lvl.id}
-                onPress={() => setIntensity(lvl.id)}
-                style={[
-                  ts.intensityPill,
-                  intensity === lvl.id && { backgroundColor: lvl.color, borderColor: lvl.color },
-                ]}
-              >
-                <T
-                  bold={intensity === lvl.id}
-                  style={[ts.intensityText, intensity === lvl.id && { color: 'white' }]}
-                >
-                  {lvl.label}
-                </T>
-              </Tap>
-            ))}
-          </View>
-        </View>
-      </Card>
-
-      {/* 4. Canlı İkili Klinik Metrikler */}
+      {/* İkili Özet Metrikleri (IDLE / ACTIVE) */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <MetricCard
-          title={isEn ? "LAST CONTRACTION" : "SON KASILMA"}
-          value={lastContraction ? `${lastContraction.durationSecs || 0} ${isEn ? 's' : 'sn'}` : '--'}
+          title={isEn ? "LAST DURATION" : "SON SÜRE"}
+          value={lastDuration > 0 ? secondsLabel(lastDuration) : '--'}
           unit=""
-          subtext={lastContraction ? `${isEn ? 'Intensity: ' : 'Şiddet: '}${lastContraction.intensity}` : (isEn ? 'Waiting for wave' : 'Kayıt bekleniyor')}
+          subtext={timeSinceLast}
           icon="time"
-          tint="#C93B58"
+          tint="#844E86"
         />
         <MetricCard
-          title={isEn ? "WAVE INTERVAL" : "SANCI SIKLIĞI"}
-          value={lastIntervalSecs ? `${Math.round(lastIntervalSecs / 60)} ${isEn ? 'm' : 'dk'}` : '--'}
-          unit=""
-          subtext={lastIntervalSecs ? `${lastIntervalSecs % 60} ${isEn ? 'sec interval' : 'sn aralık'}` : (isEn ? 'First wave logged' : 'İlk sancı')}
-          icon="contraction"
+          title={isEn ? "AVERAGE INTERVAL" : "ORTALAMA ARALIK"}
+          value={avgIntervalMins > 0 ? `${avgIntervalMins}` : '--'}
+          unit={avgIntervalMins > 0 ? (isEn ? 'min' : 'dk') : ''}
+          subtext={avgDurationSecs > 0 ? (isEn ? `Avg: ${avgDurationSecs}s` : `Ort. süre: ${avgDurationSecs} sn`) : (isEn ? "Need 2+ records" : "2+ kayıt bekleniyor")}
+          icon="milestone"
           tint="#3A688F"
         />
       </View>
 
-      {/* 5. Görsel Kasılma Dalga Histogramı (Visual Wave Timeline) */}
-      {contractions.length > 0 && (
-        <Card style={{ padding: 14 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Icon name="soundwave" size={16} color={colors.purple} />
-              <T bold style={{ fontSize: 13.5, color: colors.ink }}>
-                {isEn ? 'Contraction Wave Intensity History' : 'Son Kasılma Dalgaları & Şiddet'}
-              </T>
+      {/* 2. BÜYÜK ONE-TAP KASILMA SAYACI BUTONU (SPEC 01_CONTRACTION_COUNTER) */}
+      <Card style={[cs.counterCard, active && { borderColor: '#B54964', borderWidth: 2 }]}>
+        {active ? (
+          <View style={{ alignItems: 'center' }}>
+            <T style={{ fontSize: 13, color: '#B54964', fontWeight: '700', letterSpacing: 1.5 }}>
+              {isEn ? '● CONTRACTION IN PROGRESS' : '● KASILMA SÜRÜYOR'}
+            </T>
+            <T bold style={{ fontSize: 64, color: '#912B44', marginVertical: 12 }}>
+              {secondsLabel(duration)}
+            </T>
+            <T style={{ fontSize: 12.5, color: colors.muted, marginBottom: 20 }}>
+              {isEn ? 'Breathe out slowly and soften your shoulders.' : 'Nefesini yavaşça ver, omuzlarını ve çeneni serbest bırak.'}
+            </T>
+
+            <View style={{ width: '100%', maxWidth: 280, gap: 12 }}>
+              <Tap
+                onPress={toggleContraction}
+                label={isEn ? "Contraction Ended" : "Kasılma Bitti"}
+                style={cs.stopBtn}
+              >
+                <T bold style={{ color: 'white', fontSize: 17 }}>
+                  {isEn ? "✓ Kasılma Bitti" : "✓ Kasılma Bitti"}
+                </T>
+              </Tap>
+
+              {/* Nefes Koçu Çağrısı (Contraction Timer'ı durdurmaz) */}
+              <Tap
+                onPress={() => update({ activeBreathingOverlay: true })}
+                style={cs.breathGuideBtn}
+              >
+                <T bold style={{ color: '#6A437E', fontSize: 13 }}>
+                  {isEn ? "🌬️ Open Breathing Guide" : "🌬️ Nefes Rehberini Aç"}
+                </T>
+              </Tap>
             </View>
-            <T style={{ fontSize: 11, color: colors.muted }}>
-              {isEn ? 'Last 6 waves' : 'Son 6 dalga'}
-            </T>
           </View>
-
-          {/* Histogram Çubukları */}
-          <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', height: 85, paddingHorizontal: 4 }}>
-            {contractions.slice(0, 6).reverse().map((c, idx) => {
-              const dur = c.durationSecs || 30;
-              const barHeight = Math.min(75, Math.max(22, (dur / 90) * 75));
-              const barColor = c.intensity === 'Şiddetli' ? '#C93B58' : c.intensity === 'Orta' ? '#D9733A' : '#E5A93C';
-              return (
-                <View key={c.id || idx} style={{ alignItems: 'center', flex: 1 }}>
-                  <T style={{ fontSize: 10, color: colors.muted, marginBottom: 2 }}>{dur}s</T>
-                  <View
-                    style={{
-                      width: 22,
-                      height: barHeight,
-                      backgroundColor: barColor,
-                      borderRadius: 6,
-                    }}
-                  />
-                  <T style={{ fontSize: 9.5, color: colors.ink, marginTop: 4, fontWeight: '600' }}>
-                    {c.time ? c.time.slice(0, 5) : `#${idx + 1}`}
-                  </T>
-                </View>
-              );
-            })}
-          </View>
-        </Card>
-      )}
-
-      {/* 6. Hekime & Ebeye Rapor Gönder Butonu */}
-      <Tap
-        onPress={generateDoctorReport}
-        style={{
-          backgroundColor: '#F5F1FA',
-          borderWidth: 1.5,
-          borderColor: '#D4C6E2',
-          paddingVertical: 12,
-          paddingHorizontal: 16,
-          borderRadius: 14,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 8,
-        }}
-      >
-        <Icon name="chat" size={17} color={colors.purple} />
-        <T bold style={{ fontSize: 13.5, color: colors.purple }}>
-          {isEn ? '📋 Copy Clinical Report for Doctor / Midwife' : '📋 Doktor / Ebe İçin Klinik Raporu Kopyala'}
-        </T>
-      </Tap>
-
-      {/* 7. Eş & Refakatçi Doğum Koçluğu Rehberi */}
-      <Card style={{ padding: 14 }}>
-        <Tap
-          onPress={() => setShowPartnerTips(!showPartnerTips)}
-          style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Icon name="heart" size={16} color={colors.purple} />
-            <T bold style={{ fontSize: 13.5, color: colors.purple }}>
-              {isEn ? 'Partner & Doula Coaching Guide' : 'Eş & Doğum Refakatçisi Koçluk Rehberi'}
-            </T>
-          </View>
-          <Icon name={showPartnerTips ? "chevron" : "down"} size={16} color={colors.muted} />
-        </Tap>
-        {showPartnerTips && (
-          <View style={{ marginTop: 10, gap: 8, borderTopWidth: 1, borderColor: '#F0E5F0', paddingTop: 10 }}>
-            <T style={{ fontSize: 12, color: colors.ink, lineHeight: 18 }}>
-              🌬️ <T bold>{isEn ? 'Breathing Rhythm:' : 'Nefes Ritmi:'}</T> {isEn ? 'Inhale deeply through your nose for 4 seconds as the contraction rises, then exhale gently through your mouth for 6 seconds.' : 'Kasılma dalgası yükselirken 4 saniye boyunca burundan derin nefes alın, 6 saniyede gevşeyerek ağızdan sakince üfleyin.'}
-            </T>
-            <T style={{ fontSize: 12, color: colors.ink, lineHeight: 18 }}>
-              💆 <T bold>{isEn ? 'Partner Massage:' : 'Sakrum Baskısı:'}</T> {isEn ? 'Applying steady circular palm pressure to the lower back (sacrum) noticeably relieves contraction discomfort.' : 'Kasılma sırasında belin alt kısmına (sakrum bölgesi) iki el ayasıyla karşı baskı uygulamak sancı algısını yarı yarıya hafifletir.'}
-            </T>
-            <T style={{ fontSize: 12, color: colors.ink, lineHeight: 18 }}>
-              💧 <T bold>{isEn ? 'Hydration & Calm:' : 'Sıvı Desteği:'}</T> {isEn ? 'Offer a small sip of water or ice chips between waves. Never let mother feel rushed.' : 'Dalga bittiğinde hemen bir yudum ılık su uzatın ve alnını nemli bezle serinletin.'}
-            </T>
+        ) : (
+          <View style={{ alignItems: 'center', paddingVertical: 10 }}>
+            <Animated.View
+              style={[
+                cs.pulseRing,
+                {
+                  transform: [{ scale: rippleScale }],
+                  opacity: rippleOpacity,
+                },
+              ]}
+            />
+            <Tap
+              onPress={toggleContraction}
+              label={isEn ? "Contraction Started" : "Kasılma Başladı"}
+              style={cs.startBtn}
+            >
+              <LinearGradient colors={['#964872', '#723154']} style={cs.btnGradient}>
+                <Icon name="contraction" size={36} color="white" />
+                <T bold style={{ color: 'white', fontSize: 18, marginTop: 6, letterSpacing: 0.5 }}>
+                  {isEn ? "KASILMA BAŞLADI" : "KASILMA BAŞLADI"}
+                </T>
+                <T style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, marginTop: 2 }}>
+                  {isEn ? "Tap when the wave begins" : "Dalga başladığında dokunun"}
+                </T>
+              </LinearGradient>
+            </Tap>
           </View>
         )}
       </Card>
 
-      {/* 8. Geçmiş Kasılmalar Listesi */}
-      <Section title={isEn ? "Recent Contraction Timeline" : "Son Kasılma Zaman Çizelgesi"} />
-      {contractions.length === 0 ? (
-        <Card style={{ alignItems: 'center', padding: 22 }}>
-          <T style={{ color: colors.muted, fontSize: 13 }}>
-            {isEn ? "No contractions logged yet. Tap the wave button when a contraction starts." : "Henüz kaydedilmiş kasılma bulunmuyor. Dalga başladığında butona dokunun."}
+      {/* Su Geldi Marker Butonu (Spec line 61: "su geldi" timestamp marker) */}
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        <Tap
+          onPress={markWaterBroke}
+          style={cs.waterBtn}
+          label={isEn ? "Mark water broken" : "Su geldi işaretle"}
+        >
+          <T bold style={{ fontSize: 13, color: '#2B5A84' }}>
+            {state.waterBrokeEvent
+              ? (isEn ? `💧 Water Broke: ${state.waterBrokeEvent.time}` : `💧 Su Geldi: ${state.waterBrokeEvent.time}`)
+              : (isEn ? '💧 Mark Water Broke' : '💧 Su Geldi İşaretle')}
           </T>
+        </Tap>
+      </View>
+
+      {/* Su Geldi Bilgi Modalı */}
+      <Modal visible={showWaterNotice} transparent animationType="fade" onRequestClose={() => setShowWaterNotice(false)}>
+        <View style={ts.modalBackdrop}>
+          <Card style={ts.modalCard}>
+            <T bold style={{ fontSize: 17, color: '#2B5A84' }}>
+              {isEn ? '💧 Water Rupture Recorded' : '💧 Su Gelişi Kaydedildi'}
+            </T>
+            <T style={{ fontSize: 13, color: colors.ink, marginTop: 8, lineHeight: 19 }}>
+              {isEn
+                ? 'The timestamp has been recorded. Inform your obstetrician or midwife about the time, fluid color (clear, pink, greenish), and your contraction pattern.'
+                : 'Zaman kaydedildi. Sıvının rengini (berrak, pembe, yeşilimsi), miktarını ve geliş saatini doktorunuza veya ebenize bildiriniz.'}
+            </T>
+            <Tap onPress={() => setShowWaterNotice(false)} style={[ts.modalBtn, { backgroundColor: '#2B5A84', marginTop: 16 }]}>
+              <T bold style={{ color: 'white', fontSize: 13 }}>{isEn ? 'Understood' : 'Anladım'}</T>
+            </Tap>
+          </Card>
+        </View>
+      </Modal>
+
+      {/* Statik Medikal Güvenlik Notu (Spec 01_CONTRACTION_COUNTER) */}
+      <StatusCard
+        level="info"
+        title={isEn ? "Labor Progression & Medical Notice" : "Doğum İlerlemesi & Bilgilendirme"}
+        body={isEn
+          ? "Contraction timer is for recording and personal awareness. It does not provide medical diagnoses or determine when active labor begins. Always follow the personalized guidelines provided by your doctor or midwife."
+          : "Kasılma sayacı kayıt ve kişisel takip amaçlıdır. Tıbbi teşhis koymaz veya doğum başlangıcı kararı vermez. Hastaneye gidiş anı ve süreç için daima hekiminizin veya ebenizin size özel verdiği talimatları uygulayın."}
+        icon="heart"
+      />
+
+      {/* Son Kasılma Geçmişi */}
+      <Section title={isEn ? "Recent Contraction Logs" : "Son Kasılma Kayıtları"} />
+      {contractions.length === 0 ? (
+        <Card style={{ alignItems: 'center', padding: 20 }}>
+          <T style={{ color: colors.muted, fontSize: 13 }}>{isEn ? "No contractions logged yet." : "Henüz kaydedilmiş kasılma bulunmuyor."}</T>
         </Card>
       ) : (
-        contractions.slice(0, 8).map(c => {
-          const isIntense = c.intensity === 'Şiddetli';
-          const isMod = c.intensity === 'Orta';
-          const dotColor = isIntense ? '#C93B58' : isMod ? '#D9733A' : '#E5A93C';
-          return (
-            <Card key={c.id} style={[ts.historyItem, { borderLeftWidth: 3.5, borderLeftColor: dotColor }]}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <CleanIcon asset="card_contractions" size={34} imgSize={28} />
-                  <View>
-                    <T bold style={{ fontSize: 14 }}>{isEn ? 'Duration: ' : 'Süre: '}{secondsLabel(c.durationSecs || 0)}</T>
-                    <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                      {c.date} · {c.time} · <T bold style={{ color: dotColor }}>{c.intensity || (isEn ? 'Moderate' : 'Orta')}</T>
-                    </T>
-                  </View>
-                </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <T bold style={{ fontSize: 13, color: '#3A688F' }}>
-                    {c.intervalSecs ? `${Math.round(c.intervalSecs / 60)} ${isEn ? 'min' : 'dk'} ${c.intervalSecs % 60} ${isEn ? 'sec' : 'sn'}` : (isEn ? 'First wave' : 'İlk sancı')}
+        contractions.slice(0, 5).map(c => (
+          <Card key={c.id} style={cs.logItem}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View>
+                <T bold style={{ fontSize: 15, color: colors.ink }}>
+                  {secondsLabel(c.durationSecs || c.duration || 0)}
+                  <T style={{ fontSize: 12, fontWeight: '400', color: colors.muted }}>
+                    {c.intensity ? ` · ${c.intensity}` : ''}
                   </T>
-                  <T style={{ fontSize: 9.5, color: colors.muted, marginTop: 1 }}>{isEn ? 'interval' : 'aralık'}</T>
-                </View>
+                </T>
+                <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                  {c.date} · {c.time}
+                </T>
               </View>
-            </Card>
-          );
-        })
+              <View style={{ alignItems: 'flex-end' }}>
+                <T bold style={{ fontSize: 13, color: '#3A688F' }}>
+                  {c.intervalSecs ? `${Math.round(c.intervalSecs / 60)} dk ${isEn ? 'apart' : 'aralık'}` : (isEn ? 'First record' : 'İlk kayıt')}
+                </T>
+              </View>
+            </View>
+          </Card>
+        ))
       )}
     </View>
   );
@@ -1094,91 +1021,65 @@ export function HospitalBag({ state, update, toast, lang = 'tr' }) {
   );
 }
 
-// ─── 4. DOĞUM NEFES REHBERİ (PREMIUM CLINICAL LABOR BREATHING STUDIO) ──────────
+// ─── 4. NEFES & GEVŞEME KOÇU (SPEC 02_BREATHING_COACH) ────────────────────────
 export function LaborBreathingGuide({ state, update, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
 
-  const techniques = [
+  // 4 Modes strictly per spec 02_BREATHING_COACH.md (No medical claims)
+  const modes = [
     {
-      id: '478',
-      title: isEn ? '4-7-8 Deep Vagus Reset' : '4-7-8 Sakinleştirici & Vagus Dinlenmesi',
-      shortTitle: '4·7·8 Vagus',
-      subtitle: isEn ? 'Parasympathetic recovery between contractions' : 'Sancılar arası parasempatik toparlanma',
-      inhale: 4, hold: 7, exhale: 8, hold2: 0,
+      id: 'calm',
+      title: isEn ? 'Calm Breath' : 'Sakin Nefes',
+      shortTitle: isEn ? 'Calm' : 'Sakin',
+      subtitle: isEn ? 'Slow natural grounding rhythm' : 'Doğal topraklanma ve sakinlik',
+      inhale: 4, hold: 0, exhale: 5, hold2: 0,
       color: '#4A7C9D', bg: '#F0F5FA', ring: '#C5DBEC',
-      desc: isEn
-        ? 'Inhale 4s → hold 7s → exhale 8s. Activates the vagal nerve to rapidly drop heart rate and cortisol between contraction waves.'
-        : '4 sn burundan al → 7 sn tut → 8 sn yavaşça ver. Vagus sinirini aktive ederek sancı aralarında nabzı ve stres hormonlarını hızla düşürür.',
-      benefits: isEn ? 'Lowers blood pressure & restores maternal calm' : 'Tansiyonu dengeler ve doğum yorgunluğunu siler',
+      desc: isEn ? 'Breathe in for 4s, breathe out gently for 5s.' : '4 saniye sakince al, 5 saniye yumuşakça ver.',
     },
     {
-      id: 'lamaze',
-      title: isEn ? 'Lamaze Active Wave' : 'Lamaze Zirve Sancı Dalgası',
-      shortTitle: 'Lamaze Dalga',
-      subtitle: isEn ? 'Controlled breathing during peak contractions' : 'Zirve kasılmalarda kontrollü oksijen',
+      id: 'labor',
+      title: isEn ? 'During Contraction' : 'Kasılma Sırasında',
+      shortTitle: isEn ? 'Contraction' : 'Kasılma',
+      subtitle: isEn ? 'Steady wave breath during tension' : 'Dalga anında kesintisiz yumuşak nefes',
       inhale: 4, hold: 0, exhale: 6, hold2: 0,
       color: '#B25068', bg: '#FDF1F4', ring: '#F0CAD4',
-      desc: isEn
-        ? 'Steady inhale (4s) → slow soft mouth exhale (6s). Keeps oxygen flooding to the baby without hyperventilating during peak uterine contractions.'
-        : 'Sabit 4 sn al → yumuşak 6 sn ver. Sancının en yüksek anında hızlı solumayı önler, bebeğe kesintisiz bol oksijen akışı sağlar.',
-      benefits: isEn ? 'Prevents panic & maximizes fetal oxygenation' : 'Panik hissini önler ve bebeğe oksijen taşır',
+      desc: isEn ? 'Inhale through nose for 4s, slow soft mouth release for 6s.' : 'Burundan 4 saniye al, dudakları aralayarak 6 saniye yavaşça ver.',
     },
     {
-      id: 'candle',
-      title: isEn ? 'Golden Thread & Softening' : 'Altın İplik & Doğum Açılma Nefesi',
-      shortTitle: 'Altın İplik',
-      subtitle: isEn ? 'Pelvic floor & cervical opening breath' : 'Pelvik taban & rahim ağzı gevşetme',
-      inhale: 4, hold: 0, exhale: 8, hold2: 0,
+      id: 'relax',
+      title: isEn ? 'Deep Relaxation' : 'Gevşeme',
+      shortTitle: isEn ? 'Relax' : 'Gevşeme',
+      subtitle: isEn ? 'Full body softening and release' : 'Tüm bedeni ve pelvik tabanı bırakış',
+      inhale: 4, hold: 2, exhale: 6, hold2: 0,
       color: '#7E4E8A', bg: '#F9F1FB', ring: '#E3C9E8',
-      desc: isEn
-        ? 'Inhale through nose 4s → blow out gently through parted lips for 8s like flickering a candle without blowing it out. Releases the perineum.'
-        : 'Burundan 4 sn al → dudakları aralayarak mum alevini söndürmeden hafifçe dalgalandırır gibi 8 sn üfle. Perine ve pelvik kasları açar.',
-      benefits: isEn ? 'Relaxes pelvic muscles & aids gentle baby descent' : 'Pelvik tabanı yumuşatarak bebeğin inişini kolaylaştırır',
+      desc: isEn ? 'Inhale 4s, hold gently for 2s, exhale completely for 6s.' : '4 saniye al, 2 saniye sakin kal, 6 saniye boyunca tamamen bırak.',
     },
     {
-      id: 'box',
-      title: isEn ? 'Box Breathing (Adrenaline Reset)' : 'Kutu Nefesi (Adrenalin Sıfırlama)',
-      shortTitle: 'Kutu Nefesi',
-      subtitle: isEn ? '4 equal sides for intense anxiety reset' : 'Doğum heyecanı ve stres yönetimi',
-      inhale: 4, hold: 4, exhale: 4, hold2: 4,
+      id: 'sleep',
+      title: isEn ? 'Pre-Sleep & Rest' : 'Uyku Öncesi',
+      shortTitle: isEn ? 'Pre-Sleep' : 'Uyku Öncesi',
+      subtitle: isEn ? 'Quiet mind and peaceful transition' : 'Zihni yatıştırma ve dinlendirici uyku',
+      inhale: 4, hold: 0, exhale: 7, hold2: 0,
       color: '#3B7E58', bg: '#EEF6F1', ring: '#BDE2CB',
-      desc: isEn
-        ? 'Inhale 4s → hold 4s → exhale 4s → hold 4s. Clinically proven square breathing technique used in hospital birth suites to halt adrenaline surges.'
-        : 'Al 4 sn → tut 4 sn → ver 4 sn → tut 4 sn. Doğumhanelerde aşırı heyecan ve adrenalini sıfırlamak için kullanılan 4 eşit kenarlı klinik nefes.',
-      benefits: isEn ? 'Steadies autonomic nervous system' : 'Otonom sinir sistemini merkezler',
+      desc: isEn ? 'Inhale 4s, elongated calm exhale for 7s.' : '4 saniye hafifçe al, 7 saniye uzun ve dingin nefes ver.',
     },
   ];
 
-  const [selectedTech, setSelectedTech] = useState('478');
-  const [phase, setPhase] = useState('idle'); // 'idle' | 'inhale' | 'hold' | 'exhale' | 'hold2'
+  const [selectedModeId, setSelectedModeId] = useState('calm');
+  const [phase, setPhase] = useState('idle'); // 'idle' | 'inhale' | 'hold' | 'exhale'
   const [countdown, setCountdown] = useState(0);
   const [cycles, setCycles] = useState(0);
-  const [targetCycles, setTargetCycles] = useState(8); // 4, 8, 12, 0 (infinite)
   const [running, setRunning] = useState(false);
   const [totalSecs, setTotalSecs] = useState(0);
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [ambientSound, setAmbientSound] = useState('none'); // 'none' | 'waves' | 'rain' | 'fetalHeartbeat'
+  const [guidanceType, setGuidanceType] = useState('visual'); // 'visual' | 'voice' | 'haptic'
 
   const circleScale = useRef(new Animated.Value(1)).current;
-  const haloScale = useRef(new Animated.Value(1)).current;
-  const ringScale = useRef(new Animated.Value(1)).current;
-  const circleOpacity = useRef(new Animated.Value(0.45)).current;
+  const circleOpacity = useRef(new Animated.Value(0.5)).current;
   const cycleRef = useRef(null);
   const timerRef = useRef(null);
   const isRunning = useRef(false);
-  const selectedRef = useRef('478');
-  const soundEnabledRef = useRef(true);
 
-  const tech = techniques.find(t => t.id === selectedTech) || techniques[0];
-  const sessions = state?.breathingSessions || [];
-
-  useEffect(() => {
-    selectedRef.current = selectedTech;
-  }, [selectedTech]);
-
-  useEffect(() => {
-    soundEnabledRef.current = soundEnabled;
-  }, [soundEnabled]);
+  const activeMode = modes.find(m => m.id === selectedModeId) || modes[0];
 
   useEffect(() => {
     if (running) {
@@ -1193,558 +1094,367 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr' }) {
     return () => {
       if (cycleRef.current) clearInterval(cycleRef.current);
       if (timerRef.current) clearInterval(timerRef.current);
-      stopSound();
+      stopSpeech();
     };
   }, []);
 
-  function handleAmbientToggle(soundKey) {
-    if (ambientSound === soundKey) {
-      setAmbientSound('none');
-      stopSound();
-    } else {
-      setAmbientSound(soundKey);
-      playSound(soundKey, { volume: 0.35 });
-    }
-  }
-
-  function animatePhase(toScale, toOpacity, dur) {
-    return new Promise(resolve => {
-      Animated.parallel([
-        Animated.timing(circleScale, { toValue: toScale, duration: dur * 1000, useNativeDriver: false }),
-        Animated.timing(haloScale, { toValue: toScale * 1.32, duration: dur * 1000, useNativeDriver: false }),
-        Animated.timing(ringScale, { toValue: toScale * 1.15, duration: dur * 1000, useNativeDriver: false }),
-        Animated.timing(circleOpacity, { toValue: toOpacity, duration: dur * 1000, useNativeDriver: false }),
-      ]).start(({ finished }) => { if (finished) resolve(); });
-    });
-  }
-
-  function countdownPhase(dur, phaseName, resolve) {
-    if (!isRunning.current) { resolve(); return; }
-    setPhase(phaseName);
-    setCountdown(dur);
-
-    if (soundEnabledRef.current && (phaseName === 'inhale' || phaseName === 'hold' || phaseName === 'exhale')) {
-      playBreathCue(phaseName);
-    }
-
-    let remaining = dur;
-    const interval = setInterval(() => {
-      remaining -= 1;
-      setCountdown(remaining);
-      if (remaining <= 0 || !isRunning.current) {
-        clearInterval(interval);
-        resolve();
-      }
-    }, 1000);
-    cycleRef.current = interval;
-  }
-
-  async function runCycle() {
-    const t = techniques.find(x => x.id === selectedRef.current) || techniques[0];
-    if (!isRunning.current) return;
-
-    // 1. NEFES AL (INHALE)
-    await Promise.all([
-      animatePhase(1.36, 0.92, t.inhale),
-      new Promise(r => countdownPhase(t.inhale, 'inhale', r)),
-    ]);
-    if (!isRunning.current) return;
-
-    // 2. TUT (HOLD)
-    if (t.hold > 0) {
-      await Promise.all([
-        animatePhase(1.38, 0.88, t.hold),
-        new Promise(r => countdownPhase(t.hold, 'hold', r)),
-      ]);
-      if (!isRunning.current) return;
-    }
-
-    // 3. NEFES VER (EXHALE)
-    await Promise.all([
-      animatePhase(1.0, 0.45, t.exhale),
-      new Promise(r => countdownPhase(t.exhale, 'exhale', r)),
-    ]);
-    if (!isRunning.current) return;
-
-    // 4. İKİNCİ TUTMA (BOX BREATHING HOLD 2)
-    if (t.hold2 > 0) {
-      await Promise.all([
-        animatePhase(0.96, 0.40, t.hold2),
-        new Promise(r => countdownPhase(t.hold2, 'hold2', r)),
-      ]);
-      if (!isRunning.current) return;
-    }
-
-    setCycles(c => {
-      const nextC = c + 1;
-      if (targetCycles > 0 && nextC >= targetCycles) {
-        setTimeout(() => stopSession(), 300);
-      }
-      return nextC;
-    });
-
-    if (isRunning.current) {
-      runCycle();
-    }
-  }
-
-  function startSession() {
-    isRunning.current = true;
+  function startBreathing() {
     setRunning(true);
+    isRunning.current = true;
     setCycles(0);
     setTotalSecs(0);
-    setPhase('inhale');
-    circleScale.setValue(1);
-    haloScale.setValue(1);
-    ringScale.setValue(1);
-    circleOpacity.setValue(0.45);
-    runCycle();
+    runPhase('inhale', activeMode.inhale);
   }
 
-  function stopSession() {
-    isRunning.current = false;
+  function stopBreathing() {
     setRunning(false);
+    isRunning.current = false;
     setPhase('idle');
     setCountdown(0);
     if (cycleRef.current) clearInterval(cycleRef.current);
+    stopSpeech();
     Animated.parallel([
-      Animated.timing(circleScale, { toValue: 1, duration: 600, useNativeDriver: false }),
-      Animated.timing(haloScale, { toValue: 1, duration: 600, useNativeDriver: false }),
-      Animated.timing(ringScale, { toValue: 1, duration: 600, useNativeDriver: false }),
-      Animated.timing(circleOpacity, { toValue: 0.45, duration: 600, useNativeDriver: false }),
+      Animated.timing(circleScale, { toValue: 1, duration: 500, useNativeDriver: false }),
+      Animated.timing(circleOpacity, { toValue: 0.5, duration: 500, useNativeDriver: false }),
     ]).start();
 
     if (cycles > 0) {
-      const entry = {
-        id: uid ? uid() : Date.now().toString(),
-        technique: selectedTech,
-        cycles,
-        durationSecs: totalSecs,
-        date: new Date().toLocaleDateString(isEn ? 'en-US' : 'tr-TR', { day: 'numeric', month: 'short' }),
-      };
-      update(old => ({ breathingSessions: [entry, ...(old.breathingSessions || [])].slice(0, 20) }));
-      offlineSyncQueue.enqueue(createTrackerEvent({
-        type: 'postpartum_checkin',
-        metadata: { breathing: selectedTech, cycles, durationSecs: totalSecs },
-      })).catch(() => {});
-      toast && toast(isEn ? `Breathing session saved — ${cycles} cycles` : `Nefes seansı kaydedildi — ${cycles} döngü ✨`);
+      toast && toast(isEn ? `Completed ${cycles} breathing cycles (${secondsLabel(totalSecs)})` : `${cycles} nefes döngüsü tamamlandı (${secondsLabel(totalSecs)})`);
     }
   }
 
-  const phaseDetails = {
-    idle: {
-      title: isEn ? 'Ready to Begin' : 'Başlamaya Hazır',
-      cue: isEn ? 'Settle comfortably and drop your shoulders.' : 'Rahat bir pozisyona geçin ve omuzlarınızı serbest bırakın.',
-      icon: '🌬️',
-    },
-    inhale: {
-      title: isEn ? 'Breathe In Deeply' : 'Derin Nefes Al',
-      cue: isEn ? 'Fill belly through nose, expanding ribs...' : 'Burundan al, karnını ve kaburgalarını genişlet...',
-      icon: '🌸',
-    },
-    hold: {
-      title: isEn ? 'Hold & Soften' : 'Sakin Kal & Tut',
-      cue: isEn ? 'Keep chest still, unclamp your jaw...' : 'Göğsünü kasmadan kal, çeneni ve dilini gevşet...',
-      icon: '✨',
-    },
-    exhale: {
-      title: isEn ? 'Breathe Out Gently' : 'Yavaşça Nefesi Bırak',
-      cue: isEn ? 'Slowly release like flickering a candle...' : 'Dudaklarını aralayarak mum alevini titretir gibi üfle...',
-      icon: '🍃',
-    },
-    hold2: {
-      title: isEn ? 'Rest in Stillness' : 'Huzurla Dinlen',
-      cue: isEn ? 'Pause in peaceful silence before next breath...' : 'Yeni nefes dalgasından önce dingince durakla...',
-      icon: '🌿',
-    },
-  };
+  function runPhase(targetPhase, secondsRemaining) {
+    if (!isRunning.current) return;
+    setPhase(targetPhase);
+    setCountdown(secondsRemaining);
 
-  const currentPhaseInfo = phaseDetails[phase] || phaseDetails.idle;
+    // Voice cue
+    if (guidanceType === 'voice') {
+      if (targetPhase === 'inhale') speakText(isEn ? 'Breathe in' : 'Nefes al');
+      else if (targetPhase === 'hold') speakText(isEn ? 'Hold' : 'Tut');
+      else if (targetPhase === 'exhale') speakText(isEn ? 'Breathe out' : 'Yavaşça ver');
+    }
+
+    // Organic scale animation: grows on inhale, softens on exhale
+    if (targetPhase === 'inhale') {
+      Animated.parallel([
+        Animated.timing(circleScale, { toValue: 1.45, duration: secondsRemaining * 1000, useNativeDriver: false }),
+        Animated.timing(circleOpacity, { toValue: 0.85, duration: secondsRemaining * 1000, useNativeDriver: false }),
+      ]).start();
+    } else if (targetPhase === 'exhale') {
+      Animated.parallel([
+        Animated.timing(circleScale, { toValue: 1.0, duration: secondsRemaining * 1000, useNativeDriver: false }),
+        Animated.timing(circleOpacity, { toValue: 0.45, duration: secondsRemaining * 1000, useNativeDriver: false }),
+      ]).start();
+    }
+
+    let left = secondsRemaining;
+    if (cycleRef.current) clearInterval(cycleRef.current);
+    cycleRef.current = setInterval(() => {
+      left--;
+      setCountdown(left);
+      if (left <= 0) {
+        clearInterval(cycleRef.current);
+        goToNextPhase(targetPhase);
+      }
+    }, 1000);
+  }
+
+  function goToNextPhase(currentPhase) {
+    if (!isRunning.current) return;
+    if (currentPhase === 'inhale') {
+      if (activeMode.hold > 0) runPhase('hold', activeMode.hold);
+      else runPhase('exhale', activeMode.exhale);
+    } else if (currentPhase === 'hold') {
+      runPhase('exhale', activeMode.exhale);
+    } else if (currentPhase === 'exhale') {
+      setCycles(c => c + 1);
+      runPhase('inhale', activeMode.inhale);
+    }
+  }
+
+  // Check if contraction is running in parallel (spec 02_BREATHING_COACH)
+  const isContractionRunning = !!state?.activeContraction;
 
   return (
     <View style={ts.container}>
+      {/* Kasılma Entegrasyon Bandı (Nefes koçu contraction session'ı durdurmaz) */}
+      {isContractionRunning && (
+        <Card style={{ backgroundColor: '#FCEDF0', borderColor: '#B54964', borderWidth: 1.5, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#B54964' }} />
+            <T bold style={{ fontSize: 13, color: '#B54964' }}>
+              {isEn ? 'Contraction in progress' : 'Kasılma sürüyor'}
+            </T>
+          </View>
+          <T style={{ fontSize: 12, color: '#912B44' }}>
+            {isEn ? 'Breathe with each wave' : 'Dalga bitene kadar nefese odaklan'}
+          </T>
+        </Card>
+      )}
+
       {/* 1. Üst Hero */}
       <ScreenHero
-        title={isEn ? "Clinical Labor & Calm Studio" : "Klinik Doğum & Nefes Stüdyosu"}
+        title={isEn ? "Breathing & Relaxation Coach" : "Nefes & Gevşeme Koçu"}
         subtitle={isEn
-          ? "Harmonic rhythm breathwork to manage labor waves, lower cortisol & calm the nervous system."
-          : "Doğum dalgalarını yönetmek, kortizolü düşürmek ve parasempatik sistemi aktive etmek için klinik nefes rehberi."}
-        badge={isEn ? "HOSPITAL GRADE" : "KLİNİK REHBER"}
-        badgeColor={tech.color}
+          ? "Organic, calm visual guide for labor waves and daily ease. No pressure, no scores."
+          : "Doğum dalgaları ve günlük rahatlama için sakin görsel rehber. Skor veya başarı yüzdesi yok; sadece anın ritmi."}
+        badge={isEn ? "BREATH COACH" : "NEFES KOÇU"}
+        badgeColor={activeMode.color}
         icon="leaf"
         lang={lang}
       />
 
-      {/* 2. Klinik Teknik Kartı ve Seçici */}
-      <View style={[bs.heroBox, { backgroundColor: tech.bg, borderColor: tech.ring, borderWidth: 1.5 }]}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <View style={{ flex: 1, paddingRight: 10 }}>
-            <T style={[bs.heroKicker, { color: tech.color }]}>{tech.shortTitle.toUpperCase()}</T>
-            <T bold style={bs.heroTitle}>{tech.title}</T>
-            <T style={bs.heroSub}>{tech.subtitle}</T>
-          </View>
-          <View style={[bs.benefitChip, { backgroundColor: 'white', borderColor: tech.ring }]}>
-            <T style={{ fontSize: 18 }}>🩺</T>
-            <T bold style={{ fontSize: 10, color: tech.color, marginTop: 2, textAlign: 'center' }}>
-              {isEn ? 'ACOG' : 'Tıbbi'}
+      {/* 2. Mod Seçici */}
+      <View style={bs.modeSelectorRow}>
+        {modes.map(m => (
+          <Tap
+            key={m.id}
+            onPress={() => {
+              if (!running) setSelectedModeId(m.id);
+            }}
+            style={[
+              bs.modePill,
+              selectedModeId === m.id && { backgroundColor: m.color, borderColor: m.color },
+            ]}
+          >
+            <T bold={selectedModeId === m.id} style={[bs.modePillText, selectedModeId === m.id && { color: 'white' }]}>
+              {m.shortTitle}
             </T>
-          </View>
-        </View>
-
-        {/* Teknik Seçim Hapları (Pills) */}
-        <View style={[bs.techRow, { marginTop: 12 }]}>
-          {techniques.map(t => (
-            <Tap
-              key={t.id}
-              onPress={() => {
-                if (!running) {
-                  setSelectedTech(t.id);
-                  setPhase('idle');
-                }
-              }}
-              style={[
-                bs.techPill,
-                selectedTech === t.id && { backgroundColor: t.color, borderColor: t.color },
-              ]}
-            >
-              <T
-                bold={selectedTech === t.id}
-                style={[bs.techPillText, selectedTech === t.id && { color: 'white' }]}
-              >
-                {t.shortTitle}
-              </T>
-            </Tap>
-          ))}
-        </View>
-
-        {/* Seçilen Teknik Detayı */}
-        <View style={[bs.descCard, { backgroundColor: 'white', borderColor: tech.ring, marginTop: 12 }]}>
-          <T style={[bs.descText, { color: colors.ink }]}>{tech.desc}</T>
-          
-          <View style={bs.timingRow}>
-            <View style={bs.timingChip}>
-              <T bold style={[bs.timingNum, { color: tech.color }]}>{tech.inhale}s</T>
-              <T style={bs.timingLabel}>{isEn ? 'Inhale' : 'Al'}</T>
-            </View>
-            {tech.hold > 0 && (
-              <View style={bs.timingChip}>
-                <T bold style={[bs.timingNum, { color: '#8A5BA4' }]}>{tech.hold}s</T>
-                <T style={bs.timingLabel}>{isEn ? 'Hold' : 'Tut'}</T>
-              </View>
-            )}
-            <View style={bs.timingChip}>
-              <T bold style={[bs.timingNum, { color: '#3B7E58' }]}>{tech.exhale}s</T>
-              <T style={bs.timingLabel}>{isEn ? 'Exhale' : 'Ver'}</T>
-            </View>
-            {tech.hold2 > 0 && (
-              <View style={bs.timingChip}>
-                <T bold style={[bs.timingNum, { color: '#8A5BA4' }]}>{tech.hold2}s</T>
-                <T style={bs.timingLabel}>{isEn ? 'Hold' : 'Tut'}</T>
-              </View>
-            )}
-          </View>
-
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
-            <Icon name="check" size={13} color={tech.color} />
-            <T style={{ fontSize: 11.5, color: tech.color, fontWeight: '600' }}>{tech.benefits}</T>
-          </View>
-        </View>
-      </View>
-
-      {/* 3. Ses ve Fon Ambiyansı Kontrol Paneli */}
-      <View style={bs.soundBar}>
-        <Tap
-          onPress={() => setSoundEnabled(!soundEnabled)}
-          style={[bs.soundToggleBtn, soundEnabled && { backgroundColor: tech.bg, borderColor: tech.ring }]}
-        >
-          <Icon name={soundEnabled ? "soundwave" : "bell"} size={16} color={soundEnabled ? tech.color : colors.muted} />
-          <T bold style={{ fontSize: 12, color: soundEnabled ? tech.color : colors.muted }}>
-            {soundEnabled ? (isEn ? 'Audio Chimes: ON' : 'Sesli Çan: AÇIK') : (isEn ? 'Audio: Muted' : 'Ses: KAPALI')}
-          </T>
-        </Tap>
-
-        <View style={{ flexDirection: 'row', gap: 6, flex: 1, justifyContent: 'flex-end' }}>
-          {[
-            { id: 'waves', icon: '🌊', label: isEn ? 'Waves' : 'Dalga' },
-            { id: 'rain', icon: '🌧️', label: isEn ? 'Rain' : 'Yağmur' },
-            { id: 'fetalHeartbeat', icon: '💓', label: isEn ? 'Heart' : 'Kalp' },
-          ].map(amb => (
-            <Tap
-              key={amb.id}
-              onPress={() => handleAmbientToggle(amb.id)}
-              style={[
-                bs.ambChip,
-                ambientSound === amb.id && { backgroundColor: tech.color, borderColor: tech.color },
-              ]}
-            >
-              <T style={{ fontSize: 12 }}>{amb.icon}</T>
-              <T bold={ambientSound === amb.id} style={{ fontSize: 11, color: ambientSound === amb.id ? 'white' : colors.ink }}>
-                {amb.label}
-              </T>
-            </Tap>
-          ))}
-        </View>
-      </View>
-
-      {/* 4. Hedef Döngü Seçici & İlerleme */}
-      <View style={bs.targetRow}>
-        <T style={{ fontSize: 12, color: colors.muted, fontWeight: '600' }}>
-          {isEn ? 'Target Cycles:' : 'Hedef Döngü:'}
-        </T>
-        <View style={{ flexDirection: 'row', gap: 6 }}>
-          {[4, 8, 12, 0].map(cnt => (
-            <Tap
-              key={cnt}
-              onPress={() => { if (!running) setTargetCycles(cnt); }}
-              style={[
-                bs.targetChip,
-                targetCycles === cnt && { backgroundColor: tech.color, borderColor: tech.color },
-              ]}
-            >
-              <T bold={targetCycles === cnt} style={{ fontSize: 11, color: targetCycles === cnt ? 'white' : colors.ink }}>
-                {cnt === 0 ? (isEn ? 'Free' : 'Serbest') : `${cnt}x`}
-              </T>
-            </Tap>
-          ))}
-        </View>
-      </View>
-
-      {/* 5. Harmonik Canlı Nefes Küresi (Harmonic Breathing Orb) */}
-      <View style={bs.circleArea}>
-        {/* Dış Işıma Aurası */}
-        <Animated.View
-          style={[
-            bs.haloCircle,
-            {
-              backgroundColor: tech.bg,
-              borderColor: tech.ring,
-              transform: [{ scale: haloScale }],
-              opacity: circleOpacity,
-            },
-          ]}
-        />
-        {/* Orta Rezonans Halkası */}
-        <Animated.View
-          style={[
-            bs.outerRing,
-            {
-              borderColor: tech.color,
-              transform: [{ scale: ringScale }],
-              opacity: circleOpacity,
-            },
-          ]}
-        />
-        {/* Ana Dolgulu Küre */}
-        <Animated.View
-          style={[
-            bs.mainCircle,
-            {
-              backgroundColor: running ? tech.color : '#E6E0EA',
-              transform: [{ scale: circleScale }],
-              opacity: running ? 0.95 : 0.6,
-            },
-          ]}
-        />
-        {/* Küre İçi Bilgi & Sayaç */}
-        <View style={bs.circleCenterContent}>
-          {running ? (
-            <>
-              <T style={{ fontSize: 26 }}>{currentPhaseInfo.icon}</T>
-              <T bold style={[bs.phaseLabel, { color: 'white' }]}>{currentPhaseInfo.title}</T>
-              <T bold style={bs.countdownNum}>{countdown}</T>
-              <T style={bs.cycleCounter}>
-                {cycles} {targetCycles > 0 ? `/ ${targetCycles}` : ''} {isEn ? 'cycles' : 'döngü'}
-              </T>
-            </>
-          ) : (
-            <>
-              <T style={bs.idleIcon}>🌬️</T>
-              <T bold style={bs.idleLabel}>{currentPhaseInfo.title}</T>
-              <T style={bs.idleTime}>{isEn ? 'Tap Start to begin guide' : 'Başlamak için dokunun'}</T>
-            </>
-          )}
-        </View>
-      </View>
-
-      {/* Küre Altı Canlı Klinik Yönerge Kartı */}
-      <View style={[bs.cueCard, { backgroundColor: tech.bg, borderColor: tech.ring }]}>
-        <T style={{ fontSize: 15 }}>{currentPhaseInfo.icon}</T>
-        <T bold style={[bs.cueText, { color: tech.color }]}>{currentPhaseInfo.cue}</T>
-      </View>
-
-      {/* 6. Başlat / Durdur Büyük Butonu */}
-      <Tap
-        onPress={running ? stopSession : startSession}
-        style={[bs.startBtn, { backgroundColor: running ? '#B33650' : tech.color }]}
-      >
-        <LinearGradient
-          colors={running ? ['#C9425E', '#A02B43'] : [tech.color, tech.color]}
-          style={bs.btnGrad}
-        >
-          <Icon name={running ? "close" : "play"} size={20} color="white" />
-          <T bold style={bs.startBtnText}>
-            {running
-              ? (isEn ? 'Stop & Complete Session' : 'Seansı Tamamla & Kaydet')
-              : (isEn ? `Start ${tech.shortTitle} Session` : `${tech.shortTitle} Seansını Başlat`)}
-          </T>
-        </LinearGradient>
-      </Tap>
-
-      {running && (
-        <View style={bs.sessionTimer}>
-          <Icon name="time" size={14} color={tech.color} />
-          <T style={{ fontSize: 12.5, color: colors.muted }}>{isEn ? 'Active Duration: ' : 'Aktif Nefes Süresi: '}</T>
-          <T bold style={{ fontSize: 13, color: tech.color }}>{secondsLabel(totalSecs)}</T>
-        </View>
-      )}
-
-      {/* 7. Doğumhane Klinik İpuçları */}
-      <View style={bs.tipsCard}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-          <Icon name="heart" size={15} color={colors.purple} />
-          <T bold style={bs.tipsTitle}>{isEn ? 'Clinical Labor Room Guidance' : 'Doğumhane Klinik İpuçları'}</T>
-        </View>
-        {(isEn ? [
-          'Inhale gently through the nose; never force or hyperventilate.',
-          'Let your jaw, lips and shoulders completely relax — open jaw leads to open pelvic floor.',
-          'Between contractions, take slow natural recovery breaths and sip water.',
-          'Have your partner keep eye contact and count the breathing seconds rhythmically with you.',
-        ] : [
-          'Nefesi daima burundan nazikçe alın; asla ciğerlerinizi zorlamayın veya acele etmeyin.',
-          'Çenenizi, dudaklarınızı ve omuzlarınızı tamamen serbest bırakın — gevşek çene, gevşek rahim ağzı demektir.',
-          'Kasılmalar arasında sakin doğal nefese dönün, gözlerinizi kapatıp bir yudum su için.',
-          'Refakatçinizden sizinle göz teması kurarak nefes saniyelerini sakin bir ses tonuyla saymasını isteyin.',
-        ]).map((tip, i) => (
-          <View key={i} style={bs.tipRow}>
-            <View style={[bs.tipDot, { backgroundColor: tech.color }]} />
-            <T style={bs.tipText}>{tip}</T>
-          </View>
+          </Tap>
         ))}
       </View>
 
-      {/* 8. Geçmiş Seanslar */}
-      {sessions.length > 0 && (
-        <>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
-            <T bold style={{ fontSize: 14.5, color: colors.ink }}>
-              {isEn ? 'Recent Breathwork Sessions' : 'Son Nefes Seansları'}
+      {/* Rehberlik Tercihi (Sesli, Titreşim, Sessiz) */}
+      <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center', marginVertical: 6 }}>
+        {[
+          { id: 'visual', label: isEn ? '👁️ Silent Visual' : '👁️ Sessiz Görsel' },
+          { id: 'voice', label: isEn ? '🗣️ Voice Guidance' : '🗣️ Sesli Rehber' },
+          { id: 'haptic', label: isEn ? '📳 Haptic' : '📳 Titreşim' },
+        ].map(opt => (
+          <Tap
+            key={opt.id}
+            onPress={() => setGuidanceType(opt.id)}
+            style={[
+              bs.guidanceChip,
+              guidanceType === opt.id && { backgroundColor: '#ECE4F0', borderColor: colors.purple },
+            ]}
+          >
+            <T bold={guidanceType === opt.id} style={{ fontSize: 11, color: guidanceType === opt.id ? colors.purple : colors.muted }}>
+              {opt.label}
             </T>
-            <T style={{ fontSize: 11.5, color: colors.muted }}>
-              {sessions.length} {isEn ? 'saved' : 'kayıt'}
-            </T>
+          </Tap>
+        ))}
+      </View>
+
+      {/* 3. BÜYÜK ORGANİK MOMORA FORMU (SPEC 02_BREATHING_COACH) */}
+      <Card style={bs.circleCard}>
+        <View style={{ alignItems: 'center', justifyContent: 'center', height: 260 }}>
+          <Animated.View
+            style={[
+              bs.organicCircle,
+              {
+                backgroundColor: activeMode.bg,
+                borderColor: activeMode.ring,
+                transform: [{ scale: circleScale }],
+                opacity: circleOpacity,
+              },
+            ]}
+          />
+
+          <View style={bs.circleCenterContent}>
+            {running ? (
+              <>
+                <T bold style={[bs.phaseName, { color: activeMode.color }]}>
+                  {phase === 'inhale' ? (isEn ? 'Breathe In' : 'Nefes Al') : phase === 'hold' ? (isEn ? 'Soft Hold' : 'Sakin Kal') : (isEn ? 'Breathe Out' : 'Yavaşça Ver')}
+                </T>
+                <T bold style={[bs.countdownBig, { color: activeMode.color }]}>
+                  {countdown}
+                </T>
+                <T style={bs.cycleCountText}>
+                  {isEn ? `Cycle ${cycles + 1}` : `${cycles + 1}. Döngü`}
+                </T>
+              </>
+            ) : (
+              <>
+                <Icon name="leaf" size={32} color={activeMode.color} />
+                <T bold style={[bs.idleTitle, { color: activeMode.color, marginTop: 8 }]}>
+                  {activeMode.title}
+                </T>
+                <T style={bs.idleDesc}>
+                  {activeMode.desc}
+                </T>
+              </>
+            )}
           </View>
-          {sessions.slice(0, 4).map(s => {
-            const t = techniques.find(x => x.id === s.technique) || techniques[0];
-            return (
-              <View key={s.id} style={[bs.historyRow, { borderLeftColor: t.color }]}>
-                <View style={{ flex: 1 }}>
-                  <T bold style={{ fontSize: 13.5, color: colors.ink }}>{t.title}</T>
-                  <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2 }}>
-                    {s.date} · {s.cycles} {isEn ? 'cycles completed' : 'döngü tamamlandı'} · {secondsLabel(s.durationSecs)}
-                  </T>
-                </View>
-                <View style={[bs.historyBadge, { backgroundColor: t.bg }]}>
-                  <T bold style={{ fontSize: 13, color: t.color }}>{s.cycles}</T>
-                  <T style={{ fontSize: 9.5, color: t.color }}>{isEn ? 'cycles' : 'döngü'}</T>
-                </View>
-              </View>
-            );
-          })}
-        </>
+        </View>
+
+        {/* Aksiyon Butonu */}
+        <View style={{ paddingHorizontal: 20, paddingBottom: 16 }}>
+          <Tap
+            onPress={running ? stopBreathing : startBreathing}
+            style={[
+              bs.mainActionBtn,
+              { backgroundColor: running ? '#C93B58' : activeMode.color },
+            ]}
+          >
+            <T bold style={{ color: 'white', fontSize: 16 }}>
+              {running ? (isEn ? 'Bitir & Dinlen' : 'Bitir & Dinlen') : (isEn ? 'Nefese Başla' : 'Nefese Başla')}
+            </T>
+          </Tap>
+        </View>
+      </Card>
+
+      {/* Seans İstatistiği (Spec: Süre & Döngü, No scores, no percentages) */}
+      {cycles > 0 && !running && (
+        <Card style={{ padding: 14, flexDirection: 'row', justifyContent: 'space-around', backgroundColor: '#F8F4F9' }}>
+          <View style={{ alignItems: 'center' }}>
+            <T bold style={{ fontSize: 18, color: colors.purple }}>{cycles}</T>
+            <T style={{ fontSize: 11, color: colors.muted }}>{isEn ? 'Cycles Completed' : 'Tamamlanan Döngü'}</T>
+          </View>
+          <View style={{ width: 1, backgroundColor: '#E4DAE6' }} />
+          <View style={{ alignItems: 'center' }}>
+            <T bold style={{ fontSize: 18, color: colors.purple }}>{secondsLabel(totalSecs)}</T>
+            <T style={{ fontSize: 11, color: colors.muted }}>{isEn ? 'Duration' : 'Toplam Süre'}</T>
+          </View>
+        </Card>
       )}
     </View>
   );
 }
 
+const cs = StyleSheet.create({
+  counterCard: {
+    padding: 24,
+    borderRadius: 24,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  pulseRing: {
+    position: 'absolute',
+    width: 210,
+    height: 210,
+    borderRadius: 105,
+    borderWidth: 2,
+    borderColor: '#964872',
+  },
+  startBtn: {
+    width: 190,
+    height: 190,
+    borderRadius: 95,
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#723154',
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+  },
+  btnGradient: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  stopBtn: {
+    backgroundColor: '#912B44',
+    paddingVertical: 15,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  breathGuideBtn: {
+    backgroundColor: '#F5ECF8',
+    paddingVertical: 12,
+    borderRadius: 14,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#DECBE4',
+  },
+  waterBtn: {
+    flex: 1,
+    backgroundColor: '#E8F1F7',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#C1D9EC',
+    alignItems: 'center',
+  },
+  logItem: {
+    padding: 14,
+    borderRadius: 14,
+    backgroundColor: 'white',
+  },
+});
+
 const bs = StyleSheet.create({
-  heroBox: { borderRadius: 20, padding: 18, paddingBottom: 16 },
-  heroTextBox: { gap: 3 },
-  heroKicker: { fontSize: 10, letterSpacing: 2.2, fontWeight: '800' },
-  heroTitle: { fontSize: 20, color: colors.ink, marginTop: 2 },
-  heroSub: { fontSize: 12.5, color: colors.muted, marginTop: 2 },
-  benefitChip: {
-    paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14,
-    borderWidth: 1, alignItems: 'center', justifyContent: 'center', minWidth: 50,
+  modeSelectorRow: {
+    flexDirection: 'row',
+    gap: 8,
+    flexWrap: 'wrap',
   },
-  techRow: { flexDirection: 'row', gap: 6 },
-  techPill: {
-    flex: 1, paddingVertical: 9, borderRadius: 12,
-    borderWidth: 1.5, borderColor: '#DDD6DD',
-    alignItems: 'center', backgroundColor: 'white',
+  modePill: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 14,
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#E6DEE8',
   },
-  techPillText: { fontSize: 12, color: colors.ink },
-  descCard: { borderRadius: 16, borderWidth: 1.5, padding: 14, gap: 10 },
-  descText: { fontSize: 12.5, lineHeight: 18.5 },
-  timingRow: { flexDirection: 'row', gap: 8 },
-  timingChip: {
-    flex: 1, alignItems: 'center', paddingVertical: 7,
-    backgroundColor: '#F7F6F9', borderRadius: 10,
+  modePillText: {
+    fontSize: 12,
+    color: colors.ink,
   },
-  timingNum: { fontSize: 18, fontWeight: '800' },
-  timingLabel: { fontSize: 10, color: colors.muted, marginTop: 1 },
-  soundBar: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: 'white', borderRadius: 14, padding: 10, borderWidth: 1, borderColor: '#EDE6EE',
+  guidanceChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#EDE4EE',
+    backgroundColor: 'white',
   },
-  soundToggleBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10, borderWidth: 1, borderColor: '#E0DAE2',
+  circleCard: {
+    backgroundColor: 'white',
+    borderRadius: 24,
+    overflow: 'hidden',
   },
-  ambChip: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingHorizontal: 8, paddingVertical: 6, borderRadius: 10, borderWidth: 1, borderColor: '#E8E2EA',
-    backgroundColor: '#FAF9FB',
+  organicCircle: {
+    position: 'absolute',
+    width: 190,
+    height: 190,
+    borderRadius: 95,
+    borderWidth: 3,
   },
-  targetRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 4,
+  circleCenterContent: {
+    alignItems: 'center',
+    paddingHorizontal: 24,
   },
-  targetChip: {
-    paddingHorizontal: 11, paddingVertical: 5, borderRadius: 10,
-    borderWidth: 1, borderColor: '#DDD7E0', backgroundColor: 'white',
+  phaseName: {
+    fontSize: 20,
+    letterSpacing: 0.5,
   },
-  circleArea: { height: 260, alignItems: 'center', justifyContent: 'center', marginVertical: 6 },
-  haloCircle: {
-    position: 'absolute', width: 250, height: 250,
-    borderRadius: 125, borderWidth: 1.5,
+  countdownBig: {
+    fontSize: 48,
+    marginVertical: 4,
   },
-  outerRing: {
-    position: 'absolute', width: 215, height: 215,
-    borderRadius: 107.5, borderWidth: 2,
+  cycleCountText: {
+    fontSize: 12,
+    color: colors.muted,
   },
-  mainCircle: {
-    position: 'absolute', width: 172, height: 172, borderRadius: 86,
+  idleTitle: {
+    fontSize: 16,
   },
-  circleCenterContent: { alignItems: 'center', justifyContent: 'center', gap: 2 },
-  phaseLabel: { fontSize: 13, letterSpacing: 0.5, fontWeight: '800' },
-  countdownNum: { fontSize: 54, color: 'white', marginVertical: 1 },
-  cycleCounter: { fontSize: 12, color: 'rgba(255,255,255,0.85)', fontWeight: '600' },
-  idleIcon: { fontSize: 36, marginBottom: 4 },
-  idleLabel: { fontSize: 14, color: '#4A4050', fontWeight: '700' },
-  idleTime: { fontSize: 11.5, color: colors.muted, marginTop: 2 },
-  cueCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 8,
-    borderRadius: 14, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 10,
+  idleDesc: {
+    fontSize: 12,
+    color: colors.muted,
+    textAlign: 'center',
+    marginTop: 4,
   },
-  cueText: { flex: 1, fontSize: 12.5, lineHeight: 17 },
-  startBtn: { height: 54, borderRadius: 16, overflow: 'hidden' },
-  btnGrad: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  startBtnText: { fontSize: 15, color: 'white' },
-  sessionTimer: { flexDirection: 'row', alignItems: 'center', gap: 6, justifyContent: 'center' },
-  tipsCard: {
-    backgroundColor: '#FAF7FC', borderRadius: 16, padding: 14,
-    borderWidth: 1, borderColor: '#EDE4F2', gap: 8,
+  mainActionBtn: {
+    paddingVertical: 14,
+    borderRadius: 16,
+    alignItems: 'center',
   },
-  tipsTitle: { fontSize: 13, color: colors.ink },
-  tipRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
-  tipDot: { width: 6, height: 6, borderRadius: 3, marginTop: 6 },
-  tipText: { flex: 1, fontSize: 12, color: '#5A5060', lineHeight: 17 },
-  historyRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: 'white', borderRadius: 14, padding: 12,
-    borderLeftWidth: 3.5, borderWidth: 1, borderColor: '#EEE6EE',
-  },
-  historyBadge: { width: 48, height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
 });
 
 const ts = StyleSheet.create({
@@ -1781,355 +1491,108 @@ const ts = StyleSheet.create({
     fontSize: 12,
     color: colors.ink,
   },
-  stopwatchBox: {
-    backgroundColor: '#F9F4F7',
-    padding: 16,
-    borderRadius: 18,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#EDE0E8',
-  },
-  stopwatchLabel: {
-    fontSize: 11,
-    color: colors.muted,
-    letterSpacing: 1,
-  },
-  stopwatchTime: {
-    fontSize: 34,
-    color: colors.ink,
-    marginVertical: 4,
-  },
-  lastKickText: {
-    fontSize: 11,
-    color: colors.purple,
-  },
   kickInteractiveCard: {
-    padding: 16,
+    padding: 20,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FFFDFA',
+    borderRadius: 24,
   },
-  kickRippleRing: {
+  rippleCircle: {
     position: 'absolute',
-    width: 170,
-    height: 170,
-    borderRadius: 85,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
     borderWidth: 2,
-    borderColor: '#C45778',
-    zIndex: 0,
   },
-  celebrationBurst: {
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    paddingVertical: 14,
-    paddingHorizontal: 22,
-    borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: '#E2B8D2',
-    ...shadow.soft,
-    zIndex: 10,
-  },
-  breathGlowCircle: {
-    position: 'absolute',
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-  },
-  breathCenterPuck: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadow.soft,
-  },
-  kickCenterTap: {
-    width: 154,
-    height: 154,
-    borderRadius: 77,
+  kickMainBtn: {
+    width: 175,
+    height: 175,
+    borderRadius: 88,
     overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
+    elevation: 6,
+    shadowColor: '#863C65',
+    shadowOpacity: 0.3,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
   },
-  kickCenterGradient: {
-    width: 154,
-    height: 154,
-    borderRadius: 77,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 8,
-  },
-  kickBigCount: {
-    fontSize: 22,
-    color: colors.ink,
-    marginTop: 4,
-  },
-  kickSubPrompt: {
-    fontSize: 10.5,
-    color: colors.purple,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  segmentCard: {
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: '#ECE3EC',
-    ...shadow.soft,
-  },
-  segmentHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  dotGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 4,
-  },
-  dotItem: {
+  kickGradient: {
     flex: 1,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: '#F5ECF5',
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 14,
   },
-  dotItemFilled: {
-    backgroundColor: colors.purple,
+  kickMainText: {
+    fontSize: 13,
+    color: 'white',
+    letterSpacing: 1,
+    marginTop: 6,
+    textAlign: 'center',
   },
-  dotItemActive: {
-    borderWidth: 2,
-    borderColor: '#4A2352',
-  },
-  dotItemNum: {
+  kickSubCount: {
     fontSize: 11,
-    color: colors.muted,
+    color: 'rgba(255,255,255,0.85)',
+    marginTop: 2,
   },
   sessionActions: {
     flexDirection: 'row',
-    gap: 10,
-    marginTop: 14,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderColor: '#F0E5F0',
-  },
-  actionMiniBtn: {
-    flex: 1,
-    paddingVertical: 9,
-    borderRadius: 10,
-    backgroundColor: '#F3EBF3',
-    alignItems: 'center',
+    gap: 8,
     justifyContent: 'center',
   },
-  infoBanner: {
-    flexDirection: 'row',
-    gap: 10,
-    backgroundColor: '#FAF2F5',
-    padding: 12,
-    borderRadius: 14,
+  actionMiniBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: '#F7F2F5',
     borderWidth: 1,
-    borderColor: '#EEDCE3',
+    borderColor: '#EADCE6',
   },
-  infoBannerText: {
+  modalBackdrop: {
     flex: 1,
-    fontSize: 12,
-    color: '#5C3C4A',
-    lineHeight: 18,
+    backgroundColor: 'rgba(20,10,25,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 360,
+    padding: 20,
+    borderRadius: 22,
+    backgroundColor: 'white',
+  },
+  feelingOption: {
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: '#F9F5F9',
+    borderWidth: 1,
+    borderColor: '#ECE2EE',
+  },
+  feelingOptionSelected: {
+    backgroundColor: '#F2E4F4',
+    borderColor: colors.purple,
+    borderWidth: 1.5,
+  },
+  noteInput: {
+    borderWidth: 1,
+    borderColor: '#E2D6E4',
+    borderRadius: 12,
+    padding: 12,
+    fontSize: 13,
+    color: colors.ink,
+    backgroundColor: '#FAF7FA',
+    marginTop: 4,
+  },
+  modalBtn: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   historyItem: {
     padding: 14,
     borderRadius: 14,
-  },
-  historyBadge: {
-    width: 34,
-    height: 34,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-  },
-  // Contraction styles
-  statusBanner: {
-    padding: 14,
-    borderRadius: 14,
-    borderWidth: 1,
-  },
-  callBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderRadius: 10,
-  },
-  activeWaveRing: {
-    position: 'absolute',
-    width: 170,
-    height: 170,
-    borderRadius: 85,
-    borderWidth: 2.5,
-    borderColor: '#C93B58',
-    backgroundColor: 'rgba(201, 59, 88, 0.08)',
-  },
-  giantWaveBtn: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadow.soft,
-  },
-  intensityRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  intensityPill: {
-    flex: 1,
-    paddingVertical: 7,
-    borderRadius: 10,
     backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: '#E2DBE2',
-    alignItems: 'center',
-  },
-  intensityPillActive: {
-    backgroundColor: '#4F79A1',
-    borderColor: '#4F79A1',
-  },
-  intensityText: {
-    fontSize: 12,
-    color: colors.ink,
-  },
-  counterBox: {
-    backgroundColor: '#F3F7FA',
-    padding: 16,
-    borderRadius: 18,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#DCE6EE',
-  },
-  counterLabel: {
-    fontSize: 11,
-    color: colors.muted,
-    letterSpacing: 1,
-  },
-  counterNumber: {
-    fontSize: 36,
-    color: colors.ink,
-    marginVertical: 4,
-  },
-  counterSub: {
-    fontSize: 12,
-    color: '#4B7396',
-  },
-  contractionBtn: {
-    borderRadius: 18,
-    overflow: 'hidden',
-    height: 56,
-    ...shadow.soft,
-  },
-  contractionGrad: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-  },
-  contractionBtnText: {
-    fontSize: 15,
-    color: 'white',
-  },
-  // Hospital Bag styles
-  progressBox: {
-    padding: 16,
-    backgroundColor: 'white',
-    borderRadius: 16,
-  },
-  bagTabRow: {
-    flexDirection: 'row',
-    backgroundColor: '#EAE2DC',
-    borderRadius: 14,
-    padding: 4,
-  },
-  bagTabBtn: {
-    flex: 1,
-    paddingVertical: 9,
-    alignItems: 'center',
-    borderRadius: 10,
-  },
-  bagTabBtnActive: {
-    backgroundColor: 'white',
-    ...shadow.soft,
-  },
-  bagTabText: {
-    fontSize: 12,
-    color: colors.muted,
-  },
-  bagItemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 14,
-    backgroundColor: 'white',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#EAE1D9',
-  },
-  bagItemRowDone: {
-    backgroundColor: '#F9F7F5',
-    borderColor: '#ECE5DE',
-    opacity: 0.75,
-  },
-  bagItemCheck: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
-    borderWidth: 1.5,
-    borderColor: '#C6B9C7',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  bagItemCheckDone: {
-    backgroundColor: colors.purple,
-    borderColor: colors.purple,
-  },
-  bagItemText: {
-    flex: 1,
-    fontSize: 14,
-    color: colors.ink,
-  },
-  bagItemTextDone: {
-    textDecorationLine: 'line-through',
-    color: colors.muted,
-  },
-  addItemRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 6,
-  },
-  addItemInput: {
-    flex: 1,
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: '#E2DBD5',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    fontSize: 13,
-    color: colors.ink,
-  },
-  addItemBtn: {
-    backgroundColor: colors.purple,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 16,
-    borderRadius: 12,
   },
 });

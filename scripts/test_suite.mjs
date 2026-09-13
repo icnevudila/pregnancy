@@ -130,4 +130,47 @@ console.log('--- RUNNING MOMORA AUTOMATED TEST SUITE ---');
   console.log('✓ State Migration tests passed.');
 }
 
-console.log('--- ALL MOMORA SPRINT 3 TESTS PASSED SUCCESFULLY ---');
+// 6. Sprint 4 Pregnancy Tracker Domain Tests
+{
+  console.log('Testing Sprint 4 Pregnancy Trackers...');
+
+  // Fetal Movement: Baby's personal rhythm, no 10-kick ceiling
+  const movementRecord = createTrackerRecord({
+    type: TrackerTypes.MOVEMENT,
+    value: '14 hareket',
+    metadata: {
+      count: 14,
+      durationSeconds: 1500,
+      feeling: 'stronger',
+    },
+    notes: 'After dinner, very active',
+  });
+  assert.strictEqual(movementRecord.type, 'movement');
+  assert.strictEqual(movementRecord.metadata.count, 14);
+  assert.strictEqual(movementRecord.metadata.feeling, 'stronger');
+
+  // Contraction: Interval & timestamp derivation
+  const contractionRecord = createTrackerRecord({
+    type: TrackerTypes.CONTRACTION,
+    startedAt: '2026-09-13T12:00:00.000Z',
+    endedAt: '2026-09-13T12:00:52.000Z',
+    metadata: {
+      intensity: 'Güçlü',
+      position: 'side',
+      intervalSecs: 360,
+    },
+  });
+  assert.strictEqual(contractionRecord.type, 'contraction');
+  assert.strictEqual(contractionRecord.durationSeconds, 52);
+  assert.strictEqual(contractionRecord.metadata.intensity, 'Güçlü');
+
+  // Weight Tracker: Baseline delta
+  const startWeight = 60.0;
+  const currentWeight = 65.4;
+  const delta = (currentWeight - startWeight).toFixed(1);
+  assert.strictEqual(delta, '5.4');
+
+  console.log('✓ Sprint 4 Pregnancy Trackers tests passed.');
+}
+
+console.log('--- ALL MOMORA SPRINT 3 & 4 TESTS PASSED SUCCESFULLY ---');

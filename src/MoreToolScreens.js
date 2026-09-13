@@ -7,24 +7,28 @@ import { uid, localDay } from './domain.mjs';
 import { babyNamesList, nameThemes, nameOrigins, getLocalizedBabyName } from './babyNamesData';
 import { speakText, isSpeaking, stopSpeech } from './speechService';
 
-// ─── 4. KİLO TAKİBİ (WEIGHT TRACKER) ─────────────────────────────────────────
+// ─── 4. KİLO TAKİBİ (SPEC 04_WEIGHT_TRACKER) ─────────────────────────────────
 export function WeightTracker({ state, update, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
   const [weightInput, setWeightInput] = useState('');
+  const [noteInput, setNoteInput] = useState('');
+  const [showPreWeightEdit, setShowPreWeightEdit] = useState(false);
+  const [preWeightInput, setPreWeightInput] = useState('');
+
   const weights = state.weights || [];
-  const startWeight = state.startWeight || 60.0;
-  const currentWeight = weights[0]?.value || startWeight;
+  const startWeight = Number(state.startWeight || 60.0);
+  const currentWeight = Number(weights[0]?.value || startWeight);
   const totalGained = (currentWeight - startWeight).toFixed(1);
-
-  // Haftaya göre kişisel kilo eğrisi
   const week = state.week || 24;
-  const minExpectedGain = Math.max(0, ((week - 12) * 0.35)).toFixed(1);
-  const maxExpectedGain = Math.max(0.5, ((week - 12) * 0.50 + 2.0)).toFixed(1);
 
-  function logWeight(customVal) {
-    const val = typeof customVal === 'number' ? customVal : parseFloat(weightInput.replace(',', '.'));
-    if (isNaN(val) || val < 30 || val > 200) {
-      toast && toast(isEn ? 'Please enter a valid weight. E.g. 65.5' : 'Lütfen geçerli bir kilo girin. Örn: 65.5');
+  // 4-week trend calculation
+  const fourWeeksAgoEntry = weights.find(w => (w.week || 0) <= week - 4) || weights[weights.length - 1];
+  const fourWeekChange = fourWeeksAgoEntry ? (currentWeight - Number(fourWeeksAgoEntry.value)).toFixed(1) : null;
+
+  function logWeight() {
+    const val = parseFloat(weightInput.replace(',', '.'));
+    if (isNaN(val) || val < 30 || val > 220) {
+      toast && toast(isEn ? 'Please enter a valid weight (e.g. 65.5)' : 'Lütfen geçerli bir kilo girin (örn. 65.5)');
       return;
     }
     const newEntry = {
@@ -33,33 +37,39 @@ export function WeightTracker({ state, update, toast, lang = 'tr' }) {
       week: state.week || 24,
       date: localDay(),
       time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
+      note: noteInput.trim(),
     };
     update(old => ({
       weights: [newEntry, ...(old.weights || [])],
     }));
     setWeightInput('');
+    setNoteInput('');
     toast && toast(isEn ? `⚖️ Weight logged: ${val.toFixed(1)} kg` : `⚖️ Kilo kaydedildi: ${val.toFixed(1)} kg`);
   }
 
-  function adjustQuick(delta) {
-    const nextVal = currentWeight + delta;
-    logWeight(nextVal);
+  function saveStartWeight() {
+    const sw = parseFloat(preWeightInput.replace(',', '.'));
+    if (!isNaN(sw) && sw > 30 && sw < 200) {
+      update({ startWeight: parseFloat(sw.toFixed(1)) });
+      setShowPreWeightEdit(false);
+      toast && toast(isEn ? 'Pre-pregnancy baseline updated' : 'Gebelik öncesi başlangıç kilosu güncellendi');
+    }
   }
-
-  const isGainInRange = totalGained >= minExpectedGain && totalGained <= maxExpectedGain;
 
   return (
     <View style={ws.container}>
+      {/* 1. Hero: 65.4 kg, 24. hafta, Gebelik öncesine göre +5.4 kg (Spec 04_WEIGHT_TRACKER) */}
       <ScreenHero
         asset="ui_weight_bmi_gauge"
         icon="scale"
         kicker={isEn ? "WEEKLY WEIGHT TRACKER" : "HAFTALIK KİLO TAKİBİ"}
-        title={isEn ? "Gestational Weight Dashboard" : "Gestasyonel Kilo Paneli"}
-        body={isEn ? "Track your weight curve according to IOM and WHO pregnancy corridors. Weigh yourself at the same time and in similar clothes." : "IOM ve DSÖ gebelik koridoruna göre kilo eğrinizi takip edin. Ölçümleri aynı saatte ve benzer kıyafetle yapın."}
+        title={isEn ? "Weight Curve & Trends" : "Kilo Eğrisi & Değişim"}
+        body={isEn
+          ? "Observe your personal weight progression throughout pregnancy with neutral weekly observations."
+          : "Haftalık ölçümlerle kişisel kilo seyrinizi takip edin. Ölçümleri sabah aynı saatte ve benzer kıyafetle yapmak en tutarlı eğilimi sunar."}
         stat={`${weights.length} ${isEn ? 'entries' : 'ölçüm'}`}
         tint="#4F8464"
       />
-      <ToolExperienceCard lang={lang} title={isEn ? 'Watch the trend, not one number' : 'Tek sayıya değil eğilime bak'} steps={isEn ? ['Enter a weekly measurement.', 'Compare it with your personal curve.', 'Keep notes for your visit.'] : ['Haftalık ölçümü gir.', 'Kişisel eğrinle karşılaştır.', 'Kontrol için notunu sakla.']} outcome={isEn ? 'The tool becomes a pregnancy weight diary.' : 'Araç hamilelik kilo günlüğü gibi çalışır.'} asset="ui_weight_bmi_gauge" tint="#3E7B54" />
 
       {/* İkili Metrik Kartları */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -67,97 +77,155 @@ export function WeightTracker({ state, update, toast, lang = 'tr' }) {
           title={isEn ? "CURRENT WEIGHT" : "GÜNCEL KİLO"}
           value={`${currentWeight}`}
           unit="kg"
-          subtext={isEn ? `Starting: ${startWeight} kg` : `Başlangıç: ${startWeight} kg`}
+          subtext={isEn ? `Week ${week}` : `${week}. Hafta`}
           icon="scale"
           tint="#4F8464"
         />
         <MetricCard
           title={isEn ? "TOTAL CHANGE" : "TOPLAM DEĞİŞİM"}
-          value={totalGained >= 0 ? `+${totalGained}` : `${totalGained}`}
+          value={Number(totalGained) >= 0 ? `+${totalGained}` : `${totalGained}`}
           unit="kg"
-          subtext={isGainInRange ? (isEn ? "In ideal target corridor" : "İdeal takip koridorunda") : (isEn ? "Personal trend" : "Kişisel eğilim")}
+          subtext={isEn ? `Baseline: ${startWeight} kg` : `Başlangıç: ${startWeight} kg`}
           icon="milestone"
           tint="#844E86"
         />
       </View>
 
-      {/* IOM Kılavuz Kartı */}
-      <StatusCard
-        level={isGainInRange ? "safe" : "warning"}
-        title={isEn ? `Week ${week} Recommended Band: +${minExpectedGain} kg to +${maxExpectedGain} kg` : `${week}. Hafta Önerilen Kilo Bandı: +${minExpectedGain} kg ile +${maxExpectedGain} kg`}
-        body={isGainInRange
-          ? (isEn ? "You are doing great! Your weight gain is progressing within international standard guidelines for your week." : "Harika gidiyorsunuz! Kilo artışınız gebelik haftanıza göre uluslararası standart bantta ilerliyor.")
-          : (isEn ? "Weight gain is evaluated by weekly trends. If you experience sudden swelling, consult your doctor." : "Kilo artışı haftalık eğilimle değerlendirilir. Ani ödem veya endişeniz olursa doktor kontrolünüzde danışın.")
-        }
-        icon="scale"
-      />
-
-      {/* Hızlı Kilo Ekleme & Dokunmatik Butonlar */}
-      <Card style={{ padding: 14 }}>
-        <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>{isEn ? 'Quick Log Weight:' : 'Hızlı Kilo Kaydet:'}</T>
-        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
-          {[-0.5, +0.2, +0.5, +1.0].map(delta => (
-            <Tap
-              key={delta}
-              onPress={() => adjustQuick(delta)}
-              style={[ws.stepBtn, { backgroundColor: delta > 0 ? '#F3F8F5' : '#FAF4F4' }]}
-            >
-              <T bold style={{ fontSize: 12, color: delta > 0 ? '#377E55' : '#994444' }}>
-                {delta > 0 ? `+${delta}` : delta} kg
-              </T>
-            </Tap>
-          ))}
+      {/* Başlangıç Kilosu Ayar Satırı */}
+      <Card style={{ padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F6FAF7' }}>
+        <View>
+          <T style={{ fontSize: 11, color: colors.muted }}>{isEn ? 'Pre-pregnancy weight:' : 'Gebelik öncesi kilo:'}</T>
+          <T bold style={{ fontSize: 13, color: colors.ink }}>{startWeight} kg</T>
         </View>
+        <Tap onPress={() => setShowPreWeightEdit(true)} style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, backgroundColor: '#E4EFE7' }}>
+          <T bold style={{ fontSize: 11, color: '#317349' }}>{isEn ? 'Edit Baseline' : 'Başlangıcı Düzenle'}</T>
+        </Tap>
+      </Card>
 
-        <View style={ws.inputRow}>
+      {/* Baseline Düzenleme Modalı */}
+      <Modal visible={showPreWeightEdit} transparent animationType="fade" onRequestClose={() => setShowPreWeightEdit(false)}>
+        <View style={ws.modalBackdrop}>
+          <Card style={ws.modalCard}>
+            <T bold style={{ fontSize: 16, color: colors.ink }}>{isEn ? 'Set Pre-Pregnancy Weight' : 'Gebelik Öncesi Kilonuzu Belirleyin'}</T>
+            <T style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>
+              {isEn ? 'Used to compute overall pregnancy weight change.' : 'Toplam kilo değişimini doğru hesaplamak için kullanılır.'}
+            </T>
+            <TextInput
+              value={preWeightInput}
+              onChangeText={setPreWeightInput}
+              keyboardType="decimal-pad"
+              placeholder={`${startWeight}`}
+              placeholderTextColor="#A396A6"
+              style={[ws.weightInputBox, { marginTop: 12 }]}
+            />
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
+              <Tap onPress={() => setShowPreWeightEdit(false)} style={[ws.modalActionBtn, { backgroundColor: '#EDE8E6' }]}>
+                <T bold style={{ color: colors.ink }}>{isEn ? 'Cancel' : 'İptal'}</T>
+              </Tap>
+              <Tap onPress={saveStartWeight} style={[ws.modalActionBtn, { backgroundColor: '#317349', flex: 1 }]}>
+                <T bold style={{ color: 'white' }}>{isEn ? 'Save' : 'Kaydet'}</T>
+              </Tap>
+            </View>
+          </Card>
+        </View>
+      </Modal>
+
+      {/* 2. TREND ÇİZELGESİ (X = HAFTA, Y = KİLO) */}
+      <Card style={{ padding: 16 }}>
+        <T bold style={{ fontSize: 14, color: colors.ink }}>{isEn ? 'Weekly Weight Trend' : 'Haftalık Kilo Eğilimi'}</T>
+        <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2, marginBottom: 12 }}>
+          {isEn ? 'Neutral observational graph across pregnancy weeks' : 'Haftalara göre kilo ölçümlerinin seyri'}
+        </T>
+
+        {weights.length === 0 ? (
+          <View style={{ alignItems: 'center', paddingVertical: 24 }}>
+            <T style={{ fontSize: 12.5, color: colors.muted }}>{isEn ? 'No weight records yet. Add your first log below.' : 'Henüz kilo kaydı yok. İlk ölçümünüzü aşağıdan ekleyin.'}</T>
+          </View>
+        ) : (
+          <View style={{ height: 130, flexDirection: 'row', alignItems: 'flex-end', gap: 8, paddingVertical: 10 }}>
+            {weights.slice(0, 8).reverse().map((w, idx) => {
+              const diffFromBase = Math.max(0, w.value - (startWeight - 2));
+              const barHeight = Math.min(100, Math.max(20, diffFromBase * 8));
+              return (
+                <View key={w.id || idx} style={{ flex: 1, alignItems: 'center', gap: 4 }}>
+                  <T style={{ fontSize: 10, color: '#317349', fontWeight: '700' }}>{w.value}</T>
+                  <View style={{ width: '80%', height: barHeight, backgroundColor: '#8DB89B', borderRadius: 6 }} />
+                  <T style={{ fontSize: 9, color: colors.muted }}>{w.week ? `H.${w.week}` : ''}</T>
+                </View>
+              );
+            })}
+          </View>
+        )}
+      </Card>
+
+      {/* 3. QUICK ADD (SPEC 04_WEIGHT_TRACKER) */}
+      <Card style={{ padding: 16 }}>
+        <T bold style={{ fontSize: 14, color: colors.ink, marginBottom: 10 }}>
+          {isEn ? 'Log Current Weight:' : 'Yeni Kilo Ölçümü Ekle:'}
+        </T>
+        <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
           <TextInput
             value={weightInput}
             onChangeText={setWeightInput}
-            placeholder={isEn ? `Current weight (e.g. ${currentWeight})` : `Güncel kilonuz (Örn: ${currentWeight})`}
-            placeholderTextColor={colors.muted}
-            keyboardType="numeric"
-            style={ws.input}
-            onSubmitEditing={() => logWeight()}
+            keyboardType="decimal-pad"
+            placeholder={isEn ? `Weight in kg (e.g. ${currentWeight})` : `Kilo (Örn: ${currentWeight})`}
+            placeholderTextColor="#A79AA7"
+            style={[ws.weightInputBox, { flex: 1 }]}
           />
-          <Tap onPress={() => logWeight()} label={isEn ? 'Log' : 'Kaydet'} style={ws.addBtn}>
-            <T bold style={{ color: 'white', fontSize: 13.5 }}>{isEn ? 'Save' : 'Kaydet'}</T>
+          <Tap onPress={logWeight} style={ws.addBtn}>
+            <T bold style={{ color: 'white', fontSize: 14 }}>{isEn ? 'Save' : 'Kaydet'}</T>
           </Tap>
         </View>
+
+        <TextInput
+          value={noteInput}
+          onChangeText={setNoteInput}
+          placeholder={isEn ? 'Optional note (e.g. morning fasting, new shoes)...' : 'İsteğe bağlı not (örn. sabah aç karnına)...'}
+          placeholderTextColor="#A79AA7"
+          style={[ws.noteInputBox, { marginTop: 8 }]}
+          maxLength={80}
+        />
       </Card>
 
-      {/* Geçmiş Kilo Kayıtları */}
-      <Section title={isEn ? "Weight Measurement History" : "Kilo Ölçüm Geçmişi"} />
+      {/* 4. TARAFIZ BİLGİLENDİRME (SPEC: NEUTRAL LANGUAGE, NO JUDGMENTAL WORDING) */}
+      <StatusCard
+        level="info"
+        title={isEn ? "Weight Insight & Care Team Guidance" : "Kilo Eğilimi & Bilgilendirme"}
+        body={isEn
+          ? "Weight gain varies across individuals depending on pre-pregnancy physiology, genetics, and hydration. If you experience sudden dramatic swelling or have questions, discuss your individual curve with your obstetrician."
+          : "Gebelikte kilo artışı metabolizma, sıvı tutulumu ve kişisel anatomiye bağlı olarak değişkenlik gösterir. Ani ve beklenmedik ödem veya sorularınız olduğunda doktorunuzun size özel değerlendirmesini izleyin."}
+        icon="scale"
+      />
+
+      {/* Ölçüm Geçmişi */}
+      <Section title={isEn ? "Weight History" : "Ölçüm Geçmişi"} />
       {weights.length === 0 ? (
-        <Card style={{ padding: 18, alignItems: 'center' }}>
-          <T bold style={{ color: colors.ink, fontSize: 14 }}>{isEn ? "Add your first measurement" : "İlk ölçümü ekleyin"}</T>
-          <T style={{ color: colors.muted, fontSize: 12, textAlign: 'center', marginTop: 4 }}>
-            {isEn ? "Weighing yourself at similar times and on an empty stomach gives more reliable trends." : "Benzer saatlerde ve aç karnına tartılmak eğilimi daha güvenilir gösterir."}
-          </T>
+        <Card style={{ alignItems: 'center', padding: 20 }}>
+          <T style={{ color: colors.muted, fontSize: 13 }}>{isEn ? "No measurements logged yet." : "Henüz ölçüm kaydedilmedi."}</T>
         </Card>
       ) : (
         weights.map(w => {
           const diff = (w.value - startWeight).toFixed(1);
           return (
-            <View key={w.id} style={ws.historyRow}>
-              <View>
-                <T bold style={{ fontSize: 15 }}>{w.value} kg</T>
-                <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                  {w.date} · {w.time} · {isEn ? `Week ${w.week}` : `${w.week}. Hafta`}
+            <Card key={w.id} style={ws.historyCard}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <View>
+                  <T bold style={{ fontSize: 15, color: colors.ink }}>{w.value} kg</T>
+                  <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                    {w.date} · {w.time} {w.week ? `· ${w.week}. Hafta` : ''} {w.note ? `· ${w.note}` : ''}
+                  </T>
+                </View>
+                <T bold style={{ fontSize: 13, color: Number(diff) >= 0 ? '#317349' : '#8A4E7A' }}>
+                  {Number(diff) >= 0 ? `+${diff} kg` : `${diff} kg`}
                 </T>
               </View>
-              <View style={[ws.badge, { backgroundColor: diff >= 0 ? '#EAF4EF' : '#F7ECEC' }]}>
-                <T bold style={{ fontSize: 12, color: diff >= 0 ? '#38734B' : '#A03B3B' }}>
-                  {diff >= 0 ? `+${diff}` : diff} kg
-                </T>
-              </View>
-            </View>
+            </Card>
           );
         })
       )}
     </View>
   );
 }
-
 
 // ─── 5. DOĞUM PLANI (BIRTH PLAN BUILDER) ──────────────────────────────────────
 export function BirthPlanBuilder({ state, update, toast, lang = 'tr' }) {
@@ -1294,6 +1362,51 @@ export function BabyNameMatcher({ state, update, toast, lang = 'tr' }) {
 }
 
 const ws = StyleSheet.create({
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(20,10,25,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 340,
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: 'white',
+  },
+  modalActionBtn: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  weightInputBox: {
+    borderWidth: 1,
+    borderColor: '#D8CADC',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: colors.ink,
+    backgroundColor: 'white',
+  },
+  noteInputBox: {
+    borderWidth: 1,
+    borderColor: '#E6DEE8',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 12,
+    color: colors.ink,
+    backgroundColor: '#FAFAF8',
+  },
+  historyCard: {
+    padding: 14,
+    borderRadius: 14,
+    backgroundColor: 'white',
+  },
   container: { gap: 14, paddingBottom: 20 },
   proNoteIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#FFFDFA', alignItems: 'center', justifyContent: 'center' },
   summaryCard: { padding: 16 },
