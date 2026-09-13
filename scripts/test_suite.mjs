@@ -227,4 +227,40 @@ console.log('--- RUNNING MOMORA AUTOMATED TEST SUITE ---');
   console.log('✓ Sprint 5 Baby Trackers tests passed.');
 }
 
-console.log('--- ALL MOMORA SPRINT 3, 4 & 5 TESTS PASSED SUCCESFULLY ---');
+// 8. Sprint 6 Care Planning & Milestones Tests
+{
+  console.log('Testing Sprint 6 Care Planning & Doctor Questions...');
+
+  // Doctor Question Entity
+  const questionItem = {
+    id: 'q_123',
+    text: '24-28. hafta şeker yükleme testi için açlık gerekir mi?',
+    priority: 'top3',
+    done: true,
+    answer: 'Evet, sabah aç karnına gelmeniz ve ilk kan alımından sonra solüsyonu içmeniz gerekecektir.',
+    followUpType: 'lab_test',
+    createdAt: new Date().toISOString(),
+  };
+
+  assert.strictEqual(questionItem.priority, 'top3');
+  assert.strictEqual(questionItem.followUpType, 'lab_test');
+  assert(questionItem.answer.length > 0);
+
+  // Appointment Tracker Entity
+  const apptRecord = createTrackerRecord({
+    type: TrackerTypes.APPOINTMENT,
+    title: 'Detaylı Anatomi Ultrasonu',
+    value: '2026-05-16 · 10:00',
+    metadata: {
+      date: '2026-05-16',
+      time: '10:00',
+      doctor: 'Dr. Ayşe Yılmaz',
+    },
+  });
+  assert.strictEqual(apptRecord.type, 'appointment');
+  assert.strictEqual(apptRecord.metadata.doctor, 'Dr. Ayşe Yılmaz');
+
+  console.log('✓ Sprint 6 Care Planning tests passed.');
+}
+
+console.log('--- ALL MOMORA SPRINT 3, 4, 5 & 6 TESTS PASSED SUCCESFULLY ---');

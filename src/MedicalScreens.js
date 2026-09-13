@@ -544,44 +544,117 @@ export const medicalMilestones = [
   { weekRange: '37-40. Hafta', title: 'Doğuma Hazırlık & Çatı Muayenesi', desc: 'Doğum kanalı, baş inişi ve son hazırlıklar', upcoming: true, key: 'm7' },
 ];
 
-export function MedicalTimeline({ lang = 'tr' }) {
+export function MedicalTimeline({ state, update, open, lang = 'tr' }) {
   const isEn = lang === 'en';
-  const milestones = isEn ? [
-    { weekRange: 'Weeks 6-8', title: 'First Exam & Heartbeat', desc: 'Confirmation of gestational sac and fetal heartbeat', done: true, key: 'm1' },
-    { weekRange: 'Weeks 11-14', title: 'First Trimester Screening & NT', desc: 'Chromosomal abnormality screening and nuchal translucency', done: true, key: 'm2' },
-    { weekRange: 'Weeks 16-18', title: 'Quad Screen Test', desc: 'Optional biochemical risk screening', done: true, key: 'm3' },
-    { weekRange: 'Weeks 18-22', title: 'Detailed Anatomy Ultrasound · Level 2 USG', desc: 'Comprehensive scan of all internal organs, brain, heart, and limbs', current: true, key: 'm4' },
-    { weekRange: 'Weeks 24-28', title: 'Glucose Screening & Full Blood Count', desc: 'Gestational diabetes and anemia screening', upcoming: true, key: 'm5' },
-    { weekRange: 'Weeks 32-36', title: 'Growth & NST Scans', desc: 'Fetal heart rate monitoring, movement reactivity, and position', upcoming: true, key: 'm6' },
-    { weekRange: 'Weeks 37-40', title: 'Birth Preparation & Pelvic Check', desc: 'Birth canal readiness, head engagement, and final preparations', upcoming: true, key: 'm7' },
-  ] : medicalMilestones;
+  const [selectedMilestone, setSelectedMilestone] = useState(null);
+
+  const defaultMilestones = isEn ? [
+    { weekRange: 'Weeks 6-8', title: 'First Exam & Heartbeat', desc: 'Confirmation of gestational sac and fetal heartbeat', what: 'Ultrasound scan confirming intrauterine pregnancy and heartbeat viability.', prep: 'Arrive with a moderately full bladder for pelvic clarity.', key: 'm1' },
+    { weekRange: 'Weeks 11-14', title: 'First Trimester Screening & NT', desc: 'Chromosomal abnormality screening and nuchal translucency', what: 'Measurement of fetal nuchal translucency combined with maternal blood biochemistry.', prep: 'Bring all past medical and ultrasound records.', key: 'm2' },
+    { weekRange: 'Weeks 16-18', title: 'Quad Screen Test', desc: 'Optional biochemical risk screening', what: 'Maternal serum screening measuring 4 specific fetal proteins.', prep: 'Routine blood draw; no fasting required.', key: 'm3' },
+    { weekRange: 'Weeks 18-22', title: 'Detailed Anatomy Ultrasound (Level 2)', desc: 'Comprehensive scan of all internal organs, brain, heart, and limbs', what: '45-minute detailed examination of fetal brain, chambers of the heart, kidneys, and spine.', prep: 'Eat a small snack 30 mins before so baby is gently active.', key: 'm4' },
+    { weekRange: 'Weeks 24-28', title: 'Glucose Screening & Full Blood Count', desc: 'Gestational diabetes and anemia screening', what: 'Oral glucose tolerance challenge and hemoglobin evaluation.', prep: 'Follow fasting or timing instructions given specifically by your clinic.', key: 'm5' },
+    { weekRange: 'Weeks 32-36', title: 'Growth & NST Scans', desc: 'Fetal heart rate monitoring, movement reactivity, and position', what: 'Cardiotocography recording baseline fetal heart rate patterns and uterine contractions.', prep: 'Relax in a semi-reclined position; comfortable loose clothing.', key: 'm6' },
+    { weekRange: 'Weeks 37-40', title: 'Birth Preparation & Pelvic Check', desc: 'Birth canal readiness, head engagement, and final preparations', what: 'Assessment of fetal presentation (cephalic/breech) and maternal cervical readiness.', prep: 'Have your hospital bag checklist and birth preferences ready.', key: 'm7' },
+  ] : [
+    { weekRange: '6-8. Hafta', title: 'İlk Muayene & Kalp Atışı', desc: 'Kese ve fetal kalp atışının ultrasonla teyidi', what: 'Gebelik kesesinin yerleşimi ve embriyonik kalp ritminin ilk tespiti.', prep: 'Muayene öncesi ılık su için, önceki tahlillerinizi yanınızda bulundurun.', key: 'm1' },
+    { weekRange: '11-14. Hafta', title: '1. Trimester Taraması & NT', desc: 'Ense kalınlığı ölçümü ve ikili tarama testi', what: 'Fetal ense saydamlığı (NT) ve burun kemiği değerlendirmesiyle biyokimyasal tarama.', prep: 'Açlık gerekmez; ultrason görüntülerini saklamak için dosyanızı getirin.', key: 'm2' },
+    { weekRange: '16-18. Hafta', title: 'Dörtlü Tarama Testi', desc: 'İkinci trimester biyokimyasal risk değerlendirmesi', what: 'Anne kanından alınan örnekle protein ve hormon düzeylerinin incelenmesi.', prep: 'Rutin kan alımıdır; özel bir diyet kısıtlaması gerektirmez.', key: 'm3' },
+    { weekRange: '18-22. Hafta', title: 'Detaylı Anatomi Ultrasonu (Düzey 2)', desc: 'Beyin, kalp odacıkları, omurga ve tüm organ taraması', what: 'Radyolog veya perinatolog eşliğinde bebeğin tüm organ sistemlerinin incelenmesi.', prep: 'Bebeğin hareketlenmesi için muayeneden 30 dk önce hafif bir meyve/atıştırmalık tüketin.', key: 'm4' },
+    { weekRange: '24-28. Hafta', title: 'Şeker Yükleme & Kan Sayımı', desc: 'Gestasyonel diyabet ve anemi taraması', what: 'Gebelik diyabeti riskini saptamak için glukoz tolerans testi ve demir seviyesi kontrolü.', prep: 'Kliniğinizin verdiği açlık veya bekleme talimatına tam uyun.', key: 'm5' },
+    { weekRange: '32-36. Hafta', title: 'Büyüme Takibi & NST', desc: 'Fetal kalp ritmi reaktivitesi ve amniyon sıvısı kontrolü', what: 'Non-Stres Test (NST) probu ile bebeğin kalp atışları ve kasılmaların kaydedilmesi.', prep: 'Rahat kıyafetler giyin; seans 20-30 dakika sürer.', key: 'm6' },
+    { weekRange: '37-40. Hafta', title: 'Doğum Hazırlığı & Çatı Kontrolü', desc: 'Doğum kanalı, baş inişi ve son hazırlıklar', what: 'Bebeğin geliş pozisyonu, plasenta yerleşimi ve doğum kanalı değerlendirmesi.', prep: 'Hastane çantanızı ve doktorunuza sormak istediğiniz soruları hazır tutun.', key: 'm7' },
+  ];
+
+  const currentWeek = state?.week || 24;
+  const completedKeys = state?.completedMilestones || ['m1', 'm2', 'm3'];
+
+  // Current milestone determination based on week
+  const milestones = defaultMilestones.map(m => {
+    const isDone = completedKeys.includes(m.key);
+    let isCurrent = false;
+    let isUpcoming = false;
+    if (m.key === 'm4' && currentWeek >= 18 && currentWeek <= 22) isCurrent = true;
+    else if (m.key === 'm5' && currentWeek >= 23 && currentWeek <= 28) isCurrent = true;
+    else if (!isDone) isUpcoming = true;
+
+    return {
+      ...m,
+      done: isDone,
+      current: isCurrent,
+      upcoming: !isDone && !isCurrent,
+    };
+  });
+
+  const nextMilestone = milestones.find(m => m.current || m.upcoming) || milestones[0];
+  const appointment = state?.appointment;
+
+  function toggleMilestoneDone(key) {
+    const nextCompleted = completedKeys.includes(key)
+      ? completedKeys.filter(k => k !== key)
+      : [...completedKeys, key];
+
+    update && update({ completedMilestones: nextCompleted });
+    if (selectedMilestone && selectedMilestone.key === key) {
+      setSelectedMilestone(prev => ({ ...prev, done: !prev.done }));
+    }
+  }
 
   return (
     <View style={ms.container}>
       <ScreenHero
-        kicker={isEn ? 'CHECKUP TIMELINE' : 'KONTROL TAKVİMİ'}
-        title={isEn ? '40-week roadmap' : '40 haftalık yol haritası'}
-        body={isEn ? 'Follow routine checkups and upcoming milestones week by week in a single stream.' : 'Rutin kontrolleri ve yaklaşan başlıkları hafta hafta tek akışta gör.'}
+        kicker={isEn ? 'CARE TIMELINE' : 'KONTROL ZAMAN ÇİZELGESİ'}
+        title={isEn ? 'Personal Care Milestones' : 'Kişisel Kontrol Takvimi'}
+        body={isEn ? 'Track prenatal visits, preparation guides, and custom doctor appointments.' : 'Gebelikte rutin testleri, muayene hazırlıklarını ve doktor randevularını tek akışta takip edin.'}
         icon="milestone"
         asset="ui_timeline_sun_moon"
         tint="#915B38"
       />
 
-      <ToolExperienceCard
-        title={isEn ? 'Know what comes next' : 'Sıradaki kontrolü bil'}
-        steps={isEn
-          ? ['See completed, current, and upcoming visits.', 'Open each milestone as a preparation checklist.', 'Save questions before the appointment.']
-          : ['Tamamlanan, mevcut ve yaklaşan kontrolleri ayır.', 'Her başlığı hazırlık listesi gibi oku.', 'Randevu öncesi sorularını kaybetme.']}
-        outcome={isEn ? 'A calmer medical calendar.' : 'Daha sakin ve planlı bir kontrol takvimi.'}
-        asset="ui_timeline_sun_moon"
-        tint="#915B38"
-        lang={lang}
-      />
+      {/* 1. SIRADAKİ KONTROL KARTI (SPEC 06_CONTROL_TIMELINE) */}
+      <Card style={{ padding: 18, backgroundColor: '#FFFDF9', borderColor: '#EADCCE', borderWidth: 1.5 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <T bold style={{ fontSize: 11, color: '#8A5232', letterSpacing: 1.5 }}>
+            {isEn ? 'NEXT UPCOMING VISIT' : 'SIRADAKİ KONTROL'}
+          </T>
+          <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, backgroundColor: '#F5EAE0' }}>
+            <T bold style={{ fontSize: 11, color: '#8A5232' }}>{nextMilestone?.weekRange}</T>
+          </View>
+        </View>
+
+        <T bold style={{ fontSize: 17, color: colors.ink, marginTop: 8 }}>
+          {nextMilestone?.title}
+        </T>
+        <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 4, lineHeight: 18 }}>
+          {nextMilestone?.desc}
+        </T>
+
+        {/* Randevu Durumu */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderColor: '#F2E8DF' }}>
+          <Icon name="calendar" size={16} color="#8A5232" />
+          <View style={{ flex: 1 }}>
+            <T bold style={{ fontSize: 13, color: colors.ink }}>
+              {appointment?.date ? `${appointment.date} · ${appointment.time || '10:00'}` : (isEn ? 'No appointment scheduled yet' : 'Henüz randevu girilmedi')}
+            </T>
+            {appointment?.title && (
+              <T style={{ fontSize: 11, color: colors.muted }}>{appointment.title}</T>
+            )}
+          </View>
+          <Tap
+            onPress={() => open && open('appointment')}
+            style={{ paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10, backgroundColor: '#8A5232' }}
+          >
+            <T bold style={{ color: 'white', fontSize: 12 }}>
+              {appointment?.date ? (isEn ? 'Edit' : 'Değiştir') : (isEn ? '+ Book' : '+ Randevu Ekle')}
+            </T>
+          </Tap>
+        </View>
+      </Card>
 
       {/* Dikey Metro Haritası */}
       <View style={ms.timeline}>
         {milestones.map((m, idx) => (
-          <View key={m.key} style={ms.timelineItem}>
+          <Tap key={m.key} onPress={() => setSelectedMilestone(m)} style={ms.timelineItem}>
             {/* Sol Hat & Rozet */}
             <View style={ms.timelineCol}>
               <View
@@ -597,7 +670,7 @@ export function MedicalTimeline({ lang = 'tr' }) {
                 ) : m.current ? (
                   <View style={ms.pulsingCore} />
                 ) : (
-                  <T style={ms.nodeLock}>🔒</T>
+                  <Icon name="time" size={12} color="#A79AA7" />
                 )}
               </View>
               {idx < milestones.length - 1 && <View style={ms.lineTrack} />}
@@ -609,18 +682,69 @@ export function MedicalTimeline({ lang = 'tr' }) {
                 <T bold style={{ fontSize: 11, color: m.current ? colors.purple : colors.muted }}>
                   {m.weekRange}
                 </T>
-                {m.current && (
+                {m.current ? (
                   <View style={ms.activeBadge}>
                     <T bold style={{ fontSize: 10, color: 'white' }}>{isEn ? 'CURRENT' : 'BU DÖNEM'}</T>
                   </View>
-                )}
+                ) : m.done ? (
+                  <T bold style={{ fontSize: 11, color: '#317349' }}>{isEn ? 'Done ✓' : 'Tamamlandı ✓'}</T>
+                ) : null}
               </View>
               <T bold style={{ fontSize: 14, color: colors.ink, marginTop: 4 }}>{m.title}</T>
               <T style={{ fontSize: 12, color: colors.muted, marginTop: 3, lineHeight: 17 }}>{m.desc}</T>
             </View>
-          </View>
+          </Tap>
         ))}
       </View>
+
+      {/* Kontrol Detay Modalı (Spec 06: nedir, nasıl hazırlanırım, doktora sorularım) */}
+      <Modal visible={!!selectedMilestone} transparent animationType="fade" onRequestClose={() => setSelectedMilestone(null)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(20,10,25,0.6)', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <Card style={{ width: '100%', maxWidth: 360, padding: 22, borderRadius: 24, backgroundColor: 'white', gap: 14 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View style={{ flex: 1, paddingRight: 10 }}>
+                <T style={{ fontSize: 11, color: colors.muted }}>{selectedMilestone?.weekRange}</T>
+                <T bold style={{ fontSize: 16, color: colors.ink, marginTop: 2 }}>{selectedMilestone?.title}</T>
+              </View>
+              <Tap onPress={() => setSelectedMilestone(null)} style={{ padding: 6 }}>
+                <Icon name="close" size={18} color={colors.muted} />
+              </Tap>
+            </View>
+
+            <View style={{ backgroundColor: '#F9F5FA', padding: 12, borderRadius: 14 }}>
+              <T bold style={{ fontSize: 12, color: colors.purple }}>{isEn ? 'What is this visit?' : 'Bu kontrol nedir?'}</T>
+              <T style={{ fontSize: 12, color: colors.ink, marginTop: 3, lineHeight: 17 }}>{selectedMilestone?.what}</T>
+            </View>
+
+            <View style={{ backgroundColor: '#F5FAF6', padding: 12, borderRadius: 14 }}>
+              <T bold style={{ fontSize: 12, color: '#317349' }}>{isEn ? 'How to prepare?' : 'Nasıl hazırlanırım?'}</T>
+              <T style={{ fontSize: 12, color: colors.ink, marginTop: 3, lineHeight: 17 }}>{selectedMilestone?.prep}</T>
+            </View>
+
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 6 }}>
+              <Tap
+                onPress={() => {
+                  if (selectedMilestone) toggleMilestoneDone(selectedMilestone.key);
+                }}
+                style={{ flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: selectedMilestone?.done ? '#EDE6EE' : '#317349', alignItems: 'center' }}
+              >
+                <T bold style={{ color: selectedMilestone?.done ? colors.ink : 'white', fontSize: 12 }}>
+                  {selectedMilestone?.done ? (isEn ? 'Mark Undone' : 'Tamamlanmadı Yap') : (isEn ? '✓ Mark Completed' : '✓ Tamamlandı İşaretle')}
+                </T>
+              </Tap>
+              <Tap
+                onPress={() => {
+                  setSelectedMilestone(null);
+                  open && open('doctorQuestions');
+                }}
+                style={{ flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: colors.purple, alignItems: 'center' }}
+              >
+                <T bold style={{ color: 'white', fontSize: 12 }}>{isEn ? 'Doctor Questions →' : 'Doktora Sorular →'}</T>
+              </Tap>
+            </View>
+          </Card>
+        </View>
+      </Modal>
     </View>
   );
 }

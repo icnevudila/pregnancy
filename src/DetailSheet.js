@@ -251,7 +251,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     {/* Modül 2: Gelişim & Medikal */}
     {kind==='sizeGuide'&&<SizeComparisonHub state={state} toast={toast} lang={lang}/>}
     {kind==='ultrasoundAtlas'&&<UltrasoundAtlas state={state} lang={lang} initialWeek={data?.week}/>}
-    {kind==='medicalTimeline'&&<MedicalTimeline lang={lang}/>}
+    {kind==='medicalTimeline'&&<MedicalTimeline state={state} update={update} open={open} lang={lang}/>}
     {kind==='organDevelopment'&&<OrganDevelopment state={state} lang={lang}/>}
     {/* Modül 3: Keşfet & Makale */}
     {kind==='foodSafety'&&<FoodSafetyChecker toast={toast} lang={lang}/>}

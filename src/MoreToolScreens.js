@@ -425,14 +425,21 @@ export function BirthPlanBuilder({ state, update, toast, lang = 'tr' }) {
   );
 }
 
-// ─── 6. DOKTORA SORULAR (DOCTOR QUESTIONS) ───────────────────────────────────
+// ─── 6. DOKTORA SORULAR (SPEC 10_APPOINTMENT_QUESTIONS) ──────────────────────
 export function DoctorQuestions({ state, update, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
+  const [activeTab, setActiveTab] = useState('before'); // 'before' | 'exam' | 'after'
   const [newQ, setNewQ] = useState('');
-  const [readingMode, setReadingMode] = useState(false);
+  const [isTop3Priority, setIsTop3Priority] = useState(false);
+  const [activeExamIndex, setActiveExamIndex] = useState(0);
+
+  // After-visit answer state
+  const [selectedQForAnswer, setSelectedQForAnswer] = useState(null);
+  const [answerNote, setAnswerNote] = useState('');
+  const [followUpType, setFollowUpType] = useState('follow_up'); // 'follow_up' | 'lab_test' | 'medication' | 'next_visit'
 
   const suggestedTrimesterQuestions = isEn ? [
-    { text: 'When is the right time for 24-28w Glucose Challenge Test (OGTT)?', tag: 'Labs' },
+    { text: 'When is the right time for the 24-28w Glucose Challenge Test (OGTT)?', tag: 'Labs' },
     { text: 'Will the Anti-D Rh shot be administered during this checkup?', tag: 'Medication' },
     { text: 'Is my magnesium dosage sufficient for night leg cramps?', tag: 'Symptom' },
     { text: 'How should baby movements be monitored throughout the day?', tag: 'Fetal Kicks' },
@@ -446,190 +453,354 @@ export function DoctorQuestions({ state, update, toast, lang = 'tr' }) {
   ];
 
   const defaultQuestions = isEn ? [
-    { id: 'dq1', text: 'Should I increase my iron or prenatal vitamin supplements this week?', done: false },
-    { id: 'dq2', text: 'Do I need a doctor clearance report for air travel or journeys?', done: false },
-    { id: 'dq3', text: 'Are the tightenings Braxton Hicks or signs of cervical dilation?', done: false },
+    { id: 'dq1', text: 'Should I increase my iron or prenatal vitamin supplements this week?', priority: 'top3', done: false },
+    { id: 'dq2', text: 'Do I need a doctor clearance report for air travel or journeys?', priority: 'normal', done: false },
+    { id: 'dq3', text: 'Are the tightenings Braxton Hicks or signs of cervical dilation?', priority: 'top3', done: false },
   ] : [
-    { id: 'dq1', text: 'Bu hafta demir veya vitamin takviyelerimi artırmalı mıyım?', done: false },
-    { id: 'dq2', text: 'Yolculuk veya seyahat için hekim onayı raporu almalı mıyım?', done: false },
-    { id: 'dq3', text: 'Hissedilen kasılmalar Braxton Hicks mi yoksa servikal açılma mı?', done: false },
+    { id: 'dq1', text: 'Bu hafta demir veya vitamin takviyelerimi artırmalı mıyım?', priority: 'top3', done: false },
+    { id: 'dq2', text: 'Yolculuk veya seyahat için hekim onayı raporu almalı mıyım?', priority: 'normal', done: false },
+    { id: 'dq3', text: 'Hissedilen kasılmalar Braxton Hicks mi yoksa servikal açılma mı?', priority: 'top3', done: false },
   ];
 
   const questions = state.lists?.questions || defaultQuestions;
 
-  const defaultQMapEn = {
-    'dq1': 'Should I increase my iron or prenatal vitamin supplements this week?',
-    'dq2': 'Do I need a doctor clearance report for air travel or journeys?',
-    'dq3': 'Are the tightenings Braxton Hicks or signs of cervical dilation?',
-  };
-  const getQText = q => (isEn ? (defaultQMapEn[q.id] || q.text) : q.text);
+  function addQuestion(textToAdd) {
+    const text = typeof textToAdd === 'string' ? textToAdd : newQ;
+    if (!text.trim()) return;
+    const item = {
+      id: `q-${uid()}`,
+      text: text.trim(),
+      priority: isTop3Priority ? 'top3' : 'normal',
+      done: false,
+      answer: '',
+      followUpType: '',
+    };
+    update(old => ({
+      lists: { ...(old.lists || {}), questions: [item, ...(old.lists?.questions || questions)] },
+    }));
+    if (typeof textToAdd !== 'string') {
+      setNewQ('');
+      setIsTop3Priority(false);
+    }
+    toast && toast(isEn ? 'Question added to visit list' : 'Soru randevu listesine eklendi');
+  }
 
-  function toggleQ(id) {
+  function toggleQuestionDone(id) {
     const updated = questions.map(q => q.id === id ? { ...q, done: !q.done } : q);
     update(old => ({
       lists: { ...(old.lists || {}), questions: updated },
     }));
   }
 
-  function addQ(textToAdd) {
-    const text = typeof textToAdd === 'string' ? textToAdd : newQ;
-    if (!text.trim()) return;
-    const item = { id: `q-${uid()}`, text: text.trim(), done: false };
+  function saveAnswer(id) {
+    if (!answerNote.trim()) return;
+    const updated = questions.map(q => q.id === id ? { ...q, answer: answerNote.trim(), followUpType, done: true } : q);
     update(old => ({
-      lists: { ...(old.lists || {}), questions: [item, ...(old.lists?.questions || questions)] },
+      lists: { ...(old.lists || {}), questions: updated },
     }));
-    if (typeof textToAdd !== 'string') setNewQ('');
-    toast && toast(isEn ? 'Question added to list' : 'Soru listeye eklendi');
+    setSelectedQForAnswer(null);
+    setAnswerNote('');
+    toast && toast(isEn ? 'Doctor answer saved' : 'Doktor yanıtı kaydedildi');
   }
 
-  const openCount = questions.filter(q => !q.done).length;
-  const answeredCount = questions.filter(q => q.done).length;
+  const openQuestions = questions.filter(q => !q.done);
+  const answeredQuestions = questions.filter(q => q.done);
+  const currentExamQ = openQuestions[activeExamIndex] || openQuestions[0];
+
+  const followUpLabels = {
+    follow_up: isEn ? 'Follow Up' : 'Takip Et',
+    lab_test: isEn ? 'Lab Test' : 'Tetkik / Tahlil',
+    medication: isEn ? 'Medication Note' : 'İlaç / Takviye',
+    next_visit: isEn ? 'Ask Next Visit' : 'Sonraki Randevuda Sor',
+  };
 
   return (
     <View style={ws.container}>
       <ScreenHero
         asset="ui_doctor_prep_notebook"
         icon="chat"
-        kicker={isEn ? 'VISIT PREP' : 'KONTROL HAZIRLIĞI'}
-        title={isEn ? "Don't Forget at Visit" : "Randevuda unutma"}
-        body={isEn ? 'Keep questions open and mark answered ones; keep your checklist ready for your next checkup.' : 'Soruları açık, yanıtlananları kapalı tut; sonraki muayene için gündemin eksiksiz olsun.'}
-        stat={isEn ? `${openCount} open questions` : `${openCount} açık soru`}
+        kicker={isEn ? 'VISIT COMPANION' : 'RANDEVU REHBERİ'}
+        title={isEn ? "Doctor Questions" : "Doktora Sorulacaklar"}
+        body={isEn ? "Organize questions before the visit, open distraction-free Exam Mode during, and log answers after." : "Muayene öncesi sorularınızı önceliklendirin, odada dikkatsizce tek tek okuyun ve sonrasında doktorun yanıtlarını kaydedin."}
+        stat={`${openQuestions.length} ${isEn ? 'open questions' : 'açık soru'}`}
         tint="#7C5C96"
       />
-      <ToolExperienceCard lang={lang} title={isEn ? 'Never lose the important question' : 'Önemli soruyu kaybetme'} steps={isEn ? ['Add questions as they come to mind.', 'Group them before the visit.', 'Mark answered items afterwards.'] : ['Aklına geldikçe soruları ekle.', 'Kontrol öncesi gruplandır.', 'Sonra yanıtlananları işaretle.']} outcome={isEn ? 'The screen becomes a visit prep notebook.' : 'Ekran randevu hazırlık defteri gibi çalışır.'} asset="ui_doctor_prep_notebook" tint="#6A4482" />
 
-      {/* Metrik Göstergeleri */}
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <MetricCard
-          title={isEn ? "OPEN QUESTIONS" : "AÇIK SORULAR"}
-          value={openCount}
-          unit={isEn ? "items" : "adet"}
-          subtext={isEn ? "To ask doctor" : "Muayenede sorulacak"}
-          icon="chat"
-        />
-        <MetricCard
-          title={isEn ? "ANSWERED" : "YANITLANANLAR"}
-          value={answeredCount}
-          unit={isEn ? "completed" : "tamamlandı"}
-          subtext={isEn ? "In past checkups" : "Önceki kontrollerde"}
-          icon="check"
-        />
-      </View>
-
-      {/* Muayene Odası Okuma Modu Butonu */}
-      <Card style={{ padding: 14 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <View style={{ flex: 1, paddingRight: 10 }}>
-            <T bold style={{ fontSize: 14 }}>{isEn ? 'Exam Room Reading Mode' : 'Muayene Odası Okuma Modu'}</T>
-            <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-              {isEn ? 'Opens high-contrast, large text view for showing your doctor.' : 'Doktora gösterirken büyük puntolu, yüksek kontrastlı ekran açar.'}
-            </T>
-          </View>
+      {/* 3 Aşamalı Yolculuk Tabları: Öncesi → Muayene → Sonrası (Spec 10) */}
+      <View style={{ flexDirection: 'row', backgroundColor: '#F3EDF5', borderRadius: 16, padding: 4 }}>
+        {[
+          { id: 'before', label: isEn ? '1. Before Visit' : '1. Öncesi' },
+          { id: 'exam', label: isEn ? '2. Exam Mode' : '2. Muayene Odası' },
+          { id: 'after', label: isEn ? '3. After Visit' : '3. Sonrası' },
+        ].map(tab => (
           <Tap
-            onPress={() => setReadingMode(!readingMode)}
-            label={isEn ? 'Toggle Mode' : 'Mod Değiştir'}
-            style={[ws.modeToggle, readingMode && { backgroundColor: colors.purple }]}
+            key={tab.id}
+            onPress={() => setActiveTab(tab.id)}
+            style={{
+              flex: 1,
+              paddingVertical: 10,
+              alignItems: 'center',
+              borderRadius: 12,
+              backgroundColor: activeTab === tab.id ? 'white' : 'transparent',
+              elevation: activeTab === tab.id ? 2 : 0,
+            }}
           >
-            <T bold style={{ fontSize: 11, color: readingMode ? 'white' : colors.purple }}>
-              {readingMode ? (isEn ? 'Standard Mode' : 'Standart Mod') : (isEn ? '🔍 Large View' : '🔍 Büyük Görünüm')}
+            <T bold={activeTab === tab.id} style={{ fontSize: 12.5, color: activeTab === tab.id ? colors.purple : colors.muted }}>
+              {tab.label}
             </T>
           </Tap>
-        </View>
-      </Card>
+        ))}
+      </View>
 
-      {readingMode ? (
-        /* Yüksek Kontrastlı Muayene Okuma Kartı */
-        <Card style={ws.readingCard}>
-          <T bold style={{ fontSize: 18, color: '#1B2A4A', marginBottom: 14 }}>
-            {isEn ? `📋 Questions for My Doctor (${openCount})` : `📋 Doktoruma Sorulacaklar (${openCount})`}
-          </T>
-          {openCount === 0 ? (
-            <T style={{ fontSize: 16, color: colors.muted, textAlign: 'center', paddingVertical: 20 }}>
-              {isEn ? 'No pending questions at the moment.' : 'Şu an bekleyen açık soru bulunmuyor.'}
-            </T>
-          ) : (
-            questions.filter(q => !q.done).map((q, idx) => (
-              <View key={q.id} style={ws.readingItem}>
-                <View style={ws.readingBadge}>
-                  <T bold style={{ fontSize: 13, color: 'white' }}>{idx + 1}</T>
-                </View>
-                <T bold style={{ flex: 1, fontSize: 16, color: '#1A1824', lineHeight: 24 }}>
-                  {getQText(q)}
-                </T>
-              </View>
-            ))
-          )}
-        </Card>
-      ) : (
+      {/* ─── AŞAMA 1: ÖNCESİ (BEFORE VISIT) ─── */}
+      {activeTab === 'before' && (
         <>
-          {/* Yeni Soru Ekleme Alanı */}
-          <View style={ws.inputRow}>
+          {/* Yeni Soru Ekleme Kartı */}
+          <Card style={{ padding: 16, gap: 10 }}>
+            <T bold style={{ fontSize: 14, color: colors.ink }}>
+              {isEn ? 'Add a Question for Next Visit:' : 'Sonraki Kontrol İçin Soru Ekle:'}
+            </T>
             <TextInput
               value={newQ}
               onChangeText={setNewQ}
-              placeholder={isEn ? 'Question to ask during visit...' : 'Randevuda konuşmak istediğin soru...'}
-              placeholderTextColor={colors.muted}
-              style={ws.input}
-              onSubmitEditing={() => addQ()}
+              placeholder={isEn ? 'What is on your mind? (e.g. cramps, flying, vitamins)...' : 'Aklınıza takılan konu (örn. kramplar, seyahat, takviyeler)...'}
+              placeholderTextColor="#A79AA7"
+              style={ws.noteInputBox}
+              maxLength={200}
             />
-            <Tap onPress={() => addQ()} label={isEn ? 'Add' : 'Ekle'} style={ws.addBtn}>
-              <Icon name="plus" size={18} color="white" />
-            </Tap>
-          </View>
 
-          {/* Haftaya Özel Önerilen Sorular */}
-          <View style={{ gap: 8 }}>
-            <T bold style={{ fontSize: 12, color: colors.muted, letterSpacing: 0.5 }}>
-              {isEn ? '💡 RECOMMENDED QUESTIONS FOR THIS WEEK' : '💡 BU HAFTA İÇİN ÖNERİLEN MEDİKAL SORULAR'}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+              <Tap
+                onPress={() => setIsTop3Priority(!isTop3Priority)}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10, backgroundColor: isTop3Priority ? '#F2E8F4' : '#F6F6F6' }}
+              >
+                <T style={{ fontSize: 14 }}>{isTop3Priority ? '⭐️' : '☆'}</T>
+                <T bold={isTop3Priority} style={{ fontSize: 12, color: isTop3Priority ? colors.purple : colors.muted }}>
+                  {isEn ? 'Top 3 Priority' : 'Öncelikli Soru'}
+                </T>
+              </Tap>
+
+              <Tap onPress={() => addQuestion(newQ)} style={ws.addBtn}>
+                <T bold style={{ color: 'white', fontSize: 13 }}>{isEn ? '+ Add' : '+ Ekle'}</T>
+              </Tap>
+            </View>
+          </Card>
+
+          {/* Önerilen Sorular Şeridi */}
+          <Card style={{ padding: 14 }}>
+            <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>
+              {isEn ? 'Suggested Questions for this Trimester:' : 'Bu Dönem İçin Önerilen Sorular:'}
             </T>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
-              {suggestedTrimesterQuestions.map((s, idx) => (
+            <View style={{ gap: 8 }}>
+              {suggestedTrimesterQuestions.slice(0, 3).map((sugg, idx) => (
                 <Tap
                   key={idx}
-                  onPress={() => addQ(s.text)}
-                  label={s.text}
-                  style={ws.suggestedPill}
+                  onPress={() => addQuestion(sugg.text)}
+                  style={{ padding: 10, borderRadius: 10, backgroundColor: '#FAF6FB', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
                 >
-                  <View style={ws.suggestedTag}>
-                    <T style={{ fontSize: 9, color: colors.purple }}>{s.tag}</T>
-                  </View>
-                  <T numberOfLines={1} style={{ fontSize: 12, color: colors.ink, maxWidth: 220 }}>
-                    {s.text}
-                  </T>
-                  <Icon name="plus" size={12} color={colors.purple} />
+                  <T style={{ flex: 1, fontSize: 12.5, color: colors.ink, paddingRight: 8 }}>{sugg.text}</T>
+                  <T bold style={{ fontSize: 11, color: colors.purple }}>+ Ekle</T>
                 </Tap>
               ))}
-            </ScrollView>
-          </View>
+            </View>
+          </Card>
 
-          {/* Soru Listesi */}
-          <View style={{ gap: 8 }}>
-            {questions.map(q => {
-              const textToShow = getQText(q);
-              return (
-                <Tap
-                  key={q.id}
-                  onPress={() => toggleQ(q.id)}
-                  label={textToShow}
-                  style={[ws.planCard, q.done && { backgroundColor: '#F8F5F8', opacity: 0.8 }]}
-                >
-                  <View style={[ws.planCheck, q.done && ws.planCheckActive]}>
-                    {q.done && <Icon name="check" size={14} color="white" />}
+          {/* Açık Sorular Listesi */}
+          <Section title={isEn ? "My Visit Questions" : "Hazırlanan Sorularım"} />
+          {openQuestions.length === 0 ? (
+            <Card style={{ alignItems: 'center', padding: 20 }}>
+              <T style={{ color: colors.muted, fontSize: 13 }}>
+                {isEn ? 'No pending questions. Add one above!' : 'Bekleyen soru yok. Yukarıdan ekleyin!'}
+              </T>
+            </Card>
+          ) : (
+            openQuestions.map(q => (
+              <Card key={q.id} style={{ padding: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View style={{ flex: 1, paddingRight: 10 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    {q.priority === 'top3' && (
+                      <View style={{ backgroundColor: '#F4EBF6', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
+                        <T bold style={{ fontSize: 10, color: colors.purple }}>⭐️ ÖNCELİKLİ</T>
+                      </View>
+                    )}
                   </View>
-                  <T style={[ws.checkText, q.done && { textDecorationLine: 'line-through', color: colors.muted }]}>
-                    {textToShow}
+                  <T bold style={{ fontSize: 14, color: colors.ink, marginTop: 4 }}>{q.text}</T>
+                </View>
+                <Tap onPress={() => toggleQuestionDone(q.id)} style={{ padding: 8, backgroundColor: '#F0ECEE', borderRadius: 10 }}>
+                  <Icon name="check" size={16} color={colors.muted} />
+                </Tap>
+              </Card>
+            ))
+          )}
+        </>
+      )}
+
+      {/* ─── AŞAMA 2: MUAYENE ODASI MODU (EXAM MODE - ONE QUESTION AT A TIME) ─── */}
+      {activeTab === 'exam' && (
+        <>
+          {openQuestions.length === 0 ? (
+            <Card style={{ alignItems: 'center', padding: 30, gap: 10 }}>
+              <T style={{ fontSize: 28 }}>🎉</T>
+              <T bold style={{ fontSize: 16, color: colors.ink }}>
+                {isEn ? 'All questions answered!' : 'Tüm sorular yanıtlandı!'}
+              </T>
+              <T style={{ fontSize: 12, color: colors.muted, textAlign: 'center' }}>
+                {isEn ? 'Great job preparing for your checkup.' : 'Doktor kontrolünüz için harika bir hazırlık yaptınız.'}
+              </T>
+            </Card>
+          ) : (
+            <Card style={{ padding: 24, borderRadius: 24, backgroundColor: '#FFFDF9', borderColor: '#EBDDEB', borderWidth: 1.5, minHeight: 280, justifyContent: 'space-between' }}>
+              <View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <T bold style={{ fontSize: 12, color: colors.purple, letterSpacing: 1 }}>
+                    {isEn ? `QUESTION ${activeExamIndex + 1} OF ${openQuestions.length}` : `SORU ${activeExamIndex + 1} / ${openQuestions.length}`}
+                  </T>
+                  {currentExamQ?.priority === 'top3' && (
+                    <T bold style={{ fontSize: 11, color: colors.purple }}>⭐️ {isEn ? 'Top Priority' : 'Öncelikli'}</T>
+                  )}
+                </View>
+
+                {/* Büyük Odaklı Yazı Tipi */}
+                <T bold style={{ fontSize: 20, color: '#1B2A4A', marginTop: 24, lineHeight: 28 }}>
+                  {currentExamQ?.text}
+                </T>
+              </View>
+
+              <View style={{ gap: 12, marginTop: 30 }}>
+                <Tap
+                  onPress={() => {
+                    if (currentExamQ) toggleQuestionDone(currentExamQ.id);
+                    if (activeExamIndex > 0) setActiveExamIndex(i => i - 1);
+                  }}
+                  style={{ backgroundColor: '#2E663B', paddingVertical: 14, borderRadius: 14, alignItems: 'center' }}
+                >
+                  <T bold style={{ color: 'white', fontSize: 14 }}>
+                    {isEn ? '✓ Mark Answered by Doctor' : '✓ Doktor Yanıtladı Olarak İşaretle'}
                   </T>
                 </Tap>
-              );
-            })}
-          </View>
 
-          <StatusCard
-            level="safe"
-            icon="check"
-            title={isEn ? "Check off after visit" : "Randevu Sonrası Tamamla"}
-            description={isEn ? "Tap items answered by your doctor; automatically stays updated for next time." : "Doktorundan yanıt aldığın maddelerin üzerini tıkla; sonraki kontrol için otomatik olarak güncel kalır."}
-          />
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  <Tap
+                    onPress={() => setActiveExamIndex(i => Math.max(0, i - 1))}
+                    disabled={activeExamIndex === 0}
+                    style={{ flex: 1, paddingVertical: 10, borderRadius: 12, backgroundColor: '#EDE4ED', alignItems: 'center', opacity: activeExamIndex === 0 ? 0.5 : 1 }}
+                  >
+                    <T bold style={{ color: colors.ink, fontSize: 12 }}>{isEn ? '← Previous' : '← Önceki'}</T>
+                  </Tap>
+                  <Tap
+                    onPress={() => setActiveExamIndex(i => Math.min(openQuestions.length - 1, i + 1))}
+                    disabled={activeExamIndex >= openQuestions.length - 1}
+                    style={{ flex: 1, paddingVertical: 10, borderRadius: 12, backgroundColor: '#EDE4ED', alignItems: 'center', opacity: activeExamIndex >= openQuestions.length - 1 ? 0.5 : 1 }}
+                  >
+                    <T bold style={{ color: colors.ink, fontSize: 12 }}>{isEn ? 'Next →' : 'Sonraki →'}</T>
+                  </Tap>
+                </View>
+              </View>
+            </Card>
+          )}
+        </>
+      )}
+
+      {/* ─── AŞAMA 3: SONRASI (AFTER VISIT NOTES & FOLLOW-UPS) ─── */}
+      {activeTab === 'after' && (
+        <>
+          <Section title={isEn ? "Answered Questions & Doctor Notes" : "Yanıtlanan Sorular & Notlar"} />
+          {answeredQuestions.length === 0 ? (
+            <Card style={{ alignItems: 'center', padding: 20 }}>
+              <T style={{ color: colors.muted, fontSize: 13 }}>
+                {isEn ? 'No answered questions yet.' : 'Henüz yanıtlanan soru bulunmuyor.'}
+              </T>
+            </Card>
+          ) : (
+            answeredQuestions.map(q => (
+              <Card key={q.id} style={{ padding: 14, gap: 8 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <T bold style={{ fontSize: 14, color: colors.ink, flex: 1 }}>{q.text}</T>
+                  <Tap onPress={() => toggleQuestionDone(q.id)} style={{ padding: 4 }}>
+                    <Icon name="check" size={16} color="#317349" />
+                  </Tap>
+                </View>
+
+                {q.answer ? (
+                  <View style={{ backgroundColor: '#F8F4FA', padding: 10, borderRadius: 10, marginTop: 4 }}>
+                    <T style={{ fontSize: 11, color: colors.purple, fontWeight: '700' }}>
+                      {isEn ? 'Doctor Answer / Advice:' : 'Doktorun Yanıtı / Tavsiyesi:'}
+                    </T>
+                    <T style={{ fontSize: 12.5, color: colors.ink, marginTop: 2 }}>{q.answer}</T>
+                    {q.followUpType && (
+                      <View style={{ alignSelf: 'flex-start', backgroundColor: '#EDE0F0', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, marginTop: 6 }}>
+                        <T bold style={{ fontSize: 10, color: colors.purple }}>
+                          {followUpLabels[q.followUpType] || q.followUpType}
+                        </T>
+                      </View>
+                    )}
+                  </View>
+                ) : (
+                  <Tap
+                    onPress={() => setSelectedQForAnswer(q)}
+                    style={{ paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, backgroundColor: '#FAF5FA', alignSelf: 'flex-start', borderWidth: 1, borderColor: '#E8DAEA' }}
+                  >
+                    <T bold style={{ fontSize: 11.5, color: colors.purple }}>
+                      {isEn ? '+ Add Doctor Answer Note' : '+ Doktor Yanıtı Ekle'}
+                    </T>
+                  </Tap>
+                )}
+              </Card>
+            ))
+          )}
+
+          {/* Yanıt Notu Ekleme Modalı */}
+          <Modal visible={!!selectedQForAnswer} transparent animationType="fade" onRequestClose={() => setSelectedQForAnswer(null)}>
+            <View style={{ flex: 1, backgroundColor: 'rgba(20,10,25,0.6)', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+              <Card style={{ width: '100%', maxWidth: 360, padding: 20, borderRadius: 22, backgroundColor: 'white', gap: 12 }}>
+                <T bold style={{ fontSize: 16, color: colors.ink }}>{isEn ? 'Doctor Answer & Follow-up' : 'Doktor Yanıtı & Takip'}</T>
+                <T style={{ fontSize: 12, color: colors.muted }}>{selectedQForAnswer?.text}</T>
+
+                <TextInput
+                  value={answerNote}
+                  onChangeText={setAnswerNote}
+                  multiline
+                  placeholder={isEn ? 'Doctor recommendations, dosage, or advice...' : 'Doktorun tavsiyesi, dozaj veya yönlendirmesi...'}
+                  placeholderTextColor="#A79AA7"
+                  style={[ws.noteInputBox, { minHeight: 80, textAlignVertical: 'top' }]}
+                />
+
+                <T bold style={{ fontSize: 12, color: colors.ink, marginTop: 4 }}>{isEn ? 'Follow-up Type:' : 'Takip Türü:'}</T>
+                <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
+                  {Object.entries(followUpLabels).map(([key, label]) => (
+                    <Tap
+                      key={key}
+                      onPress={() => setFollowUpType(key)}
+                      style={{
+                        paddingHorizontal: 10,
+                        paddingVertical: 6,
+                        borderRadius: 8,
+                        backgroundColor: followUpType === key ? colors.purple : '#F2EEF4',
+                      }}
+                    >
+                      <T bold={followUpType === key} style={{ fontSize: 11, color: followUpType === key ? 'white' : colors.ink }}>
+                        {label}
+                      </T>
+                    </Tap>
+                  ))}
+                </View>
+
+                <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
+                  <Tap onPress={() => setSelectedQForAnswer(null)} style={{ flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: '#EDE8ED', alignItems: 'center' }}>
+                    <T bold style={{ color: colors.ink, fontSize: 12 }}>{isEn ? 'Cancel' : 'İptal'}</T>
+                  </Tap>
+                  <Tap
+                    onPress={() => {
+                      if (selectedQForAnswer) saveAnswer(selectedQForAnswer.id);
+                    }}
+                    style={{ flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: colors.purple, alignItems: 'center' }}
+                  >
+                    <T bold style={{ color: 'white', fontSize: 12 }}>{isEn ? 'Save' : 'Kaydet'}</T>
+                  </Tap>
+                </View>
+              </Card>
+            </View>
+          </Modal>
         </>
       )}
     </View>
