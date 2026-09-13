@@ -165,7 +165,7 @@ export async function syncPushTokenWithSupabase(token, userId) {
 
   try {
     const platform = Platform.OS;
-    await supabase.from('device_push_tokens').upsert(
+    await supabase.from('momora_push_tokens').upsert(
       {
         user_id: userId,
         token: token,

@@ -6,6 +6,7 @@ import { Icon } from './Icons';
 import { T, Tap, Card, Section, Progress, ScreenHero, ToolExperienceCard, CleanIcon } from './ui';
 import { generatedAssets } from './generatedAssets';
 import { babyLettersData, getBabyLetterForWeek, getPastBabyLetters } from './babyLettersData';
+import { saveDailyHealthLog } from './backendSync';
 
 // ─── EKRAN 17: BEBEĞİN GÜNLÜK MEKTUBU & MEKTUP ARŞİVİ ───────────────────────
 export function DailyBabyLetterScreen({ state, toast, lang = 'tr' }) {
@@ -271,16 +272,22 @@ export function WaterVitaminQuickModal({ state, update, toast, lang = 'tr' }) {
 
   function toggleVit(id) {
     const updated = vitamins.map(v => v.id === id ? { ...v, done: !v.done } : v);
-    update({ vitaminsList: updated, vitamin: updated.some(v => v.done) });
+    const anyDone = updated.some(v => v.done);
+    update({ vitaminsList: updated, vitamin: anyDone });
     toast && toast(isEn ? 'Vitamin status updated' : 'Vitamin durumu güncellendi');
+    saveDailyHealthLog({ waterGlasses, vitaminTaken: anyDone }).catch(() => {});
   }
 
   function addWater() {
-    update(old => ({ water: Math.min(12, (old.water || 0) + 1) }));
+    const nextWater = Math.min(12, (waterGlasses || 0) + 1);
+    update({ water: nextWater });
+    saveDailyHealthLog({ waterGlasses: nextWater, vitaminTaken: state.vitamin }).catch(() => {});
   }
 
   function removeWater() {
-    update(old => ({ water: Math.max(0, (old.water || 0) - 1) }));
+    const nextWater = Math.max(0, (waterGlasses || 0) - 1);
+    update({ water: nextWater });
+    saveDailyHealthLog({ waterGlasses: nextWater, vitaminTaken: state.vitamin }).catch(() => {});
   }
 
   const liters = (waterGlasses * 0.25).toFixed(2);

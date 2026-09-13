@@ -12,6 +12,10 @@ import {
   cloudStatusLabel,
   saveCloudState,
   linkPartnerAccount,
+  sendPartnerMessage as sendPartnerMessageCloud,
+  fetchPartnerMessages,
+  saveBabyLetterCloud,
+  fetchBabyLettersCloud,
 } from './backendSync';
 
 const avatarPresets = [
@@ -102,8 +106,47 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
           }
         })
         .catch(() => {});
+
+      fetchPartnerMessages().then(res => {
+        if (res?.data && res.data.length > 0) {
+          const mapped = res.data.map(m => ({
+            id: m.id,
+            sender: m.sender_role || 'mother',
+            senderName: m.sender_name || (m.sender_role === 'mother' ? 'Anne' : 'Baba'),
+            text: m.body,
+            time: new Date(m.created_at).toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
+          }));
+          update(old => {
+            const existingIds = new Set((old.partnerMessages || []).map(x => x.id));
+            const unique = mapped.filter(x => !existingIds.has(x.id));
+            if (unique.length > 0) {
+              return { partnerMessages: [...(old.partnerMessages || defaultPartnerMessages), ...unique] };
+            }
+            return old;
+          });
+        }
+      }).catch(() => {});
+
+      fetchBabyLettersCloud().then(res => {
+        if (res?.data && res.data.length > 0) {
+          const mapped = res.data.map(l => ({
+            id: l.id,
+            author: l.author_name || (l.author_role === 'mother' ? (isEn ? 'Mom' : 'Anne') : (isEn ? 'Dad' : 'Baba')),
+            text: l.body,
+            date: new Date(l.created_at).toLocaleDateString(isEn ? 'en-US' : 'tr-TR'),
+          }));
+          update(old => {
+            const existingIds = new Set((old.babyLetters || []).map(x => x.id));
+            const unique = mapped.filter(x => !existingIds.has(x.id));
+            if (unique.length > 0) {
+              return { babyLetters: [...unique, ...(old.babyLetters || defaultBabyLetters)] };
+            }
+            return old;
+          });
+        }
+      }).catch(() => {});
     }
-  }, [activeUser?.id]);
+  }, [activeUser?.id, isEn]);
 
   // Eşler Arası Varsayılan Mesajlar
   const defaultPartnerMessages = isEn ? [
@@ -271,11 +314,12 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
 
   function sendPartnerMessage() {
     if (!newPartnerMsg.trim()) return;
+    const msgText = newPartnerMsg.trim();
     const newMsg = {
       id: 'pm-' + Date.now(),
       sender: currentRole,
       senderName: currentRole === 'mother' ? userName : partnerName,
-      text: newPartnerMsg.trim(),
+      text: msgText,
       time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
     };
     update(old => ({
@@ -283,14 +327,18 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
     }));
     setNewPartnerMsg('');
     toast && toast(isEn ? 'Message sent to partner 💌' : 'Eşine mesajın iletildi 💌');
+    sendPartnerMessageCloud(msgText).catch(() => {});
   }
 
   function sendBabyLetter() {
     if (!newBabyLetter.trim()) return;
+    const letterText = newBabyLetter.trim();
+    const authorRole = currentRole === 'mother' ? 'mother' : 'father';
+    const authorName = currentRole === 'mother' ? (isEn ? 'Mom' : 'Anne') : (isEn ? 'Dad' : 'Baba');
     const newLetter = {
       id: 'bl-' + Date.now(),
-      author: currentRole === 'mother' ? (isEn ? 'Mom' : 'Anne') : (isEn ? 'Dad' : 'Baba'),
-      text: newBabyLetter.trim(),
+      author: authorName,
+      text: letterText,
       date: isEn ? 'Today' : 'Bugün',
     };
     update(old => ({
@@ -298,6 +346,12 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
     }));
     setNewBabyLetter('');
     toast && toast(isEn ? 'Letter lovingly saved for your baby 💌' : 'Bebeğine mektubun sevgiyle saklandı 💌');
+    saveBabyLetterCloud({
+      title: isEn ? 'To our beloved baby' : 'Canımız Bebeğimize',
+      body: letterText,
+      authorRole,
+      authorName,
+    }).catch(() => {});
   }
 
   async function handleSignOut() {

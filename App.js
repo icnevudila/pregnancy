@@ -78,6 +78,7 @@ function Momora() {
           user: data.session.user,
           name: data.session.user.user_metadata?.full_name || data.session.user.user_metadata?.name || old.name,
         }));
+        refreshFromCloud().catch(() => {});
       }
     }).catch(() => {});
 
@@ -87,6 +88,7 @@ function Momora() {
           user: session.user,
           name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || old.name,
         }));
+        refreshFromCloud().catch(() => {});
         if (page === 'auth') {
           setPage(state.mode || 'pregnancy');
         }
