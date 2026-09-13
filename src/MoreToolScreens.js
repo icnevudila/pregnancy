@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { View, StyleSheet, TextInput, ScrollView, Animated, PanResponder, Dimensions, Platform } from 'react-native';
+import { View, StyleSheet, TextInput, ScrollView, Animated, PanResponder, Dimensions, Platform, Modal } from 'react-native';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
 import { T, Tap, Card, Section, Progress, ScreenHero, InfoNote, MetricCard, StatusCard, ProgressRing, ToolExperienceCard } from './ui';

@@ -182,10 +182,17 @@ function releaseLock(jobIdOrFilename) {
     if (lock) {
       if (!jobIdOrFilename || lock.jobId === jobIdOrFilename || lock.filename === jobIdOrFilename) {
         console.log(`[MUTEX] 🔓 [${p.toUpperCase()}] Kilit kaldırıldı:`, lock.filename);
-        const job = queueData.jobs.find(j => j.id === lock.jobId || j.filename === lock.filename);
-        if (job && job.status === 'processing') {
-          job.status = 'pending'; // Tekrar sıraya al, takılı kalmasın!
-          saveQueue(queueData);
+        const jobIndex = queueData.jobs.findIndex(j => j.id === lock.jobId || j.filename === lock.filename);
+        if (jobIndex !== -1) {
+          const job = queueData.jobs[jobIndex];
+          if (job.status === 'processing') {
+            job.status = 'pending';
+            job.attempts = (job.attempts || 0) + 1;
+            // Sıranın sonuna taşı ki sürekli aynı iş döngüye girip takılmasın!
+            queueData.jobs.splice(jobIndex, 1);
+            queueData.jobs.push(job);
+            saveQueue(queueData);
+          }
         }
         activeLocks[p] = null;
         released = true;
