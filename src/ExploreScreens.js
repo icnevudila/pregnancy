@@ -7,6 +7,7 @@ import { T, Tap, Card, Section, ScreenHero, ToolExperienceCard } from './ui';
 import { generatedAssets, getAsset } from './generatedAssets';
 import { articles, pregnancyFaqs, faqCategories, searchFaqs, getFaqsByCategory, searchArticles } from './content';
 import { playSound, stopSound } from './soundEngine';
+import { speakText, stopSpeech, isSpeaking, compileArticleSpeechText } from './speechService';
 
 // ─── EKRAN 16: "YENEBİLİR Mİ / GÜVENLİ Mİ?" GIDA REHBERİ ────────────────────
 export const foodDatabase = [
@@ -657,9 +658,17 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
   const [playingAudio, setPlayingAudio] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
 
+  React.useEffect(() => {
+    return () => {
+      stopSpeech();
+    };
+  }, []);
+
   const defaultArticle = articles[0] || {
     title: '1. Trimester Sabah Bulantıları ve Yorgunlukla Başa Çıkma',
-    doctor: 'Momora editoryal kaynak dosyası',
+    titleEn: 'Coping with 1st Trimester Morning Sickness & Fatigue',
+    doctor: 'Uzm. Dr. Elif Kaya · Kadın Hastalıkları ve Doğum Uzmanı',
+    doctorEn: 'Spec. Dr. Elif Kaya · Ob-Gyn Specialist',
     time: '4 dk okuma',
     minutes: 4,
     audioDuration: '3:45',
@@ -669,11 +678,19 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
       'Bebek bu haftalarda annenin depolarından beslendiği için kilo kaybı bebeğe zarar vermez.',
       'Günde 2000 ml sıvıyı yudum yudum ve yemek aralarında tüketmek bulantıyı azaltır.'
     ],
+    keyPointsEn: [
+      'Snacking on crackers before getting out of bed neutralizes stomach acid.',
+      'Baby draws from maternal reserves in these weeks, so mild weight loss does not harm the fetus.',
+      'Sipping 2000 ml of fluids between meals significantly reduces nausea.'
+    ],
     sections: [
       {
         title: 'Neden Sabahları Daha Şiddetli?',
+        titleEn: 'Why Is It More Intense in the Morning?',
         text: 'Gebelikte hızla yükselen insan koryonik gonadotropini (hCG) ve östrojen hormonları, sindirim sisteminin yavaşlamasına ve mide boşalmasının gecikmesine yol açar.',
-        tip: '💡 Baş ucunuzda tuzlu galeta veya leblebi bulundurun; gözünüzü açtığınızda ayağa kalkmadan bir iki lokma atıştırıp 10 dakika uzanın.'
+        textEn: 'Rapidly rising hCG and estrogen slow digestive motility and delay gastric emptying, causing morning acid accumulation.',
+        tip: '💡 Baş ucunuzda tuzlu galeta veya leblebi bulundurun; gözünüzü açtığınızda ayağa kalkmadan bir iki lokma atıştırıp 10 dakika uzanın.',
+        tipEn: '💡 Keep crackers by your bedside; snack on a few bites before rising and rest for 10 minutes.'
       }
     ]
   };
@@ -681,8 +698,13 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
   const a = article || defaultArticle;
   const coverAsset = (a.image && (generatedAssets[a.image] || getAsset(a.image))) || generatedAssets['blog_sleeping_crib'];
   const readingTime = isEn ? `${a.minutes || 4} min read` : (a.time || (a.minutes ? `${a.minutes} dk okuma` : '4 dk okuma'));
-  const doctorName = a.doctor ? (isEn ? `Source: ${a.doctor}` : `Kaynak: ${a.doctor}`) : (isEn ? 'Momora editorial archive · fact-checked' : 'Momora editoryal dosyası · kaynak kontrolü');
+  const rawDoctor = isEn ? (a.doctorEn || a.doctor) : a.doctor;
+  const doctorName = rawDoctor ? (isEn ? `Source: ${rawDoctor}` : `Kaynak: ${rawDoctor}`) : (isEn ? 'Momora editorial archive · fact-checked' : 'Momora editoryal dosyası · kaynak kontrolü');
   const relatedArticles = articles.filter(other => other.id !== a.id && other.topic === a.topic).slice(0, 3);
+
+  const displayTitle = isEn ? (a.titleEn || a.title) : a.title;
+  const displaySubtitle = isEn ? (a.subtitleEn || a.subtitle) : a.subtitle;
+  const displayKeyPoints = isEn ? (a.keyPointsEn || a.keyPoints) : a.keyPoints;
 
   return (
     <View style={es.container}>
@@ -708,8 +730,8 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Icon name="clock" size={11} color="white" /><T style={{ fontSize: 11, color: 'white' }}>{readingTime}</T></View>
             </View>
           </View>
-          <T bold style={es.articleTitle}>{a.title}</T>
-          <T style={es.articleCoverSub}>{a.subtitle}</T>
+          <T bold style={es.articleTitle}>{displayTitle}</T>
+          <T style={es.articleCoverSub}>{displaySubtitle}</T>
         </View>
       </View>
 
@@ -737,28 +759,41 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
         </Tap>
       </Card>
 
-      {/* 3. Momora Audio: Sesli Dinleme (Podcast Bar) */}
+      {/* 3. Momora Audio: Sesli Dinleme (Gerçek Text-to-Speech Motoru) */}
       <Card style={es.audioBar}>
         <Tap
           onPress={() => {
-            const next = !playingAudio;
-            setPlayingAudio(next);
-            if (next) {
-              playSound('ocean', { volume: 0.4 });
-              toast && toast(isEn ? '🎵 Soothing background ambiance started' : '🎵 Sakinleştirici fon sesi başlatıldı');
+            if (playingAudio) {
+              stopSpeech();
+              setPlayingAudio(false);
+              toast && toast(isEn ? 'Audio narration paused' : 'Sesli okuma durduruldu');
             } else {
-              stopSound();
+              const fullSpeechText = compileArticleSpeechText(a, lang);
+              setPlayingAudio(true);
+              speakText(fullSpeechText, {
+                lang,
+                rate: 0.92,
+                pitch: 1.0,
+                onStart: () => setPlayingAudio(true),
+                onDone: () => setPlayingAudio(false),
+                onError: () => setPlayingAudio(false),
+              });
+              toast && toast(isEn ? '🎙️ Reading article aloud...' : '🎙️ Makale sesli okunuyor...');
             }
           }}
-          label={isEn ? "Listen to audio" : "Sesli dinle"}
+          label={isEn ? (playingAudio ? "Pause narration" : "Listen to article") : (playingAudio ? "Sesli okumayı durdur" : "Yazıyı sesli dinle")}
           style={es.audioPlayBtn}
         >
           <T style={{ fontSize: 15 }}>{playingAudio ? '⏸️' : '▶️'}</T>
         </Tap>
         <View style={{ flex: 1, marginLeft: 14 }}>
-          <T bold style={{ fontSize: 13, color: colors.ink }}>{isEn ? 'Momora Audio Listening' : 'Momora Sesli Dinleme'}</T>
+          <T bold style={{ fontSize: 13, color: colors.ink }}>
+            {isEn ? 'Momora Text-to-Speech' : 'Momora Sesli Dinleme'}
+          </T>
           <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-            {playingAudio ? (isEn ? 'Playing article audio...' : 'Yazı seslendiriliyor...') : `${a.audioDuration || '3:45'} · ${isEn ? 'Calming voice' : 'Sakinleştirici ses'}`}
+            {playingAudio
+              ? (isEn ? 'Reading article aloud...' : 'Yazı seslendiriliyor...')
+              : `${a.audioDuration || (a.minutes ? `${a.minutes}:00` : '3:45')} · ${isEn ? 'AI Narrator' : 'Yapay Zeka Seslendirme'}`}
           </T>
           {/* Dalga Formu / Waveform Görselleştirmesi */}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 6 }}>
@@ -785,7 +820,7 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
       </Card>
 
       {/* 4. Özetle: Önemli Noktalar Kartı */}
-      {a.keyPoints && a.keyPoints.length > 0 && (
+      {displayKeyPoints && displayKeyPoints.length > 0 && (
         <Card style={es.keyPointsCard}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 }}>
             <Icon name="sparkle" size={16} color={colors.purple} />
@@ -793,7 +828,7 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
               {isEn ? 'IN BRIEF: KEY TAKEAWAYS' : 'ÖZETLE: ÖNE ÇIKAN NOKTALAR'}
             </T>
           </View>
-          {a.keyPoints.map((kp, idx) => (
+          {displayKeyPoints.map((kp, idx) => (
             <View key={idx} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 9, marginTop: 6 }}>
               <T style={{ color: colors.purple, fontSize: 14, marginTop: 1 }}>•</T>
               <T style={{ fontSize: 13.5, color: colors.ink, lineHeight: 20, flex: 1 }}>{kp}</T>
@@ -807,6 +842,10 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
         {a.sections ? (
           a.sections.map((sec, idx) => {
             const inlineAsset = sec.image && (generatedAssets[sec.image] || getAsset(sec.image));
+            const secTitle = isEn ? (sec.titleEn || sec.title) : sec.title;
+            const secText = isEn ? (sec.textEn || sec.text) : sec.text;
+            const secTip = isEn ? (sec.tipEn || sec.tip) : sec.tip;
+            const secCaption = isEn ? (sec.captionEn || sec.caption || `${secTitle} visual guide`) : (sec.caption || `${secTitle} görsel rehberi`);
             return (
               <Card key={idx} style={{ padding: 18 }}>
                 {/* Bölüm Başlığı & Numara Rozeti */}
@@ -815,7 +854,7 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
                     <T bold style={{ fontSize: 11, color: colors.purple }}>{String(idx + 1).padStart(2, '0')}</T>
                   </View>
                   <T bold style={{ fontSize: 17, color: colors.ink, lineHeight: 23, flex: 1 }}>
-                    {sec.title}
+                    {secTitle}
                   </T>
                 </View>
 
@@ -828,7 +867,7 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
                     <View style={es.inlineCaptionRow}>
                       <Icon name="search" size={12} color="#7E6D82" style={{ marginRight: 5 }} />
                       <T style={es.inlineCaptionText}>
-                        {sec.caption || (isEn ? `${sec.title} visual guide` : `${sec.title} görsel rehberi`)}
+                        {secCaption}
                       </T>
                     </View>
                   </View>
@@ -836,20 +875,20 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
 
                 {/* Paragraf Metni */}
                 <T style={es.articleP}>
-                  {sec.text}
+                  {secText}
                 </T>
 
                 {/* Kaynak İpucu / Uyarı Kutusu */}
-                {sec.tip && (
+                {secTip && (
                   <View style={[
                     es.clinicTipBox,
-                    sec.tip.includes('⚠️') && es.clinicWarningBox
+                    secTip.includes('⚠️') && es.clinicWarningBox
                   ]}>
                     <T style={[
                       es.clinicTipText,
-                      sec.tip.includes('⚠️') && { color: '#99352A' }
+                      secTip.includes('⚠️') && { color: '#99352A' }
                     ]}>
-                      {sec.tip}
+                      {secTip}
                     </T>
                   </View>
                 )}
@@ -920,7 +959,7 @@ const es = StyleSheet.create({
   layoutToggleText: { fontSize: 11, color: '#7A6780' },
   layoutToggleTextActive: { color: colors.purple },
   libraryRitualStrip: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFFBF7', borderWidth: 1, borderColor: '#E7DAD1', borderRadius: 17, padding: 12 },
-  libraryRitualIcon: { width: 34, height: 34, borderRadius: 14, backgroundColor: '#F1E7DE', alignItems: 'center', justifyContent: 'center' },
+  libraryRitualIcon: { width: 34, height: 34, borderRadius: 14, backgroundColor: 'transparent', alignItems: 'center', justifyContent: 'center' },
   fitImage: { width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center', alignSelf: 'center' },
   coverImage: { width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', alignSelf: 'center' },
   // Featured Lead Story Hero (Full uncropped 16:9 photo + editorial white body)

@@ -451,7 +451,7 @@ export function SleepWhiteNoiseScreen({ state, update, toast, lang = 'tr' }) {
         stat={isEn ? (isAsleep ? 'asleep' : 'awake') : (isAsleep ? 'uykuda' : 'uyanık')}
         tint="#6E5A96"
       />
-      <ToolExperienceCard lang={lang} title={isEn ? 'Create a sleep ritual' : 'Uyku ritüeli oluştur'} steps={isEn ? ['Choose a calming sound.', 'Set the timer.', 'Save what worked for next time.'] : ['Sakinleştirici sesi seç.', 'Zamanlayıcıyı ayarla.', 'İşe yarayanı sonraki uyku için sakla.']} outcome={isEn ? 'This becomes a repeatable bedtime routine.' : 'Tekrarlanabilir uyku rutini hissi verir.'} asset="screen_hero_white_noise" tint="#6E5A96" />
+      <ToolExperienceCard lang={lang} title={isEn ? 'Create a sleep ritual' : 'Uyku ritüeli oluştur'} steps={isEn ? ['Choose a calming sound.', 'Set the timer.', 'Save what worked for next time.'] : ['Sakinleştirici sesi seç.', 'Zamanlayıcıyı ayarla.', 'İşe yarayanı sonraki uyku için sakla.']} outcome={isEn ? 'This becomes a repeatable bedtime routine.' : 'Tekrarlanabilir uyku rutini hissi verir.'} asset="ui_white_noise_headphones" tint="#6E5A96" />
 
       {/* Metrik Göstergeleri */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -626,7 +626,7 @@ export function SleepWhiteNoiseScreen({ state, update, toast, lang = 'tr' }) {
           const isPlaying = playingNoise === n.id;
           return (
             <Card key={n.id} style={[pbs.noiseCard, isPlaying && pbs.noiseCardActive]}>
-              <View style={[pbs.noiseIconBox, isPlaying && { backgroundColor: colors.purple }]}>
+              <View style={[pbs.noiseIconBox, isPlaying && { backgroundColor: colors.purple, borderRadius: 19 }]}>
                 <Icon name={n.icon} size={20} color={isPlaying ? 'white' : colors.purple} />
               </View>
               <View style={{ flex: 1, marginLeft: 12 }}>
@@ -1027,7 +1027,7 @@ const pbs = StyleSheet.create({
   sleepToggleBtn: { marginTop: 16, paddingHorizontal: 22, paddingVertical: 12, borderRadius: 18, backgroundColor: '#4C3D5A' },
   noiseCard: { flexDirection: 'row', alignItems: 'center', padding: 14 },
   noiseCardActive: { borderColor: colors.purple, backgroundColor: '#FAF6FA' },
-  noiseIconBox: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#EFE7EE', alignItems: 'center', justifyContent: 'center' },
+  noiseIconBox: { width: 38, height: 38, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
   noisePlayBtn: { padding: 8, borderRadius: 12 },
   // Diaper styles
   diaperBtn: { flex: 1, padding: 16, borderRadius: 20, alignItems: 'center', borderWidth: 1, borderColor: '#EDE2EE', ...shadow },

@@ -15,6 +15,7 @@ import { BirthMonthClubScreen, CommunityThreadScreen } from './CommunityScreens'
 import { NursingTimerScreen, SleepWhiteNoiseScreen, DiaperTrackerScreen, PostpartumSelfCareScreen } from './PostpartumBabyScreens';
 import { ProfileScreen } from './ProfileScreen';
 import { AuthModal } from './AuthScreens';
+import { NotificationSettingsScreen } from './NotificationSettingsScreen';
 import { t } from './i18n/index.js';
 
 export default function DetailSheet({ sheet, close, state, update, addRecord, choose, open, toast, lang: propLang }) {
@@ -59,6 +60,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
     note: [isEn ? 'Save the moment while it is fresh' : 'Anı tazeyken sakla', isEn ? ['Write a feeling or question.', 'Keep it short.', 'Return from notes or week screens later.'] : ['Bir his veya soru yaz.', 'Kısa tut.', 'Sonra notlar veya hafta ekranından dön.'], 'blog_postpartum_selfcare', '#A75E7B'],
     notes: [isEn ? 'Your private memory shelf' : 'Sana ait anı rafı', isEn ? ['Review saved notes.', 'Remove what no longer matters.', 'Add today’s small memory.'] : ['Kayıtlı notları gözden geçir.', 'Artık gerekmeyeni sil.', 'Bugünün küçük anısını ekle.'], 'ui_baby_letter_envelope', '#8A5BA4'],
     dailyMood: [isEn ? 'Start with yourself' : 'Önce kendini dinle', isEn ? ['Pick the closest feeling.', 'Add a small note if needed.', 'Continue the day with one gentle cue.'] : ['Sana en yakın hissi seç.', 'Gerekirse küçük not ekle.', 'Güne tek nazik ipucuyla devam et.'], 'mood_good', '#B66C7E'],
+    notifications: [isEn ? 'Notification & Alert Center' : 'Bildirim & Hatırlatıcı Merkezi', isEn ? ['Manage clinical reminders.', 'Choose your preferred times.', 'Send instant test alerts.'] : ['Klinik hatırlatıcıları yönet.', 'Tercih ettiğin saatleri belirle.', 'Canlı test bildirimleri gönder.'], 'settings_notification_bell', '#7E4E8A'],
   }[kind];
   return <Modal visible transparent animationType="fade" onRequestClose={close}><KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':undefined} style={s.backdrop}><Tap label="Pencereyi kapat" style={StyleSheet.absoluteFill} onPress={close}/><View style={s.sheet}><View style={s.handle}/><View style={s.heading}><View style={{flex:1}}><T style={s.kicker}>MOMORA · {isEn ? 'WITH YOU' : 'YANINDA'}</T><T bold style={s.title}>{sheetTitle}</T></View><Tap onPress={close} label="Kapat" style={s.close}><Icon name="close" size={22}/></Tap></View><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{paddingBottom:28}} showsVerticalScrollIndicator={false}>
 
@@ -233,6 +235,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
     {kind==='sleepWhiteNoise'&&<SleepWhiteNoiseScreen state={state} update={update} toast={toast} lang={lang}/>}
     {kind==='diaperTracker'&&<DiaperTrackerScreen update={update} toast={toast} lang={lang}/>}
     {kind==='postpartumCare'&&<PostpartumSelfCareScreen state={state} update={update} toast={toast} lang={lang}/>}
+    {kind==='notifications'&&<NotificationSettingsScreen toast={toast} lang={lang} week={state.week||24} close={close}/>}
     {!!error&&<T accessibilityRole="alert" style={{color:'#A95769',marginTop:12}}>{error}</T>}
     </ScrollView></View></KeyboardAvoidingView></Modal>;
 }

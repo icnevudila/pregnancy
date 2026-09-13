@@ -14,6 +14,12 @@ import { AuthModal } from './src/AuthScreens';
 import { useMomoraStore } from './src/store';
 import { supabase } from './src/supabaseClient';
 import { t } from './src/i18n/index.js';
+import * as Notifications from 'expo-notifications';
+import {
+  registerForPushNotificationsAsync,
+  rescheduleAllReminders,
+  syncPushTokenWithSupabase,
+} from './src/notifications';
 
 function Momora() {
   const {state,update,addRecord,ready,storageError,cloudStatus,refreshFromCloud}=useMomoraStore();
@@ -68,6 +74,59 @@ function Momora() {
     });
     return () => listener?.subscription?.unsubscribe();
   }, [page, sheet, state.mode, lang]);
+
+  useEffect(() => {
+    let sub = null;
+    async function initNotifications() {
+      try {
+        const token = await registerForPushNotificationsAsync();
+        if (token && state.user?.id) {
+          syncPushTokenWithSupabase(token, state.user.id);
+        }
+        await rescheduleAllReminders();
+      } catch (err) {
+        console.warn('Push notification init error:', err);
+      }
+    }
+    initNotifications();
+
+    try {
+      if (Notifications?.addNotificationResponseReceivedListener) {
+        sub = Notifications.addNotificationResponseReceivedListener(response => {
+          const data = response?.notification?.request?.content?.data || {};
+          if (data.tool === 'water' || data.tool === 'vitamin') {
+            open('waterVitamin');
+          } else if (data.tool === 'kicks') {
+            open('kickCounter');
+          } else if (data.tool === 'contractions') {
+            open('contractionTimer');
+          } else if (data.tool === 'appointment') {
+            open('appointment');
+          } else if (data.tool === 'notifications') {
+            open('notifications');
+          } else if (data.screen === 'discover') {
+            setPage('discover');
+          } else if (data.screen === 'profile') {
+            setPage('profile');
+          } else if (data.screen === 'tools') {
+            setPage('tools');
+          }
+        });
+      }
+    } catch (e) {
+      // noop
+    }
+
+    return () => {
+      try {
+        if (sub && typeof sub.remove === 'function') {
+          sub.remove();
+        } else if (sub && Notifications?.removeNotificationSubscription) {
+          Notifications.removeNotificationSubscription(sub);
+        }
+      } catch (e) {}
+    };
+  }, [state.user?.id]);
 
   const props={state,update,addRecord,open,cloudStatus,refreshFromCloud,lang};
   const renderPage=()=>{switch(active){case'pregnancy':return <Pregnancy {...props}/>;case'tools':return <ToolsHub {...props} toast={setNotice}/>;case'postpartum':return <Postpartum {...props}/>;case'baby':return <Baby {...props}/>;case'discover':return <Discover {...props}/>;case'assistant':return <Assistant {...props} toast={setNotice}/>;case'profile':return <ProfileScreen {...props} toast={setNotice} choose={choose}/>;case'auth':return <AuthModal close={()=>setPage(state.mode||'pregnancy')} toast={setNotice} onAuthSuccess={u=>{update({user:u});if(u?.user_metadata?.full_name)update({name:u.user_metadata.full_name});setPage(state.mode||'pregnancy');}} lang={lang}/>;default:return <Onboarding choose={choose} update={update} toast={setNotice} lang={lang}/>}};

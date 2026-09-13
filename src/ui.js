@@ -25,7 +25,7 @@ export function ScreenHero({ kicker, title, body, stat, icon = 'heart', asset, t
         <T style={s.heroBody}>{body}</T>
         {stat ? <View style={[s.heroStat, { backgroundColor: tint + '18' }]}><T bold style={{ fontSize: 12, color: tint }}>{stat}</T></View> : null}
       </View>
-      <View style={[s.heroArt, { backgroundColor: tint + '14', overflow: 'hidden' }]}>
+      <View style={[s.heroArt, { backgroundColor: isPhoto ? tint + '14' : 'transparent', overflow: 'hidden' }]}>
         {art && !imgError ? (
           <Image
             source={art}
@@ -52,14 +52,27 @@ export function InfoNote({ icon = 'heart', title, body, tint = colors.purple, st
   );
 }
 
+export function CleanIcon({ asset, icon = 'sparkle', size = 36, imgSize = 32, tint = colors.purple, style }) {
+  const art = typeof asset === 'string' ? (generatedAssets[asset] || getAsset(asset)) : asset;
+  return (
+    <View style={[{ width: size, height: size, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' }, style]}>
+      {art ? (
+        <Image source={art} style={{ width: imgSize, height: imgSize }} resizeMode="contain" />
+      ) : (
+        <Icon name={icon} size={Math.round(imgSize * 0.65)} color={tint} />
+      )}
+    </View>
+  );
+}
+
 export function ToolExperienceCard({ title, steps = [], outcome, asset, tint = colors.purple, lang = 'tr', style }) {
   const art = typeof asset === 'string' ? (generatedAssets[asset] || getAsset(asset)) : asset;
   const isEn = lang === 'en';
   return (
     <Card style={[s.toolExperience, { borderColor: tint + '2A' }, style]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-        <View style={[s.toolExperienceArt, { backgroundColor: tint + '12' }]}>
-          {art ? <Image source={art} style={{ width: 42, height: 42 }} resizeMode="contain" /> : <Icon name="sparkle" size={22} color={tint} />}
+        <View style={s.toolExperienceArt}>
+          {art ? <Image source={art} style={{ width: 44, height: 44 }} resizeMode="contain" /> : <Icon name="sparkle" size={26} color={tint} />}
         </View>
         <View style={{ flex: 1 }}>
           <T style={{ fontSize: 10, color: tint, letterSpacing: 1.1, fontFamily: fonts.bold }}>{isEn ? 'MOMORA RITUAL' : 'MOMORA RİTÜELİ'}</T>
@@ -222,9 +235,9 @@ const s = StyleSheet.create({
   heroStat: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12, marginTop: 10 },
   heroArt: { width: 88, height: 88, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
   infoNote: { flexDirection: 'row', gap: 11, padding: 13, borderRadius: 18, borderWidth: 1 },
-  infoIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#FFFDFA', alignItems: 'center', justifyContent: 'center' },
+  infoIcon: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
   toolExperience: { padding: 15, backgroundColor: '#FFFDFA', borderWidth: 1, borderRadius: 22 },
-  toolExperienceArt: { width: 54, height: 54, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+  toolExperienceArt: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
   toolStepDot: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', marginTop: -1 },
   toolOutcome: { marginTop: 12, padding: 11, borderRadius: 15 },
   round: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#FFFCFA', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.line, ...shadow },

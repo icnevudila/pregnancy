@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Image, ScrollView } from 'react-native';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
-import { T, Tap, Card, ScreenHero, ToolExperienceCard } from './ui';
+import { T, Tap, Card, ScreenHero, ToolExperienceCard, CleanIcon } from './ui';
 import { generatedAssets } from './generatedAssets';
 import { secondsLabel } from './domain.mjs';
 
@@ -295,13 +295,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
               label={isEn ? 'Open kick counter' : 'Tekme sayacını aç'}
               style={[th.quickHero, { backgroundColor: '#FDF5F8', borderColor: '#F5DEE7' }]}
             >
-              <View style={th.quickHeroIcon}>
-                {generatedAssets['ui_kick_foot_button'] ? (
-                  <Image source={generatedAssets['ui_kick_foot_button']} style={{ width: 48, height: 48 }} resizeMode="contain" />
-                ) : (
-                  <Icon name="footprint" size={26} color="#C45778" />
-                )}
-              </View>
+              <CleanIcon asset="ui_kick_foot_button" size={48} imgSize={44} icon="footprint" tint="#C45778" style={{ marginBottom: 10 }} />
               <T bold style={{ fontSize: 14.5, color: '#4A1D2E' }}>{isEn ? 'Kick Counter' : 'Tekme Sayacı'}</T>
               <T style={{ fontSize: 11, color: '#8F5E73', marginTop: 2 }}>
                 {latestKick
@@ -317,13 +311,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
               label={isEn ? 'Open contraction timer' : 'Kasılma sayacını aç'}
               style={[th.quickHero, { backgroundColor: '#FBF5F2', borderColor: '#F2DDD3' }]}
             >
-              <View style={th.quickHeroIcon}>
-                {generatedAssets['card_contractions'] ? (
-                  <Image source={generatedAssets['card_contractions']} style={{ width: 48, height: 48 }} resizeMode="contain" />
-                ) : (
-                  <Icon name="contraction" size={26} color="#D4634B" />
-                )}
-              </View>
+              <CleanIcon asset="card_contractions" size={48} imgSize={44} icon="contraction" tint="#D4634B" style={{ marginBottom: 10 }} />
               <T bold style={{ fontSize: 14.5, color: '#451E14' }}>{isEn ? 'Contraction Timer' : 'Kasılma Sayacı'}</T>
               <T style={{ fontSize: 11, color: '#8A5345', marginTop: 2 }}>
                 {latestContraction
@@ -339,7 +327,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Image source={generatedAssets['card_kick_counter'] || generatedAssets['ui_kick_foot_button']} style={{ width: 28, height: 28 }} resizeMode="contain" />
+                <CleanIcon asset="ui_kick_foot_button" size={32} imgSize={28} />
                 <T bold style={{ fontSize: 15, color: colors.ink }}>{isEn ? 'Kick Sessions History' : 'Tekme Seansları Geçmişi'}</T>
               </View>
               <Tap onPress={() => open('kickCounter')} style={{ padding: 4 }}>
@@ -378,7 +366,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Image source={generatedAssets['ui_contraction_pulse_button'] || generatedAssets['card_contractions']} style={{ width: 28, height: 28 }} resizeMode="contain" />
+                <CleanIcon asset="ui_contraction_pulse_button" size={32} imgSize={28} />
                 <T bold style={{ fontSize: 15, color: colors.ink }}>{isEn ? 'Contraction Logs' : 'Kasılma Kayıtları'}</T>
               </View>
               <Tap onPress={() => open('contractionTimer')} style={{ padding: 4 }}>
@@ -419,7 +407,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Image source={generatedAssets['ui_weight_bmi_gauge'] || generatedAssets['card_scale']} style={{ width: 28, height: 28 }} resizeMode="contain" />
+                <CleanIcon asset="ui_weight_bmi_gauge" size={32} imgSize={28} />
                 <T bold style={{ fontSize: 15, color: colors.ink }}>{isEn ? 'Weight Tracking Curve & Logs' : 'Kilo Takip Eğrisi & Ölçümler'}</T>
               </View>
               <Tap onPress={() => open('weight')} style={{ padding: 4 }}>
@@ -461,7 +449,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
               label={isEn ? 'Open hospital bag' : 'Hastane çantasını aç'}
               style={[th.statMiniCard, { backgroundColor: '#FAF5F0', borderColor: '#F2E4D8' }]}
             >
-              <Image source={generatedAssets['ui_hospital_bag_3d']} style={{ width: 38, height: 38 }} resizeMode="contain" />
+              <CleanIcon asset="ui_hospital_bag_3d" size={38} imgSize={34} />
               <T bold style={{ fontSize: 13, color: '#572E65', marginTop: 4 }}>{isEn ? 'Hospital Bag' : 'Hastane Çantası'}</T>
               <T style={{ fontSize: 11, color: '#885899', marginTop: 2 }}>{bagDone}/{bagItems.length || 0} {isEn ? 'items packed' : 'eşya hazır'}</T>
             </Tap>
@@ -471,7 +459,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
               label={isEn ? 'Open birth plan' : 'Doğum planını aç'}
               style={[th.statMiniCard, { backgroundColor: '#F8F4FA', borderColor: '#ECE0EE' }]}
             >
-              <Image source={generatedAssets['ui_birth_plan_scroll']} style={{ width: 38, height: 38 }} resizeMode="contain" />
+              <CleanIcon asset="ui_birth_plan_scroll" size={38} imgSize={34} />
               <T bold style={{ fontSize: 13, color: '#684520', marginTop: 4 }}>{isEn ? 'Birth Preferences' : 'Doğum Tercihleri'}</T>
               <T style={{ fontSize: 11, color: '#997042', marginTop: 2 }}>{birthPlanDone} {isEn ? 'preferences set' : 'tercih belirlendi'}</T>
             </Tap>
@@ -497,11 +485,11 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
               {[
                 ['kickCounter', isEn ? 'Movement' : 'Hareket', 'ui_kick_foot_button', '#FAF0F5'],
                 ['contractionTimer', isEn ? 'Contractions' : 'Kasılma', 'ui_contraction_pulse_button', '#FDF1EC'],
-                ['hospitalBag', isEn ? 'Bag' : 'Çanta', 'screen_hero_hospital_bag', '#F8F2FA'],
-                ['birthPlan', isEn ? 'Plan' : 'Plan', 'screen_hero_birth_plan', '#F3F6F0'],
+                ['hospitalBag', isEn ? 'Bag' : 'Çanta', 'ui_hospital_bag_3d', '#F8F2FA'],
+                ['birthPlan', isEn ? 'Plan' : 'Plan', 'ui_birth_plan_scroll', '#F3F6F0'],
               ].map(([id, label, asset, bg]) => (
                 <Tap key={id} onPress={() => open(id)} label={label} style={{ width: '48%', flexDirection: 'row', alignItems: 'center', gap: 8, padding: 11, borderRadius: 17, backgroundColor: bg, borderWidth: 1, borderColor: '#EADFE9' }}>
-                  {generatedAssets[asset] ? <Image source={generatedAssets[asset]} style={{ width: 30, height: 30 }} resizeMode="contain" /> : <Icon name="heart" size={20} color={colors.purple} />}
+                  <CleanIcon asset={asset} size={34} imgSize={30} />
                   <T bold style={{ fontSize: 12.5, color: colors.ink }}>{label}</T>
                 </Tap>
               ))}
@@ -602,9 +590,9 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
                     >
                       {/* Üst Alan: 3D Görsel + Canlı Durum / Ok İkonu */}
                       <View style={th.toolTop}>
-                        <View style={[th.toolIconAura, { backgroundColor: tool.color }]}>
+                        <View style={th.toolIconAura}>
                           {artSource ? (
-                            <Image source={artSource} style={{ width: 56, height: 56 }} resizeMode="contain" />
+                            <Image source={artSource} style={{ width: 48, height: 48 }} resizeMode="contain" />
                           ) : (
                             <Icon name={tool.icon} size={28} color={tool.tint} />
                           )}
@@ -655,15 +643,15 @@ const th = StyleSheet.create({
   hubTabLabelActive: { color: colors.purple },
   quickRow: { flexDirection: 'row', gap: 12 },
   quickHero: { flex: 1, padding: 15, borderRadius: 22, borderWidth: 1, ...shadow },
-  quickHeroIcon: { width: 62, height: 62, borderRadius: 20, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', marginBottom: 10, ...shadow },
+  quickHeroIcon: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', marginBottom: 10, backgroundColor: 'transparent' },
   catTab: { paddingVertical: 8, paddingHorizontal: 15, borderRadius: 18, backgroundColor: '#EFEAEF' },
   catTabActive: { backgroundColor: colors.purple },
   groupHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 6 },
-  groupIconBadge: { width: 34, height: 34, borderRadius: 12, backgroundColor: '#F4EEF6', alignItems: 'center', justifyContent: 'center' },
+  groupIconBadge: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 11, justifyContent: 'space-between' },
   toolCard: { width: '48%', borderRadius: 24, padding: 14, minHeight: 168, backgroundColor: '#FFFFFF', borderWidth: 1.2, ...shadow },
   toolTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  toolIconAura: { width: 62, height: 62, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  toolIconAura: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
   liveBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 7, paddingVertical: 3, borderRadius: 8, borderWidth: 1 },
   liveBadgeDot: { width: 5, height: 5, borderRadius: 2.5 },
   arrowBadge: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },

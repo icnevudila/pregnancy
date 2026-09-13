@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
-import { T, Tap, Card, Section, Progress, ScreenHero, ToolExperienceCard } from './ui';
+import { T, Tap, Card, Section, Progress, ScreenHero, ToolExperienceCard, CleanIcon } from './ui';
 import { generatedAssets } from './generatedAssets';
 import { babyLettersData, getBabyLetterForWeek, getPastBabyLetters } from './babyLettersData';
 
@@ -55,13 +55,7 @@ export function DailyBabyLetterScreen({ state, toast, lang = 'tr' }) {
           {/* Mektup Kağıdı Kartı */}
           <Card style={ds.letterCard}>
             <View style={ds.letterHeader}>
-              <View style={ds.letterSeal}>
-                {generatedAssets['card_ultrasound_frame'] ? (
-                  <Image source={generatedAssets['card_ultrasound_frame']} style={{ width: 36, height: 36 }} resizeMode="contain" />
-                ) : (
-                  <Icon name="heart" size={20} color={colors.purple} />
-                )}
-              </View>
+              <CleanIcon asset="ui_baby_letter_envelope" size={36} imgSize={32} icon="mail" />
               <View style={{ flex: 1, marginLeft: 10 }}>
                 <T bold style={{ fontSize: 12, color: colors.purple }}>
                   {isEn ? `LETTER #${currentLetter.letterNum} · ${currentLetter.title}` : `MEKTUP #${currentLetter.letterNum} · ${currentLetter.title}`}
@@ -370,7 +364,7 @@ const ds = StyleSheet.create({
   segText: { fontSize: 12 },
   letterCard: { padding: 20, backgroundColor: '#FFFCF8', borderWidth: 1.5, borderColor: '#F0E2DE', borderRadius: 22, ...shadow },
   letterHeader: { flexDirection: 'row', alignItems: 'center', paddingBottom: 14, borderBottomWidth: 1, borderColor: '#F3E9E7' },
-  letterSeal: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#F7E7EB', alignItems: 'center', justifyContent: 'center' },
+  letterSeal: { width: 38, height: 38, borderRadius: 19, backgroundColor: 'transparent', alignItems: 'center', justifyContent: 'center' },
   letterBody: { paddingVertical: 14 },
   letterText: { fontSize: 15, lineHeight: 26, color: '#4E3A4A', fontFamily: fonts.regular },
   letterFooter: { alignItems: 'flex-end', paddingTop: 10 },
@@ -380,7 +374,7 @@ const ds = StyleSheet.create({
   // Feed styles
   feedCard: { padding: 16 },
   feedIconRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
-  feedBadge: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
+  feedBadge: { width: 34, height: 34, borderRadius: 17, backgroundColor: 'transparent', alignItems: 'center', justifyContent: 'center' },
   feedText: { fontSize: 14, lineHeight: 22, color: '#524B5A' },
   // Water styles
   waterCard: { padding: 20 },

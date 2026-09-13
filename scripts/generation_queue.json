@@ -708,9 +708,9 @@
       "attempts": 1,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
-      "startedAt": 1789285061971,
-      "platform": "unknown",
-      "updatedAt": 1789285118620,
+      "startedAt": 1789290322933,
+      "platform": "chatgpt",
+      "updatedAt": 1789290274129,
       "thumb": "blob:https://gemini.google.com/d1bbc8b9-af1b-4621-99ed-7ad67c2d6cf6"
     },
     {
@@ -722,9 +722,9 @@
       "attempts": 1,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
-      "startedAt": 1789285120707,
-      "platform": "unknown",
-      "updatedAt": 1789285150249,
+      "startedAt": 1789290398444,
+      "platform": "chatgpt",
+      "updatedAt": 1789290274130,
       "thumb": "blob:https://gemini.google.com/0ff2f703-94ec-4900-a880-7b51cd336c9c"
     },
     {
@@ -733,12 +733,12 @@
       "prompt": "High-end 3D claymorphic cute chubby bumblebee with tiny translucent wings and warm honey yellow stripes, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789285151576,
       "platform": "unknown",
-      "updatedAt": 1789285192241,
+      "updatedAt": 1789290274130,
       "thumb": "blob:https://gemini.google.com/81d650eb-71af-4542-b89d-d51d2227c95b"
     },
     {
@@ -747,12 +747,12 @@
       "prompt": "High-end 3D claymorphic cute garden snail with a spiral pastel peach shell and friendly smile, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789285234299,
       "platform": "unknown",
-      "updatedAt": 1789285267054,
+      "updatedAt": 1789290274131,
       "thumb": "blob:https://gemini.google.com/8609f74f-cc75-488d-9921-7e3b7e1ef5a2"
     },
     {
@@ -761,12 +761,12 @@
       "prompt": "High-end 3D claymorphic cute fluffy yellow baby chick with tiny orange beak and sweet closed happy eyes, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789285267602,
       "platform": "unknown",
-      "updatedAt": 1789285345203,
+      "updatedAt": 1789290274132,
       "thumb": "blob:https://gemini.google.com/51ac040d-09d7-45d4-9571-fa3a99c84843"
     },
     {
@@ -775,12 +775,12 @@
       "prompt": "High-end 3D claymorphic cute chubby baby hedgehog curled up peacefully, soft cream belly and rounded soft quills, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789285347415,
       "platform": "unknown",
-      "updatedAt": 1789285437707,
+      "updatedAt": 1789290274135,
       "thumb": "blob:https://gemini.google.com/609187ee-61bf-4e1a-9b91-4b3be2c0a305"
     },
     {
@@ -788,13 +788,13 @@
       "filename": "animal_kitten.png",
       "prompt": "High-end 3D claymorphic cute sleeping kitten curled in a ball with paws tucked in, soft pastel cream and apricot, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
-      "status": "error",
-      "attempts": 1,
+      "status": "done",
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789285438416,
       "platform": "unknown",
-      "updatedAt": 1789285496940,
+      "updatedAt": 1789290274141,
       "thumb": "blob:https://gemini.google.com/c46a5ae5-e833-4129-8b11-0da638edc9c3",
       "error": "Capture timeout"
     },
@@ -804,12 +804,12 @@
       "prompt": "High-end 3D claymorphic cute playful baby otter floating on back holding a tiny polished river pebble on chest, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789285497897,
       "platform": "unknown",
-      "updatedAt": 1789285531725,
+      "updatedAt": 1789290274142,
       "thumb": "blob:https://gemini.google.com/431a4653-7095-46cf-9972-6f5b43d97865"
     },
     {
@@ -818,12 +818,12 @@
       "prompt": "High-end 3D claymorphic cute sleepy baby koala hugging a smooth eucalyptus twig, soft pastel gray and cream, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789285533583,
       "platform": "unknown",
-      "updatedAt": 1789285590410,
+      "updatedAt": 1789290274143,
       "thumb": "blob:https://gemini.google.com/066a9526-1b6f-4d05-9349-1c1d9c2f5c07"
     },
     {
@@ -832,12 +832,12 @@
       "prompt": "High-end 3D claymorphic majestic and adorable baby lion cub sitting proudly, fluffy golden fur texture in smooth clay, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789285592407,
       "platform": "unknown",
-      "updatedAt": 1789285638122,
+      "updatedAt": 1789290274145,
       "thumb": "blob:https://gemini.google.com/057c3eed-6379-42d1-a20e-09fdbd7358e4"
     },
     {
@@ -846,12 +846,12 @@
       "prompt": "High-end 3D claymorphic cute golden sugar sprinkle pellet resting on a miniature cream podium, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789285638648,
       "platform": "unknown",
-      "updatedAt": 1789285666459,
+      "updatedAt": 1789290274145,
       "thumb": "blob:https://gemini.google.com/3c8ed132-c3b0-41fc-a9d8-0f9c39456b0f"
     },
     {
@@ -860,12 +860,12 @@
       "prompt": "High-end 3D claymorphic cute wrapped bonbon candy with striped pastel coral and cream wrapper, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789285671921,
       "platform": "unknown",
-      "updatedAt": 1789285846740,
+      "updatedAt": 1789290274145,
       "thumb": "blob:https://gemini.google.com/152a6673-1498-4a99-9387-4666898e2d4a"
     },
     {
@@ -874,12 +874,12 @@
       "prompt": "High-end 3D claymorphic translucent glossy strawberry gummy bear with soft internal glow, cute toy aesthetic, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789285847905,
       "platform": "unknown",
-      "updatedAt": 1789285879273,
+      "updatedAt": 1789290274146,
       "thumb": "blob:https://gemini.google.com/bd15b49d-c88c-4da1-9f98-02a8a8e3a6f1"
     },
     {
@@ -888,12 +888,12 @@
       "prompt": "High-end 3D claymorphic freshly baked chocolate chip cookie with embossed chocolate chunks, warm golden brown clay, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789285879578,
       "platform": "unknown",
-      "updatedAt": 1789285913455,
+      "updatedAt": 1789290274146,
       "thumb": "blob:https://gemini.google.com/04ef5395-2d03-453c-a999-6e43b9d106f8"
     },
     {
@@ -902,12 +902,12 @@
       "prompt": "High-end 3D claymorphic cute ring donut with glossy pink strawberry frosting and pastel rainbow sprinkles, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789285926095,
       "platform": "unknown",
-      "updatedAt": 1789285953754,
+      "updatedAt": 1789290274147,
       "thumb": "blob:https://gemini.google.com/58872c51-34fe-42e0-95f0-1004c2033ab5"
     },
     {
@@ -916,12 +916,12 @@
       "prompt": "High-end 3D claymorphic cute cupcake with a tall swirl of fluffy vanilla cream and glossy red cherry on top, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789285956768,
       "platform": "unknown",
-      "updatedAt": 1789286002427,
+      "updatedAt": 1789290274147,
       "thumb": "blob:https://gemini.google.com/2ea075f2-b0f1-4c84-ab59-bde90fbe7088"
     },
     {
@@ -930,12 +930,12 @@
       "prompt": "High-end 3D claymorphic flaky golden French croissant with delicate curved crescent shape and butter glaze, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789286005654,
       "platform": "unknown",
-      "updatedAt": 1789286033509,
+      "updatedAt": 1789290274147,
       "thumb": "blob:https://gemini.google.com/f4ba73df-59a0-42ba-9d39-fe9c20f6481e"
     },
     {
@@ -944,12 +944,12 @@
       "prompt": "High-end 3D claymorphic round Belgian waffle with crisp square grid, melted butter pat and fresh raspberry, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789286045835,
       "platform": "unknown",
-      "updatedAt": 1789286121382,
+      "updatedAt": 1789290274148,
       "thumb": "blob:https://gemini.google.com/ae6f1e72-2031-4b74-a5fa-b82cd4806710"
     },
     {
@@ -958,12 +958,12 @@
       "prompt": "High-end 3D claymorphic tall stack of three fluffy golden pancakes dripping with warm maple syrup and butter, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789286124406,
       "platform": "unknown",
-      "updatedAt": 1789286175940,
+      "updatedAt": 1789290274148,
       "thumb": "blob:https://gemini.google.com/f507a35b-ec01-4d82-9441-6682a6ecb3bb"
     },
     {
@@ -972,12 +972,12 @@
       "prompt": "High-end 3D claymorphic two-tier pastel celebration birthday cake with delicate white piped frosting and golden candle, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789249938707,
       "preferredPlatform": "any",
       "startedAt": 1789286176909,
       "platform": "unknown",
-      "updatedAt": 1789286205392,
+      "updatedAt": 1789290274148,
       "thumb": "blob:https://gemini.google.com/c684a30f-3994-4b0d-915a-012ccfafe3a2"
     },
     {
@@ -986,12 +986,12 @@
       "prompt": "High-end 3D claymorphic cute segmented pastel green baby caterpillar with tiny friendly smiling face, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "error",
-      "attempts": 1,
+      "status": "done",
+      "attempts": 0,
       "createdAt": 1789250674099,
       "startedAt": 1789286205602,
       "platform": "unknown",
-      "updatedAt": 1789286348638,
+      "updatedAt": 1789290274130,
       "thumb": "blob:https://gemini.google.com/5c653716-751d-443a-94f0-ac88dfcbdb08",
       "error": "Capture timeout"
     },
@@ -1002,11 +1002,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789286352727,
       "platform": "unknown",
-      "updatedAt": 1789286385942,
+      "updatedAt": 1789290274131,
       "thumb": "blob:https://gemini.google.com/9fa85998-3d4a-4894-a344-755274a751e9"
     },
     {
@@ -1016,11 +1016,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789286387789,
       "platform": "unknown",
-      "updatedAt": 1789286428028,
+      "updatedAt": 1789290274131,
       "thumb": "blob:https://gemini.google.com/35fc7437-ed00-44c0-b28e-94b0b149b8fe"
     },
     {
@@ -1030,11 +1030,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789286432829,
       "platform": "unknown",
-      "updatedAt": 1789286532121,
+      "updatedAt": 1789290274131,
       "thumb": "blob:https://gemini.google.com/a9d98a68-496e-4b2a-b570-c05f26560f18"
     },
     {
@@ -1044,11 +1044,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789286534587,
       "platform": "unknown",
-      "updatedAt": 1789286714055,
+      "updatedAt": 1789290274132,
       "thumb": "blob:https://gemini.google.com/a223ca3e-a634-4b55-a9ac-1b1befb7c390"
     },
     {
@@ -1058,11 +1058,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789286715899,
       "platform": "unknown",
-      "updatedAt": 1789286742820,
+      "updatedAt": 1789290274134,
       "thumb": "blob:https://gemini.google.com/d94193e0-f035-4880-a90f-111d05add337"
     },
     {
@@ -1072,11 +1072,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789286744577,
       "platform": "unknown",
-      "updatedAt": 1789286775681,
+      "updatedAt": 1789290274137,
       "thumb": "blob:https://gemini.google.com/4d71de85-29d1-467a-9530-4cbf91367111"
     },
     {
@@ -1086,11 +1086,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789286778912,
       "platform": "unknown",
-      "updatedAt": 1789286805646,
+      "updatedAt": 1789290274137,
       "thumb": "blob:https://gemini.google.com/78ebeab3-45e8-4297-b94f-acf7701799b5"
     },
     {
@@ -1100,11 +1100,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789286807601,
       "platform": "unknown",
-      "updatedAt": 1789286851287,
+      "updatedAt": 1789290274137,
       "thumb": "blob:https://gemini.google.com/1fb65d3b-0c25-4ef0-a5fb-8ba0622d10d5"
     },
     {
@@ -1114,11 +1114,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789286852574,
       "platform": "unknown",
-      "updatedAt": 1789286880285,
+      "updatedAt": 1789290274140,
       "thumb": "blob:https://gemini.google.com/da770db5-39a4-4a69-b788-84342f3a8098"
     },
     {
@@ -1128,11 +1128,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789286880584,
       "platform": "unknown",
-      "updatedAt": 1789286953601,
+      "updatedAt": 1789290274141,
       "thumb": "blob:https://gemini.google.com/cc2b6fa1-efe4-40e0-8313-e8a602f952db"
     },
     {
@@ -1142,11 +1142,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789286954771,
       "platform": "unknown",
-      "updatedAt": 1789287103342,
+      "updatedAt": 1789290274141,
       "thumb": "blob:https://gemini.google.com/b60f01ec-2caf-480f-9985-4f880eeb73f7"
     },
     {
@@ -1156,11 +1156,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789287137778,
       "platform": "unknown",
-      "updatedAt": 1789287199067,
+      "updatedAt": 1789290274142,
       "error": "Prompt input failed",
       "thumb": "blob:https://gemini.google.com/df96e60e-7ae2-405d-b0d0-4fb8de80c23c"
     },
@@ -1171,11 +1171,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789287220588,
       "platform": "unknown",
-      "updatedAt": 1789287279864,
+      "updatedAt": 1789290274142,
       "error": "Capture timeout",
       "thumb": "blob:https://gemini.google.com/3d9760b4-cfd8-4144-bde6-2e7b65c6391c"
     },
@@ -1186,11 +1186,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789287282900,
       "platform": "unknown",
-      "updatedAt": 1789287329112,
+      "updatedAt": 1789290274143,
       "thumb": "blob:https://gemini.google.com/6a5507f2-ec9c-4371-a7c7-1a6c2dc7537f"
     },
     {
@@ -1200,11 +1200,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789287332575,
       "platform": "unknown",
-      "updatedAt": 1789287459153,
+      "updatedAt": 1789290274143,
       "thumb": "blob:https://gemini.google.com/7b23250c-02d7-47eb-9a08-ec5d660a8f2f"
     },
     {
@@ -1214,11 +1214,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789287461621,
       "platform": "unknown",
-      "updatedAt": 1789287534562,
+      "updatedAt": 1789290274143,
       "thumb": "blob:https://gemini.google.com/c50f2d68-3de4-4c35-a867-c8127dab86ab"
     },
     {
@@ -1228,11 +1228,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789287534934,
       "platform": "unknown",
-      "updatedAt": 1789287568505,
+      "updatedAt": 1789290274143,
       "error": "Capture timeout",
       "thumb": "blob:https://gemini.google.com/ae259841-701b-45a6-b35e-65096ff768e9"
     },
@@ -1243,11 +1243,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789287570581,
       "platform": "unknown",
-      "updatedAt": 1789287619804,
+      "updatedAt": 1789290274143,
       "thumb": "blob:https://gemini.google.com/164cf6cc-7783-4aa9-8d84-e3476c4b0f06"
     },
     {
@@ -1256,12 +1256,12 @@
       "prompt": "High-end 3D claymorphic cute chubby baby beaver with textured flat paddle tail and friendly front paws, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "error",
-      "attempts": 1,
+      "status": "done",
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789287622421,
       "platform": "unknown",
-      "updatedAt": 1789287655110,
+      "updatedAt": 1789290274144,
       "thumb": "blob:https://gemini.google.com/faf36e71-fc9b-47fd-ac85-8a9d3d417e48",
       "error": "Capture timeout"
     },
@@ -1272,11 +1272,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789287657408,
       "platform": "unknown",
-      "updatedAt": 1789287688573,
+      "updatedAt": 1789290274144,
       "thumb": "blob:https://gemini.google.com/7b8873c2-e9a4-4bf4-9d27-22c7a25c047a"
     },
     {
@@ -1286,11 +1286,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789287688905,
       "platform": "unknown",
-      "updatedAt": 1789287719450,
+      "updatedAt": 1789290274144,
       "thumb": "blob:https://gemini.google.com/16cba5b0-b225-4831-9080-ed3cec65610c"
     },
     {
@@ -1300,11 +1300,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789287720401,
       "platform": "unknown",
-      "updatedAt": 1789287749591,
+      "updatedAt": 1789290274144,
       "thumb": "blob:https://gemini.google.com/080fcb6a-84ee-4bfb-bf4e-3f69eda558b6"
     },
     {
@@ -1314,11 +1314,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674100,
       "startedAt": 1789287752580,
       "platform": "unknown",
-      "updatedAt": 1789288419834,
+      "updatedAt": 1789290274144,
       "thumb": "/assets/animal_seal.png"
     },
     {
@@ -1328,11 +1328,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674101,
       "startedAt": 1789288415438,
       "platform": "gemini",
-      "updatedAt": 1789288488474,
+      "updatedAt": 1789290274145,
       "thumb": "blob:https://gemini.google.com/5e147cba-0216-4040-b8ca-fcf23e9eaeda"
     },
     {
@@ -1342,11 +1342,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674101,
       "startedAt": 1789288489106,
       "platform": "gemini",
-      "updatedAt": 1789288703114,
+      "updatedAt": 1789290274145,
       "thumb": "blob:https://gemini.google.com/8c712317-ee4f-4722-86bb-cdb0c56f0e3b"
     },
     {
@@ -1356,11 +1356,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674101,
       "startedAt": 1789288703139,
       "platform": "gemini",
-      "updatedAt": 1789288756652,
+      "updatedAt": 1789290274145,
       "error": "Capture timeout",
       "thumb": "blob:https://gemini.google.com/f3cbe8b0-ac44-424f-af96-a68abc6e2119"
     },
@@ -1371,11 +1371,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674101,
       "startedAt": 1789288758417,
       "platform": "gemini",
-      "updatedAt": 1789288883815,
+      "updatedAt": 1789290274146,
       "thumb": "blob:https://gemini.google.com/6e81b318-d79c-442a-b61a-a0b8ec23f072"
     },
     {
@@ -1385,11 +1385,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674101,
       "startedAt": 1789288883963,
       "platform": "gemini",
-      "updatedAt": 1789288911365,
+      "updatedAt": 1789290274146,
       "thumb": "blob:https://gemini.google.com/a894fd44-e65b-4605-92ec-f1eacf082259"
     },
     {
@@ -1399,11 +1399,11 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674101,
       "startedAt": 1789288912426,
       "platform": "gemini",
-      "updatedAt": 1789288964386,
+      "updatedAt": 1789290274146,
       "thumb": "blob:https://gemini.google.com/0169543e-e3f1-43df-abde-c14758647ba4"
     },
     {
@@ -1417,7 +1417,7 @@
       "createdAt": 1789250674101,
       "startedAt": 1789284993951,
       "platform": "unknown",
-      "updatedAt": 1789285057345,
+      "updatedAt": 1789290274147,
       "thumb": "blob:https://gemini.google.com/cd71f813-4e32-496f-9636-4d7a46301e10"
     },
     {
@@ -1427,9 +1427,9 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674101,
-      "updatedAt": 1789288994603,
+      "updatedAt": 1789290274147,
       "startedAt": 1789288965489,
       "platform": "gemini",
       "thumb": "blob:https://gemini.google.com/abe191f1-9620-4f20-b520-7fe0cf61b4ec"
@@ -1441,9 +1441,9 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674101,
-      "updatedAt": 1789289023057,
+      "updatedAt": 1789290274148,
       "startedAt": 1789288996439,
       "platform": "gemini",
       "thumb": "blob:https://gemini.google.com/4008800b-c501-43e7-ac46-c58cde0940e0"
@@ -1455,9 +1455,9 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674101,
-      "updatedAt": 1789289062657,
+      "updatedAt": 1789290274148,
       "startedAt": 1789289024678,
       "platform": "gemini",
       "thumb": "blob:https://gemini.google.com/77afb5fa-dfed-485a-aeb0-cd61ff1d440c"
@@ -1469,9 +1469,9 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674104,
-      "updatedAt": 1789289097087,
+      "updatedAt": 1789290274148,
       "startedAt": 1789289062943,
       "platform": "gemini",
       "thumb": "blob:https://gemini.google.com/b459ce1b-9ece-4ea9-82f9-4b630ab7a67a"
@@ -1483,9 +1483,9 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674104,
-      "updatedAt": 1789289137198,
+      "updatedAt": 1789290274148,
       "startedAt": 1789289097925,
       "platform": "gemini",
       "thumb": "blob:https://gemini.google.com/a54adc16-649f-40ad-a43d-6f34e91b83ca"
@@ -1497,9 +1497,9 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "done",
-      "attempts": 1,
+      "attempts": 0,
       "createdAt": 1789250674104,
-      "updatedAt": 1789289248508,
+      "updatedAt": 1789290274149,
       "startedAt": 1789289138433,
       "platform": "gemini",
       "thumb": "blob:https://gemini.google.com/5e8b78ad-cbd6-4183-b78a-3980d91f34fc"
@@ -1510,12 +1510,13 @@
       "prompt": "High-end 3D claymorphic elegant heart-shaped pink chocolate gift box tied with a satin gold ribbon, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "processing",
-      "attempts": 1,
+      "status": "done",
+      "attempts": 0,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005355,
+      "updatedAt": 1789290274149,
       "startedAt": 1789289249128,
-      "platform": "gemini"
+      "platform": "gemini",
+      "thumb": "blob:https://gemini.google.com/94c44d83-acfb-4ee6-8ec4-34f62d36abc0"
     },
     {
       "id": "job_1789250674104_umtdr",
@@ -1523,10 +1524,13 @@
       "prompt": "High-end 3D claymorphic vintage sundae dish with three pastel ice cream scoops, whipped cream swirl, and cherry, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005356
+      "updatedAt": 1789290274149,
+      "startedAt": 1789289328940,
+      "platform": "gemini",
+      "thumb": "blob:https://gemini.google.com/c1a6841a-fef4-4e64-8135-a192d86c4b6c"
     },
     {
       "id": "job_1789250674104_twrof",
@@ -1534,10 +1538,13 @@
       "prompt": "High-end 3D claymorphic cute woven wicker pastry basket filled with miniature golden croissants and rolls, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005357
+      "updatedAt": 1789290274149,
+      "startedAt": 1789289370930,
+      "platform": "gemini",
+      "thumb": "blob:https://gemini.google.com/47608b2b-183d-4791-b3c8-288b1e6ea6e2"
     },
     {
       "id": "job_1789250674104_k10fm",
@@ -1545,10 +1552,13 @@
       "prompt": "High-end 3D claymorphic individual fluted pecan tart with glossy caramel glaze and toasted pecan halves, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005357
+      "updatedAt": 1789290274149,
+      "startedAt": 1789289430562,
+      "platform": "gemini",
+      "thumb": "blob:https://gemini.google.com/eaa789ac-883d-43f4-bdd2-5b9cf399920a"
     },
     {
       "id": "job_1789250674104_16uz4",
@@ -1556,10 +1566,13 @@
       "prompt": "High-end 3D claymorphic grand golden artisan croissant with pronounced crisp buttery layers, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005358
+      "updatedAt": 1789290274149,
+      "startedAt": 1789289500425,
+      "platform": "gemini",
+      "thumb": "blob:https://gemini.google.com/182ab2a0-0852-4108-b841-385509cabe67"
     },
     {
       "id": "job_1789250674104_yefj5",
@@ -1567,10 +1580,13 @@
       "prompt": "High-end 3D claymorphic vintage porcelain teapot in soft pastel lavender with delicate rosebud handle, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005359
+      "updatedAt": 1789290274150,
+      "startedAt": 1789289563425,
+      "platform": "gemini",
+      "thumb": "blob:https://gemini.google.com/c0679ab9-206c-483c-b760-d120003b58b6"
     },
     {
       "id": "job_1789250674104_38ypy",
@@ -1578,10 +1594,13 @@
       "prompt": "High-end 3D claymorphic fluffy cloud of pastel pink and blue cotton candy spun on a striped white stick, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005359
+      "updatedAt": 1789290274150,
+      "startedAt": 1789289844140,
+      "platform": "gemini",
+      "thumb": "blob:https://gemini.google.com/964932b7-0b45-4f88-8b8a-62c6574c80c6"
     },
     {
       "id": "job_1789250674104_acci7",
@@ -1589,10 +1608,12 @@
       "prompt": "High-end 3D claymorphic slice of Japanese strawberry shortcake with light sponge, whipped cream, and fresh berry, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005359
+      "updatedAt": 1789290274150,
+      "startedAt": 1789290025466,
+      "platform": "gemini"
     },
     {
       "id": "job_1789250674104_xgwjd",
@@ -1600,10 +1621,12 @@
       "prompt": "High-end 3D claymorphic luxury tiered pastel wedding cake with cascading miniature sugar flowers, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "processing",
+      "attempts": 1,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005359
+      "updatedAt": 1789290274150,
+      "startedAt": 1789290529795,
+      "platform": "chatgpt"
     },
     {
       "id": "job_1789250674104_kabsl",
@@ -1614,7 +1637,7 @@
       "status": "pending",
       "attempts": 0,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005359
+      "updatedAt": 1789290274150
     },
     {
       "id": "job_1789250674104_mpvo3",
@@ -1625,7 +1648,7 @@
       "status": "pending",
       "attempts": 0,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005359
+      "updatedAt": 1789290274151
     },
     {
       "id": "job_1789250674104_7er1i",
@@ -1636,7 +1659,7 @@
       "status": "pending",
       "attempts": 0,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005359
+      "updatedAt": 1789290274151
     },
     {
       "id": "job_1789250674104_faslp",
@@ -1647,7 +1670,7 @@
       "status": "pending",
       "attempts": 0,
       "createdAt": 1789250674104,
-      "updatedAt": 1789285005360
+      "updatedAt": 1789290274151
     },
     {
       "id": "job_1789285005282_lrwxy",
@@ -1655,9 +1678,10 @@
       "prompt": "High-end 3D claymorphic tiny golden poppy seed resting on a miniature soft cream clay leaf, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005283
+      "createdAt": 1789285005283,
+      "updatedAt": 1789290274117
     },
     {
       "id": "job_1789285005283_0e00h",
@@ -1665,9 +1689,10 @@
       "prompt": "High-end 3D claymorphic cute fresh green sweet pea pod gently split open revealing three plump round peas, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005283
+      "createdAt": 1789285005283,
+      "updatedAt": 1789290274117
     },
     {
       "id": "job_1789285005283_rmfb9",
@@ -1675,9 +1700,10 @@
       "prompt": "High-end 3D claymorphic plump juicy blueberry with a delicate star calyx and tiny green leaf, velvety pastel purple-blue, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005283
+      "createdAt": 1789285005283,
+      "updatedAt": 1789290274117
     },
     {
       "id": "job_1789285005285_mwt0i",
@@ -1685,9 +1711,10 @@
       "prompt": "High-end 3D claymorphic cute ripe raspberry with clustered soft clay drupelets and fresh green stem, warm coral pink, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005285
+      "createdAt": 1789285005285,
+      "updatedAt": 1789290274118
     },
     {
       "id": "job_1789285005286_4wtqx",
@@ -1695,9 +1722,10 @@
       "prompt": "High-end 3D claymorphic cute cluster of glossy translucent green grapes on a tiny twisted clay vine, soft pastel jade, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005286
+      "createdAt": 1789285005286,
+      "updatedAt": 1789290274118
     },
     {
       "id": "job_1789285005286_7nvje",
@@ -1705,9 +1733,10 @@
       "prompt": "High-end 3D claymorphic cute oval bright orange kumquat with glossy porcelain clay skin and two delicate leaves, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005286
+      "createdAt": 1789285005286,
+      "updatedAt": 1789290274119
     },
     {
       "id": "job_1789285005286_0hrxe",
@@ -1715,9 +1744,10 @@
       "prompt": "High-end 3D claymorphic plump teardrop-shaped purple fig with gentle pink blush and smooth matte clay texture, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005286
+      "createdAt": 1789285005286,
+      "updatedAt": 1789290274119
     },
     {
       "id": "job_1789285005287_2s5sm",
@@ -1725,9 +1755,10 @@
       "prompt": "High-end 3D claymorphic glossy round purple plum with warm golden blush and natural clay indentation, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005287
+      "createdAt": 1789285005287,
+      "updatedAt": 1789290274120
     },
     {
       "id": "job_1789285005287_m3v6u",
@@ -1735,9 +1766,10 @@
       "prompt": "High-end 3D claymorphic bright cheerful sunny yellow lemon with gentle clay zest texture and a single green leaf, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005287
+      "createdAt": 1789285005287,
+      "updatedAt": 1789290274120
     },
     {
       "id": "job_1789285005288_jagxj",
@@ -1745,9 +1777,10 @@
       "prompt": "High-end 3D claymorphic soft velvety peach with warm blush gradient from pastel apricot to rosy pink, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005288
+      "createdAt": 1789285005288,
+      "updatedAt": 1789290274121
     },
     {
       "id": "job_1789285005288_swiii",
@@ -1755,9 +1788,10 @@
       "prompt": "High-end 3D claymorphic cute glossy red apple with smooth porcelain finish and a tiny brown clay stem, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005288
+      "createdAt": 1789285005288,
+      "updatedAt": 1789290274121
     },
     {
       "id": "job_1789285005288_qhcci",
@@ -1765,9 +1799,10 @@
       "prompt": "High-end 3D claymorphic cute avocado half with smooth dark green pebbled skin, creamy pastel lime flesh, and smooth round brown pit, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005288
+      "createdAt": 1789285005288,
+      "updatedAt": 1789290274121
     },
     {
       "id": "job_1789285005288_ipqcl",
@@ -1775,9 +1810,10 @@
       "prompt": "High-end 3D claymorphic elegant golden Bosc pear with slender curved neck and warm honey glaze, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005288
+      "createdAt": 1789285005288,
+      "updatedAt": 1789290274122
     },
     {
       "id": "job_1789285005295_ydxdv",
@@ -1785,9 +1821,10 @@
       "prompt": "High-end 3D claymorphic cute smooth sweet potato with warm copper skin and vibrant terracotta orange interior slice, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005295
+      "createdAt": 1789285005295,
+      "updatedAt": 1789290274122
     },
     {
       "id": "job_1789285005295_zq8h8",
@@ -1795,9 +1832,10 @@
       "prompt": "High-end 3D claymorphic juicy ripe mango with rich sunset gradient from golden yellow to coral red, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005295
+      "createdAt": 1789285005295,
+      "updatedAt": 1789290274123
     },
     {
       "id": "job_1789285005297_8abwi",
@@ -1805,9 +1843,10 @@
       "prompt": "High-end 3D claymorphic cute cheerful curved bright yellow banana with delicate green tips, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005297
+      "createdAt": 1789285005297,
+      "updatedAt": 1789290274124
     },
     {
       "id": "job_1789285005298_tjjkm",
@@ -1815,9 +1854,10 @@
       "prompt": "High-end 3D claymorphic cute tapering bright orange carrot with embossed texture lines and fluffy green clay leafy top, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005298
+      "createdAt": 1789285005298,
+      "updatedAt": 1789290274124
     },
     {
       "id": "job_1789285005298_t50tf",
@@ -1825,9 +1865,10 @@
       "prompt": "High-end 3D claymorphic cute round coconut with textured brown husk, pure white porcelain coconut meat, and a miniature flower, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005298
+      "createdAt": 1789285005298,
+      "updatedAt": 1789290274125
     },
     {
       "id": "job_1789285005301_r97ht",
@@ -1835,9 +1876,10 @@
       "prompt": "High-end 3D claymorphic cute pink grapefruit sliced in half showing juicy translucent segmented pink interior and yellow-orange rind, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005301
+      "createdAt": 1789285005301,
+      "updatedAt": 1789290274125
     },
     {
       "id": "job_1789285005302_9i5o7",
@@ -1845,9 +1887,10 @@
       "prompt": "High-end 3D claymorphic cute cantaloupe melon with textured cream webbing over soft sage skin, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005302
+      "createdAt": 1789285005302,
+      "updatedAt": 1789290274125
     },
     {
       "id": "job_1789285005302_5vzk0",
@@ -1855,9 +1898,10 @@
       "prompt": "High-end 3D claymorphic cute head of cauliflower with creamy white floret clouds nestled in crisp pastel green protective clay leaves, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005302
+      "createdAt": 1789285005302,
+      "updatedAt": 1789290274125
     },
     {
       "id": "job_1789285005302_kjcsb",
@@ -1865,9 +1909,10 @@
       "prompt": "High-end 3D claymorphic crisp garden cucumber with subtle bumps and rich emerald green clay skin, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005302
+      "createdAt": 1789285005302,
+      "updatedAt": 1789290274126
     },
     {
       "id": "job_1789285005316_8w96m",
@@ -1875,9 +1920,10 @@
       "prompt": "High-end 3D claymorphic cute head of Savoy cabbage with ruffled overlapping mint and sage green clay leaves, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005316
+      "createdAt": 1789285005316,
+      "updatedAt": 1789290274128
     },
     {
       "id": "job_1789285005316_grp9f",
@@ -1885,9 +1931,10 @@
       "prompt": "High-end 3D claymorphic glossy deep violet purple eggplant with elegant curved silhouette and bright green clay calyx, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005316
+      "createdAt": 1789285005316,
+      "updatedAt": 1789290274128
     },
     {
       "id": "job_1789285005317_s4qrn",
@@ -1895,9 +1942,10 @@
       "prompt": "High-end 3D claymorphic smooth golden butternut squash with hourglass shape and matte porcelain finish, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005317
+      "createdAt": 1789285005317,
+      "updatedAt": 1789290274128
     },
     {
       "id": "job_1789285005317_vyixm",
@@ -1905,9 +1953,10 @@
       "prompt": "High-end 3D claymorphic cute golden pineapple with embossed geometric diamond skin and vibrant spiky green crown leaves, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005317
+      "createdAt": 1789285005317,
+      "updatedAt": 1789290274129
     },
     {
       "id": "job_1789285005317_621nq",
@@ -1915,9 +1964,10 @@
       "prompt": "High-end 3D claymorphic smooth fresh green zucchini squash with delicate yellow blossom flower attached, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005317
+      "createdAt": 1789285005317,
+      "updatedAt": 1789290274129
     },
     {
       "id": "job_1789285005317_5o7mh",
@@ -1925,9 +1975,10 @@
       "prompt": "High-end 3D claymorphic smooth pale celadon green honeydew melon with porcelain satin finish, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005317
+      "createdAt": 1789285005317,
+      "updatedAt": 1789290274129
     },
     {
       "id": "job_1789285005318_f27tg",
@@ -1935,9 +1986,10 @@
       "prompt": "High-end 3D claymorphic round watermelon with dark green wavy stripes and glossy porcelain finish, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005318
+      "createdAt": 1789285005318,
+      "updatedAt": 1789290274129
     },
     {
       "id": "job_1789285005318_vpwh2",
@@ -1945,9 +1997,10 @@
       "prompt": "High-end 3D claymorphic plump autumn pumpkin with rich orange ribbed segments and curly green clay vine stem, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005318
+      "createdAt": 1789285005318,
+      "updatedAt": 1789290274129
     },
     {
       "id": "job_1789285005324_vem9x",
@@ -1955,9 +2008,10 @@
       "prompt": "High-end 3D claymorphic cute chubby baby hamster holding a tiny sunflower seed with both paws, soft pastel apricot and cream, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005324
+      "createdAt": 1789285005324,
+      "updatedAt": 1789290274132
     },
     {
       "id": "job_1789285005326_fjau7",
@@ -1965,9 +2019,10 @@
       "prompt": "High-end 3D claymorphic cute fluffy white bunny rabbit with long pastel pink inner ears, sitting peacefully, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005326
+      "createdAt": 1789285005326,
+      "updatedAt": 1789290274138
     },
     {
       "id": "job_1789285005342_vjsla",
@@ -1975,9 +2030,10 @@
       "prompt": "High-end 3D claymorphic Parisian pistachio and raspberry macaron with delicate ruffled feet and creamy ganache, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005342
+      "createdAt": 1789285005342,
+      "updatedAt": 1789290274146
     },
     {
       "id": "job_1789285005343_uw9pi",
@@ -1985,9 +2041,10 @@
       "prompt": "High-end 3D claymorphic miniature pastel vintage porcelain teacup with floral gold trim and steaming herbal tea, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
-      "createdAt": 1789285005343
+      "createdAt": 1789285005343,
+      "updatedAt": 1789290274146
     }
   ]
 }

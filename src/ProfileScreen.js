@@ -655,46 +655,42 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
             )}
           </Card>
 
-          {/* Hatırlatıcılar */}
-          <View style={ps.switchRow}>
-            <View style={{ flex: 1, paddingRight: 10 }}>
-              <T bold style={{ fontSize: 14 }}>💧 {isEn ? 'Daily Water Reminder' : 'Günlük Su Hatırlatıcısı'}</T>
-              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                {isEn ? 'Receive reminders when push notifications are active' : 'Bildirim altyapısı bağlandığında günlük su hatırlatması al'}
-              </T>
+          {/* Bildirim & Hatırlatıcı Yönetim Merkezi Kartı */}
+          <Card style={{ padding: 16, backgroundColor: '#FAF5FB', borderColor: '#EBDDEB', marginBottom: 14 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#F0E3F2', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="bell" size={20} color={colors.purple} />
+                </View>
+                <View>
+                  <T bold style={{ fontSize: 15, color: colors.ink }}>
+                    {isEn ? 'Notification & Alert Center' : 'Bildirim & Hatırlatıcı Merkezi'}
+                  </T>
+                  <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2 }}>
+                    {isEn ? 'Hydration, vitamins, kicks & test alerts' : 'Su, vitamin, fetal tekme ve test alarmları'}
+                  </T>
+                </View>
+              </View>
             </View>
-            <Switch value={remindWater} onValueChange={v => { setRemindWater(v); update({ remindWater: v }); }} trackColor={{ true: colors.purple }} />
-          </View>
 
-          <View style={ps.switchRow}>
-            <View style={{ flex: 1, paddingRight: 10 }}>
-              <T bold style={{ fontSize: 14 }}>💊 {isEn ? 'Morning Vitamin Reminder' : 'Sabah Vitamin Hatırlatıcısı'}</T>
-              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                {isEn ? 'Highlight prenatal vitamin in morning feed' : 'Vitamin kaydını sabah akışında öne çıkar'}
+            <View style={{ marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#EDE2EE', gap: 6 }}>
+              <T style={{ fontSize: 12, color: '#594C61', lineHeight: 17 }}>
+                {isEn
+                  ? 'Manage scheduled clinical reminders, quiet hours, and test live notifications instantly.'
+                  : 'A’dan Z’ye klinik hatırlatıcıları, su sıklığını, sessiz saatleri yönetin ve anlık test bildirimi gönderin.'}
               </T>
-            </View>
-            <Switch value={remindVitamin} onValueChange={v => { setRemindVitamin(v); update({ remindVitamin: v }); }} trackColor={{ true: colors.purple }} />
-          </View>
 
-          <View style={ps.switchRow}>
-            <View style={{ flex: 1, paddingRight: 10 }}>
-              <T bold style={{ fontSize: 14 }}>💌 {isEn ? 'Daily Baby Letter' : 'Bebeğin Günlük Mektubu'}</T>
-              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                {isEn ? 'Prioritize daily letter in today feed' : 'Günün mektubunu ana akışta önceliklendir'}
-              </T>
+              <Tap
+                onPress={() => open && open('notifications')}
+                label={isEn ? "Open Notification Settings" : "Bildirim Ayarlarını Aç"}
+                style={[ps.saveFullBtn, { marginTop: 8 }]}
+              >
+                <T bold style={{ color: 'white', fontSize: 14 }}>
+                  {isEn ? '🔔 Manage All Notifications →' : '🔔 Bildirimleri ve Alarmları Yönet →'}
+                </T>
+              </Tap>
             </View>
-            <Switch value={remindLetter} onValueChange={v => { setRemindLetter(v); update({ remindLetter: v }); }} trackColor={{ true: colors.purple }} />
-          </View>
-
-          <View style={ps.switchRow}>
-            <View style={{ flex: 1, paddingRight: 10 }}>
-              <T bold style={{ fontSize: 14 }}>👨‍👩‍👧 {isEn ? 'Partner Note Alerts' : 'Eş Sevgi Notu Bildirimleri'}</T>
-              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                {isEn ? 'Highlight partner notes when account is synced' : 'Ortak aile hesabı bağlandığında eş notlarını öne çıkar'}
-              </T>
-            </View>
-            <Switch value={remindPartner} onValueChange={v => { setRemindPartner(v); update({ remindPartner: v }); }} trackColor={{ true: colors.purple }} />
-          </View>
+          </Card>
 
           <View style={{ height: 1, backgroundColor: colors.line, marginVertical: 16 }} />
 
