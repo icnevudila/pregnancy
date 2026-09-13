@@ -317,10 +317,10 @@ export async function fetchCommunityPostsCloud(category = 'All') {
 }
 
 export async function createCommunityPostCloud({ title, body, category = 'Genel', isAnonymous = false }) {
-  if (!supabase) return { error: { message: 'Bağlantı yok.' } };
+  if (!supabase) return { skipped: true };
   try {
     const { data: userData } = await supabase.auth.getUser();
-    if (!userData?.user) return { error: { message: 'Giriş yapmanız gerekiyor.' } };
+    if (!userData?.user) return { skipped: true, guest: true };
 
     const { data: prof } = await supabase
       .from('momora_profiles')
@@ -352,10 +352,10 @@ export async function createCommunityPostCloud({ title, body, category = 'Genel'
 }
 
 export async function addCommunityCommentCloud({ postId, body }) {
-  if (!supabase) return { error: { message: 'Bağlantı yok.' } };
+  if (!supabase) return { skipped: true };
   try {
     const { data: userData } = await supabase.auth.getUser();
-    if (!userData?.user) return { error: { message: 'Giriş yapmanız gerekiyor.' } };
+    if (!userData?.user) return { skipped: true, guest: true };
 
     const { data: prof } = await supabase
       .from('momora_profiles')

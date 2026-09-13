@@ -104,6 +104,18 @@ export async function signUpWithEmail({ email, password, fullName, role = 'mothe
         },
       },
     });
+    if (error) return { data, error };
+
+    if (data?.user && !data?.session) {
+      const signInRes = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signInRes.data?.session) {
+        return { data: signInRes.data, error: null };
+      }
+    }
+
     return { data, error };
   } catch (err) {
     return { error: err };

@@ -248,15 +248,20 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
       return;
     }
 
+    const titleToPost = newTitle.trim();
+    const bodyToPost = newDesc.trim();
+    const catToPost = newCat;
+    const isAnonToPost = isAnon;
+
     const created = {
       id: uid(),
-      user: isAnon ? (isEn ? 'Anonymous Mom' : 'Anonim Anne') : (state?.name || (isEn ? 'Me' : 'Ben')),
+      user: isAnonToPost ? (isEn ? 'Anonymous Mom' : 'Anonim Anne') : (state?.name || (isEn ? 'Me' : 'Ben')),
       week: state?.week ? (isEn ? `Week ${state.week}` : `${state.week}. Hafta`) : (isEn ? 'Mom' : 'Anne'),
-      title: newTitle.trim(),
-      desc: newDesc.trim(),
+      title: titleToPost,
+      desc: bodyToPost,
       likes: 1,
       comments: 0,
-      cat: newCat,
+      cat: catToPost,
       verified: false,
       isOwn: true,
       time: isEn ? 'Just now' : 'Az önce',
@@ -267,6 +272,17 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
     setPrivacyWarning(false);
     setNewPostModal(false);
     toast && toast(isEn ? '🌸 Your question was published in the community feed!' : '🌸 Sorun topluluk akışında paylaşıldı!');
+
+    createCommunityPostCloud({
+      title: titleToPost,
+      body: bodyToPost,
+      category: catToPost,
+      isAnonymous: isAnonToPost,
+    }).then(res => {
+      if (res?.data?.id) {
+        setPosts(prev => prev.map(p => p.id === created.id ? { ...p, id: res.data.id } : p));
+      }
+    }).catch(() => {});
   }
 
   function toggleLike(postId) {
@@ -1003,20 +1019,48 @@ export function CommunityThreadScreen({ post, toast, lang: propLang }) {
   const pTime = (isEn && p.timeEn) ? p.timeEn : p.time;
   const pUser = (isEn && p.userEn) ? p.userEn : p.user;
 
+  React.useEffect(() => {
+    if (p?.id) {
+      fetchCommunityCommentsCloud(p.id).then(res => {
+        if (res?.data && res.data.length > 0) {
+          const mapped = res.data.map(c => ({
+            id: c.id,
+            author: c.author_name || (isEn ? 'Fellow Mom' : 'Anne Adayı'),
+            role: c.author_role === 'father' ? (isEn ? 'Father' : 'Baba') : (isEn ? 'Mom' : 'Anne Adayı'),
+            isExpert: false,
+            text: c.body,
+            time: new Date(c.created_at).toLocaleDateString(isEn ? 'en-US' : 'tr-TR'),
+            helpful: c.helpful_count || 0,
+          }));
+          setComments(prev => {
+            const existingIds = new Set(prev.map(x => x.id));
+            const unique = mapped.filter(x => !existingIds.has(x.id));
+            return [...prev, ...unique];
+          });
+        }
+      }).catch(() => {});
+    }
+  }, [p?.id, isEn]);
+
   function addComment() {
     if (!commentText.trim()) return;
+    const bodyToComment = commentText.trim();
     const newC = {
       id: uid(),
       author: isEn ? 'You' : 'Sen',
       role: isEn ? 'Week 24' : '24. Hafta',
       isExpert: false,
-      text: commentText.trim(),
+      text: bodyToComment,
       time: isEn ? 'Just now' : 'Az önce',
       helpful: 0,
     };
     setComments([...comments, newC]);
     setCommentText('');
     toast && toast(isEn ? '🌸 Your reply was added to the community chat!' : '🌸 Yanıtınız topluluk sohbetine eklendi!');
+
+    if (p?.id) {
+      addCommunityCommentCloud({ postId: p.id, body: bodyToComment }).catch(() => {});
+    }
   }
 
   function reportComment(commentId) {
