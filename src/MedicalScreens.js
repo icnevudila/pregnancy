@@ -14,7 +14,7 @@ import { getUltrasoundDetails, decodeBiometryReport, ULTRASOUND_MILESTONES, HADL
 export function SizeComparisonHub({ state, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
   const [week, setWeek] = useState(state?.week || 24);
-  const [mode, setMode] = useState('baby'); // 'baby' | 'fruit' | 'animal' | 'sweet'
+  const [mode, setMode] = useState('fruit'); // 'fruit' | 'sweet' | 'animal' | 'baby'
   const [rotation, setRotation] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [showDelta, setShowDelta] = useState(true);
@@ -46,23 +46,23 @@ export function SizeComparisonHub({ state, toast, lang = 'tr' }) {
   return (
     <View style={ms.container}>
       <ScreenHero
-        kicker={isEn ? '3D SCALE & VISUAL DISCOVERY' : '3D BOYUT & GÖRSEL KEŞİF'}
+        kicker={isEn ? 'SCALE & VISUAL DISCOVERY' : 'BOYUT & GÖRSEL KEŞİF'}
         title={isEn ? "Feel your baby's real scale" : "Bebeğinin gerçek ölçeğini hisset"}
         body={isEn
-          ? "Screen-scale 3D fetus renders, fruit, animal, and sweet comparisons week by week."
-          : "Büyük ekran 3D fetüs modeli, meyve, sevimli hayvan ve tatlı metaforlarıyla haftalık gelişim."}
+          ? "Screen-scale fruit, sweets, baby animals, and 3D fetus comparisons week by week."
+          : "Haftalık meyve, tatlı/nesne, sevimli hayvan ve 3D fetüs metaforlarıyla bebeğinin büyüme yolculuğu."}
         icon="sparkles"
         asset={fetusAssetKey}
         tint="#7B4C80"
       />
 
-      {/* 4'lü Kategori Seçici Sekmeler (Spec 05: Bebek, Meyve, Hayvan, Tatlı) */}
+      {/* 4'lü Kategori Seçici Sekmeler: Meyve, Tatlı/Nesne, Hayvan, 3D Fetüs */}
       <View style={ms.segRow}>
         {[
-          { id: 'baby', label: isEn ? '3D Baby' : '3D Bebek', icon: 'heart' },
           { id: 'fruit', label: isEn ? 'Fruit' : 'Meyve', icon: 'apple' },
-          { id: 'animal', label: isEn ? 'Animal' : 'Hayvan', icon: 'paw' },
-          { id: 'sweet', label: isEn ? 'Sweet' : 'Tatlı', icon: 'cupcake' },
+          { id: 'sweet', label: isEn ? 'Sweet / Object' : 'Tatlı / Nesne', icon: 'cupcake' },
+          { id: 'animal', label: isEn ? 'Baby Animal' : 'Yavru Hayvan', icon: 'paw' },
+          { id: 'baby', label: isEn ? '3D Fetus' : '3D Fetüs', icon: 'heart' },
         ].map(s => (
           <Tap
             key={s.id}

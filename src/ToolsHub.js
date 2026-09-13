@@ -55,7 +55,7 @@ export function getAllTools(lang = 'tr') {
       title: isEn ? 'Ultrasound Atlas & Biometry' : 'Ultrason Atlası & Biyometri',
       subtitle: isEn ? '3D HDLive, 2D scans & report decoder' : '3D HDLive, 2D sonogram & rapor okuma',
       icon: 'ultrasound',
-      art: 'ui_ultrasound_biometry_caliper',
+      art: 'card_ultrasound_frame',
       color: '#F4EEF7',
       tint: '#583D7A',
       available: true,
@@ -153,7 +153,7 @@ export function getAllTools(lang = 'tr') {
       title: isEn ? 'Affirmations & Calm' : 'Olumlamalar & Sakinlik',
       subtitle: isEn ? 'Daily birth confidence ritual' : 'Günlük doğum güveni ritüeli',
       icon: 'heart',
-      art: 'blog_herbal_tea_relax',
+      art: 'ui_postpartum_lotus',
       color: '#F8F1FA',
       tint: '#8A5BA4',
       available: true,
@@ -534,11 +534,11 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
           <Card style={{ padding: 16, backgroundColor: '#FFFCF8', borderColor: '#ECE1EA' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <View>
-                <T bold style={{ fontSize: 17, color: colors.ink }}>{isEn ? 'Premium daily suite' : 'Premium günlük set'}</T>
-                <T style={{ fontSize: 12, color: colors.muted, marginTop: 3 }}>{isEn ? 'The four tools users need most today.' : 'Bugün en çok ihtiyaç duyulan dört araç.'}</T>
+                <T bold style={{ fontSize: 17, color: colors.ink }}>{isEn ? "Today's Focus Tools" : 'Günün Odak Araçları'}</T>
+                <T style={{ fontSize: 12, color: colors.muted, marginTop: 3 }}>{isEn ? 'Four key tools tailored for today.' : 'Bugün en çok ihtiyaç duyabileceğin dört araç.'}</T>
               </View>
               <View style={{ paddingHorizontal: 9, paddingVertical: 5, borderRadius: 12, backgroundColor: '#F1E8F4' }}>
-                <T bold style={{ fontSize: 10, color: colors.purple }}>{isEn ? 'SMART' : 'AKILLI'}</T>
+                <T bold style={{ fontSize: 10, color: colors.purple }}>{isEn ? 'RECOMMENDED' : 'ÖNERİLEN'}</T>
               </View>
             </View>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 9 }}>

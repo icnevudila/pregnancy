@@ -886,8 +886,8 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
             style={[s.weekPill, week === n && s.weekActive]}
           >
             <T style={[{ fontSize: 13 }, week === n && { color: 'white', fontFamily: fonts.bold }]}>{n}</T>
-            <T style={[{ fontSize: 9, marginTop: 1, color: week === n ? '#EEE5F4' : colors.muted }]}>
-              {getWeekInfo(n, lang).fruitName.split(' ')[0]}
+            <T numberOfLines={1} ellipsizeMode="tail" style={[{ fontSize: 9, marginTop: 1, textAlign: 'center', color: week === n ? '#EEE5F4' : colors.muted }]}>
+              {getWeekInfo(n, lang).fruitName}
             </T>
           </Tap>
         ))}
@@ -2196,7 +2196,7 @@ const s=StyleSheet.create({
   fitImage:{width:'100%',height:'100%',objectFit:'contain',objectPosition:'center',alignSelf:'center'},
   journey:{minHeight:145,borderRadius:25,overflow:'hidden',flexDirection:'row',alignItems:'center',paddingRight:14,borderWidth:1,borderColor:'#EDE1E2',...shadow},journeyPhoto:{position:'absolute',left:10,top:10,bottom:10,width:114,borderRadius:20,overflow:'hidden',backgroundColor:'#F6EEF3',alignItems:'center',justifyContent:'center'},journeyImage:{width:'100%',height:'100%',objectFit:'cover',objectPosition:'center',alignSelf:'center'},journeyCopy:{marginLeft:136,flex:1,paddingVertical:20},journeyTitle:{fontSize:18,lineHeight:24},journeySub:{fontSize:13,lineHeight:20,marginTop:7},motto:{alignItems:'center',marginTop:30,gap:7},handwritten:{fontFamily:fonts.script,fontSize:23,lineHeight:25,color:'#9A8495',textAlign:'center'},
   subtitle:{color:'#8C6B94',fontSize:15,marginTop:5},iconHit:{width:42,height:42,justifyContent:'center',alignItems:'center'},pageTitle:{fontSize:25,letterSpacing:-0.5},
-  weekStrip:{flexDirection:'row',gap:7,paddingBottom:4},weekPill:{minWidth:58,alignItems:'center',paddingVertical:8,paddingHorizontal:6,borderRadius:20,backgroundColor:'#EEE8E6'},weekActive:{backgroundColor:'#A28ABB',shadowColor:'#9A80B4',shadowOpacity:0.35,shadowRadius:6,shadowOffset:{width:0,height:2}},
+  weekStrip:{flexDirection:'row',gap:7,paddingBottom:4},weekPill:{minWidth:66,alignItems:'center',paddingVertical:8,paddingHorizontal:7,borderRadius:20,backgroundColor:'#EEE8E6'},weekActive:{backgroundColor:'#A28ABB',shadowColor:'#9A80B4',shadowOpacity:0.35,shadowRadius:6,shadowOffset:{width:0,height:2}},
   // Comparison hero & tabs
   compHeroCard:{gap:8},
   compTabs:{flexDirection:'row',backgroundColor:'#EDE4F2',borderRadius:16,padding:3,gap:4},
