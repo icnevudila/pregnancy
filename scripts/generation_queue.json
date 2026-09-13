@@ -2105,10 +2105,10 @@
       "prompt": "Clinical obstetric 2D B-mode ultrasound sonogram of a late third trimester 36-week fetus in cephalic presentation, showing the fetal skull engaged toward the cervix, anterior placental tissue with mature grade texture, and amniotic fluid pocket, authentic hospital sonogram monitor capture, monochrome acoustic grayscale, no watermark, no text.",
       "transparent": false,
       "status": "processing",
-      "attempts": 16,
+      "attempts": 18,
       "createdAt": 1789302625543,
       "preferredPlatform": "chatgpt",
-      "startedAt": 1789306108872,
+      "startedAt": 1789306376462,
       "platform": "chatgpt"
     },
     {
@@ -2116,11 +2116,11 @@
       "filename": "usg_doppler_umbilical_flow.png",
       "prompt": "Clinical obstetric color Doppler ultrasound sonogram of the umbilical cord and fetal circulation, displaying vibrant red and blue directional blood flow velocities inside the umbilical arteries and vein, set against an authentic dark grayscale sonographic background, medical Doppler velocimetry diagnostic screen, no text, no watermark.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 1,
+      "status": "processing",
+      "attempts": 2,
       "createdAt": 1789302625543,
       "preferredPlatform": "chatgpt",
-      "startedAt": 1789303845878,
+      "startedAt": 1789306577846,
       "platform": "chatgpt"
     },
     {

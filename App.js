@@ -21,6 +21,8 @@ import {
   syncPushTokenWithSupabase,
   loadNotificationSettings,
 } from './src/notifications';
+import { ErrorBoundary } from './src/ErrorBoundary';
+import { analytics } from './src/services/analytics';
 
 function Momora() {
   const {
@@ -196,7 +198,22 @@ function Momora() {
   </View>;
 }
 export default function App(){
-  useFonts({Lato:require('./assets/fonts/Lato-Regular.ttf'),LatoBold:require('./assets/fonts/Lato-Bold.ttf'),Caveat:require('./assets/fonts/Caveat.ttf')});
-  return <SafeAreaProvider><Momora/></SafeAreaProvider>;
+  const [fontsLoaded] = useFonts({
+    Lato: require('./assets/fonts/Lato-Regular.ttf'),
+    LatoBold: require('./assets/fonts/Lato-Bold.ttf'),
+    Caveat: require('./assets/fonts/Caveat.ttf'),
+  });
+
+  return (
+    <SafeAreaProvider>
+      <ErrorBoundary>
+        {fontsLoaded ? <Momora /> : (
+          <View style={s.loading}>
+            <ActivityIndicator size="large" color={colors.purple} />
+          </View>
+        )}
+      </ErrorBoundary>
+    </SafeAreaProvider>
+  );
 }
 const s=StyleSheet.create({root:{flex:1,backgroundColor:colors.canvas,alignItems:'center'},desktop:{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:72,backgroundColor:'#F2EDE6'},loading:{flex:1,alignItems:'center',justifyContent:'center',gap:20,backgroundColor:colors.canvas},phone:{flex:1,width:'100%',maxWidth:500,backgroundColor:colors.canvas,overflow:'hidden'},phoneDesktop:{flexGrow:0,flexShrink:0,flexBasis:390,width:390,borderRadius:48,borderWidth:8,borderColor:'#282729',shadowColor:'#5B4949',shadowOpacity:0.18,shadowRadius:35,shadowOffset:{width:0,height:16}},sidebar:{width:287,alignSelf:'center'},desktopBrand:{flexDirection:'row',alignItems:'center',gap:8},desktopWordmark:{fontSize:39,letterSpacing:-1.7,fontFamily:fonts.regular},desktopTag:{fontSize:14,color:'#8A768C',marginTop:8},previewTab:{flexDirection:'row',alignItems:'center',gap:13,borderRadius:14,padding:15},previewTabActive:{backgroundColor:'#E8DEE9'},previewNumber:{fontSize:12,color:'#A699A7'},localBadge:{flexDirection:'row',alignItems:'center',gap:8,marginTop:39},dot:{width:6,height:6,borderRadius:3,backgroundColor:'#8BA48C'},statusMock:{height:42,flexDirection:'row',justifyContent:'space-between',alignItems:'center',paddingHorizontal:24},island:{position:'absolute',width:106,height:27,borderRadius:20,backgroundColor:'#121214',top:8,left:'50%',marginLeft:-53},nav:{flexDirection:'row',paddingTop:12,paddingHorizontal:9,backgroundColor:'#FCF9F5',borderTopWidth:1,borderColor:'#EEE7E4'},navItem:{flex:1,minHeight:39,alignItems:'center',justifyContent:'center',gap:5},navLabel:{fontSize:10,color:'#85818B'},toast:{position:'absolute',bottom:95,left:20,right:20,padding:15,borderRadius:18,backgroundColor:'#695773F2'}});
