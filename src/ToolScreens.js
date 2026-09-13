@@ -812,116 +812,163 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
   );
 }
 
-// ─── 3. HASTANE ÇANTASI (ADVANCED 4-CATEGORY HOSPITAL BAG) ─────────────────────
+// ─── 3. HASTANE ÇANTASI (6-CATEGORY PACKING PLANNER PER SPEC 08_HOSPITAL_BAG) ───
 export function HospitalBag({ state, update, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
-  const [activeTab, setActiveTab] = useState('mother'); // 'mother' | 'baby' | 'partner' | 'docs'
-  const [newItemName, setNewItemName] = useState('');
+  const [activeTab, setActiveTab] = useState('mother'); // 'mother' | 'baby' | 'partner' | 'docs' | 'delivery' | 'home'
+  const [assignedFilter, setAssignedFilter] = useState('all'); // 'all' | 'partner' | 'mother'
+  const [newItemTitle, setNewItemTitle] = useState('');
+  const [newItemPriority, setNewItemPriority] = useState('essential');
+  const [newItemAssigned, setNewItemAssigned] = useState('mother');
   const [showAddModal, setShowAddModal] = useState(false);
 
+  // 6 Categories with item states: notPrepared, prepared, packed
   const defaultBag = isEn ? {
     mother: [
-      { id: 'm1', name: 'Button-front nursing nightgown (2 pcs)', done: true },
-      { id: 'm2', name: 'Nursing bra & tanks (2 pcs)', done: true },
-      { id: 'm3', name: 'Postpartum maternity pads & cotton underwear', done: false },
-      { id: 'm4', name: 'Non-slip comfortable hospital slippers', done: false },
-      { id: 'm5', name: 'Nipple cream (Pure lanolin)', done: true },
-      { id: 'm6', name: 'Lip balm & hairband / ties', done: false },
-      { id: 'm7', name: 'Warm shawl / robe', done: false },
+      { id: 'm1', title: 'Button-front nursing nightgown (2 pcs)', priority: 'essential', status: 'packed', assignedTo: 'mother', quantity: 2 },
+      { id: 'm2', title: 'Nursing bra & soft cotton underwear', priority: 'essential', status: 'packed', assignedTo: 'mother', quantity: 4 },
+      { id: 'm3', title: 'Postpartum maternity pads', priority: 'essential', status: 'prepared', assignedTo: 'mother', quantity: 10 },
+      { id: 'm4', title: 'Warm non-slip hospital slippers', priority: 'recommended', status: 'notPrepared', assignedTo: 'mother', quantity: 1 },
+      { id: 'm5', title: 'Lanolin nipple balm & breast pads', priority: 'recommended', status: 'notPrepared', assignedTo: 'mother', quantity: 1 },
     ],
     baby: [
-      { id: 'b1', name: 'Newborn take-home outfit (onesie, hat, mittens)', done: true },
-      { id: 'b2', name: 'Newborn diapers (1 pack - size 1)', done: true },
-      { id: 'b3', name: 'Cotton muslin swaddles & burp cloths (4 pcs)', done: false },
-      { id: 'b4', name: 'Water wipes & barrier diaper cream', done: false },
-      { id: 'b5', name: 'Season-appropriate baby blanket', done: true },
-      { id: 'b6', name: 'Car seat properly installed for going home', done: false },
+      { id: 'b1', title: 'Going-home newborn hospital exit set', priority: 'essential', status: 'packed', assignedTo: 'mother', quantity: 1 },
+      { id: 'b2', title: '100% cotton newborn bodysuits & mittens', priority: 'essential', status: 'packed', assignedTo: 'mother', quantity: 3 },
+      { id: 'b3', title: 'Newborn diapers & water wipes', priority: 'essential', status: 'prepared', assignedTo: 'mother', quantity: 1 },
+      { id: 'b4', title: 'Soft muslin blankets & swaddles', priority: 'recommended', status: 'notPrepared', assignedTo: 'mother', quantity: 2 },
     ],
     partner: [
-      { id: 'p1', name: 'Spare comfortable t-shirt & sweatpants', done: true },
-      { id: 'p2', name: 'Long cable phone charger & powerbank', done: false },
-      { id: 'p3', name: 'Healthy snacks (nuts, dates, water)', done: false },
-      { id: 'p4', name: 'Cash / coins for parking & vending machines', done: false },
+      { id: 'p1', title: 'Long-cord phone charger & powerbank', priority: 'essential', status: 'packed', assignedTo: 'partner', quantity: 1 },
+      { id: 'p2', title: 'Change of comfortable t-shirt & sweatpants', priority: 'recommended', status: 'prepared', assignedTo: 'partner', quantity: 2 },
+      { id: 'p3', title: 'Healthy snacks (dates, nuts, water bottle)', priority: 'recommended', status: 'notPrepared', assignedTo: 'partner', quantity: 1 },
+      { id: 'p4', title: 'Cash / coins for hospital parking & vending', priority: 'optional', status: 'notPrepared', assignedTo: 'partner', quantity: 1 },
     ],
     docs: [
-      { id: 'd1', name: 'Photo IDs for both parents', done: true },
-      { id: 'd2', name: 'All pregnancy ultrasounds & lab results file', done: true },
-      { id: 'd3', name: 'Health insurance card & hospital documents', done: false },
-      { id: 'd4', name: 'Printed copy of signed birth plan', done: false },
+      { id: 'd1', title: 'Parent ID cards & insurance documents', priority: 'essential', status: 'packed', assignedTo: 'partner', quantity: 1 },
+      { id: 'd2', title: 'All pregnancy prenatal & ultrasound files', priority: 'essential', status: 'packed', assignedTo: 'partner', quantity: 1 },
+      { id: 'd3', title: 'Signed birth preferences plan copy', priority: 'recommended', status: 'prepared', assignedTo: 'partner', quantity: 1 },
+    ],
+    delivery: [
+      { id: 'del1', title: 'Lip balm & hydrating facial mist', priority: 'recommended', status: 'prepared', assignedTo: 'mother', quantity: 1 },
+      { id: 'del2', title: 'Warm thick labor socks', priority: 'essential', status: 'packed', assignedTo: 'mother', quantity: 2 },
+      { id: 'del3', title: 'Wireless earbuds for calming playlist', priority: 'optional', status: 'notPrepared', assignedTo: 'partner', quantity: 1 },
+    ],
+    home: [
+      { id: 'h1', title: 'ECE-approved infant car seat (installed)', priority: 'essential', status: 'prepared', assignedTo: 'partner', quantity: 1 },
+      { id: 'h2', title: 'Weather-appropriate baby fleece blanket', priority: 'recommended', status: 'notPrepared', assignedTo: 'mother', quantity: 1 },
+      { id: 'h3', title: 'Comfortable loose mom going-home outfit', priority: 'essential', status: 'prepared', assignedTo: 'mother', quantity: 1 },
     ],
   } : {
     mother: [
-      { id: 'm1', name: 'Önden düğmeli lohusa geceliği (2 adet)', done: true },
-      { id: 'm2', name: 'Emzirme sütyeni & atletleri (2 adet)', done: true },
-      { id: 'm3', name: 'Lohusa depend pedi & pamuklu iç çamaşırı', done: false },
-      { id: 'm4', name: 'Kaymayan rahat hastane terliği', done: false },
-      { id: 'm5', name: 'Meme ucu kremi (Lanolin saf)', done: true },
-      { id: 'm6', name: 'Dudak nemlendirici & saç bandı / toka', done: false },
-      { id: 'm7', name: 'Geniş şal / sabahlık', done: false },
+      { id: 'm1', title: 'Önden düğmeli lohusa geceliği (2 adet)', priority: 'essential', status: 'packed', assignedTo: 'mother', quantity: 2 },
+      { id: 'm2', title: 'Emzirme sütyeni & yüksek bel pamuklu çamaşır', priority: 'essential', status: 'packed', assignedTo: 'mother', quantity: 4 },
+      { id: 'm3', title: 'Lohusa doğum pedi & göğüs pedi', priority: 'essential', status: 'prepared', assignedTo: 'mother', quantity: 10 },
+      { id: 'm4', title: 'Kaymayan sıcak oda terliği', priority: 'recommended', status: 'notPrepared', assignedTo: 'mother', quantity: 1 },
+      { id: 'm5', title: 'Lanolin göğüs ucu kremi & nemlendirici', priority: 'recommended', status: 'notPrepared', assignedTo: 'mother', quantity: 1 },
     ],
     baby: [
-      { id: 'b1', name: 'Yenidoğan hastane çıkış seti (zıbın, tulum, şapka)', done: true },
-      { id: 'b2', name: 'Yenidoğan bebek bezi (1 paket - 1 numara)', done: true },
-      { id: 'b3', name: 'Pamuklu müslin örtüler & ağız mendilleri (4 adet)', done: false },
-      { id: 'b4', name: 'Saf su içerikli ıslak mendil & pişik önleyici', done: false },
-      { id: 'b5', name: 'Mevsime uygun bebek battaniyesi', done: true },
-      { id: 'b6', name: 'Hastane çıkışı için oto koltuğu / puset', done: false },
+      { id: 'b1', title: 'Hastane çıkışı zıbın & tulum seti', priority: 'essential', status: 'packed', assignedTo: 'mother', quantity: 1 },
+      { id: 'b2', title: 'Yenidoğan pamuklu çıtçıtlı body & eldiven', priority: 'essential', status: 'packed', assignedTo: 'mother', quantity: 3 },
+      { id: 'b3', title: '1 paket yenidoğan bebek bezi & saf su mendili', priority: 'essential', status: 'prepared', assignedTo: 'mother', quantity: 1 },
+      { id: 'b4', title: 'Müslin örtü & kundak battaniye', priority: 'recommended', status: 'notPrepared', assignedTo: 'mother', quantity: 2 },
     ],
     partner: [
-      { id: 'p1', name: 'Yedek rahat tişört & eşofman', done: true },
-      { id: 'p2', name: 'Uzun kablolu telefon şarj aleti & powerbank', done: false },
-      { id: 'p3', name: 'Sağlıklı atıştırmalıklar (fındık, hurma, su)', done: false },
-      { id: 'p4', name: 'Otopark & otomat için bozuk para / nakit', done: false },
+      { id: 'p1', title: 'Uzun kablolu şarj aleti & powerbank', priority: 'essential', status: 'packed', assignedTo: 'partner', quantity: 1 },
+      { id: 'p2', title: 'Yedek rahat tişört & eşofman', priority: 'recommended', status: 'prepared', assignedTo: 'partner', quantity: 2 },
+      { id: 'p3', title: 'Enerji atıştırmalıkları (hurma, kuruyemiş, su)', priority: 'recommended', status: 'notPrepared', assignedTo: 'partner', quantity: 1 },
+      { id: 'p4', title: 'Hastane otoparkı / otomat için bozuk para & nakit', priority: 'optional', status: 'notPrepared', assignedTo: 'partner', quantity: 1 },
     ],
     docs: [
-      { id: 'd1', name: 'Anne ve baba kimlik kartları', done: true },
-      { id: 'd2', name: 'Tüm gebelik ultrason & tahlil dosyası', done: true },
-      { id: 'd3', name: 'Sağlık sigortası kartı / poliçe evrakları', done: false },
-      { id: 'd4', name: 'İmzalanmış doğum planı çıktısı', done: false },
+      { id: 'd1', title: 'Anne ve baba kimlik kartları & sigorta belgeleri', priority: 'essential', status: 'packed', assignedTo: 'partner', quantity: 1 },
+      { id: 'd2', title: 'Tüm gebelik tahlil & ultrason takip dosyası', priority: 'essential', status: 'packed', assignedTo: 'partner', quantity: 1 },
+      { id: 'd3', title: 'Doğum tercih planı çıktısı (2 nüsha)', priority: 'recommended', status: 'prepared', assignedTo: 'partner', quantity: 2 },
+    ],
+    delivery: [
+      { id: 'del1', title: 'Dudak nemlendiricisi & ferahlatıcı termal sprey', priority: 'recommended', status: 'prepared', assignedTo: 'mother', quantity: 1 },
+      { id: 'del2', title: 'Doğumhane için kalın sıcak çorap', priority: 'essential', status: 'packed', assignedTo: 'mother', quantity: 2 },
+      { id: 'del3', title: 'Sakinleştirici müzik için kablosuz kulaklık', priority: 'optional', status: 'notPrepared', assignedTo: 'partner', quantity: 1 },
+    ],
+    home: [
+      { id: 'h1', title: 'Oto güvenlik koltuğu / anakucağı (arabada hazır)', priority: 'essential', status: 'prepared', assignedTo: 'partner', quantity: 1 },
+      { id: 'h2', title: 'Mevsime uygun kalın bebek battaniyesi', priority: 'recommended', status: 'notPrepared', assignedTo: 'mother', quantity: 1 },
+      { id: 'h3', title: 'Anne için bol & rahat taburculuk kıyafeti', priority: 'essential', status: 'prepared', assignedTo: 'mother', quantity: 1 },
     ],
   };
 
   const bagData = state?.hospitalBag || defaultBag;
-  const currentItems = bagData[activeTab] || [];
+  const categories = [
+    { id: 'mother', label: isEn ? 'Mother' : 'Anne', icon: 'bag' },
+    { id: 'baby', label: isEn ? 'Baby' : 'Bebek', icon: 'baby' },
+    { id: 'partner', label: isEn ? 'Partner' : 'Refakatçi', icon: 'heart' },
+    { id: 'docs', label: isEn ? 'Documents' : 'Belgeler', icon: 'calendar' },
+    { id: 'delivery', label: isEn ? 'Delivery' : 'Doğum Odası', icon: 'star' },
+    { id: 'home', label: isEn ? 'Going Home' : 'Taburculuk', icon: 'home' },
+  ];
 
-  // Toplam İlerleme Hesaplama
-  const allItems = [...(bagData.mother || []), ...(bagData.baby || []), ...(bagData.partner || []), ...(bagData.docs || [])];
+  // Flatten items across categories
+  const allItems = Object.values(bagData).flat();
   const totalCount = allItems.length;
-  const packedCount = allItems.filter(i => i.done).length;
+  const packedCount = allItems.filter(i => i.status === 'packed').length;
+  const preparedCount = allItems.filter(i => i.status === 'prepared' || i.status === 'packed').length;
   const totalPercent = totalCount ? Math.round((packedCount / totalCount) * 100) : 0;
 
-  function toggleItem(id) {
-    const updatedCategory = currentItems.map(item =>
-      item.id === id ? { ...item, done: !item.done } : item
-    );
-    const updatedBag = { ...bagData, [activeTab]: updatedCategory };
+  const currentCategoryItems = (bagData[activeTab] || []).filter(item => {
+    if (assignedFilter === 'partner') return item.assignedTo === 'partner';
+    if (assignedFilter === 'mother') return item.assignedTo === 'mother';
+    return true;
+  });
+
+  // 3-Stage Status Cycle: notPrepared -> prepared -> packed -> notPrepared
+  function cycleItemStatus(categoryKey, itemId) {
+    const nextStatusMap = {
+      notPrepared: 'prepared',
+      prepared: 'packed',
+      packed: 'notPrepared',
+    };
+
+    const updatedCategory = (bagData[categoryKey] || []).map(item => {
+      if (item.id !== itemId) return item;
+      const current = item.status || (item.done ? 'packed' : 'notPrepared');
+      return { ...item, status: nextStatusMap[current] || 'notPrepared' };
+    });
+
+    const updatedBag = { ...bagData, [categoryKey]: updatedCategory };
     update({ hospitalBag: updatedBag });
-    toast && toast(isEn ? 'Bag checklist updated.' : 'Çanta listesi güncellendi.');
   }
 
   function handleAddItem() {
-    if (!newItemName.trim()) return;
+    if (!newItemTitle.trim()) return;
     const newItem = {
-      id: 'custom-' + Date.now(),
-      name: newItemName.trim(),
-      done: false,
+      id: `custom-${Date.now()}`,
+      title: newItemTitle.trim(),
+      priority: newItemPriority,
+      status: 'notPrepared',
+      assignedTo: newItemAssigned,
+      quantity: 1,
     };
+
     const updatedBag = {
       ...bagData,
       [activeTab]: [...(bagData[activeTab] || []), newItem],
     };
+
     update({ hospitalBag: updatedBag });
-    setNewItemName('');
+    setNewItemTitle('');
     setShowAddModal(false);
-    toast && toast(isEn ? 'Item added to bag.' : 'Yeni madde çantaya eklendi.');
+    toast && toast(isEn ? 'Item added to bag planner' : 'Yeni madde çantaya eklendi');
   }
 
-  const tabs = [
-    { id: 'mother', label: isEn ? 'Mom' : 'Anne' },
-    { id: 'baby', label: isEn ? 'Baby' : 'Bebek' },
-    { id: 'partner', label: isEn ? 'Partner' : 'Refakatçi' },
-    { id: 'docs', label: isEn ? 'Documents' : 'Evraklar' },
-  ];
+  const priorityLabels = {
+    essential: isEn ? 'Essential' : 'Zorunlu',
+    recommended: isEn ? 'Recommended' : 'Önerilen',
+    optional: isEn ? 'Optional' : 'İsteğe Bağlı',
+  };
+
+  const statusBadges = {
+    notPrepared: { label: isEn ? 'Hazırlanmadı' : 'Hazırlanmadı', bg: '#F2EDEE', color: '#7E6B74' },
+    prepared: { label: isEn ? 'Hazırlandı' : 'Hazırlandı', bg: '#FFF5E6', color: '#A06014' },
+    packed: { label: isEn ? 'Çantada ✓' : 'Çantada ✓', bg: '#EAF6EC', color: '#2B6A38' },
+  };
 
   return (
     <View style={ts.container}>
@@ -929,14 +976,13 @@ export function HospitalBag({ state, update, toast, lang = 'tr' }) {
         asset="ui_hospital_bag_3d"
         icon="bag"
         kicker={isEn ? 'BIRTH PREPARATION' : 'DOĞUM HAZIRLIĞI'}
-        title={isEn ? 'Hospital Bag Checklist' : 'Hastane Çantası Listesi'}
-        body={isEn ? 'Recommended to be packed by weeks 32-34: essentials for mom, baby, and partner all in one place.' : '32-34. haftada hazır olması önerilen anne, bebek ve refakatçi gereksinimleri tek çatı altında.'}
-        stat={isEn ? `%${totalPercent} Ready (${packedCount}/${totalCount})` : `%${totalPercent} Hazır (${packedCount}/${totalCount})`}
+        title={isEn ? 'Hospital Packing Planner' : 'Hastane Çantası Planlayıcı'}
+        body={isEn ? 'A real packing planner with 6 essential zones, 3 preparation states, and partner assignment.' : 'Basit bir kontrol listesi değil; 6 bölümlü, 3 aşamalı (hazır / çantada) gerçek çanta planlayıcı.'}
+        stat={isEn ? `%${totalPercent} Packed (${packedCount}/${totalCount})` : `%${totalPercent} Çantada (${packedCount}/${totalCount})`}
         tint="#744E8A"
       />
-      <ToolExperienceCard lang={lang} title={isEn ? 'Pack by role' : 'Role göre çanta hazırla'} steps={isEn ? ['Separate mother, baby, partner, and document items.', 'Tick what is ready.', 'Add custom items for your hospital.'] : ['Anne, bebek, refakatçi ve evrakları ayır.', 'Hazır olanları işaretle.', 'Kendi hastanen için özel eşya ekle.']} outcome={isEn ? 'The result feels like a real hospital checklist.' : 'Sonuç gerçek hastane hazırlık listesi gibi görünür.'} asset="ui_hospital_bag_3d" tint="#7C5292" />
 
-      {/* Genel İlerleme Dairesel Göstergesi */}
+      {/* Genel İlerleme Kartı */}
       <Card style={{ padding: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
           <ProgressRing
@@ -948,75 +994,192 @@ export function HospitalBag({ state, update, toast, lang = 'tr' }) {
           >
             <T bold style={{ fontSize: 14.5, color: colors.purple }}>%{totalPercent}</T>
           </ProgressRing>
-
           <View style={{ flex: 1 }}>
-            <T bold style={{ fontSize: 16, color: colors.ink }}>
-              {totalPercent === 100 ? (isEn ? '🎉 Bag Completely Packed!' : '🎉 Çantanız Tamamen Hazır!') : (isEn ? 'Packing Status' : 'Hazırlık Durumu')}
+            <T bold style={{ fontSize: 15, color: colors.ink }}>
+              {isEn ? `${packedCount} of ${totalCount} items packed` : `${packedCount} / ${totalCount} eşya çantaya kondu`}
             </T>
             <T style={{ fontSize: 12, color: colors.muted, marginTop: 3 }}>
-              {totalPercent === 100 ? (isEn ? 'Congratulations! Your hospital bag is all set.' : 'Tebrikler! Doğum çantanız eksiksiz hazır.') : (isEn ? `${packedCount} of ${totalCount} items packed (${totalCount - packedCount} remaining).` : `Toplam ${totalCount} eşyadan ${packedCount} tanesi çantada (${totalCount - packedCount} kalan).`)}
+              {isEn ? `${preparedCount} items gathered and ready` : `${preparedCount} eşya hazırlandı, son yerleşim bekleniyor`}
             </T>
           </View>
         </View>
       </Card>
 
-      {/* Kategori Sekmeleri */}
-      <View style={ts.bagTabRow}>
-        {tabs.map(t => {
-          const items = bagData[t.id] || [];
-          const done = items.filter(i => i.done).length;
-          return (
-            <Tap
-              key={t.id}
-              onPress={() => setActiveTab(t.id)}
-              style={[ts.bagTabBtn, activeTab === t.id && ts.bagTabBtnActive]}
-            >
-              <T bold={activeTab === t.id} style={[ts.bagTabText, activeTab === t.id && { color: colors.purple }]}>
-                {t.label} ({done}/{items.length})
-              </T>
-            </Tap>
-          );
-        })}
+      {/* Partner Filtreleme Seçicisi (Spec 08: "Sana atananlar" / Shared progress) */}
+      <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center' }}>
+        {[
+          { id: 'all', label: isEn ? 'All Items' : 'Tüm Eşyalar' },
+          { id: 'mother', label: isEn ? 'Mom Only' : 'Anneye Ait' },
+          { id: 'partner', label: isEn ? 'Assigned to Partner 🤝' : 'Partnerime Atananlar 🤝' },
+        ].map(filter => (
+          <Tap
+            key={filter.id}
+            onPress={() => setAssignedFilter(filter.id)}
+            style={{
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              borderRadius: 10,
+              backgroundColor: assignedFilter === filter.id ? colors.purple : '#F2EEF4',
+            }}
+          >
+            <T bold={assignedFilter === filter.id} style={{ fontSize: 11.5, color: assignedFilter === filter.id ? 'white' : colors.ink }}>
+              {filter.label}
+            </T>
+          </Tap>
+        ))}
       </View>
 
-      {/* Eşya Listesi */}
+      {/* 6 Kategori Yatay Kaydırma */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
+        {categories.map(cat => (
+          <Tap
+            key={cat.id}
+            onPress={() => setActiveTab(cat.id)}
+            style={{
+              paddingHorizontal: 14,
+              paddingVertical: 9,
+              borderRadius: 14,
+              backgroundColor: activeTab === cat.id ? '#EDE4EF' : '#FFFFFF',
+              borderWidth: 1,
+              borderColor: activeTab === cat.id ? colors.purple : '#EADCEE',
+            }}
+          >
+            <T bold={activeTab === cat.id} style={{ fontSize: 12.5, color: activeTab === cat.id ? colors.purple : colors.muted }}>
+              {cat.label} ({(bagData[cat.id] || []).length})
+            </T>
+          </Tap>
+        ))}
+      </ScrollView>
+
+      {/* Eşya Listesi (3 Aşamalı Dokunmatik Durum) */}
       <View style={{ gap: 8 }}>
-        {currentItems.map(item => {
-          const itemDisplayName = isEn
-            ? (defaultBag[activeTab]?.find(d => d.id === item.id)?.name || item.name)
-            : (item.name);
+        {currentCategoryItems.map(item => {
+          const currentStatus = item.status || (item.done ? 'packed' : 'notPrepared');
+          const badge = statusBadges[currentStatus] || statusBadges.notPrepared;
+
           return (
-            <Tap
-              key={item.id}
-              onPress={() => toggleItem(item.id)}
-              style={[ts.bagItemRow, item.done && ts.bagItemRowDone]}
-            >
-              <View style={[ts.bagItemCheck, item.done && ts.bagItemCheckDone]}>
-                {item.done && <Icon name="check" size={13} color="white" />}
+            <Card key={item.id} style={{ padding: 14 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View style={{ flex: 1, paddingRight: 10 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <View style={{ paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, backgroundColor: item.priority === 'essential' ? '#FCEEEF' : '#F6F6F6' }}>
+                      <T bold style={{ fontSize: 10, color: item.priority === 'essential' ? '#B83244' : colors.muted }}>
+                        {priorityLabels[item.priority] || item.priority}
+                      </T>
+                    </View>
+                    {item.assignedTo === 'partner' && (
+                      <T style={{ fontSize: 11, color: '#4B7B56' }}>🤝 Refakatçi</T>
+                    )}
+                  </View>
+                  <T bold style={{ fontSize: 13.5, color: colors.ink, marginTop: 4 }}>
+                    {item.title || item.name}
+                  </T>
+                </View>
+
+                {/* 3 Aşamalı Durum Butonu */}
+                <Tap
+                  onPress={() => cycleItemStatus(activeTab, item.id)}
+                  style={{
+                    paddingHorizontal: 12,
+                    paddingVertical: 7,
+                    borderRadius: 12,
+                    backgroundColor: badge.bg,
+                    borderWidth: 1,
+                    borderColor: badge.color + '40',
+                  }}
+                >
+                  <T bold style={{ fontSize: 11.5, color: badge.color }}>
+                    {badge.label}
+                  </T>
+                </Tap>
               </View>
-              <T style={[ts.bagItemText, item.done && ts.bagItemTextDone]}>
-                {itemDisplayName}
-              </T>
-            </Tap>
+            </Card>
           );
         })}
       </View>
 
-      {/* Yeni Madde Ekleme Alanı */}
-      <View style={ts.addItemRow}>
-        <TextInput
-          value={newItemName}
-          onChangeText={setNewItemName}
-          placeholder={isEn ? "Add a custom item to this category..." : "Bu kategoriye özel bir eşya ekle..."}
-          placeholderTextColor={colors.muted}
-          style={ts.addItemInput}
-          onSubmitEditing={handleAddItem}
-        />
-        <Tap onPress={handleAddItem} style={ts.addItemBtn}>
-          <Icon name="plus" size={16} color="white" />
-          <T bold style={{ color: 'white', fontSize: 12 }}>{isEn ? 'Add' : 'Ekle'}</T>
-        </Tap>
-      </View>
+      {/* Yeni Eşya Ekle Butonu */}
+      <Tap
+        onPress={() => setShowAddModal(true)}
+        style={{ paddingVertical: 13, borderRadius: 14, backgroundColor: '#FAF6FA', borderWidth: 1.5, borderColor: '#DECDE0', alignItems: 'center', borderStyle: 'dashed' }}
+      >
+        <T bold style={{ fontSize: 13, color: colors.purple }}>
+          {isEn ? '+ Add Custom Item' : '+ Bu Kategoriye Özel Eşya Ekle'}
+        </T>
+      </Tap>
+
+      {/* Eşya Ekleme Modalı */}
+      <Modal visible={showAddModal} transparent animationType="fade" onRequestClose={() => setShowAddModal(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(20,10,25,0.6)', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <Card style={{ width: '100%', maxWidth: 360, padding: 20, borderRadius: 22, backgroundColor: 'white', gap: 12 }}>
+            <T bold style={{ fontSize: 16, color: colors.ink }}>
+              {isEn ? 'Add Hospital Bag Item' : 'Çantaya Eşya Ekle'}
+            </T>
+
+            <TextInput
+              value={newItemTitle}
+              onChangeText={setNewItemTitle}
+              placeholder={isEn ? 'Item name...' : 'Eşya adı (örn. emzirme yastığı)...'}
+              placeholderTextColor="#A79AA7"
+              style={ws.noteInputBox}
+            />
+
+            <T bold style={{ fontSize: 12, color: colors.ink, marginTop: 4 }}>{isEn ? 'Priority:' : 'Öncelik:'}</T>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              {['essential', 'recommended', 'optional'].map(p => (
+                <Tap
+                  key={p}
+                  onPress={() => setNewItemPriority(p)}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 8,
+                    borderRadius: 10,
+                    alignItems: 'center',
+                    backgroundColor: newItemPriority === p ? colors.purple : '#F2EEF4',
+                  }}
+                >
+                  <T bold={newItemPriority === p} style={{ fontSize: 11, color: newItemPriority === p ? 'white' : colors.ink }}>
+                    {priorityLabels[p]}
+                  </T>
+                </Tap>
+              ))}
+            </View>
+
+            <T bold style={{ fontSize: 12, color: colors.ink, marginTop: 4 }}>{isEn ? 'Assigned to:' : 'Sorumlu:'}</T>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              {[
+                { id: 'mother', label: isEn ? 'Mother' : 'Anne' },
+                { id: 'partner', label: isEn ? 'Partner' : 'Refakatçi' },
+              ].map(a => (
+                <Tap
+                  key={a.id}
+                  onPress={() => setNewItemAssigned(a.id)}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 8,
+                    borderRadius: 10,
+                    alignItems: 'center',
+                    backgroundColor: newItemAssigned === a.id ? colors.purple : '#F2EEF4',
+                  }}
+                >
+                  <T bold={newItemAssigned === a.id} style={{ fontSize: 11, color: newItemAssigned === a.id ? 'white' : colors.ink }}>
+                    {a.label}
+                  </T>
+                </Tap>
+              ))}
+            </View>
+
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
+              <Tap onPress={() => setShowAddModal(false)} style={{ flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: '#EDE8ED', alignItems: 'center' }}>
+                <T bold style={{ color: colors.ink }}>{isEn ? 'Cancel' : 'İptal'}</T>
+              </Tap>
+              <Tap onPress={handleAddItem} style={{ flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: colors.purple, alignItems: 'center' }}>
+                <T bold style={{ color: 'white' }}>{isEn ? 'Add' : 'Ekle'}</T>
+              </Tap>
+            </View>
+          </Card>
+        </View>
+      </Modal>
     </View>
   );
 }

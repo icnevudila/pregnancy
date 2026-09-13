@@ -227,200 +227,381 @@ export function WeightTracker({ state, update, toast, lang = 'tr' }) {
   );
 }
 
-// ─── 5. DOĞUM PLANI (BIRTH PLAN BUILDER) ──────────────────────────────────────
+// ─── 5. DOĞUM PLANI (8-SECTION GUIDED BUILDER PER SPEC 09_BIRTH_PREFERENCES) ───
 export function BirthPlanBuilder({ state, update, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
   const plan = state.birthPlan || {};
-  const [selectedCat, setSelectedCat] = useState(isEn ? 'All' : 'Tümü');
-  const [showDoctorSheet, setShowDoctorSheet] = useState(false);
+  const [activeSectionIndex, setActiveSectionIndex] = useState(0);
+  const [showSummarySheet, setShowSummarySheet] = useState(false);
 
-  const defaultBirthPlanOptions = isEn ? [
-    { id: 'bp1', cat: 'Birth Environment', title: 'Dim and quiet lighting', desc: 'A soothing, warm, and peaceful room atmosphere' },
-    { id: 'bp2', cat: 'Birth Environment', title: 'Calming background playlist', desc: 'My curated relaxation and gentle wave music' },
-    { id: 'bp3', cat: 'Birth Environment', title: 'Freedom of movement & birth ball', desc: 'Vertical and active mobility rather than staying confined in bed' },
-    { id: 'bp4', cat: 'Pain Relief', title: 'Natural breathing & hypnobirthing', desc: 'Non-pharmacological pain management and deep breathing cycles' },
-    { id: 'bp5', cat: 'Pain Relief', title: 'Epidural available upon request', desc: 'Option to receive an epidural when pain threshold is reached' },
-    { id: 'bp6', cat: 'When Baby Arrives', title: 'Immediate Golden Hour skin-to-skin', desc: 'Baby placed directly on mom’s chest right after delivery' },
-    { id: 'bp7', cat: 'When Baby Arrives', title: 'Delayed cord clamping', desc: 'Wait 1-3 minutes until umbilical cord pulsations cease' },
-    { id: 'bp8', cat: 'When Baby Arrives', title: 'First colostrum nursing in Golden Hour', desc: 'Initiate first breastfeeding within the very first hour of birth' },
+  // 8 Sections strictly per spec 09_BIRTH_PREFERENCES.md
+  const sections = isEn ? [
+    {
+      id: 'env',
+      title: '1. Birth Environment',
+      icon: 'star',
+      desc: 'Lighting, music, and support team present in the birth room',
+      options: [
+        { id: 'bp_dim_lights', title: 'Dim and calm lighting', desc: 'Soft warm room atmosphere during labor' },
+        { id: 'bp_playlist', title: 'Personal soothing playlist', desc: 'Play relaxation music or nature sounds freely' },
+        { id: 'bp_partner_presence', title: 'Partner present at all times', desc: 'Continuous physical and emotional birth companion support' },
+      ],
+    },
+    {
+      id: 'movement',
+      title: '2. Movement & Positions',
+      icon: 'footprint',
+      desc: 'Active mobility, vertical positions, and labor props',
+      options: [
+        { id: 'bp_birth_ball', title: 'Birth ball & active movement', desc: 'Freedom to walk, rock, and change positions' },
+        { id: 'bp_vertical_birth', title: 'Upright or side-lying birth', desc: 'Gravitational support rather than flat on back' },
+        { id: 'bp_shower', title: 'Warm shower / hydrotherapy', desc: 'Use warm water to ease labor tension' },
+      ],
+    },
+    {
+      id: 'pain',
+      title: '3. Pain Relief & Comfort',
+      icon: 'heart',
+      desc: 'Natural techniques and medical analgesia preferences',
+      options: [
+        { id: 'bp_breath_first', title: 'Breathwork & counter-pressure massage', desc: 'Non-pharmacological comfort techniques first' },
+        { id: 'bp_epidural_on_request', title: 'Epidural available upon my request', desc: 'Administered when I ask, without premature pressure' },
+      ],
+    },
+    {
+      id: 'interventions',
+      title: '4. Interventions & Care',
+      icon: 'milestone',
+      desc: 'Informed consent on routine procedures',
+      options: [
+        { id: 'bp_informed_consent', title: 'Informed consent before interventions', desc: 'Explain reasons and options prior to medical procedures' },
+        { id: 'bp_no_routine_episiotomy', title: 'No routine episiotomy', desc: 'Avoid unless clinically emergency strictly necessary' },
+      ],
+    },
+    {
+      id: 'moment',
+      title: '5. The Birth Moment',
+      icon: 'baby',
+      desc: 'Baby emergence and umbilical cord management',
+      options: [
+        { id: 'bp_delayed_cord', title: 'Delayed umbilical cord clamping', desc: 'Wait 1-3 minutes until cord stops pulsating' },
+        { id: 'bp_partner_cuts_cord', title: 'Partner cuts umbilical cord', desc: 'Partner participates in clamping and cutting' },
+      ],
+    },
+    {
+      id: 'plan_b',
+      title: '6. Plan B & Cesarean',
+      icon: 'bag',
+      desc: 'Preferences if birth changes to cesarean birth',
+      options: [
+        { id: 'bp_partner_in_or', title: 'Partner present in operating room', desc: 'Companion stays beside mom throughout procedure' },
+        { id: 'bp_immediate_skin_cesarean', title: 'Early skin-to-skin in recovery', desc: 'Chest contact as soon as mom and baby are stable' },
+      ],
+    },
+    {
+      id: 'golden_hour',
+      title: '7. Golden Hour (First Minutes)',
+      icon: 'heart',
+      desc: 'Uninterrupted first contact after birth',
+      options: [
+        { id: 'bp_golden_hour', title: 'Uninterrupted 60m skin-to-skin', desc: 'Immediate placement on maternal chest' },
+        { id: 'bp_delay_weighing', title: 'Delay newborn weighing / measuring', desc: 'Complete first bonding hour before routine checks' },
+      ],
+    },
+    {
+      id: 'newborn',
+      title: '8. Newborn Care & Feeding',
+      icon: 'nursing',
+      desc: 'First feed, bath, and nursery preferences',
+      options: [
+        { id: 'bp_exclusive_nursing', title: 'Exclusive breastfeeding support', desc: 'No pacifiers or formula without maternal consultation' },
+        { id: 'bp_delay_bath', title: 'Delay first bath for 24-48 hours', desc: 'Preserve natural vernix protective coating on skin' },
+      ],
+    },
   ] : [
-    { id: 'bp1', cat: 'Doğum Ortamı', title: 'Loş ve sakin ışıklandırma', desc: 'Rahatlatıcı, loş ve huzurlu bir oda atmosferi' },
-    { id: 'bp2', cat: 'Doğum Ortamı', title: 'Sakinleştirici arka plan müziği', desc: 'Kendi hazırladığım gevşeme ve dalga çalma listesi' },
-    { id: 'bp3', cat: 'Doğum Ortamı', title: 'Serbest hareket & pilates topu', desc: 'Yatakta sabit kalmak yerine dikey ve aktif pozisyonlar' },
-    { id: 'bp4', cat: 'Ağrı Yönetimi', title: 'Doğal nefes ve gevşeme teknikleri', desc: 'İlaçsız rahatlama ve derin nefes döngüleri' },
-    { id: 'bp5', cat: 'Ağrı Yönetimi', title: 'Gerektiğinde epidural anestezi', desc: 'Ağrı eşiğim zorlandığında epidural opsiyonunun hazır olması' },
-    { id: 'bp6', cat: 'Bebek Doğunca', title: 'İlk saat Ten Tene Temas', desc: 'Kordon kesildikten sonra hemen anne göğsüne verilmesi' },
-    { id: 'bp7', cat: 'Bebek Doğunca', title: 'Geç kordon klempleme', desc: 'Kordon pulsasyonunun durması beklenerek (1-3 dk) klemplenmesi' },
-    { id: 'bp8', cat: 'Bebek Doğunca', title: 'İlk saat kolostrum ile emzirme', desc: 'Altın saatte anne sütüyle ilk bağın kurulması' },
+    {
+      id: 'env',
+      title: '1. Doğum Ortamı',
+      icon: 'star',
+      desc: 'Oda aydınlatması, müzik ve refakatçi mevcudiyeti',
+      options: [
+        { id: 'bp_dim_lights', title: 'Loş ve sakin oda ışığı', desc: 'Gözü yormayan sıcak ve huzurlu doğum ortamı' },
+        { id: 'bp_playlist', title: 'Kişisel gevşeme müzik listesi', desc: 'Dalga sesleri veya hafif müziklerin serbestçe çalınabilmesi' },
+        { id: 'bp_partner_presence', title: 'Partnerin doğum boyunca yanımda olması', desc: 'Fiziksel ve duygusal desteğin kesintisiz sürmesi' },
+      ],
+    },
+    {
+      id: 'movement',
+      title: '2. Hareket & Pozisyonlar',
+      icon: 'footprint',
+      desc: 'Aktif hareket serbestliği ve pilates topu',
+      options: [
+        { id: 'bp_birth_ball', title: 'Pilates topu ve serbest dolaşım', desc: 'Yatakta sabit kalmak yerine odada hareket edebilme' },
+        { id: 'bp_vertical_birth', title: 'Yerçekimini kullanan dikey / yan yatış pozisyonu', desc: 'Sırtüstü yerine bedenin doğal akışına uygun açı' },
+        { id: 'bp_shower', title: 'Ilık duş / hidroterapi', desc: 'Sancı dalgalarını hafifletmek için ılık su imkanı' },
+      ],
+    },
+    {
+      id: 'pain',
+      title: '3. Ağrı Yönetimi & Rahatlama',
+      icon: 'heart',
+      desc: 'Doğal rahatlama yöntemleri ve medikal anestezi',
+      options: [
+        { id: 'bp_breath_first', title: 'Nefes teknikleri ve masaj desteği', desc: 'İlaç öncesi doğal parasempatik rahatlama yöntemleri' },
+        { id: 'bp_epidural_on_request', title: 'Talep ettiğimde epidural seçeneği', desc: 'Baskı hissetmeden kendi kararımla uygulanabilmesi' },
+      ],
+    },
+    {
+      id: 'interventions',
+      title: '4. Müdahaleler & İletişim',
+      icon: 'milestone',
+      desc: 'Tıbbi işlemler öncesi bilgilendirme ve onay',
+      options: [
+        { id: 'bp_informed_consent', title: 'Müdahaleler öncesi bilgilendirilmiş onam', desc: 'Rutin işlemlerin gerekçesinin önceden paylaşılması' },
+        { id: 'bp_no_routine_episiotomy', title: 'Rutin epizyotomi uygulanmaması', desc: 'Yalnızca klinik acil gereklilik halinde başvurulması' },
+      ],
+    },
+    {
+      id: 'moment',
+      title: '5. Doğum Anı',
+      icon: 'baby',
+      desc: 'Bebeğin çıkışı ve göbek kordonu yönetimi',
+      options: [
+        { id: 'bp_delayed_cord', title: 'Geç kordon klempleme (1-3 dakika)', desc: 'Kordondaki nabız atışı durana kadar beklenmesi' },
+        { id: 'bp_partner_cuts_cord', title: 'Kordonu partnerin kesmesi', desc: 'Eşin doğuma aktif ve sembolik katılımı' },
+      ],
+    },
+    {
+      id: 'plan_b',
+      title: '6. Plan B & Sezaryen',
+      icon: 'bag',
+      desc: 'Doğum şekli değişirse geçerli tercihler',
+      options: [
+        { id: 'bp_partner_in_or', title: 'Eşin ameliyathanede yanımda olması', desc: 'Sezaryen sürecinde refakatçinin desteğinin sürmesi' },
+        { id: 'bp_immediate_skin_cesarean', title: 'Uyanma odasında erken ten tene temas', desc: 'İlk stabil anda bebeğin göğsüme verilmesi' },
+      ],
+    },
+    {
+      id: 'golden_hour',
+      title: '7. Altın Saat (İlk Dakikalar)',
+      icon: 'heart',
+      desc: 'Doğumdan hemen sonra kesintisiz bağ kurma',
+      options: [
+        { id: 'bp_golden_hour', title: 'Doğar doğmaz 60 dk ten tene temas', desc: 'İlk kontrollerden önce anne göğsünde sıcak kalması' },
+        { id: 'bp_delay_weighing', title: 'Kilo ve boy ölçümünün ilk saat ertelenmesi', desc: 'Rutin ölçümlerin anne-bebek bağı sonrasına bırakılması' },
+      ],
+    },
+    {
+      id: 'newborn',
+      title: '8. Yenidoğan Bakımı & Beslenme',
+      icon: 'nursing',
+      desc: 'İlk emzirme, banyo ve biberon yaklaşımı',
+      options: [
+        { id: 'bp_exclusive_nursing', title: 'Sadece anne sütü & emzirme önceliği', desc: 'Tıbbi zorunluluk olmadıkça mama verilmemesi' },
+        { id: 'bp_delay_bath', title: 'İlk banyonun 24-48 saat ertelenmesi', desc: 'Koruyucu verniks tabakasının ciltte emilmesi' },
+      ],
+    },
   ];
 
-  const birthPlanCategories = isEn
-    ? ['All', 'Birth Environment', 'Pain Relief', 'When Baby Arrives']
-    : ['Tümü', 'Doğum Ortamı', 'Ağrı Yönetimi', 'Bebek Doğunca'];
+  // Choice options per spec 09: Prefer, Discuss, Prefer Not, No Preference
+  const choiceOptions = [
+    { id: 'prefer', label: isEn ? 'Prefer 👍' : 'Tercih Ederim 👍', bg: '#EDF7EE', color: '#2B6638' },
+    { id: 'discuss', label: isEn ? 'Discuss 💬' : 'Hekimle Görüşülecek 💬', bg: '#FFF7E6', color: '#A06312' },
+    { id: 'prefer_not', label: isEn ? 'Prefer Not 🚫' : 'Tercih Etmem 🚫', bg: '#FDEEEF', color: '#B32F3D' },
+    { id: 'no_pref', label: isEn ? 'No Preference ⚪' : 'Fark Etmez ⚪', bg: '#F2EEF4', color: '#6A5F70' },
+  ];
 
-  function toggleOption(id) {
-    const nextVal = !plan[id];
-    update(old => ({
-      birthPlan: { ...(old.birthPlan || {}), [id]: nextVal },
-    }));
+  function setPreference(optionId, choiceId) {
+    const updatedPlan = { ...plan, [optionId]: choiceId };
+    update({ birthPlan: updatedPlan });
   }
 
-  const selectedCount = Object.values(plan).filter(Boolean).length;
-  const totalOptions = defaultBirthPlanOptions.length;
-  const planPercent = Math.round((selectedCount / totalOptions) * 100);
+  // Calculate completed sections (a section is completed if all its options are answered)
+  const allOptions = sections.flatMap(s => s.options);
+  const answeredCount = allOptions.filter(o => !!plan[o.id]).length;
+  const completedSectionsCount = sections.filter(s => s.options.every(o => !!plan[o.id])).length;
+  const currentSection = sections[activeSectionIndex] || sections[0];
 
-  const filteredOptions = (selectedCat === 'Tümü' || selectedCat === 'All')
-    ? defaultBirthPlanOptions
-    : defaultBirthPlanOptions.filter(o => o.cat === selectedCat);
-
-  const selectedList = defaultBirthPlanOptions.filter(o => plan[o.id]);
+  function generateSummaryText() {
+    let out = isEn ? "📋 MY BIRTH PREFERENCES PLAN\n" : "📋 DOĞUM TERCİHLERİ PLANI\n";
+    for (const sec of sections) {
+      const answeredInSec = sec.options.filter(o => plan[o.id] && plan[o.id] !== 'no_pref');
+      if (answeredInSec.length) {
+        out += `\n${sec.title.toUpperCase()}:\n`;
+        for (const opt of answeredInSec) {
+          const choice = choiceOptions.find(c => c.id === plan[opt.id]);
+          out += `• ${opt.title} (${choice ? choice.label : ''})\n`;
+        }
+      }
+    }
+    return out;
+  }
 
   return (
     <View style={ws.container}>
       <ScreenHero
-        asset="ui_birth_plan_scroll"
-        icon="book"
-        kicker={isEn ? 'BIRTH PREPARATION' : 'DOĞUM HAZIRLIĞI'}
-        title={isEn ? 'Gather Your Birth Preferences' : 'Tercihlerini tek sayfada topla'}
-        body={isEn ? 'Turn environment, pain control, and postpartum preferences into a clean, shareable plan.' : 'Ortam, ağrı kontrolü ve ilk temas tercihlerini sade, paylaşılabilir bir plana dönüştür.'}
-        stat={isEn ? `${selectedCount}/${totalOptions} choices` : `${selectedCount}/${totalOptions} tercih`}
-        tint="#946635"
+        asset="ui_birth_plan_compass"
+        icon="star"
+        kicker={isEn ? 'GUIDED BUILDER' : 'REHBERLİ PLANLAYICI'}
+        title={isEn ? 'Birth Preferences Plan' : 'Doğum Tercihleri Planı'}
+        body={isEn ? 'A guided 8-section companion to align desires, discussion points, and care team expectations.' : 'Basit bir onay kutusu yerine 8 bölümlü rehber. Beklentilerinizi doktorunuz ve ebenizle uyumlu hale getirin.'}
+        stat={`${completedSectionsCount}/8 ${isEn ? 'sections completed' : 'bölüm tamamlandı'}`}
+        tint="#A66848"
       />
-      <ToolExperienceCard lang={lang} title={isEn ? 'Turn preferences into a shareable summary' : 'Tercihleri paylaşılabilir özete çevir'} steps={isEn ? ['Choose comfort and support preferences.', 'Review the ready percentage.', 'Open the summary before your birth conversation.'] : ['Konfor ve destek tercihlerini seç.', 'Hazırlık yüzdesini gör.', 'Doğum görüşmesi öncesi özeti aç.']} outcome={isEn ? 'It feels like a finished birth preference form.' : 'Bitmiş bir doğum tercih formu hissi verir.'} asset="ui_birth_plan_scroll" tint="#8A5A2B" />
 
-      {/* İlerleme & İstatistik Kartı */}
+      {/* İlerleme ve Bölüm Başlığı Kartı */}
       <Card style={{ padding: 16 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <View style={{ flex: 1, paddingRight: 12 }}>
-            <T bold style={{ fontSize: 16, color: colors.ink }}>
-              {isEn ? 'Birth Preference Summary' : 'Doğum Tercih Özeti'}
-            </T>
-            <T style={{ fontSize: 12, color: colors.muted, marginTop: 4, lineHeight: 18 }}>
-              {selectedCount === totalOptions
-                ? (isEn ? 'All core preferences set. Review with your doctor during visit.' : 'Tüm temel tercihler belirlendi. Muayenede doktorunla inceleyebilirsin.')
-                : (isEn ? `${totalOptions - selectedCount} items pending. Prepare your birth team guide.` : `${totalOptions - selectedCount} başlık henüz seçilmedi. Doğum ekibin için rehber hazırla.`)}
-            </T>
-            <Tap
-              onPress={() => setShowDoctorSheet(!showDoctorSheet)}
-              label={isEn ? 'Doctor Presentation Summary' : 'Doktora Sunum Özeti'}
-              style={[ws.presentationBtn, showDoctorSheet && { backgroundColor: '#EADCEE' }]}
-            >
-              <Icon name="clipboard" size={14} color={colors.purple} />
-              <T bold style={{ fontSize: 11, color: colors.purple }}>
-                {showDoctorSheet
-                  ? (isEn ? 'Back to Edit Mode' : 'Düzenleme Moduna Dön')
-                  : (isEn ? '📋 Share Summary' : '📋 Özeti Paylaş')}
-              </T>
-            </Tap>
-          </View>
-          <ProgressRing
-            size={74}
-            strokeWidth={7}
-            progress={planPercent}
-            color={colors.purple}
-            trackColor="#F0E5F2"
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <T bold style={{ fontSize: 13, color: '#A66848' }}>
+            {isEn ? `SECTION ${activeSectionIndex + 1} OF 8` : `BÖLÜM ${activeSectionIndex + 1} / 8`}
+          </T>
+          <Tap
+            onPress={() => setShowSummarySheet(true)}
+            style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, backgroundColor: '#FAF1EA' }}
           >
-            <T bold style={{ fontSize: 15, color: colors.purple }}>%{planPercent}</T>
-            <T style={{ fontSize: 9, color: colors.muted }}>{isEn ? 'ready' : 'hazır'}</T>
-          </ProgressRing>
+            <T bold style={{ fontSize: 11.5, color: '#A66848' }}>
+              {isEn ? '📄 View Summary' : '📄 Özeti Gör'}
+            </T>
+          </Tap>
         </View>
+
+        <T bold style={{ fontSize: 17, color: colors.ink, marginTop: 8 }}>
+          {currentSection.title}
+        </T>
+        <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
+          {currentSection.desc}
+        </T>
       </Card>
 
-      {/* Paylaşılabilir Özet Modu */}
-      {showDoctorSheet ? (
-        <Card style={ws.clinicalSheet}>
-          <View style={ws.clinicalHeader}>
-            <View>
-              <T bold style={{ fontSize: 16, color: '#2C3E50' }}>
-                {isEn ? 'MOMORA BIRTH PREFERENCE FORM' : 'MOMORA DOĞUM TERCİH FORMU'}
+      {/* 8 Bölüm Seçim Şeridi */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
+        {sections.map((sec, idx) => {
+          const isDone = sec.options.every(o => !!plan[o.id]);
+          const isActive = idx === activeSectionIndex;
+          return (
+            <Tap
+              key={sec.id}
+              onPress={() => setActiveSectionIndex(idx)}
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 12,
+                backgroundColor: isActive ? '#EDE2DB' : '#FFFFFF',
+                borderWidth: 1,
+                borderColor: isActive ? '#A66848' : '#EDE4DF',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              {isDone && <T style={{ fontSize: 11 }}>✓</T>}
+              <T bold={isActive} style={{ fontSize: 12, color: isActive ? '#7A4328' : colors.ink }}>
+                {sec.title.split('.')[1]?.trim() || sec.title}
               </T>
-              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                {isEn ? 'Mother-to-be: ' : 'Anne Adayı: '}{state.user?.name || (isEn ? 'Momora Mother' : 'Momora Annesi')} · {isEn ? `Week ${state.week || 24}` : `${state.week || 24}. Gebelik Haftası`}
-              </T>
-            </View>
-            <View style={ws.clinicalBadge}>
-              <T bold style={{ fontSize: 10, color: '#3E7B54' }}>{isEn ? 'SUMMARY DOC' : 'ÖZET BELGE'}</T>
-            </View>
-          </View>
+            </Tap>
+          );
+        })}
+      </ScrollView>
 
-          {selectedList.length === 0 ? (
-            <View style={{ paddingVertical: 20, alignItems: 'center' }}>
-              <T style={{ fontSize: 13, color: colors.muted }}>{isEn ? 'No preferences selected yet.' : 'Henüz bir tercih seçilmedi.'}</T>
-            </View>
-          ) : (
-            <View style={{ gap: 12, marginTop: 8 }}>
-              {selectedList.map((item, idx) => (
-                <View key={item.id} style={ws.clinicalItem}>
-                  <T bold style={{ fontSize: 13, color: colors.purple }}>{idx + 1}. [{item.cat}]</T>
-                  <T bold style={{ fontSize: 13, color: colors.ink, marginTop: 2 }}>{item.title}</T>
-                  <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>{item.desc}</T>
-                </View>
-              ))}
-            </View>
-          )}
+      {/* Bölüm İçeriği & Seçenekler */}
+      <View style={{ gap: 12 }}>
+        {currentSection.options.map(opt => {
+          const currentChoice = plan[opt.id] || null;
+          return (
+            <Card key={opt.id} style={{ padding: 16, gap: 10 }}>
+              <T bold style={{ fontSize: 15, color: colors.ink }}>{opt.title}</T>
+              <T style={{ fontSize: 12, color: colors.muted, lineHeight: 17 }}>{opt.desc}</T>
 
-          <T style={ws.clinicalFooter}>
-            {isEn
-              ? '* This plan is a flexible conversation guide for your birth team.'
-              : '* Bu plan doğum ekibiyle konuşmayı kolaylaştıran esnek bir tercih özetidir.'}
-          </T>
-        </Card>
-      ) : (
-        <>
-          <StatusCard
-            level="info"
-            icon="info"
-            title={isEn ? "Flexible Birth Preference" : "Esnek Doğum Tercihi"}
-            body={isEn ? "A birth plan is a collaborative, flexible guide rather than a rigid contract." : "Doğum planı bir talimatname değil, annenin konforunu ve ekiple iletişimi güçlendiren esnek bir rehberdir."}
-          />
-
-          {/* Kategori Sekmeleri */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
-            {birthPlanCategories.map(cat => (
-              <Tap
-                key={cat}
-                onPress={() => setSelectedCat(cat)}
-                label={cat}
-                style={[ws.filterPill, selectedCat === cat && ws.filterPillActive]}
-              >
-                <T bold={selectedCat === cat} style={{ fontSize: 12, color: selectedCat === cat ? 'white' : colors.ink }}>
-                  {cat}
-                </T>
-              </Tap>
-            ))}
-          </ScrollView>
-
-          {/* Tercih Maddeleri */}
-          <View style={{ gap: 10 }}>
-            {filteredOptions.map(opt => {
-              const isSelected = !!plan[opt.id];
-              return (
-                <Tap
-                  key={opt.id}
-                  onPress={() => toggleOption(opt.id)}
-                  label={opt.title}
-                  style={[ws.planCard, isSelected && ws.planCardActive]}
-                >
-                  <View style={[ws.planCheck, isSelected && ws.planCheckActive]}>
-                    {isSelected && <Icon name="check" size={14} color="white" />}
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <T bold style={{ fontSize: 14, color: isSelected ? colors.purple : colors.ink }}>
-                        {opt.title}
+              {/* 4 Seçenek Butonu */}
+              <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
+                {choiceOptions.map(choice => {
+                  const isSelected = currentChoice === choice.id;
+                  return (
+                    <Tap
+                      key={choice.id}
+                      onPress={() => setPreference(opt.id, choice.id)}
+                      style={{
+                        paddingHorizontal: 10,
+                        paddingVertical: 7,
+                        borderRadius: 10,
+                        backgroundColor: isSelected ? choice.bg : '#F8F6F8',
+                        borderWidth: 1,
+                        borderColor: isSelected ? choice.color : '#EDE6EE',
+                      }}
+                    >
+                      <T bold={isSelected} style={{ fontSize: 11.5, color: isSelected ? choice.color : colors.muted }}>
+                        {choice.label}
                       </T>
-                      <View style={[ws.catChip, isSelected && { backgroundColor: '#F0E3F3' }]}>
-                        <T style={{ fontSize: 9, color: isSelected ? colors.purple : colors.muted }}>{opt.cat}</T>
-                      </View>
-                    </View>
-                    <T style={{ fontSize: 11, color: colors.muted, marginTop: 3 }}>{opt.desc}</T>
-                  </View>
-                </Tap>
-              );
-            })}
-          </View>
-        </>
-      )}
+                    </Tap>
+                  );
+                })}
+              </View>
+            </Card>
+          );
+        })}
+      </View>
+
+      {/* Navigasyon Butonları: Önceki / Sonraki Bölüm */}
+      <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
+        <Tap
+          onPress={() => setActiveSectionIndex(i => Math.max(0, i - 1))}
+          disabled={activeSectionIndex === 0}
+          style={{ flex: 1, paddingVertical: 12, borderRadius: 14, backgroundColor: '#EDE4DF', alignItems: 'center', opacity: activeSectionIndex === 0 ? 0.5 : 1 }}
+        >
+          <T bold style={{ color: colors.ink, fontSize: 13 }}>{isEn ? '← Previous' : '← Önceki Bölüm'}</T>
+        </Tap>
+        <Tap
+          onPress={() => {
+            if (activeSectionIndex < sections.length - 1) setActiveSectionIndex(i => i + 1);
+            else setShowSummarySheet(true);
+          }}
+          style={{ flex: 1, paddingVertical: 12, borderRadius: 14, backgroundColor: '#8F5335', alignItems: 'center' }}
+        >
+          <T bold style={{ color: 'white', fontSize: 13 }}>
+            {activeSectionIndex < sections.length - 1 ? (isEn ? 'Next Section →' : 'Sonraki Bölüm →') : (isEn ? 'Review Plan ✓' : 'Planı Tamamla ✓')}
+          </T>
+        </Tap>
+      </View>
+
+      {/* Özet Form Modalı (Spec 09: Concise hospital summary) */}
+      <Modal visible={showSummarySheet} transparent animationType="fade" onRequestClose={() => setShowSummarySheet(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(20,10,25,0.6)', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <Card style={{ width: '100%', maxWidth: 360, padding: 20, borderRadius: 22, backgroundColor: 'white', gap: 12 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <T bold style={{ fontSize: 17, color: colors.ink }}>
+                {isEn ? 'Birth Preferences Summary' : 'Doğum Tercihleri Özeti'}
+              </T>
+              <Tap onPress={() => setShowSummarySheet(false)} style={{ padding: 6 }}>
+                <Icon name="close" size={18} color={colors.muted} />
+              </Tap>
+            </View>
+
+            <ScrollView style={{ maxHeight: 380 }} showsVerticalScrollIndicator={false}>
+              <T style={{ fontSize: 12.5, color: colors.ink, lineHeight: 20, fontFamily: fonts.regular }}>
+                {generateSummaryText()}
+              </T>
+            </ScrollView>
+
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
+              <Tap
+                onPress={() => {
+                  const txt = generateSummaryText();
+                  if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(txt);
+                    toast && toast(isEn ? 'Plan copied to clipboard!' : 'Plan panoya kopyalandı!');
+                  }
+                }}
+                style={{ flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: '#FAF1EA', borderWidth: 1, borderColor: '#DEC8BB', alignItems: 'center' }}
+              >
+                <T bold style={{ color: '#8F5335', fontSize: 12 }}>{isEn ? '📋 Copy Text' : '📋 Metni Kopyala'}</T>
+              </Tap>
+              <Tap onPress={() => setShowSummarySheet(false)} style={{ flex: 1, paddingVertical: 12, borderRadius: 12, backgroundColor: '#8F5335', alignItems: 'center' }}>
+                <T bold style={{ color: 'white', fontSize: 12 }}>{isEn ? 'Close' : 'Kapat'}</T>
+              </Tap>
+            </View>
+          </Card>
+        </View>
+      </Modal>
     </View>
   );
 }

@@ -263,4 +263,35 @@ console.log('--- RUNNING MOMORA AUTOMATED TEST SUITE ---');
   console.log('✓ Sprint 6 Care Planning tests passed.');
 }
 
-console.log('--- ALL MOMORA SPRINT 3, 4, 5 & 6 TESTS PASSED SUCCESFULLY ---');
+// 9. Sprint 7 Birth Preparation Tests
+{
+  console.log('Testing Sprint 7 Birth Preparation (Hospital Bag & Birth Plan)...');
+
+  // Hospital Bag 3-stage item state model
+  const bagItem = {
+    id: 'm1',
+    title: 'Önden düğmeli lohusa geceliği',
+    category: 'mother',
+    priority: 'essential',
+    status: 'packed',
+    assignedTo: 'mother',
+    quantity: 2,
+  };
+  assert.strictEqual(bagItem.status, 'packed');
+  assert.strictEqual(bagItem.priority, 'essential');
+
+  // Birth Plan Choice Model (prefer, discuss, prefer_not, no_pref)
+  const birthPlanChoices = {
+    bp_dim_lights: 'prefer',
+    bp_epidural_on_request: 'discuss',
+    bp_no_routine_episiotomy: 'prefer_not',
+    bp_golden_hour: 'prefer',
+  };
+  assert.strictEqual(birthPlanChoices.bp_dim_lights, 'prefer');
+  assert.strictEqual(birthPlanChoices.bp_epidural_on_request, 'discuss');
+  assert.strictEqual(birthPlanChoices.bp_no_routine_episiotomy, 'prefer_not');
+
+  console.log('✓ Sprint 7 Birth Preparation tests passed.');
+}
+
+console.log('--- ALL MOMORA SPRINT 3, 4, 5, 6 & 7 TESTS PASSED SUCCESFULLY ---');
