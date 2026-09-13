@@ -123,13 +123,14 @@ export async function signInWithOAuthProvider(provider = 'google') {
   }
   try {
     const redirectTo = Platform.OS === 'web' 
-      ? window.location.origin 
+      ? (typeof window !== 'undefined' ? window.location.origin : '') 
       : 'momora://auth-callback';
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
         redirectTo,
+        skipBrowserRedirect: true,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',

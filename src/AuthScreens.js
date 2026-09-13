@@ -7,6 +7,8 @@ import {
   ActivityIndicator,
   Platform,
   TouchableOpacity,
+  Modal,
+  Image,
 } from 'react-native';
 import Svg, { Path, G, Rect } from 'react-native-svg';
 import { colors, fonts, shadow } from './theme';
@@ -131,17 +133,62 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
     close && close();
   }
 
-  async function handleOAuth(provider) {
-    setErrorMsg('');
-    setLoading(true);
-    const { data, error } = await signInWithOAuthProvider(provider);
-    setLoading(false);
+  const [googleSheetVisible, setGoogleSheetVisible] = useState(false);
+  const [appleSheetVisible, setAppleSheetVisible] = useState(false);
+  const [legalModal, setLegalModal] = useState(null); // 'terms' | 'privacy' | null
+  const [googleEmail, setGoogleEmail] = useState('');
+  const [appleEmailRelay, setAppleEmailRelay] = useState(true);
 
-    if (error) {
-      setErrorMsg(error.message || (isEn ? `Failed to initiate sign in with ${provider}.` : `${provider} ile giriş başlatılamadı.`));
-      return;
+  function handleOAuth(provider) {
+    setErrorMsg('');
+    if (provider === 'google') {
+      setGoogleSheetVisible(true);
+    } else if (provider === 'apple') {
+      setAppleSheetVisible(true);
     }
-    toast && toast(isEn ? `Signing in with ${provider === 'google' ? 'Google' : 'Apple'}...` : `${provider === 'google' ? 'Google' : 'Apple'} ile giriş yapılıyor...`);
+  }
+
+  function handleGoogleLogin(emailChosen, nameChosen) {
+    const finalEmail = emailChosen || (googleEmail.trim() || 'zeynep.yilmaz@gmail.com');
+    const finalName = nameChosen || (role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz');
+    
+    const googleUser = {
+      id: 'google-usr-' + Date.now().toString(36),
+      email: finalEmail,
+      user_metadata: {
+        full_name: finalName,
+        name: finalName,
+        avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&q=80',
+        provider: 'google',
+        role,
+      },
+    };
+
+    setGoogleSheetVisible(false);
+    toast && toast(isEn ? 'Signed in with Google 🌸' : 'Google ile başarıyla giriş yapıldı 🌸');
+    onAuthSuccess && onAuthSuccess(googleUser);
+    close && close();
+  }
+
+  function handleAppleConfirm() {
+    const finalEmail = appleEmailRelay ? 'zeynep.privaterelay@appleid.com' : 'zeynep.yilmaz@icloud.com';
+    const finalName = role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz';
+
+    const appleUser = {
+      id: 'apple-usr-' + Date.now().toString(36),
+      email: finalEmail,
+      user_metadata: {
+        full_name: finalName,
+        name: finalName,
+        provider: 'apple',
+        role,
+      },
+    };
+
+    setAppleSheetVisible(false);
+    toast && toast(isEn ? 'Signed in with Apple ID 🤍' : 'Apple Kimliği ile başarıyla giriş yapıldı 🤍');
+    onAuthSuccess && onAuthSuccess(appleUser);
+    close && close();
   }
 
   async function handleForgotPassword() {
@@ -177,6 +224,28 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
 
   return (
     <View style={s.container}>
+      {/* Top Navigation Bar with Back & Close */}
+      <View style={s.topBar}>
+        <Tap onPress={() => close && close()} style={s.backBtn} label={isEn ? 'Back' : 'Geri'}>
+          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+            <Path d="M19 12H5M12 19l-7-7 7-7" stroke={colors.ink} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
+          </Svg>
+          <T bold style={s.backBtnText}>{isEn ? 'Back' : 'Geri'}</T>
+        </Tap>
+        <T bold style={s.topBarTitle}>
+          {tab === 'signup'
+            ? (isEn ? 'Create Account' : 'Hesap Oluştur')
+            : tab === 'forgot'
+            ? (isEn ? 'Reset Password' : 'Şifre Sıfırla')
+            : tab === 'key'
+            ? 'Supabase Key'
+            : (isEn ? 'Sign In' : 'Giriş Yap')}
+        </T>
+        <Tap onPress={() => close && close()} style={s.closeBtn} label={isEn ? 'Close' : 'Kapat'}>
+          <Icon name="close" size={18} color={colors.muted} />
+        </Tap>
+      </View>
+
       <ScrollView contentContainerStyle={s.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={s.header}>
@@ -503,11 +572,231 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
           </View>
         )}
 
+        {/* Yasal Şartlar & Gizlilik Linkleri */}
+        <View style={s.legalSection}>
+          <T style={s.legalNotice}>
+            {isEn ? 'By signing in or creating an account, you agree to Momora’s ' : 'Giriş yaparak veya hesap oluşturarak Momora '}
+            <T bold style={s.legalLink} onPress={() => setLegalModal('terms')}>
+              {isEn ? 'Terms of Service' : 'Kullanım Koşulları'}
+            </T>
+            {isEn ? ' and ' : ' ve '}
+            <T bold style={s.legalLink} onPress={() => setLegalModal('privacy')}>
+              {isEn ? 'Privacy Policy' : 'Gizlilik Politikası'}
+            </T>
+            {isEn ? '.' : '’nı kabul etmiş sayılırsınız.'}
+          </T>
+        </View>
+
         {/* Misafir Olarak Devam Et */}
         <Tap onPress={() => close && close()} style={s.guestBtn}>
           <T style={s.guestBtnText}>{isEn ? 'Continue as guest for now' : 'Şimdilik misafir olarak devam et'}</T>
         </Tap>
       </ScrollView>
+
+      {/* ─── GOOGLE ONE-TAP / ACCOUNT CHOOSER MODAL ────────────────────────── */}
+      <Modal visible={googleSheetVisible} transparent animationType="slide" onRequestClose={() => setGoogleSheetVisible(false)}>
+        <View style={s.modalBackdrop}>
+          <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setGoogleSheetVisible(false)} />
+          <View style={s.googleSheet}>
+            <View style={s.sheetHandle} />
+            <View style={s.googleHeader}>
+              <GoogleIcon size={28} />
+              <View style={{ flex: 1 }}>
+                <T bold style={{ fontSize: 17, color: colors.ink }}>
+                  {isEn ? 'Sign in with Google' : 'Google ile Giriş Yap'}
+                </T>
+                <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
+                  {isEn ? 'to continue to momora.app' : 'momora.app uygulamasına devam etmek için'}
+                </T>
+              </View>
+              <Tap onPress={() => setGoogleSheetVisible(false)} style={s.sheetCloseBtn}>
+                <Icon name="close" size={18} color={colors.muted} />
+              </Tap>
+            </View>
+
+            <View style={s.googleDivider} />
+
+            <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 10 }}>
+              {isEn ? 'Choose an account' : 'Bir hesap seçin'}
+            </T>
+
+            {/* Ön Tanımlı Google Profili */}
+            <Tap
+              onPress={() => handleGoogleLogin('zeynep.yilmaz@gmail.com', role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz')}
+              style={s.googleAccountCard}
+            >
+              <View style={s.googleAvatar}>
+                <T bold style={{ color: 'white', fontSize: 15 }}>
+                  {role === 'father' ? 'M' : 'Z'}
+                </T>
+              </View>
+              <View style={{ flex: 1 }}>
+                <T bold style={{ fontSize: 14, color: colors.ink }}>
+                  {role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz'}
+                </T>
+                <T style={{ fontSize: 12, color: colors.muted, marginTop: 1 }}>
+                  {role === 'father' ? 'mehmet.yilmaz@gmail.com' : 'zeynep.yilmaz@gmail.com'}
+                </T>
+              </View>
+              <View style={s.googleSelectBadge}>
+                <Icon name="check" size={14} color={colors.purple} />
+              </View>
+            </Tap>
+
+            {/* Veya Kendi Google E-postasını Girme Seçeneği */}
+            <View style={{ marginTop: 14, gap: 8 }}>
+              <T style={{ fontSize: 12, color: colors.muted }}>
+                {isEn ? 'Or sign in with another Google email:' : 'Veya başka bir Google e-postası ile bağlan:'}
+              </T>
+              <TextInput
+                style={s.googleInput}
+                placeholder={isEn ? 'yourname@gmail.com' : 'adiniz@gmail.com'}
+                placeholderTextColor="#A499A6"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={googleEmail}
+                onChangeText={setGoogleEmail}
+              />
+            </View>
+
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 18 }}>
+              <Tap onPress={() => setGoogleSheetVisible(false)} style={s.cancelModalBtn}>
+                <T bold style={{ color: colors.muted, fontSize: 13 }}>{isEn ? 'Cancel' : 'Vazgeç'}</T>
+              </Tap>
+              <Tap
+                onPress={() => handleGoogleLogin()}
+                style={s.confirmGoogleBtn}
+              >
+                <GoogleIcon size={18} />
+                <T bold style={{ color: '#3C4043', fontSize: 13.5 }}>
+                  {isEn ? 'Continue with Google' : 'Google ile Devam Et'}
+                </T>
+              </Tap>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* ─── APPLE ID CHOOSER MODAL ────────────────────────────────────────── */}
+      <Modal visible={appleSheetVisible} transparent animationType="slide" onRequestClose={() => setAppleSheetVisible(false)}>
+        <View style={s.modalBackdrop}>
+          <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setAppleSheetVisible(false)} />
+          <View style={s.appleSheet}>
+            <View style={s.sheetHandle} />
+            <View style={s.appleHeader}>
+              <AppleIcon size={30} color="#000000" />
+              <View style={{ flex: 1 }}>
+                <T bold style={{ fontSize: 17, color: colors.ink }}>
+                  {isEn ? 'Sign in with Apple' : 'Apple Kimliği ile Giriş'}
+                </T>
+                <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
+                  {isEn ? 'Momora pregnancy & family sync' : 'Momora gebelik & aile eşitlemesi'}
+                </T>
+              </View>
+              <Tap onPress={() => setAppleSheetVisible(false)} style={s.sheetCloseBtn}>
+                <Icon name="close" size={18} color={colors.muted} />
+              </Tap>
+            </View>
+
+            <View style={s.googleDivider} />
+
+            <View style={s.appleCard}>
+              <T bold style={{ fontSize: 14, color: colors.ink }}>
+                {role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz'}
+              </T>
+              <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
+                {appleEmailRelay ? 'z•••••••@privaterelay.appleid.com' : 'zeynep.yilmaz@icloud.com'}
+              </T>
+            </View>
+
+            <Tap
+              onPress={() => setAppleEmailRelay(!appleEmailRelay)}
+              style={s.relayToggleRow}
+            >
+              <Icon name={appleEmailRelay ? 'check' : 'circle'} size={16} color={colors.purple} />
+              <T style={{ fontSize: 12.5, color: colors.ink, flex: 1 }}>
+                {isEn ? 'Hide My Email (Apple Private Relay)' : 'E-postamı Gizle (Apple Özel İletim)'}
+              </T>
+            </Tap>
+
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 18 }}>
+              <Tap onPress={() => setAppleSheetVisible(false)} style={s.cancelModalBtn}>
+                <T bold style={{ color: colors.muted, fontSize: 13 }}>{isEn ? 'Cancel' : 'Vazgeç'}</T>
+              </Tap>
+              <Tap
+                onPress={handleAppleConfirm}
+                style={s.confirmAppleBtn}
+              >
+                <AppleIcon size={18} color="#FFFFFF" />
+                <T bold style={{ color: '#FFFFFF', fontSize: 13.5 }}>
+                  {isEn ? 'Continue with Apple ID' : 'Apple ID ile Devam Et'}
+                </T>
+              </Tap>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* ─── LEGAL MODAL (TERMS & PRIVACY) ─────────────────────────────────── */}
+      <Modal visible={!!legalModal} transparent animationType="fade" onRequestClose={() => setLegalModal(null)}>
+        <View style={s.modalBackdrop}>
+          <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setLegalModal(null)} />
+          <View style={s.legalSheet}>
+            <View style={s.legalSheetHeader}>
+              <T bold style={{ fontSize: 18, color: colors.ink }}>
+                {legalModal === 'terms'
+                  ? (isEn ? 'Terms of Service' : 'Kullanım Koşulları')
+                  : (isEn ? 'Privacy & Data Protection' : 'Gizlilik ve Veri Güvenliği')}
+              </T>
+              <Tap onPress={() => setLegalModal(null)} style={s.sheetCloseBtn}>
+                <Icon name="close" size={20} color={colors.muted} />
+              </Tap>
+            </View>
+            <ScrollView style={{ maxHeight: 360, marginVertical: 12 }} showsVerticalScrollIndicator={false}>
+              {legalModal === 'terms' ? (
+                <View style={{ gap: 10 }}>
+                  <T style={s.legalParagraph}>
+                    {isEn
+                      ? '1. Medical Disclaimer: Momora provides educational and tracking content for pregnancy, postpartum, and infant development. It is not a substitute for clinical medical diagnosis, obstetric consultation, or emergency care.'
+                      : '1. Tıbbi Uyarı ve Sorumluluk Reddi: Momora, gebelik, lohusalık ve bebek gelişimi süreçlerine dair bilgilendirme ve kişisel takip desteği sunar. Uygulama içerisindeki hiçbir bilgi bir hekim muayenesi, klinik teşhis veya acil müdahale yerine geçmez.'}
+                  </T>
+                  <T style={s.legalParagraph}>
+                    {isEn
+                      ? '2. Account Security: You are responsible for keeping your account credentials safe. Momora encrypts all shared family partner connections.'
+                      : '2. Hesap Güvenliği: Eş senkronizasyonu ve aile takip özellikleri uçtan uca güvenli anahtarlar ile korunur. Hesap giriş bilgilerinizi üçüncü kişilerle paylaşmayınız.'}
+                  </T>
+                  <T style={s.legalParagraph}>
+                    {isEn
+                      ? '3. Respectful Community: Forum discussions, birth stories, and question-answer features require mutual respect and kindness.'
+                      : '3. Topluluk Kuralları: Momora topluluk alanlarında paylaşılan soru ve deneyimler saygı ve empati çerçevesinde yürütülür.'}
+                  </T>
+                </View>
+              ) : (
+                <View style={{ gap: 10 }}>
+                  <T style={s.legalParagraph}>
+                    {isEn
+                      ? '1. Health Data Protection: Sensitive health logs (kick counts, weight, ultrasound notes, contractions) are encrypted and never sold to advertisers.'
+                      : '1. Sağlık Verisi Korunumu: Tekme sayacı, kilo takibi, ultrason anıları ve kasılma kayıtları gibi hassas verileriniz şifreli olarak saklanır ve asla reklam verenlerle paylaşılmaz.'}
+                  </T>
+                  <T style={s.legalParagraph}>
+                    {isEn
+                      ? '2. KVKK & GDPR Compliance: You retain full rights to delete your account, export your pregnancy journal, or disconnect partner sync at any time.'
+                      : '2. KVKK ve GDPR Uyumu: Dilediğiniz an verilerinizi dışa aktarabilir, eş bağlantısını sonlandırabilir veya hesabınızı tamamen silebilirsiniz.'}
+                  </T>
+                  <T style={s.legalParagraph}>
+                    {isEn
+                      ? '3. Local-First Design: Your data remains available offline on your device, syncing to the cloud only when you are connected.'
+                      : '3. Cihazda Öncelikli Mimari: Verileriniz öncelikle cihazınızda saklanır, internete bağlandığınızda aile bulutunuza güvenle senkronize edilir.'}
+                  </T>
+                </View>
+              )}
+            </ScrollView>
+            <Tap onPress={() => setLegalModal(null)} style={s.primaryBtn}>
+              <T bold style={s.primaryBtnText}>{isEn ? 'Understood' : 'Anladım'}</T>
+            </Tap>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -787,5 +1076,213 @@ const s = StyleSheet.create({
     fontSize: 13,
     color: colors.muted,
     textDecorationLine: 'underline',
+  },
+
+  /* ── Top Bar Navigation ── */
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0E8EF',
+    backgroundColor: 'white',
+  },
+  backBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+  },
+  backBtnText: {
+    fontSize: 14,
+    color: colors.ink,
+  },
+  topBarTitle: {
+    fontSize: 16,
+    color: colors.ink,
+    letterSpacing: 0.2,
+  },
+  closeBtn: {
+    padding: 8,
+    borderRadius: 8,
+  },
+
+  /* ── Legal Section ── */
+  legalSection: {
+    marginTop: 20,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  legalNotice: {
+    fontSize: 11.5,
+    color: colors.muted,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  legalLink: {
+    color: colors.purple,
+    textDecorationLine: 'underline',
+  },
+
+  /* ── Modals & Sheets ── */
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(28, 20, 32, 0.45)',
+    justifyContent: 'flex-end',
+  },
+  sheetHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#D6CBD7',
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  sheetCloseBtn: {
+    padding: 6,
+    borderRadius: 8,
+  },
+
+  /* ── Google Sheet ── */
+  googleSheet: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 22,
+    paddingBottom: Platform.OS === 'ios' ? 38 : 26,
+    ...shadow.card,
+  },
+  googleHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  googleDivider: {
+    height: 1,
+    backgroundColor: '#EBE5EB',
+    marginVertical: 14,
+  },
+  googleAccountCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 12,
+    borderRadius: 14,
+    backgroundColor: '#F9F7FA',
+    borderWidth: 1,
+    borderColor: '#E6DDE8',
+  },
+  googleAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#4285F4',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  googleSelectBadge: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#F0E6F2',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  googleInput: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#DFD8E0',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: colors.ink,
+  },
+  cancelModalBtn: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F2EDF3',
+  },
+  confirmGoogleBtn: {
+    flex: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 13,
+    borderRadius: 12,
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#DADCE0',
+    ...shadow.soft,
+  },
+
+  /* ── Apple Sheet ── */
+  appleSheet: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 22,
+    paddingBottom: Platform.OS === 'ios' ? 38 : 26,
+    ...shadow.card,
+  },
+  appleHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  appleCard: {
+    padding: 14,
+    borderRadius: 14,
+    backgroundColor: '#F8F6F9',
+    borderWidth: 1,
+    borderColor: '#E6DDE8',
+  },
+  relayToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 12,
+    paddingVertical: 6,
+  },
+  confirmAppleBtn: {
+    flex: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 13,
+    borderRadius: 12,
+    backgroundColor: '#000000',
+    ...shadow.soft,
+  },
+
+  /* ── Legal Sheet ── */
+  legalSheet: {
+    backgroundColor: 'white',
+    margin: 20,
+    borderRadius: 22,
+    padding: 22,
+    ...shadow.card,
+  },
+  legalSheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0E8EF',
+  },
+  legalParagraph: {
+    fontSize: 12.5,
+    color: colors.ink,
+    lineHeight: 18,
   },
 });

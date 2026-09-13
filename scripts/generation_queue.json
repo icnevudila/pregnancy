@@ -1141,13 +1141,13 @@
       "prompt": "High-end 3D claymorphic adorable baby yellow duckling waddling cheerfully with tiny orange flippers, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "processing",
+      "status": "done",
       "attempts": 1,
       "createdAt": 1789250674100,
       "startedAt": 1789286954771,
       "platform": "unknown",
-      "updatedAt": 1789285005326,
-      "thumb": "blob:https://gemini.google.com/3322bd93-6c30-405d-aa00-fe3fe68f34b3"
+      "updatedAt": 1789287103342,
+      "thumb": "blob:https://gemini.google.com/b60f01ec-2caf-480f-9985-4f880eeb73f7"
     },
     {
       "id": "job_1789250674100_q7cjk",
@@ -1155,13 +1155,14 @@
       "prompt": "High-end 3D claymorphic cute golden retriever puppy sitting attentively with floppy ears, soft caramel clay, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789283513653,
+      "startedAt": 1789287137778,
       "platform": "unknown",
-      "updatedAt": 1789285005327,
-      "error": "Prompt input failed"
+      "updatedAt": 1789287199067,
+      "error": "Prompt input failed",
+      "thumb": "blob:https://gemini.google.com/df96e60e-7ae2-405d-b0d0-4fb8de80c23c"
     },
     {
       "id": "job_1789250674100_y6sf8",
@@ -1169,13 +1170,14 @@
       "prompt": "High-end 3D claymorphic adorable baby raccoon with tiny bandit eye mask and ringed tail, sitting sweet, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789283518672,
+      "startedAt": 1789287220588,
       "platform": "unknown",
-      "updatedAt": 1789285005327,
-      "error": "Capture timeout"
+      "updatedAt": 1789287279864,
+      "error": "Capture timeout",
+      "thumb": "blob:https://gemini.google.com/3d9760b4-cfd8-4144-bde6-2e7b65c6391c"
     },
     {
       "id": "job_1789250674100_furex",
@@ -1183,13 +1185,13 @@
       "prompt": "High-end 3D claymorphic cute sleepy baby sloth gently hugging a smooth branch, peaceful closed eyes, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789283551902,
+      "startedAt": 1789287282900,
       "platform": "unknown",
-      "updatedAt": 1789285005327,
-      "thumb": "blob:https://gemini.google.com/2f3c0dda-8eb9-425d-bd7d-bf232db00c2c"
+      "updatedAt": 1789287329112,
+      "thumb": "blob:https://gemini.google.com/6a5507f2-ec9c-4371-a7c7-1a6c2dc7537f"
     },
     {
       "id": "job_1789250674100_w26ey",
@@ -1197,13 +1199,13 @@
       "prompt": "High-end 3D claymorphic cute baby badger with black and white striped face sitting cozy, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789283566577,
+      "startedAt": 1789287332575,
       "platform": "unknown",
-      "updatedAt": 1789285005328,
-      "thumb": "blob:https://gemini.google.com/3506deb0-15a9-4df9-b56f-e02283c6c039"
+      "updatedAt": 1789287459153,
+      "thumb": "blob:https://gemini.google.com/7b23250c-02d7-47eb-9a08-ec5d660a8f2f"
     },
     {
       "id": "job_1789250674100_a0lxa",
@@ -1211,13 +1213,13 @@
       "prompt": "High-end 3D claymorphic adorable baby fennec fox kit with oversized plush ears and fluffy bushy tail, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789283579901,
+      "startedAt": 1789287461621,
       "platform": "unknown",
-      "updatedAt": 1789285005329,
-      "thumb": "blob:https://gemini.google.com/5acb9b02-ea85-40a8-9439-54992c1618cc"
+      "updatedAt": 1789287534562,
+      "thumb": "blob:https://gemini.google.com/c50f2d68-3de4-4c35-a867-c8127dab86ab"
     },
     {
       "id": "job_1789250674100_lfre5",
@@ -1225,13 +1227,14 @@
       "prompt": "High-end 3D claymorphic cute baby kangaroo joey peeking out cheerfully with long friendly ears, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789283618580,
+      "startedAt": 1789287534934,
       "platform": "unknown",
-      "updatedAt": 1789285005329,
-      "error": "Capture timeout"
+      "updatedAt": 1789287568505,
+      "error": "Capture timeout",
+      "thumb": "blob:https://gemini.google.com/ae259841-701b-45a6-b35e-65096ff768e9"
     },
     {
       "id": "job_1789250674100_4nwyg",
@@ -1239,13 +1242,13 @@
       "prompt": "High-end 3D claymorphic cute emperor penguin chick with soft gray downy feathers and sweet baby eyes, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789283694250,
+      "startedAt": 1789287570581,
       "platform": "unknown",
-      "updatedAt": 1789285005331,
-      "thumb": "blob:https://gemini.google.com/7ee591b0-e23b-4ea5-8183-a5d9c84f1a19"
+      "updatedAt": 1789287619804,
+      "thumb": "blob:https://gemini.google.com/164cf6cc-7783-4aa9-8d84-e3476c4b0f06"
     },
     {
       "id": "job_1789250674100_hs0eo",
@@ -1253,13 +1256,14 @@
       "prompt": "High-end 3D claymorphic cute chubby baby beaver with textured flat paddle tail and friendly front paws, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "error",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789283737583,
+      "startedAt": 1789287622421,
       "platform": "unknown",
-      "updatedAt": 1789285005333,
-      "thumb": "blob:https://gemini.google.com/faf36e71-fc9b-47fd-ac85-8a9d3d417e48"
+      "updatedAt": 1789287655110,
+      "thumb": "blob:https://gemini.google.com/faf36e71-fc9b-47fd-ac85-8a9d3d417e48",
+      "error": "Capture timeout"
     },
     {
       "id": "job_1789250674100_l6rdp",
@@ -1267,13 +1271,13 @@
       "prompt": "High-end 3D claymorphic adorable baby skunk with silky white dorsal stripe and sweet smiling expression, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789283937024,
+      "startedAt": 1789287657408,
       "platform": "unknown",
-      "updatedAt": 1789285005333,
-      "thumb": "blob:https://gemini.google.com/981a72fd-de45-415f-adfd-19af86f836ad"
+      "updatedAt": 1789287688573,
+      "thumb": "blob:https://gemini.google.com/7b8873c2-e9a4-4bf4-9d27-22c7a25c047a"
     },
     {
       "id": "job_1789250674100_y18ve",
@@ -1281,13 +1285,13 @@
       "prompt": "High-end 3D claymorphic cute chubby giant panda cub chewing gently on a bamboo shoot, soft matte clay, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789284170513,
+      "startedAt": 1789287688905,
       "platform": "unknown",
-      "updatedAt": 1789285005333,
-      "thumb": "blob:https://gemini.google.com/db23e8ad-3036-4494-b956-f2eef42246f3"
+      "updatedAt": 1789287719450,
+      "thumb": "blob:https://gemini.google.com/16cba5b0-b225-4831-9080-ed3cec65610c"
     },
     {
       "id": "job_1789250674100_bfdg5",
@@ -1295,13 +1299,13 @@
       "prompt": "High-end 3D claymorphic cute woolly baby lamb with curly clay fleece and gentle peaceful expression, soft ivory, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789284223905,
+      "startedAt": 1789287720401,
       "platform": "unknown",
-      "updatedAt": 1789285005335,
-      "thumb": "blob:https://gemini.google.com/f03ab8e5-e739-42cd-8c84-a24fa3b10d43"
+      "updatedAt": 1789287749591,
+      "thumb": "blob:https://gemini.google.com/080fcb6a-84ee-4bfb-bf4e-3f69eda558b6"
     },
     {
       "id": "job_1789250674100_gr8s5",
@@ -1309,10 +1313,10 @@
       "prompt": "High-end 3D claymorphic cute white baby harp seal pup lying on soft ice belly down, big shiny black eyes, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "processing",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789284255644,
+      "startedAt": 1789287752580,
       "platform": "unknown",
       "updatedAt": 1789285005335,
       "thumb": "blob:https://gemini.google.com/acf3962a-72e0-44f3-8a36-16a351f6d25f"
