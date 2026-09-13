@@ -514,7 +514,7 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
       { id: 'hospitalBag', label: isEn ? 'Hospital Bag & Birth Plan' : 'Hastane Çantası & Doğum Planı', icon: 'bag', sub: isEn ? 'Mom, baby, and birth preference lists' : 'Anne, bebek ve doğum tercihi listeleri' },
       { id: 'counters', label: isEn ? 'Kick & Contraction Timers' : 'Tekme & Kasılma Sayaçları', icon: 'footprint', sub: isEn ? 'Fetal movements and 5-1-1 alarms' : 'Fetal hareket ve 5-1-1 kuralı alarmları' },
       { id: 'partnerSync', label: isEn ? 'Partner Sync & Notes' : 'Eş Senkronizasyonu & Ortak Notlar', icon: 'community', sub: isEn ? 'Messaging and shared milestones' : 'Eşler arası mesajlaşma ve ortak takip' },
-      { id: 'babyNames', label: isEn ? 'Baby Names Directory' : 'Geniş Bebek İsimleri Keşfi', icon: 'book', sub: isEn ? 'Meaningful names with origins' : '65+ anlamlı Türkçe ve evrensel isim' },
+      { id: 'babyNames', label: isEn ? 'Baby Names Directory' : 'Geniş Bebek İsimleri Keşfi', icon: 'book', sub: isEn ? '9000+ meaningful names with origins' : '9000+ anlamlı Türkçe ve evrensel isim' },
       { id: 'whiteNoise', label: isEn ? 'White Noise & Soothing Sounds' : 'Beyaz Gürültü & Uyku Sesleri', icon: 'moon', sub: isEn ? 'Womb, rain, and calming sounds' : 'Rahim içi, fön ve sakinleştirici sesler' },
       { id: 'library', label: isEn ? 'Curated Momora Library' : 'Momora Editoryal Kütüphanesi', icon: 'search', sub: isEn ? 'Week-by-week guides and practical notes' : 'Hafta hafta rehberler ve pratik kaynak notları' },
     ];
@@ -730,7 +730,10 @@ function ComparisonHero({ week, info, onPress, lang = 'tr' }) {
             accessibilityState={{ selected: mode === t.key }}
             style={[s.compTab, mode === t.key && s.compTabActive]}
           >
-            <T style={[s.compTabLabel, mode === t.key && s.compTabLabelActive]}>{t.label}</T>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+              <Icon name={t.icon} size={13} color={mode === t.key ? '#5A3366' : '#886E91'} />
+              <T style={[s.compTabLabel, mode === t.key && s.compTabLabelActive]}>{t.label}</T>
+            </View>
           </Tap>
         ))}
       </View>
@@ -1173,12 +1176,12 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
     {/* ─── 7. GELİŞİM VE KONTROL KISAYOLLARI ─── */}
     <View style={[s.row,{gap:8}]}>
       <Tap
-        onPress={() => open('ultrasoundAtlas')}
-        label={isEn ? 'Open ultrasound atlas' : 'Ultrason atlasını aç'}
+        onPress={() => open('sizeGuide')}
+        label={isEn ? 'Open 3D size guide' : '3 Boyut kıyaslamayı aç'}
         style={{flex:1,padding:10,borderRadius:16,backgroundColor:'#F3EEF5',alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#E6DCea'}}
       >
-        <CleanIcon asset="card_appointment" size={36} imgSize={32} icon="camera" tint={colors.purple} />
-        <T bold style={{fontSize:11,color:colors.ink,marginTop:4}}>{isEn ? 'Ultrasound' : 'Ultrason Atlası'}</T>
+        <CleanIcon asset="sweet_macaron" size={36} imgSize={32} icon="melon" tint={colors.purple} />
+        <T bold style={{fontSize:11,color:colors.ink,marginTop:4}}>{isEn ? '3D Size' : '3 Boyut Kıyas'}</T>
       </Tap>
       <Tap
         onPress={() => open('organDevelopment')}
@@ -1221,10 +1224,20 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
     {/* ─── 9. RANDEVU KARTI ─── */}
     <Tap onPress={() => open('appointment')} style={s.appointment}>
       <View style={{flex:1}}>
-        <T style={{fontSize:13}}>{state.appointment.title}</T>
+        <T style={{fontSize:13}}>
+          {(isEn && (state.appointment?.title === 'Detaylı Ultrason Kontrolü' || !state.appointment?.title))
+            ? 'Detailed Ultrasound Checkup'
+            : (state.appointment?.title || (isEn ? 'Doctor Checkup' : 'Doktor Randevusu'))}
+        </T>
         <View style={[s.row,{marginTop:8,gap:13}]}>
           <Icon name="calendar" size={28}/>
-          <T bold style={{fontSize:15,lineHeight:20}}>{state.appointment.date}{'\n'}{state.appointment.time}</T>
+          <T bold style={{fontSize:15,lineHeight:20}}>
+            {(isEn && state.appointment?.date === '16 Mayıs Cuma')
+              ? 'Friday, May 16'
+              : (state.appointment?.date || (isEn ? 'Friday, May 16' : '16 Mayıs Cuma'))}
+            {'\n'}
+            {state.appointment?.time || '10:00'}
+          </T>
         </View>
       </View>
       <View style={s.appointmentIcon}><Icon name="bottle" size={23} color="#A69BCF" fill="#E5DDF6"/></View>
@@ -1310,6 +1323,82 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
   </Page>;
 }
 
+export const sampleRecords = [
+  { id: 'rec-sample-1', type: 'Emzirme', value: 'Sol meme • 15 dk', time: '14:20' },
+  { id: 'rec-sample-2', type: 'Bez', value: 'Islak', time: '13:05' },
+  { id: 'rec-sample-3', type: 'Biberon', value: '90 ml', time: '11:30' },
+  { id: 'rec-sample-4', type: 'Uyku', value: '1 sa 40 dk', time: '09:15' },
+];
+
+export function RecordList({ records = [], lang = 'tr' }) {
+  const isEn = lang === 'en';
+  const typeMap = {
+    'Emzirme': isEn ? 'Nursing' : 'Emzirme',
+    'Biberon': isEn ? 'Bottle' : 'Biberon',
+    'Uyku': isEn ? 'Sleep' : 'Uyku',
+    'Bez': isEn ? 'Diaper' : 'Bez',
+    'Tekme': isEn ? 'Kicks' : 'Tekme',
+    'Su': isEn ? 'Water' : 'Su',
+    'Vitamin': isEn ? 'Vitamin' : 'Vitamin',
+    'Kilo': isEn ? 'Weight' : 'Kilo',
+  };
+  const iconMap = {
+    'Emzirme': 'nursing',
+    'Biberon': 'bottle',
+    'Uyku': 'moon',
+    'Bez': 'diaper',
+    'Tekme': 'footprint',
+    'Su': 'drop',
+    'Vitamin': 'heart',
+    'Kilo': 'scale',
+  };
+
+  function localizeValue(val) {
+    if (!val) return '';
+    if (!isEn) return val;
+    return val
+      .replace('Sol meme', 'Left breast')
+      .replace('Sağ meme', 'Right breast')
+      .replace('dk', 'min')
+      .replace('sa', 'h')
+      .replace('Islak', 'Wet')
+      .replace('Kirli', 'Dirty')
+      .replace('Temiz', 'Clean')
+      .replace('tekme', 'kicks')
+      .replace('seans', 'session')
+      .replace('bardak içildi', 'glasses logged')
+      .replace('alındı', 'taken')
+      .replace('Haftalık takip', 'Weekly log');
+  }
+
+  return (
+    <Card style={{ padding: 14 }}>
+      {records.length === 0 ? (
+        <T style={{ fontSize: 13, color: colors.muted, textAlign: 'center', paddingVertical: 12 }}>
+          {isEn ? 'No logs recorded yet today.' : 'Bugün henüz kayıt girilmedi.'}
+        </T>
+      ) : (
+        records.map((r, i) => {
+          const typeDisplay = typeMap[r.type] || r.type;
+          const iconName = iconMap[r.type] || 'calendar';
+          return (
+            <View key={r.id || i} style={s.record}>
+              <View style={[s.recordIcon, { backgroundColor: '#F6EFF7' }]}>
+                <Icon name={iconName} size={18} color={colors.purple} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <T bold style={{ fontSize: 13, color: colors.ink }}>{typeDisplay}</T>
+                <T style={s.recordValue}>{localizeValue(r.value)}</T>
+              </View>
+              <T style={s.recordTime}>{r.time}</T>
+            </View>
+          );
+        })
+      )}
+    </Card>
+  );
+}
+
 export function Postpartum({state,update,open,lang='tr'}) {
   const isEn = lang === 'en';
   const [tab,setTab]=useState(isEn ? 'Today' : 'Bugün');
@@ -1386,7 +1475,7 @@ export function Baby({state,open,lang='tr'}) {
         </Tap>
       ))}
     </View>
-    <Section title={isEn ? "Today's logs" : 'Bugünkü kayıtlar'} action={isEn ? 'See all' : 'Tümünü gör'} onPress={()=>open('records')}/><RecordList records={records}/>
+    <Section title={isEn ? "Today's logs" : 'Bugünkü kayıtlar'} action={isEn ? 'See all' : 'Tümünü gör'} onPress={()=>open('records')}/><RecordList records={records} lang={lang}/>
     <Tap onPress={()=>open('sleepWhiteNoise')} style={s.nextSleep}><View style={s.sleepIcon}>{generatedAssets['banner_next_sleep'] ? <Image source={generatedAssets['banner_next_sleep']} style={{width:54,height:54}} resizeMode="contain"/> : <Icon name="moon" size={42} color="white" fill="#AE98D4"/>}</View><View style={{flex:1}}><T style={{fontSize:13}}>{isEn ? 'Next soothing sleep time' : 'Bir sonraki uyku zamanı'}</T><T bold style={{fontSize:22,marginTop:5}}>{isEn ? '1 h 15 m' : '1 sa 15 dk'}</T><T style={{fontSize:11,marginTop:6}}>{state.babyName} {isEn ? 'usually sleeps around 21:00. Open white noise →' : 'genellikle 21:00 civarı uyuyor. Beyaz gürültü aç →'}</T></View></Tap>
 
     {/* Bebek Bakım Rehberleri */}

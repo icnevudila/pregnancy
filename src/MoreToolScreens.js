@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, ScrollView } from 'react-native';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { View, StyleSheet, TextInput, ScrollView, Animated, PanResponder, Dimensions, Platform } from 'react-native';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
 import { T, Tap, Card, Section, Progress, ScreenHero, InfoNote, MetricCard, StatusCard, ProgressRing, ToolExperienceCard } from './ui';
 import { uid, localDay } from './domain.mjs';
 import { babyNamesList, nameThemes, nameOrigins, getLocalizedBabyName } from './babyNamesData';
+import { speakText, isSpeaking, stopSpeech } from './speechService';
 
 // ─── 4. KİLO TAKİBİ (WEIGHT TRACKER) ─────────────────────────────────────────
 export function WeightTracker({ state, update, toast, lang = 'tr' }) {
@@ -388,6 +389,13 @@ export function DoctorQuestions({ state, update, toast, lang = 'tr' }) {
 
   const questions = state.lists?.questions || defaultQuestions;
 
+  const defaultQMapEn = {
+    'dq1': 'Should I increase my iron or prenatal vitamin supplements this week?',
+    'dq2': 'Do I need a doctor clearance report for air travel or journeys?',
+    'dq3': 'Are the tightenings Braxton Hicks or signs of cervical dilation?',
+  };
+  const getQText = q => (isEn ? (defaultQMapEn[q.id] || q.text) : q.text);
+
   function toggleQ(id) {
     const updated = questions.map(q => q.id === id ? { ...q, done: !q.done } : q);
     update(old => ({
@@ -478,7 +486,7 @@ export function DoctorQuestions({ state, update, toast, lang = 'tr' }) {
                   <T bold style={{ fontSize: 13, color: 'white' }}>{idx + 1}</T>
                 </View>
                 <T bold style={{ flex: 1, fontSize: 16, color: '#1A1824', lineHeight: 24 }}>
-                  {q.text}
+                  {getQText(q)}
                 </T>
               </View>
             ))
@@ -528,21 +536,24 @@ export function DoctorQuestions({ state, update, toast, lang = 'tr' }) {
 
           {/* Soru Listesi */}
           <View style={{ gap: 8 }}>
-            {questions.map(q => (
-              <Tap
-                key={q.id}
-                onPress={() => toggleQ(q.id)}
-                label={q.text}
-                style={[ws.planCard, q.done && { backgroundColor: '#F8F5F8', opacity: 0.8 }]}
-              >
-                <View style={[ws.planCheck, q.done && ws.planCheckActive]}>
-                  {q.done && <Icon name="check" size={14} color="white" />}
-                </View>
-                <T style={[ws.checkText, q.done && { textDecorationLine: 'line-through', color: colors.muted }]}>
-                  {q.text}
-                </T>
-              </Tap>
-            ))}
+            {questions.map(q => {
+              const textToShow = getQText(q);
+              return (
+                <Tap
+                  key={q.id}
+                  onPress={() => toggleQ(q.id)}
+                  label={textToShow}
+                  style={[ws.planCard, q.done && { backgroundColor: '#F8F5F8', opacity: 0.8 }]}
+                >
+                  <View style={[ws.planCheck, q.done && ws.planCheckActive]}>
+                    {q.done && <Icon name="check" size={14} color="white" />}
+                  </View>
+                  <T style={[ws.checkText, q.done && { textDecorationLine: 'line-through', color: colors.muted }]}>
+                    {textToShow}
+                  </T>
+                </Tap>
+              );
+            })}
           </View>
 
           <StatusCard
@@ -664,17 +675,20 @@ export function BabyNameMatcher({ state, update, toast, lang = 'tr' }) {
         </View>
 
         {/* Rastgele Seçim Bildirimi */}
-        {randomPick && (
-          <View style={{ marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#EAE0ED', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <View style={{ flex: 1, paddingRight: 8 }}>
-              <T bold style={{ fontSize: 14, color: colors.purple }}>✨ {isEn ? 'Lucky Pick: ' : 'Şanslı Öneri: '}{randomPick.name} ({randomPick.gender === 'Kız' ? (isEn ? 'Girl' : 'Kız') : randomPick.gender === 'Erkek' ? (isEn ? 'Boy' : 'Erkek') : randomPick.gender})</T>
-              <T style={{ fontSize: 11, color: '#6A5670', marginTop: 2 }}>{randomPick.meaning}</T>
+        {randomPick && (() => {
+          const locPick = getLocalizedBabyName(randomPick, lang);
+          return (
+            <View style={{ marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#EAE0ED', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flex: 1, paddingRight: 8 }}>
+                <T bold style={{ fontSize: 14, color: colors.purple }}>✨ {isEn ? 'Lucky Pick: ' : 'Şanslı Öneri: '}{locPick.name} ({locPick.gender})</T>
+                <T style={{ fontSize: 11, color: '#6A5670', marginTop: 2 }}>{locPick.meaning}</T>
+              </View>
+              <Tap onPress={() => toggleFav(randomPick.id)} style={{ padding: 6 }}>
+                <Icon name="heart" size={18} color={favNames.includes(randomPick.id) ? '#C55B77' : colors.muted} fill={favNames.includes(randomPick.id) ? '#C55B77' : 'none'} />
+              </Tap>
             </View>
-            <Tap onPress={() => toggleFav(randomPick.id)} style={{ padding: 6 }}>
-              <Icon name="heart" size={18} color={favNames.includes(randomPick.id) ? '#C55B77' : colors.muted} fill={favNames.includes(randomPick.id) ? '#C55B77' : 'none'} />
-            </Tap>
-          </View>
-        )}
+          );
+        })()}
       </Card>
 
       {/* Arama Çubuğu */}
@@ -734,7 +748,8 @@ export function BabyNameMatcher({ state, update, toast, lang = 'tr' }) {
             </T>
           </Card>
         ) : (
-          filtered.map(n => {
+          filtered.map(rawN => {
+            const n = getLocalizedBabyName(rawN, lang);
             const isFav = favNames.includes(n.id);
             return (
               <Card key={n.id} style={ws.nameCard}>
@@ -743,9 +758,9 @@ export function BabyNameMatcher({ state, update, toast, lang = 'tr' }) {
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                     <T bold style={{ fontSize: 18, color: colors.ink }}>{n.name}</T>
 
-                    <View style={[ws.genderBadge, n.gender === 'Kız' ? { backgroundColor: '#FBEBF2' } : n.gender === 'Erkek' ? { backgroundColor: '#EBF3FB' } : { backgroundColor: '#F0EEF5' }]}>
-                      <T style={{ fontSize: 10, color: n.gender === 'Kız' ? '#B84570' : n.gender === 'Erkek' ? '#3B72A4' : '#6A5C78' }}>
-                        {n.gender === 'Kız' ? (isEn ? 'Girl' : 'Kız') : n.gender === 'Erkek' ? (isEn ? 'Boy' : 'Erkek') : (isEn ? 'Unisex' : 'Üniseks')}
+                    <View style={[ws.genderBadge, n.gender === 'Girl' || n.gender === 'Kız' ? { backgroundColor: '#FBEBF2' } : n.gender === 'Boy' || n.gender === 'Erkek' ? { backgroundColor: '#EBF3FB' } : { backgroundColor: '#F0EEF5' }]}>
+                      <T style={{ fontSize: 10, color: n.gender === 'Girl' || n.gender === 'Kız' ? '#B84570' : n.gender === 'Boy' || n.gender === 'Erkek' ? '#3B72A4' : '#6A5C78' }}>
+                        {n.gender}
                       </T>
                     </View>
 

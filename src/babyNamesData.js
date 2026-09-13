@@ -1,7 +1,8 @@
 // Momora Kapsamli Bebek Isimleri Veritabani
-// 65+ Zengin Bebek Ismi (Kiz, Erkek, Uniseks), Kokenler, Anlamlar ve Ortak Eslesme
+// 9000+ Zengin Bebek Ismi (Kiz, Erkek, Uniseks), Kokenler, Anlamlar ve Ortak Eslesme
+import { babyNamesCatalog } from './babyNamesCatalog.js';
 
-export const babyNamesList = [
+const initialBabyNames = [
   {
     "id": "bn_defne",
     "name": "Defne",
@@ -817,7 +818,23 @@ export const babyNamesList = [
   }
 ];
 
-export const nameThemes = ['Tümü', '💕 Ortak Eşleşmeler', '🌿 Doğa & Çiçek', '🏛️ Tarihi & Göktürk', '💎 Modern & Kısa', '📖 Kuran\'da Geçen'];
+const initialSet = new Set(initialBabyNames.map(n => n.name.toLowerCase()));
+const extraFromCatalog = (babyNamesCatalog || []).filter(n => !initialSet.has(n.name.toLowerCase()));
+
+export const babyNamesList = [...initialBabyNames, ...extraFromCatalog];
+
+export const nameThemes = [
+  'Tümü',
+  '💕 Ortak Eşleşmeler',
+  '🌿 Doğa & Çiçek',
+  '🏛️ Tarihi & Göktürk',
+  '💎 Modern & Kısa',
+  "📖 Kuran'da Geçen",
+  '👑 Güç & Asalet',
+  '✨ Zarafet & Sanat',
+  '🌟 Özgün & Nadir',
+  '⏳ Zamansız Klasik',
+];
 
 const tagMapEn = {
   'Doğa & Çiçek': 'Nature & Floral',

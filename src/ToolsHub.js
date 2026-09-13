@@ -4,7 +4,7 @@ import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
 import { T, Tap, Card, ScreenHero, ToolExperienceCard, CleanIcon } from './ui';
 import { generatedAssets } from './generatedAssets';
-import { secondsLabel } from './domain.mjs';
+import { secondsLabel, formatLocalizedDate } from './domain.mjs';
 
 export function getAllTools(lang = 'tr') {
   const isEn = lang === 'en';
@@ -41,7 +41,7 @@ export function getAllTools(lang = 'tr') {
       title: isEn ? 'Weight Tracker' : 'Kilo Takibi',
       subtitle: isEn ? 'Weekly personal pregnancy weight log' : 'Haftalara göre kişisel kilo günlüğü',
       icon: 'scale',
-      art: 'ui_weight_bmi_gauge',
+      art: 'card_scale',
       color: '#F4F7F4',
       tint: '#4E8865',
       available: true,
@@ -58,18 +58,6 @@ export function getAllTools(lang = 'tr') {
       art: 'sweet_macaron',
       color: '#F6F9F5',
       tint: '#5A8A62',
-      available: true,
-    },
-    {
-      id: 'ultrasoundAtlas',
-      cat: 'medical',
-      catTitle: isEn ? 'Growth & Tests' : 'Gelişim & Takip',
-      title: isEn ? 'Ultrasound Atlas' : 'Ultrason Atlası',
-      subtitle: isEn ? 'Week-by-week 3D HD scan guide' : 'Hafta hafta 3D HD ultrason okuma',
-      icon: 'calendar',
-      art: 'ui_ultrasound_hdlive_20w',
-      color: '#FDF7F0',
-      tint: '#C27B32',
       available: true,
     },
     {
@@ -354,7 +342,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
                         {ks.kicks ?? ks.count} {isEn ? 'movements recorded' : 'hareket kaydedildi'}
                       </T>
                       <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                        {ks.date} · {ks.time} · {ks.week ? (isEn ? `Week ${ks.week}` : `${ks.week}. Hafta`) : (isEn ? 'Session' : 'Seans')}
+                        {formatLocalizedDate(ks.date, lang)} · {ks.time} · {ks.week ? (isEn ? `Week ${ks.week}` : `${ks.week}. Hafta`) : (isEn ? 'Session' : 'Seans')}
                       </T>
                     </View>
                     <View style={th.logBadge}>
@@ -386,25 +374,30 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
                   {isEn ? 'No contraction logs yet. You can measure duration when labor begins.' : 'Henüz sancı kaydı yok. Doğum başlangıcında süreyi ölçebilirsiniz.'}
                 </T>
               ) : (
-                contractionSessions.map(cs => (
-                  <View key={cs.id} style={th.logRow}>
-                    <View>
-                      <T bold style={{ fontSize: 14, color: colors.ink }}>
-                        {cs.durationSecs ?? cs.duration} {isEn ? 'seconds duration' : 'saniye sürdü'} · {cs.intensity || (isEn ? 'No note' : 'Şiddet notu yok')}
-                      </T>
-                      <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                        {cs.date} · {cs.time}
-                      </T>
+                contractionSessions.map(cs => {
+                  const intensityLabel = isEn
+                    ? (cs.intensity === 'Hafif' ? 'Mild' : cs.intensity === 'Orta' ? 'Moderate' : cs.intensity === 'Şiddetli' ? 'Strong' : cs.intensity || 'No note')
+                    : (cs.intensity || 'Şiddet notu yok');
+                  return (
+                    <View key={cs.id} style={th.logRow}>
+                      <View>
+                        <T bold style={{ fontSize: 14, color: colors.ink }}>
+                          {cs.durationSecs ?? cs.duration} {isEn ? 'seconds duration' : 'saniye sürdü'} · {intensityLabel}
+                        </T>
+                        <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                          {formatLocalizedDate(cs.date, lang)} · {cs.time}
+                        </T>
+                      </View>
+                      <View style={[th.logBadge, { backgroundColor: '#FDF0EC' }]}>
+                        <T bold style={{ fontSize: 11, color: '#D4634B' }}>
+                          {cs.intervalSecs || cs.interval
+                            ? `${Math.floor((cs.intervalSecs ?? cs.interval) / 60)} ${isEn ? 'min interval' : 'dk aralık'}`
+                            : (isEn ? 'first log' : 'ilk kayıt')}
+                        </T>
+                      </View>
                     </View>
-                    <View style={[th.logBadge, { backgroundColor: '#FDF0EC' }]}>
-                      <T bold style={{ fontSize: 11, color: '#D4634B' }}>
-                        {cs.intervalSecs || cs.interval
-                          ? `${Math.floor((cs.intervalSecs ?? cs.interval) / 60)} ${isEn ? 'min interval' : 'dk aralık'}`
-                          : (isEn ? 'first log' : 'ilk kayıt')}
-                      </T>
-                    </View>
-                  </View>
-                ))
+                  );
+                })
               )}
             </View>
           </Card>
@@ -434,7 +427,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
                         {w.value} kg · {isEn ? `Week ${w.week}` : `${w.week}. Hafta`}
                       </T>
                       <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                        {w.date} · {w.time}
+                        {formatLocalizedDate(w.date, lang)} · {w.time}
                       </T>
                     </View>
                     <View style={[th.logBadge, { backgroundColor: '#EEF6F1' }]}>

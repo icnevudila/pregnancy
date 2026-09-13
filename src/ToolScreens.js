@@ -26,9 +26,17 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
   const [typeCounts, setTypeCounts] = useState({ kick: 0, flutter: 0, roll: 0, hiccup: 0 });
   const [lastKickTime, setLastKickTime] = useState(null);
   const [completedSummary, setCompletedSummary] = useState(null);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   const pulse = usePulse(0.96, 1.04, 1200);
   const timerRef = useRef(null);
+  const buttonScale = useRef(new Animated.Value(1)).current;
+  const ripple1Scale = useRef(new Animated.Value(1)).current;
+  const ripple1Opacity = useRef(new Animated.Value(0)).current;
+  const ripple2Scale = useRef(new Animated.Value(1)).current;
+  const ripple2Opacity = useRef(new Animated.Value(0)).current;
+  const celebrationScale = useRef(new Animated.Value(0.3)).current;
+  const celebrationOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (sessionActive) {
@@ -54,12 +62,49 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
     setKicks(nextKicks);
     setLastKickTime(new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }));
 
+    // 1. Tactile Elastic Spring Bounce on the Central Foot Button
+    buttonScale.setValue(0.91);
+    Animated.spring(buttonScale, {
+      toValue: 1,
+      friction: 3.5,
+      tension: 60,
+      useNativeDriver: false,
+    }).start();
+
+    // 2. Dual Ripple Waves Radiating Outward
+    ripple1Scale.setValue(1);
+    ripple1Opacity.setValue(0.7);
+    ripple2Scale.setValue(1);
+    ripple2Opacity.setValue(0.5);
+
+    Animated.parallel([
+      Animated.timing(ripple1Scale, { toValue: 1.45, duration: 650, useNativeDriver: false }),
+      Animated.timing(ripple1Opacity, { toValue: 0, duration: 650, useNativeDriver: false }),
+      Animated.sequence([
+        Animated.delay(100),
+        Animated.parallel([
+          Animated.timing(ripple2Scale, { toValue: 1.65, duration: 700, useNativeDriver: false }),
+          Animated.timing(ripple2Opacity, { toValue: 0, duration: 700, useNativeDriver: false }),
+        ]),
+      ]),
+    ]).start();
+
     setTypeCounts(prev => ({
       ...prev,
       [selectedType]: (prev[selectedType] || 0) + 1,
     }));
 
     if (nextKicks >= 10) {
+      // 3. Milestone Confetti / Sparkle Burst at 10 Kicks
+      setShowCelebration(true);
+      celebrationScale.setValue(0.4);
+      celebrationOpacity.setValue(1);
+      Animated.sequence([
+        Animated.spring(celebrationScale, { toValue: 1.1, friction: 4, tension: 50, useNativeDriver: false }),
+        Animated.delay(1200),
+        Animated.timing(celebrationOpacity, { toValue: 0, duration: 400, useNativeDriver: false }),
+      ]).start(() => setShowCelebration(false));
+
       finishSession(nextKicks, seconds);
     }
   }
@@ -210,7 +255,30 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
 
       {/* MERKEZİ DOKUNSAL 3D TEKME ALANI (PROGRESS RING İLE) */}
       <Card style={ts.kickInteractiveCard}>
-        <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 10 }}>
+        <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 14, position: 'relative' }}>
+          {/* Organik Dalga Yayılım Halkaları (Tactile Ripples) */}
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              ts.kickRippleRing,
+              {
+                transform: [{ scale: ripple1Scale }],
+                opacity: ripple1Opacity,
+              },
+            ]}
+          />
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              ts.kickRippleRing,
+              {
+                borderColor: '#E8A6C5',
+                transform: [{ scale: ripple2Scale }],
+                opacity: ripple2Opacity,
+              },
+            ]}
+          />
+
           <ProgressRing
             size={190}
             strokeWidth={10}
@@ -218,7 +286,7 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
             color={colors.purple}
             bgColor="#F2E6F2"
           >
-            <Animated.View style={{ transform: [{ scale: sessionActive ? pulse : 1 }] }}>
+            <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
               <Tap
                 onPress={handleKick}
                 label={isEn ? "I felt a kick" : "Tekme hissettim"}
@@ -245,6 +313,25 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
               </Tap>
             </Animated.View>
           </ProgressRing>
+
+          {/* 10. Vuruş Kutlama Kıvılcımları (Celebration Burst) */}
+          {showCelebration && (
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                ts.celebrationBurst,
+                {
+                  transform: [{ scale: celebrationScale }],
+                  opacity: celebrationOpacity,
+                },
+              ]}
+            >
+              <T style={{ fontSize: 32 }}>🎉 ✨ 🌸 ✨ 🎉</T>
+              <T bold style={{ fontSize: 13, color: colors.purple, marginTop: 4 }}>
+                {isEn ? '10 Movements Reached!' : '10 Hareket Tamamlandı!'}
+              </T>
+            </Animated.View>
+          )}
         </View>
 
         {/* 10 Adımlı Nokta İlerlemesi */}
@@ -329,9 +416,40 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
   const [duration, setDuration] = useState(0);
   const [intensity, setIntensity] = useState('Orta'); // 'Hafif' | 'Orta' | 'Şiddetli'
   const [showPartnerTips, setShowPartnerTips] = useState(false);
+  const [breathPhase, setBreathPhase] = useState('in'); // 'in' (4s) | 'out' (6s)
   const contractions = state?.contractionSessions || [];
   const timerRef = useRef(null);
-  const waveAnim = usePulse(0.95, 1.05, 800);
+  const waveAnim = usePulse(0.96, 1.04, 900);
+  const breathScale = useRef(new Animated.Value(1)).current;
+  const breathGlow = useRef(new Animated.Value(0.3)).current;
+
+  useEffect(() => {
+    if (!active) {
+      breathScale.setValue(1);
+      breathGlow.setValue(0.3);
+      return;
+    }
+    let isSubscribed = true;
+    function runBreathingCycle() {
+      if (!isSubscribed) return;
+      setBreathPhase('in');
+      Animated.parallel([
+        Animated.timing(breathScale, { toValue: 1.16, duration: 4000, useNativeDriver: false }),
+        Animated.timing(breathGlow, { toValue: 0.8, duration: 4000, useNativeDriver: false }),
+      ]).start(({ finished }) => {
+        if (!finished || !isSubscribed) return;
+        setBreathPhase('out');
+        Animated.parallel([
+          Animated.timing(breathScale, { toValue: 1.0, duration: 6000, useNativeDriver: false }),
+          Animated.timing(breathGlow, { toValue: 0.32, duration: 6000, useNativeDriver: false }),
+        ]).start(({ finished: f2 }) => {
+          if (f2 && isSubscribed) runBreathingCycle();
+        });
+      });
+    }
+    runBreathingCycle();
+    return () => { isSubscribed = false; };
+  }, [active]);
 
   useEffect(() => {
     if (active) {
@@ -471,8 +589,32 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
         ))}
       </View>
 
-      {/* Canlı Sayaç & Dalga Kutusu */}
-      <Card style={[ts.counterBox, active && { borderColor: '#4F79A1', backgroundColor: '#F0F6FB' }]}>
+      {/* Canlı Sayaç & Organik Nefes Dalgası */}
+      <Card style={[ts.counterBox, active && { borderColor: '#5B84AA', backgroundColor: '#F0F6FA' }]}>
+        {active && (
+          <View style={{ alignItems: 'center', marginBottom: 14 }}>
+            <View style={{ width: 130, height: 130, alignItems: 'center', justifyContent: 'center' }}>
+              <Animated.View
+                style={[
+                  ts.breathGlowCircle,
+                  {
+                    transform: [{ scale: breathScale }],
+                    opacity: breathGlow,
+                    backgroundColor: breathPhase === 'in' ? '#C2DCF2' : '#F7D4DD',
+                  },
+                ]}
+              />
+              <View style={ts.breathCenterPuck}>
+                <T style={{ fontSize: 26 }}>{breathPhase === 'in' ? '🌬️' : '🍃'}</T>
+                <T bold style={{ fontSize: 11.5, color: breathPhase === 'in' ? '#275279' : '#9E3F5E', marginTop: 4 }}>
+                  {breathPhase === 'in'
+                    ? (isEn ? 'Inhale Deeply (4s)' : 'Derin Nefes Al (4 sn)')
+                    : (isEn ? 'Exhale Calmly (6s)' : 'Sakince Bırak (6 sn)')}
+                </T>
+              </View>
+            </View>
+          </View>
+        )}
         <Animated.View style={{ transform: [{ scale: active ? waveAnim : 1 }], alignItems: 'center' }}>
           <T style={ts.counterLabel}>{active ? (isEn ? '〰️ CONTRACTION IN PROGRESS 〰️' : '〰️ KASILMA SÜRÜYOR 〰️') : (isEn ? 'CONTRACTION STATUS' : 'SANCI DURUMU')}</T>
           <T bold style={[ts.counterNumber, active && { color: '#2B577E' }]}>{secondsLabel(duration)}</T>
@@ -727,20 +869,25 @@ export function HospitalBag({ state, update, toast, lang = 'tr' }) {
 
       {/* Eşya Listesi */}
       <View style={{ gap: 8 }}>
-        {currentItems.map(item => (
-          <Tap
-            key={item.id}
-            onPress={() => toggleItem(item.id)}
-            style={[ts.bagItemRow, item.done && ts.bagItemRowDone]}
-          >
-            <View style={[ts.bagItemCheck, item.done && ts.bagItemCheckDone]}>
-              {item.done && <Icon name="check" size={13} color="white" />}
-            </View>
-            <T style={[ts.bagItemText, item.done && ts.bagItemTextDone]}>
-              {item.name}
-            </T>
-          </Tap>
-        ))}
+        {currentItems.map(item => {
+          const itemDisplayName = isEn
+            ? (defaultBag[activeTab]?.find(d => d.id === item.id)?.name || item.name)
+            : (item.name);
+          return (
+            <Tap
+              key={item.id}
+              onPress={() => toggleItem(item.id)}
+              style={[ts.bagItemRow, item.done && ts.bagItemRowDone]}
+            >
+              <View style={[ts.bagItemCheck, item.done && ts.bagItemCheckDone]}>
+                {item.done && <Icon name="check" size={13} color="white" />}
+              </View>
+              <T style={[ts.bagItemText, item.done && ts.bagItemTextDone]}>
+                {itemDisplayName}
+              </T>
+            </Tap>
+          );
+        })}
       </View>
 
       {/* Yeni Madde Ekleme Alanı */}
@@ -823,6 +970,43 @@ const ts = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FFFDFA',
+  },
+  kickRippleRing: {
+    position: 'absolute',
+    width: 170,
+    height: 170,
+    borderRadius: 85,
+    borderWidth: 2,
+    borderColor: '#C45778',
+    zIndex: 0,
+  },
+  celebrationBurst: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    paddingVertical: 14,
+    paddingHorizontal: 22,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: '#E2B8D2',
+    ...shadow.soft,
+    zIndex: 10,
+  },
+  breathGlowCircle: {
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+  },
+  breathCenterPuck: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadow.soft,
   },
   kickCenterTap: {
     width: 154,

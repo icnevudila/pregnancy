@@ -149,8 +149,14 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
   }
 
   function handleGoogleLogin(emailChosen, nameChosen) {
-    const finalEmail = emailChosen || (googleEmail.trim() || 'zeynep.yilmaz@gmail.com');
-    const finalName = nameChosen || (role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz');
+    const defaultEmail = isEn
+      ? (role === 'father' ? 'alex.miller@gmail.com' : 'emma.miller@gmail.com')
+      : (role === 'father' ? 'mehmet.yilmaz@gmail.com' : 'zeynep.yilmaz@gmail.com');
+    const defaultName = isEn
+      ? (role === 'father' ? 'Alex Miller' : 'Emma Miller')
+      : (role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz');
+    const finalEmail = emailChosen || (googleEmail.trim() || defaultEmail);
+    const finalName = nameChosen || defaultName;
     
     const googleUser = {
       id: 'google-usr-' + Date.now().toString(36),
@@ -171,8 +177,13 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
   }
 
   function handleAppleConfirm() {
-    const finalEmail = appleEmailRelay ? 'zeynep.privaterelay@appleid.com' : 'zeynep.yilmaz@icloud.com';
-    const finalName = role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz';
+    const defaultAppleEmail = isEn
+      ? (role === 'father' ? 'alex.miller@icloud.com' : 'emma.miller@icloud.com')
+      : (role === 'father' ? 'mehmet.yilmaz@icloud.com' : 'zeynep.yilmaz@icloud.com');
+    const finalEmail = appleEmailRelay ? (isEn ? 'emma.privaterelay@appleid.com' : 'zeynep.privaterelay@appleid.com') : defaultAppleEmail;
+    const finalName = isEn
+      ? (role === 'father' ? 'Alex Miller' : 'Emma Miller')
+      : (role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz');
 
     const appleUser = {
       id: 'apple-usr-' + Date.now().toString(36),
@@ -616,20 +627,31 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
 
             {/* Ön Tanımlı Google Profili */}
             <Tap
-              onPress={() => handleGoogleLogin('zeynep.yilmaz@gmail.com', role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz')}
+              onPress={() => handleGoogleLogin(
+                isEn
+                  ? (role === 'father' ? 'alex.miller@gmail.com' : 'emma.miller@gmail.com')
+                  : (role === 'father' ? 'mehmet.yilmaz@gmail.com' : 'zeynep.yilmaz@gmail.com'),
+                isEn
+                  ? (role === 'father' ? 'Alex Miller' : 'Emma Miller')
+                  : (role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz')
+              )}
               style={s.googleAccountCard}
             >
               <View style={s.googleAvatar}>
                 <T bold style={{ color: 'white', fontSize: 15 }}>
-                  {role === 'father' ? 'M' : 'Z'}
+                  {isEn ? (role === 'father' ? 'A' : 'E') : (role === 'father' ? 'M' : 'Z')}
                 </T>
               </View>
               <View style={{ flex: 1 }}>
                 <T bold style={{ fontSize: 14, color: colors.ink }}>
-                  {role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz'}
+                  {isEn
+                    ? (role === 'father' ? 'Alex Miller' : 'Emma Miller')
+                    : (role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz')}
                 </T>
                 <T style={{ fontSize: 12, color: colors.muted, marginTop: 1 }}>
-                  {role === 'father' ? 'mehmet.yilmaz@gmail.com' : 'zeynep.yilmaz@gmail.com'}
+                  {isEn
+                    ? (role === 'father' ? 'alex.miller@gmail.com' : 'emma.miller@gmail.com')
+                    : (role === 'father' ? 'mehmet.yilmaz@gmail.com' : 'zeynep.yilmaz@gmail.com')}
                 </T>
               </View>
               <View style={s.googleSelectBadge}>
@@ -696,10 +718,14 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
 
             <View style={s.appleCard}>
               <T bold style={{ fontSize: 14, color: colors.ink }}>
-                {role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz'}
+                {isEn
+                  ? (role === 'father' ? 'Alex Miller' : 'Emma Miller')
+                  : (role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz')}
               </T>
               <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
-                {appleEmailRelay ? 'z•••••••@privaterelay.appleid.com' : 'zeynep.yilmaz@icloud.com'}
+                {appleEmailRelay
+                  ? (isEn ? 'e•••••••@privaterelay.appleid.com' : 'z•••••••@privaterelay.appleid.com')
+                  : (isEn ? (role === 'father' ? 'alex.miller@icloud.com' : 'emma.miller@icloud.com') : (role === 'father' ? 'mehmet.yilmaz@icloud.com' : 'zeynep.yilmaz@icloud.com'))}
               </T>
             </View>
 
