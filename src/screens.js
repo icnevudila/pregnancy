@@ -13,7 +13,7 @@ import { TopicHubScreen } from './ExploreScreens';
 import { CommunityHub } from './CommunityScreens';
 import { getBabyLetterForWeek } from './babyLettersData';
 import { t } from './i18n/index.js';
-import { calculateDueDateFromWeek } from './domain/journeyState';
+import { calculateDueDateFromWeek, resolveJourneyState } from './domain/journeyState';
 
 export const getJourneys = (lang = 'tr') => [
   { key: 'pregnancy', title: lang === 'en' ? "I'm Pregnant" : 'Hamileyim', sub: lang === 'en' ? 'Preparing to meet\nmy baby' : 'Bebeğimle tanışmaya\nhazırlanıyorum', image: assets.pregnancy, tint: '#F5E7E8' },
@@ -1001,7 +1001,7 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
           </T>
           <T style={{ fontSize: 18 }}>{state.role === 'father' ? '👨‍🍼' : '🌸'}</T>
         </View>
-        <T style={s.subtitle}>{isEn ? `Today · Week ${week} Day 5` : `Bugün · ${week}. Hafta 5. Gün`}</T>
+        <T style={s.subtitle}>{isEn ? `Today · Week ${week} Day ${currentDay}` : `Bugün · ${week}. Hafta ${currentDay}. Gün`}</T>
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         {state.avatar ? (
@@ -1022,7 +1022,7 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
     {/* Geri Sayım Rozet Şeridi */}
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F6EFF7', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 14 }}>
       <T bold style={{ fontSize: 12, color: colors.purple }}>
-        ⏳ {isEn ? `${(40 - week) * 7} Days Until Due Date` : `Doğuma ${(40 - week) * 7} Gün Kaldı`}
+        ⏳ {isEn ? `${journey.daysRemaining} Days Until Due Date` : `Doğuma ${journey.daysRemaining} Gün Kaldı`}
       </T>
       <T style={{ fontSize: 11, color: '#7E6184' }}>
         {isEn ? `Baby: ${state.babyName || 'Ada'}` : `Bebeğin: ${state.babyName || 'Ada'}`} · {state.babyGender === 'Kız' || state.babyGender === 'girl' ? (isEn ? 'Girl' : 'Kız') : (isEn ? 'Boy' : 'Erkek')}
@@ -1313,7 +1313,7 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
         >
           <CleanIcon asset="card_kick_counter" size={44} imgSize={40} icon="footprint" tint="#9A5B80" style={{ marginBottom: 8 }} />
           <T bold style={{fontSize:13,color:'#632D4C'}}>{isEn ? 'Kick Counter' : 'Tekme Sayacı'}</T>
-          <T style={{fontSize:10,color:'#91637F',marginTop:2}}>{isEn ? '10-movement session' : '10 tekme seansı'}</T>
+          <T style={{fontSize:10,color:'#91637F',marginTop:2}}>{isEn ? 'Personal rhythm & kicks' : 'Kişisel ritim & hareket'}</T>
         </Tap>
 
         <Tap
@@ -1468,7 +1468,7 @@ export function Postpartum({state,update,open,lang='tr'}) {
   return <Page>
     <ScreenHero
       kicker={isEn ? 'POSTPARTUM FEED' : 'LOHUSALIK AKIŞI'}
-      title={isEn ? 'Day 12 recovery' : '12. gün toparlanma'}
+      title={isEn ? `Day ${daysSinceBirth} recovery` : `${daysSinceBirth}. gün toparlanma`}
       body={isEn ? 'Keep mood, recovery steps, and daily notes in the same gentle rhythm.' : 'Ruh hali, iyileşme adımları ve günlük notlar aynı bakım ritminde kalsın.'}
       icon="leaf"
       asset="ui_postpartum_lotus"
@@ -1479,7 +1479,7 @@ export function Postpartum({state,update,open,lang='tr'}) {
     
     <View style={s.topline}>
       <View>
-        <T bold style={s.pageTitle}>{isEn ? 'Postpartum · Day 12' : 'Lohusalık · 12. gün'}</T>
+        <T bold style={s.pageTitle}>{isEn ? `Postpartum · Day ${daysSinceBirth}` : `Lohusalık · ${daysSinceBirth}. gün`}</T>
         <T style={s.subtitle}>{isEn ? 'Taking small steps together today 🌸' : 'Bugünü küçük adımlarla toparlayalım 🌸'}</T>
       </View>
       <RoundButton icon="down" label={isEn ? 'Change journey' : 'Yolculuğunu değiştir'} onPress={()=>open('journey')}/>
@@ -1502,8 +1502,8 @@ export function Baby({state,open,lang='tr'}) {
   ];
   const records=[...state.records,...sampleRecords].slice(0,4);
   return <Page>
-    <ScreenHero kicker={isEn ? 'BABY CARE' : 'BEBEK BAKIMI'} title={`${state.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · ${isEn ? '6 weeks old' : '6 haftalık'}`} body={isEn ? 'Feeding, sleep, diaper logs, and milestone guides gathered in one daily dashboard.' : 'Beslenme, uyku, bez kayıtları ve bakım rehberleri tek günlük panelde birleşir.'} icon="baby" asset="ui_baby_crib" stat={`${records.length} ${isEn ? 'logs' : 'kayıt'}`} tint="#6E5A96" />
-    <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage} resizeMode="cover"/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · {isEn ? '6 weeks old' : '6 haftalık'}</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>{isEn ? "Today's daily rhythm" : 'Bugünün bakım ritmi'}</T></View></View><RoundButton icon="down" label={isEn ? 'Change journey' : 'Yolculuğunu değiştir'} onPress={()=>open('journey')}/></View>
+    <ScreenHero kicker={isEn ? 'BABY CARE' : 'BEBEK BAKIMI'} title={`${state.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · ${babyAgeText}`} body={isEn ? 'Feeding, sleep, diaper logs, and milestone guides gathered in one daily dashboard.' : 'Beslenme, uyku, bez kayıtları ve bakım rehberleri tek günlük panelde birleşir.'} icon="baby" asset="ui_baby_crib" stat={`${records.length} ${isEn ? 'logs' : 'kayıt'}`} tint="#6E5A96" />
+    <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage} resizeMode="cover"/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · ${babyAgeText}</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>{isEn ? "Today's daily rhythm" : 'Bugünün bakım ritmi'}</T></View></View><RoundButton icon="down" label={isEn ? 'Change journey' : 'Yolculuğunu değiştir'} onPress={()=>open('journey')}/></View>
     <BabyDaySummary state={state} open={open} lang={lang} />
 
     
