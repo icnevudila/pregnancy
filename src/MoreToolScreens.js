@@ -1985,49 +1985,61 @@ export function BabyNameMatcher({ state, update, toast, lang = 'tr' }) {
       )}
 
       {/* ─── 4. ORTAK EŞLEŞME KUTLAMA MODALİ (PARTNER MATCH MODAL) ─── */}
-      {partnerModalName && (
-        <View style={ws.matchModalOverlay}>
-          <Card style={ws.matchModalCard}>
-            <T style={{ fontSize: 44, textAlign: 'center' }}>🎉 ⭐ 💕</T>
-            <T bold style={{ fontSize: 20, color: '#884D1A', textAlign: 'center', marginTop: 8 }}>
-              {isEn ? 'IT’S A MUTUAL MATCH!' : 'HARİKA BİR EŞLEŞME!'}
-            </T>
-            <T style={{ fontSize: 13, color: '#594432', textAlign: 'center', marginTop: 6, lineHeight: 19 }}>
-              {isEn
-                ? `Both you and your partner loved "${partnerModalName.name}". It is now pinned to your shared shortlist!`
-                : `İkiniz de "${partnerModalName.name}" ismini çok beğendiniz! Bebeğiniz için ortak kısa listenize eklendi.`}
-            </T>
-
-            <View style={{ backgroundColor: '#FBF5EE', padding: 12, borderRadius: 14, marginVertical: 12, borderWidth: 1, borderColor: '#EDD6BD' }}>
-              <T bold style={{ fontSize: 15, color: colors.ink }}>
-                {surname ? `${partnerModalName.name} ${surname}` : partnerModalName.name} ({partnerModalName.gender})
+      <Modal
+        visible={!!partnerModalName}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPartnerModalName(null)}
+      >
+        <View style={ws.modalBackdrop}>
+          <Tap
+            label={isEn ? "Close modal" : "Pencereyi kapat"}
+            style={StyleSheet.absoluteFill}
+            onPress={() => setPartnerModalName(null)}
+          />
+          {partnerModalName && (
+            <Card style={ws.matchModalCard}>
+              <T style={{ fontSize: 44, textAlign: 'center' }}>🎉 ⭐ 💕</T>
+              <T bold style={{ fontSize: 20, color: '#884D1A', textAlign: 'center', marginTop: 8 }}>
+                {isEn ? 'IT’S A MUTUAL MATCH!' : 'HARİKA BİR EŞLEŞME!'}
               </T>
-              <T style={{ fontSize: 12, color: '#6A5644', marginTop: 2 }}>{partnerModalName.meaning}</T>
-              <T style={{ fontSize: 11, color: colors.purple, marginTop: 4 }}>
-                {countSyllables(partnerModalName.name)} Hece · {partnerModalName.origin}
+              <T style={{ fontSize: 13, color: '#594432', textAlign: 'center', marginTop: 6, lineHeight: 19 }}>
+                {isEn
+                  ? `Both you and your partner loved "${partnerModalName.name}". It is now pinned to your shared shortlist!`
+                  : `İkiniz de "${partnerModalName.name}" ismini çok beğendiniz! Bebeğiniz için ortak kısa listenize eklendi.`}
               </T>
-            </View>
 
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              <Tap
-                onPress={() => setPartnerModalName(null)}
-                style={{ flex: 1, paddingVertical: 11, alignItems: 'center', backgroundColor: '#F0E5D8', borderRadius: 14 }}
-              >
-                <T bold style={{ fontSize: 12.5, color: '#664B35' }}>{isEn ? 'Keep Swiping' : 'Keşfe Devam Et'}</T>
-              </Tap>
-              <Tap
-                onPress={() => {
-                  setPartnerModalName(null);
-                  setActiveTab('shortlist');
-                }}
-                style={{ flex: 1, paddingVertical: 11, alignItems: 'center', backgroundColor: colors.purple, borderRadius: 14 }}
-              >
-                <T bold style={{ fontSize: 12.5, color: 'white' }}>{isEn ? 'View Shortlist' : 'Kısa Listeyi Gör'}</T>
-              </Tap>
-            </View>
-          </Card>
+              <View style={{ backgroundColor: '#FBF5EE', padding: 12, borderRadius: 14, marginVertical: 12, borderWidth: 1, borderColor: '#EDD6BD' }}>
+                <T bold style={{ fontSize: 15, color: colors.ink }}>
+                  {surname ? `${partnerModalName.name} ${surname}` : partnerModalName.name} ({partnerModalName.gender})
+                </T>
+                <T style={{ fontSize: 12, color: '#6A5644', marginTop: 2 }}>{partnerModalName.meaning}</T>
+                <T style={{ fontSize: 11, color: colors.purple, marginTop: 4 }}>
+                  {countSyllables(partnerModalName.name)} Hece · {partnerModalName.origin}
+                </T>
+              </View>
+
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <Tap
+                  onPress={() => setPartnerModalName(null)}
+                  style={{ flex: 1, paddingVertical: 11, alignItems: 'center', backgroundColor: '#F0E5D8', borderRadius: 14 }}
+                >
+                  <T bold style={{ fontSize: 12.5, color: '#664B35' }}>{isEn ? 'Keep Swiping' : 'Keşfe Devam Et'}</T>
+                </Tap>
+                <Tap
+                  onPress={() => {
+                    setPartnerModalName(null);
+                    setActiveTab('shortlist');
+                  }}
+                  style={{ flex: 1, paddingVertical: 11, alignItems: 'center', backgroundColor: colors.purple, borderRadius: 14 }}
+                >
+                  <T bold style={{ fontSize: 12.5, color: 'white' }}>{isEn ? 'View Shortlist' : 'Kısa Listeyi Gör'}</T>
+                </Tap>
+              </View>
+            </Card>
+          )}
         </View>
-      )}
+      </Modal>
     </View>
   );
 }
@@ -2240,12 +2252,8 @@ const ws = StyleSheet.create({
     ...shadow.soft,
   },
   matchModalOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(20, 10, 25, 0.65)',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 9999,
