@@ -8,7 +8,8 @@ import { generatedAssets } from './generatedAssets';
 import { babyLettersData, getBabyLetterForWeek, getPastBabyLetters } from './babyLettersData';
 
 // ─── EKRAN 17: BEBEĞİN GÜNLÜK MEKTUBU & MEKTUP ARŞİVİ ───────────────────────
-export function DailyBabyLetterScreen({ state, toast }) {
+export function DailyBabyLetterScreen({ state, toast, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [tab, setTab] = useState('current');
   const currentWeek = state?.week || 16;
   const currentLetter = getBabyLetterForWeek(currentWeek);
@@ -16,26 +17,34 @@ export function DailyBabyLetterScreen({ state, toast }) {
 
   return (
     <View style={ds.container}>
-      <ScreenHero kicker="GÜNLÜK BAĞ" title={`${currentWeek}. hafta mektubu`} body="Bebeğinin haftalık gelişimini daha duygusal, paylaşılabilir ve sakin bir dille sakla." icon="send" asset="card_ultrasound_frame" stat={`${archiveLetters.length} arşiv`} tint={colors.purple} />
+      <ScreenHero
+        kicker={isEn ? 'DAILY BOND' : 'GÜNLÜK BAĞ'}
+        title={isEn ? `Week ${currentWeek} letter` : `${currentWeek}. hafta mektubu`}
+        body={isEn ? "Keep your baby's weekly growth notes in an emotional, shareable, and gentle voice." : "Bebeğinin haftalık gelişimini daha duygusal, paylaşılabilir ve sakin bir dille sakla."}
+        icon="send"
+        asset="ui_baby_letter_envelope"
+        stat={isEn ? `${archiveLetters.length} archived` : `${archiveLetters.length} arşiv`}
+        tint={colors.purple}
+      />
 
       {/* Sekmeler: Bugünün Mektubu / Mektup Arşivi */}
       <View style={ds.segRow}>
         <Tap
           onPress={() => setTab('current')}
-          label="Günün mektubu"
+          label={isEn ? "Today's letter" : "Günün mektubu"}
           style={[ds.segBtn, tab === 'current' && ds.segBtnActive]}
         >
           <T bold={tab === 'current'} style={[ds.segText, tab === 'current' && { color: 'white' }]}>
-            Günün Mektubu
+            {isEn ? "Today's Letter" : "Günün Mektubu"}
           </T>
         </Tap>
         <Tap
           onPress={() => setTab('archive')}
-          label="Mektup arşivi"
+          label={isEn ? "Letter archive" : "Mektup arşivi"}
           style={[ds.segBtn, tab === 'archive' && ds.segBtnActive]}
         >
           <T bold={tab === 'archive'} style={[ds.segText, tab === 'archive' && { color: 'white' }]}>
-            Mektup Arşivi ({archiveLetters.length})
+            {isEn ? `Letter Archive (${archiveLetters.length})` : `Mektup Arşivi (${archiveLetters.length})`}
           </T>
         </Tap>
       </View>
@@ -54,9 +63,11 @@ export function DailyBabyLetterScreen({ state, toast }) {
               </View>
               <View style={{ flex: 1, marginLeft: 10 }}>
                 <T bold style={{ fontSize: 12, color: colors.purple }}>
-                  MEKTUP #{currentLetter.letterNum} · {currentLetter.title}
+                  {isEn ? `LETTER #${currentLetter.letterNum} · ${currentLetter.title}` : `MEKTUP #${currentLetter.letterNum} · ${currentLetter.title}`}
                 </T>
-                <T style={{ fontSize: 11, color: colors.muted }}>{currentLetter.dayText || currentLetter.day}</T>
+                <T style={{ fontSize: 11, color: colors.muted }}>
+                  {isEn ? `Week ${currentLetter.week}` : (currentLetter.dayText || currentLetter.day)}
+                </T>
               </View>
             </View>
 
@@ -64,20 +75,24 @@ export function DailyBabyLetterScreen({ state, toast }) {
               <T style={ds.letterText}>{currentLetter.text}</T>
               {currentLetter.milestone ? (
                 <View style={{ marginTop: 12, backgroundColor: '#FAF2EE', padding: 8, borderRadius: 10 }}>
-                  <T style={{ fontSize: 11, color: '#8F583D' }}>🌱 Gelişim Notu: {currentLetter.milestone}</T>
+                  <T style={{ fontSize: 11, color: '#8F583D' }}>
+                    {isEn ? `🌱 Growth Note: ${currentLetter.milestone}` : `🌱 Gelişim Notu: ${currentLetter.milestone}`}
+                  </T>
                 </View>
               ) : null}
             </View>
 
             <View style={ds.letterFooter}>
-              <T style={ds.letterSign}>Seni çok seven bebeğin 💛</T>
+              <T style={ds.letterSign}>
+                {isEn ? 'Your baby who loves you so much 💛' : 'Seni çok seven bebeğin 💛'}
+              </T>
             </View>
           </Card>
 
           {/* Paylaş Butonları */}
           <Tap
-            onPress={() => toast && toast('Mektup eşinle paylaşıldı! 🌸')}
-            label="Mektubu eşime gönder"
+            onPress={() => toast && toast(isEn ? 'Letter shared with your partner! 🌸' : 'Mektup eşinle paylaşıldı! 🌸')}
+            label={isEn ? 'Send letter to my partner' : 'Mektubu eşime gönder'}
             style={ds.shareBtn}
           >
             <LinearGradient
@@ -85,7 +100,9 @@ export function DailyBabyLetterScreen({ state, toast }) {
               style={ds.shareBtnGrad}
             >
               <Icon name="heart" size={18} color="white" fill="white" />
-              <T bold style={{ color: 'white', fontSize: 14 }}>Bu Mektubu Eşime Gönder</T>
+              <T bold style={{ color: 'white', fontSize: 14 }}>
+                {isEn ? 'Send This Letter to My Partner' : 'Bu Mektubu Eşime Gönder'}
+              </T>
             </LinearGradient>
           </Tap>
         </>
@@ -95,8 +112,10 @@ export function DailyBabyLetterScreen({ state, toast }) {
           {archiveLetters.map(l => (
             <Card key={l.week || l.letterNum} style={{ padding: 14 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <T bold style={{ fontSize: 13, color: colors.purple }}>{l.title || `Mektup #${l.letterNum}`}</T>
-                <T style={{ fontSize: 11, color: colors.muted }}>{l.date}</T>
+                <T bold style={{ fontSize: 13, color: colors.purple }}>
+                  {l.title || (isEn ? `Letter #${l.letterNum}` : `Mektup #${l.letterNum}`)}
+                </T>
+                <T style={{ fontSize: 11, color: colors.muted }}>{isEn ? `Week ${l.week}` : l.date}</T>
               </View>
               <T style={{ fontSize: 13, color: '#453D4E', marginTop: 8, lineHeight: 20 }}>
                 {l.text}
@@ -115,16 +134,21 @@ export function DailyBabyLetterScreen({ state, toast }) {
 }
 
 // ─── EKRAN 18: GÜNLÜK ZAMAN TÜNELİ (TIMELINE FEED) ────────────────────────────
-export function DailyTimelineFeed() {
+export function DailyTimelineFeed({ lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [selectedDay, setSelectedDay] = useState('bugun');
 
-  const days = [
+  const days = isEn ? [
+    { id: 'dun', label: 'Yesterday', date: 'Sep 11' },
+    { id: 'bugun', label: 'Today', date: 'Sep 12' },
+    { id: 'yarin', label: 'Tomorrow', date: 'Sep 13' },
+  ] : [
     { id: 'dun', label: 'Dün', date: '11 Eylül' },
     { id: 'bugun', label: 'Bugün', date: '12 Eylül' },
     { id: 'yarin', label: 'Yarın', date: '13 Eylül' },
   ];
 
-  const content = {
+  const trContent = {
     dun: {
       baby: 'Bebeğinizin parmak uçlarında minik dokunma reseptörleri aktifleşti.',
       mom: 'Bel bölgenizde hafif tatlı bir ağırlık hissi oluşmuş olabilir.',
@@ -142,11 +166,38 @@ export function DailyTimelineFeed() {
     },
   };
 
+  const enContent = {
+    dun: {
+      baby: "Tiny touch receptors have activated at your baby's fingertips.",
+      mom: 'You might feel a mild, gentle heaviness in your lower back.',
+      tip: 'A 20-minute light walk in fresh air in the evening improves sleep quality.',
+    },
+    bugun: {
+      baby: 'First hiccup reflexes may start today; this prepares the diaphragm muscles for breathing at birth!',
+      mom: 'Your blood volume has increased by ~40%; mild nasal congestion is very common during this time.',
+      tip: 'Jotting down magnesium- and calcium-rich foods makes it easy to discuss nutrition at your next checkup.',
+    },
+    yarin: {
+      baby: 'Facial muscles continue practicing smiles and frowns.',
+      mom: 'Your energy levels may run high; a great day for nursery planning.',
+      tip: 'Remember to elevate your feet with a pillow at the end of the day to rest.',
+    },
+  };
+
+  const content = isEn ? enContent : trContent;
   const c = content[selectedDay];
 
   return (
     <View style={ds.container}>
-      <ScreenHero kicker="GÜNLÜK AKIŞ" title="Bugünün ritmi" body="Bebek, beden ve bakım notlarını tek sırada oku; gün içinde nerede olduğunu hızlıca hatırla." icon="calendar" asset="card_appointment" stat={selectedDay === 'bugun' ? 'bugün' : selectedDay} tint={colors.purple} />
+      <ScreenHero
+        kicker={isEn ? 'DAILY RHYTHM' : 'GÜNLÜK AKIŞ'}
+        title={isEn ? "Today's rhythm" : "Bugünün ritmi"}
+        body={isEn ? "Read notes on baby, body, and care in one stream; quickly recall where you are in the day." : "Bebek, beden ve bakım notlarını tek sırada oku; gün içinde nerede olduğunu hızlıca hatırla."}
+        icon="calendar"
+        asset="ui_timeline_sun_moon"
+        stat={selectedDay === 'bugun' ? (isEn ? 'today' : 'bugün') : selectedDay === 'dun' ? (isEn ? 'yesterday' : 'dün') : (isEn ? 'tomorrow' : 'yarın')}
+        tint={colors.purple}
+      />
 
       {/* Gün Seçici */}
       <View style={ds.segRow}>
@@ -173,7 +224,9 @@ export function DailyTimelineFeed() {
           <View style={[ds.feedBadge, { backgroundColor: '#F3EBF5' }]}>
             <T style={{ fontSize: 16 }}>🍼</T>
           </View>
-          <T bold style={{ fontSize: 15, color: colors.ink }}>Bebeğin Gelişimi</T>
+          <T bold style={{ fontSize: 15, color: colors.ink }}>
+            {isEn ? "Baby's Development" : "Bebeğin Gelişimi"}
+          </T>
         </View>
         <T style={ds.feedText}>{c.baby}</T>
       </Card>
@@ -183,7 +236,9 @@ export function DailyTimelineFeed() {
           <View style={[ds.feedBadge, { backgroundColor: '#FDF1F3' }]}>
             <T style={{ fontSize: 16 }}>💜</T>
           </View>
-          <T bold style={{ fontSize: 15, color: colors.ink }}>Bedenindeki Değişim</T>
+          <T bold style={{ fontSize: 15, color: colors.ink }}>
+            {isEn ? "Changes in Your Body" : "Bedenindeki Değişim"}
+          </T>
         </View>
         <T style={ds.feedText}>{c.mom}</T>
       </Card>
@@ -193,7 +248,9 @@ export function DailyTimelineFeed() {
           <View style={[ds.feedBadge, { backgroundColor: '#E4F0E6' }]}>
             <T style={{ fontSize: 16 }}>🌿</T>
           </View>
-          <T bold style={{ fontSize: 15, color: '#2C573A' }}>Günün İpucu Notu</T>
+          <T bold style={{ fontSize: 15, color: '#2C573A' }}>
+            {isEn ? "Daily Tip Note" : "Günün İpucu Notu"}
+          </T>
         </View>
         <T style={[ds.feedText, { color: '#3A5C44' }]}>{c.tip}</T>
       </Card>
@@ -202,18 +259,24 @@ export function DailyTimelineFeed() {
 }
 
 // ─── EKRAN 19: SU & VİTAMİN DETAY MODALI ─────────────────────────────────────
-export function WaterVitaminQuickModal({ state, update, toast }) {
+export function WaterVitaminQuickModal({ state, update, toast, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const waterGlasses = state.water || 0;
-  const vitamins = state.vitaminsList || [
+  const defaultVitamins = isEn ? [
+    { id: 'v1', name: 'Prenatal Multivitamin', done: state.vitamin || false },
+    { id: 'v2', name: 'Omega-3 (DHA)', done: false },
+    { id: 'v3', name: 'Iron & Folic Acid', done: false },
+  ] : [
     { id: 'v1', name: 'Prenatal Multivitamin', done: state.vitamin || false },
     { id: 'v2', name: 'Omega-3 (DHA)', done: false },
     { id: 'v3', name: 'Demir & Folik Asit', done: false },
   ];
+  const vitamins = state.vitaminsList || defaultVitamins;
 
   function toggleVit(id) {
     const updated = vitamins.map(v => v.id === id ? { ...v, done: !v.done } : v);
     update({ vitaminsList: updated, vitamin: updated.some(v => v.done) });
-    toast && toast('Vitamin durumu güncellendi');
+    toast && toast(isEn ? 'Vitamin status updated' : 'Vitamin durumu güncellendi');
   }
 
   function addWater() {
@@ -228,7 +291,15 @@ export function WaterVitaminQuickModal({ state, update, toast }) {
 
   return (
     <View style={ds.container}>
-      <ScreenHero kicker="GÜNLÜK BAKIM" title="Su ve vitamin düzeni" body="Günlük küçük bakım kayıtlarını sade tut; ana akışta neyin tamamlandığını hızlı gör." icon="drop" asset="card_water" stat={`${waterGlasses}/8 bardak`} tint="#589FB8" />
+      <ScreenHero
+        kicker={isEn ? 'DAILY CARE' : 'GÜNLÜK BAKIM'}
+        title={isEn ? 'Water and vitamin routine' : 'Su ve vitamin düzeni'}
+        body={isEn ? 'Keep small daily care logs simple; quickly see what has been completed in the main stream.' : 'Günlük küçük bakım kayıtlarını sade tut; ana akışta neyin tamamlandığını hızlı gör.'}
+        icon="drop"
+        asset="card_water"
+        stat={isEn ? `${waterGlasses}/8 glasses` : `${waterGlasses}/8 bardak`}
+        tint="#589FB8"
+      />
 
       {/* Su Takip Kartı */}
       <Card style={ds.waterCard}>
@@ -241,41 +312,48 @@ export function WaterVitaminQuickModal({ state, update, toast }) {
             <T style={{ fontSize: 32, zIndex: 1 }}>💧</T>
           </View>
           <T bold style={{ fontSize: 26, color: colors.ink, marginTop: 10 }}>
-            {liters} <T style={{ fontSize: 15, color: colors.muted }}>/ 2.0 Litre</T>
+            {liters} <T style={{ fontSize: 15, color: colors.muted }}>{isEn ? '/ 2.0 Liters' : '/ 2.0 Litre'}</T>
           </T>
           <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
-            {waterGlasses} / 8 Bardak Tamamlandı
+            {waterGlasses} / 8 {isEn ? 'Glasses Completed' : 'Bardak Tamamlandı'}
           </T>
 
           <View style={ds.waterControls}>
-            <Tap onPress={removeWater} label="1 bardak eksilt" style={ds.waterCtrlBtn}>
+            <Tap onPress={removeWater} label={isEn ? 'Decrease 1 glass' : '1 bardak eksilt'} style={ds.waterCtrlBtn}>
               <T bold style={{ fontSize: 18, color: colors.purple }}>-</T>
             </Tap>
-            <Tap onPress={addWater} label="1 bardak ekle" style={[ds.waterCtrlBtn, { backgroundColor: colors.purple }]}>
-              <T bold style={{ fontSize: 18, color: 'white' }}>+ 1 Bardak</T>
+            <Tap onPress={addWater} label={isEn ? 'Add 1 glass' : '1 bardak ekle'} style={[ds.waterCtrlBtn, { backgroundColor: colors.purple }]}>
+              <T bold style={{ fontSize: 18, color: 'white' }}>{isEn ? '+ 1 Glass' : '+ 1 Bardak'}</T>
             </Tap>
           </View>
         </View>
       </Card>
 
       {/* Günlük Takviyeler */}
-      <Section title="Günlük Vitamin & Takviyeler" />
+      <Section title={isEn ? 'Daily Vitamins & Supplements' : 'Günlük Vitamin & Takviyeler'} />
       <View style={{ gap: 8 }}>
-        {vitamins.map(v => (
-          <Tap
-            key={v.id}
-            onPress={() => toggleVit(v.id)}
-            label={v.name}
-            style={[ds.vitItem, v.done && ds.vitItemDone]}
-          >
-            <View style={[ds.vitCheck, v.done && ds.vitCheckDone]}>
-              {v.done && <Icon name="check" size={14} color="white" />}
-            </View>
-            <T bold style={[ds.vitText, v.done && { textDecorationLine: 'line-through', color: colors.muted }]}>
-              {v.name}
-            </T>
-          </Tap>
-        ))}
+        {vitamins.map(v => {
+          const displayName = (v.name === 'Demir & Folik Asit' && isEn)
+            ? 'Iron & Folic Acid'
+            : (v.name === 'Iron & Folic Acid' && !isEn)
+            ? 'Demir & Folik Asit'
+            : v.name;
+          return (
+            <Tap
+              key={v.id}
+              onPress={() => toggleVit(v.id)}
+              label={displayName}
+              style={[ds.vitItem, v.done && ds.vitItemDone]}
+            >
+              <View style={[ds.vitCheck, v.done && ds.vitCheckDone]}>
+                {v.done && <Icon name="check" size={14} color="white" />}
+              </View>
+              <T bold style={[ds.vitText, v.done && { textDecorationLine: 'line-through', color: colors.muted }]}>
+                {displayName}
+              </T>
+            </Tap>
+          );
+        })}
       </View>
     </View>
   );

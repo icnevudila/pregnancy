@@ -7,7 +7,8 @@ import { uid, localDay } from './domain.mjs';
 import { babyNamesList, nameThemes, nameOrigins } from './babyNamesData';
 
 // ─── 4. KİLO TAKİBİ (WEIGHT TRACKER) ─────────────────────────────────────────
-export function WeightTracker({ state, update, toast }) {
+export function WeightTracker({ state, update, toast, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [weightInput, setWeightInput] = useState('');
   const weights = state.weights || [];
   const startWeight = state.startWeight || 60.0;
@@ -22,7 +23,7 @@ export function WeightTracker({ state, update, toast }) {
   function logWeight(customVal) {
     const val = typeof customVal === 'number' ? customVal : parseFloat(weightInput.replace(',', '.'));
     if (isNaN(val) || val < 30 || val > 200) {
-      toast && toast('Lütfen geçerli bir kilo girin. Örn: 65.5');
+      toast && toast(isEn ? 'Please enter a valid weight. E.g. 65.5' : 'Lütfen geçerli bir kilo girin. Örn: 65.5');
       return;
     }
     const newEntry = {
@@ -30,13 +31,13 @@ export function WeightTracker({ state, update, toast }) {
       value: parseFloat(val.toFixed(1)),
       week: state.week || 24,
       date: localDay(),
-      time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+      time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
     };
     update(old => ({
       weights: [newEntry, ...(old.weights || [])],
     }));
     setWeightInput('');
-    toast && toast(`⚖️ Kilo kaydedildi: ${val.toFixed(1)} kg`);
+    toast && toast(isEn ? `⚖️ Weight logged: ${val.toFixed(1)} kg` : `⚖️ Kilo kaydedildi: ${val.toFixed(1)} kg`);
   }
 
   function adjustQuick(delta) {
@@ -49,30 +50,30 @@ export function WeightTracker({ state, update, toast }) {
   return (
     <View style={ws.container}>
       <ScreenHero
-        asset="card_scale"
+        asset="ui_weight_bmi_gauge"
         icon="scale"
-        kicker="HAFTALIK KİLO TAKİBİ"
-        title="Gestasyonel Kilo Paneli"
-        body="IOM ve DSÖ gebelik koridoruna göre kilo eğrinizi takip edin. Ölçümleri aynı saatte ve benzer kıyafetle yapın."
-        stat={`${weights.length} ölçüm`}
+        kicker={isEn ? "WEEKLY WEIGHT TRACKER" : "HAFTALIK KİLO TAKİBİ"}
+        title={isEn ? "Gestational Weight Dashboard" : "Gestasyonel Kilo Paneli"}
+        body={isEn ? "Track your weight curve according to IOM and WHO pregnancy corridors. Weigh yourself at the same time and in similar clothes." : "IOM ve DSÖ gebelik koridoruna göre kilo eğrinizi takip edin. Ölçümleri aynı saatte ve benzer kıyafetle yapın."}
+        stat={`${weights.length} ${isEn ? 'entries' : 'ölçüm'}`}
         tint="#4F8464"
       />
 
       {/* İkili Metrik Kartları */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <MetricCard
-          title="GÜNCEL KİLO"
+          title={isEn ? "CURRENT WEIGHT" : "GÜNCEL KİLO"}
           value={`${currentWeight}`}
           unit="kg"
-          subtext={`Başlangıç: ${startWeight} kg`}
+          subtext={isEn ? `Starting: ${startWeight} kg` : `Başlangıç: ${startWeight} kg`}
           icon="scale"
           tint="#4F8464"
         />
         <MetricCard
-          title="TOPLAM DEĞİŞİM"
+          title={isEn ? "TOTAL CHANGE" : "TOPLAM DEĞİŞİM"}
           value={totalGained >= 0 ? `+${totalGained}` : `${totalGained}`}
           unit="kg"
-          subtext={isGainInRange ? "İdeal takip koridorunda" : "Kişisel eğilim"}
+          subtext={isGainInRange ? (isEn ? "In ideal target corridor" : "İdeal takip koridorunda") : (isEn ? "Personal trend" : "Kişisel eğilim")}
           icon="milestone"
           tint="#844E86"
         />
@@ -81,17 +82,17 @@ export function WeightTracker({ state, update, toast }) {
       {/* IOM Kılavuz Kartı */}
       <StatusCard
         level={isGainInRange ? "safe" : "warning"}
-        title={`${week}. Hafta Önerilen Kilo Bandı: +${minExpectedGain} kg ile +${maxExpectedGain} kg`}
+        title={isEn ? `Week ${week} Recommended Band: +${minExpectedGain} kg to +${maxExpectedGain} kg` : `${week}. Hafta Önerilen Kilo Bandı: +${minExpectedGain} kg ile +${maxExpectedGain} kg`}
         body={isGainInRange
-          ? "Harika gidiyorsunuz! Kilo artışınız gebelik haftanıza göre uluslararası standart bantta ilerliyor."
-          : "Kilo artışı haftalık eğilimle değerlendirilir. Ani ödem veya endişeniz olursa doktor kontrolünüzde danışın."
+          ? (isEn ? "You are doing great! Your weight gain is progressing within international standard guidelines for your week." : "Harika gidiyorsunuz! Kilo artışınız gebelik haftanıza göre uluslararası standart bantta ilerliyor.")
+          : (isEn ? "Weight gain is evaluated by weekly trends. If you experience sudden swelling, consult your doctor." : "Kilo artışı haftalık eğilimle değerlendirilir. Ani ödem veya endişeniz olursa doktor kontrolünüzde danışın.")
         }
         icon="sparkle"
       />
 
       {/* Hızlı Kilo Ekleme & Dokunmatik Butonlar */}
       <Card style={{ padding: 14 }}>
-        <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>Hızlı Kilo Kaydet:</T>
+        <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 8 }}>{isEn ? 'Quick Log Weight:' : 'Hızlı Kilo Kaydet:'}</T>
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
           {[-0.5, +0.2, +0.5, +1.0].map(delta => (
             <Tap
@@ -110,25 +111,25 @@ export function WeightTracker({ state, update, toast }) {
           <TextInput
             value={weightInput}
             onChangeText={setWeightInput}
-            placeholder={`Güncel kilonuz (Örn: ${currentWeight})`}
+            placeholder={isEn ? `Current weight (e.g. ${currentWeight})` : `Güncel kilonuz (Örn: ${currentWeight})`}
             placeholderTextColor={colors.muted}
             keyboardType="numeric"
             style={ws.input}
             onSubmitEditing={() => logWeight()}
           />
-          <Tap onPress={() => logWeight()} label="Kaydet" style={ws.addBtn}>
-            <T bold style={{ color: 'white', fontSize: 13.5 }}>Kaydet</T>
+          <Tap onPress={() => logWeight()} label={isEn ? 'Log' : 'Kaydet'} style={ws.addBtn}>
+            <T bold style={{ color: 'white', fontSize: 13.5 }}>{isEn ? 'Save' : 'Kaydet'}</T>
           </Tap>
         </View>
       </Card>
 
       {/* Geçmiş Kilo Kayıtları */}
-      <Section title="Kilo Ölçüm Geçmişi" />
+      <Section title={isEn ? "Weight Measurement History" : "Kilo Ölçüm Geçmişi"} />
       {weights.length === 0 ? (
         <Card style={{ padding: 18, alignItems: 'center' }}>
-          <T bold style={{ color: colors.ink, fontSize: 14 }}>İlk ölçümü ekleyin</T>
+          <T bold style={{ color: colors.ink, fontSize: 14 }}>{isEn ? "Add your first measurement" : "İlk ölçümü ekleyin"}</T>
           <T style={{ color: colors.muted, fontSize: 12, textAlign: 'center', marginTop: 4 }}>
-            Benzer saatlerde ve aç karnına tartılmak eğilimi daha güvenilir gösterir.
+            {isEn ? "Weighing yourself at similar times and on an empty stomach gives more reliable trends." : "Benzer saatlerde ve aç karnına tartılmak eğilimi daha güvenilir gösterir."}
           </T>
         </Card>
       ) : (
@@ -138,10 +139,12 @@ export function WeightTracker({ state, update, toast }) {
             <View key={w.id} style={ws.historyRow}>
               <View>
                 <T bold style={{ fontSize: 15 }}>{w.value} kg</T>
-                <T style={{ fontSize: 11, color: colors.muted }}>{w.date} · {w.week}. Hafta</T>
+                <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                  {w.date} · {w.time} · {isEn ? `Week ${w.week}` : `${w.week}. Hafta`}
+                </T>
               </View>
-              <View style={[ws.badge, { backgroundColor: '#EFF7F2' }]}>
-                <T bold style={{ fontSize: 12, color: '#3E7B54' }}>
+              <View style={[ws.badge, { backgroundColor: diff >= 0 ? '#EAF4EF' : '#F7ECEC' }]}>
+                <T bold style={{ fontSize: 12, color: diff >= 0 ? '#38734B' : '#A03B3B' }}>
                   {diff >= 0 ? `+${diff}` : diff} kg
                 </T>
               </View>
@@ -153,24 +156,37 @@ export function WeightTracker({ state, update, toast }) {
   );
 }
 
+
 // ─── 5. DOĞUM PLANI (BIRTH PLAN BUILDER) ──────────────────────────────────────
-const defaultBirthPlanOptions = [
-  { id: 'bp1', cat: 'Doğum Ortamı', title: 'Loş ve sakin ışıklandırma', desc: 'Rahatlatıcı, loş ve huzurlu bir oda atmosferi' },
-  { id: 'bp2', cat: 'Doğum Ortamı', title: 'Sakinleştirici arka plan müziği', desc: 'Kendi hazırladığım gevşeme ve dalga çalma listesi' },
-  { id: 'bp3', cat: 'Doğum Ortamı', title: 'Serbest hareket & pilates topu', desc: 'Yatakta sabit kalmak yerine dikey ve aktif pozisyonlar' },
-  { id: 'bp4', cat: 'Ağrı Yönetimi', title: 'Doğal nefes ve gevşeme teknikleri', desc: 'İlaçsız rahatlama ve derin nefes döngüleri' },
-  { id: 'bp5', cat: 'Ağrı Yönetimi', title: 'Gerektiğinde epidural anestezi', desc: 'Ağrı eşiğim zorlandığında epidural opsiyonunun hazır olması' },
-  { id: 'bp6', cat: 'Bebek Doğunca', title: 'İlk saat Ten Tene Temas', desc: 'Kordon kesildikten sonra hemen anne göğsüne verilmesi' },
-  { id: 'bp7', cat: 'Bebek Doğunca', title: 'Geç kordon klempleme', desc: 'Kordon pulsasyonunun durması beklenerek (1-3 dk) klemplenmesi' },
-  { id: 'bp8', cat: 'Bebek Doğunca', title: 'İlk saat kolostrum ile emzirme', desc: 'Altın saatte anne sütüyle ilk bağın kurulması' },
-];
-
-const birthPlanCategories = ['Tümü', 'Doğum Ortamı', 'Ağrı Yönetimi', 'Bebek Doğunca'];
-
-export function BirthPlanBuilder({ state, update, toast }) {
+export function BirthPlanBuilder({ state, update, toast, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const plan = state.birthPlan || {};
-  const [selectedCat, setSelectedCat] = useState('Tümü');
+  const [selectedCat, setSelectedCat] = useState(isEn ? 'All' : 'Tümü');
   const [showDoctorSheet, setShowDoctorSheet] = useState(false);
+
+  const defaultBirthPlanOptions = isEn ? [
+    { id: 'bp1', cat: 'Birth Environment', title: 'Dim and quiet lighting', desc: 'A soothing, warm, and peaceful room atmosphere' },
+    { id: 'bp2', cat: 'Birth Environment', title: 'Calming background playlist', desc: 'My curated relaxation and gentle wave music' },
+    { id: 'bp3', cat: 'Birth Environment', title: 'Freedom of movement & birth ball', desc: 'Vertical and active mobility rather than staying confined in bed' },
+    { id: 'bp4', cat: 'Pain Relief', title: 'Natural breathing & hypnobirthing', desc: 'Non-pharmacological pain management and deep breathing cycles' },
+    { id: 'bp5', cat: 'Pain Relief', title: 'Epidural available upon request', desc: 'Option to receive an epidural when pain threshold is reached' },
+    { id: 'bp6', cat: 'When Baby Arrives', title: 'Immediate Golden Hour skin-to-skin', desc: 'Baby placed directly on mom’s chest right after delivery' },
+    { id: 'bp7', cat: 'When Baby Arrives', title: 'Delayed cord clamping', desc: 'Wait 1-3 minutes until umbilical cord pulsations cease' },
+    { id: 'bp8', cat: 'When Baby Arrives', title: 'First colostrum nursing in Golden Hour', desc: 'Initiate first breastfeeding within the very first hour of birth' },
+  ] : [
+    { id: 'bp1', cat: 'Doğum Ortamı', title: 'Loş ve sakin ışıklandırma', desc: 'Rahatlatıcı, loş ve huzurlu bir oda atmosferi' },
+    { id: 'bp2', cat: 'Doğum Ortamı', title: 'Sakinleştirici arka plan müziği', desc: 'Kendi hazırladığım gevşeme ve dalga çalma listesi' },
+    { id: 'bp3', cat: 'Doğum Ortamı', title: 'Serbest hareket & pilates topu', desc: 'Yatakta sabit kalmak yerine dikey ve aktif pozisyonlar' },
+    { id: 'bp4', cat: 'Ağrı Yönetimi', title: 'Doğal nefes ve gevşeme teknikleri', desc: 'İlaçsız rahatlama ve derin nefes döngüleri' },
+    { id: 'bp5', cat: 'Ağrı Yönetimi', title: 'Gerektiğinde epidural anestezi', desc: 'Ağrı eşiğim zorlandığında epidural opsiyonunun hazır olması' },
+    { id: 'bp6', cat: 'Bebek Doğunca', title: 'İlk saat Ten Tene Temas', desc: 'Kordon kesildikten sonra hemen anne göğsüne verilmesi' },
+    { id: 'bp7', cat: 'Bebek Doğunca', title: 'Geç kordon klempleme', desc: 'Kordon pulsasyonunun durması beklenerek (1-3 dk) klemplenmesi' },
+    { id: 'bp8', cat: 'Bebek Doğunca', title: 'İlk saat kolostrum ile emzirme', desc: 'Altın saatte anne sütüyle ilk bağın kurulması' },
+  ];
+
+  const birthPlanCategories = isEn
+    ? ['All', 'Birth Environment', 'Pain Relief', 'When Baby Arrives']
+    : ['Tümü', 'Doğum Ortamı', 'Ağrı Yönetimi', 'Bebek Doğunca'];
 
   function toggleOption(id) {
     const nextVal = !plan[id];
@@ -183,7 +199,7 @@ export function BirthPlanBuilder({ state, update, toast }) {
   const totalOptions = defaultBirthPlanOptions.length;
   const planPercent = Math.round((selectedCount / totalOptions) * 100);
 
-  const filteredOptions = selectedCat === 'Tümü'
+  const filteredOptions = (selectedCat === 'Tümü' || selectedCat === 'All')
     ? defaultBirthPlanOptions
     : defaultBirthPlanOptions.filter(o => o.cat === selectedCat);
 
@@ -191,12 +207,13 @@ export function BirthPlanBuilder({ state, update, toast }) {
 
   return (
     <View style={ws.container}>
-      <ScreenHero asset="card_health_report"
+      <ScreenHero
+        asset="ui_birth_plan_scroll"
         icon="book"
-        kicker="DOĞUM HAZIRLIĞI"
-        title="Tercihlerini tek sayfada topla"
-        body="Ortam, ağrı kontrolü ve ilk temas tercihlerini sade, paylaşılabilir bir plana dönüştür."
-        stat={`${selectedCount}/${totalOptions} tercih`}
+        kicker={isEn ? 'BIRTH PREPARATION' : 'DOĞUM HAZIRLIĞI'}
+        title={isEn ? 'Gather Your Birth Preferences' : 'Tercihlerini tek sayfada topla'}
+        body={isEn ? 'Turn environment, pain control, and postpartum preferences into a clean, shareable plan.' : 'Ortam, ağrı kontrolü ve ilk temas tercihlerini sade, paylaşılabilir bir plana dönüştür.'}
+        stat={isEn ? `${selectedCount}/${totalOptions} choices` : `${selectedCount}/${totalOptions} tercih`}
         tint="#946635"
       />
 
@@ -204,20 +221,24 @@ export function BirthPlanBuilder({ state, update, toast }) {
       <Card style={{ padding: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flex: 1, paddingRight: 12 }}>
-            <T bold style={{ fontSize: 16, color: colors.ink }}>Doğum Tercih Özeti</T>
+            <T bold style={{ fontSize: 16, color: colors.ink }}>
+              {isEn ? 'Birth Preference Summary' : 'Doğum Tercih Özeti'}
+            </T>
             <T style={{ fontSize: 12, color: colors.muted, marginTop: 4, lineHeight: 18 }}>
               {selectedCount === totalOptions
-                ? 'Tüm temel tercihler belirlendi. Muayenede doktorunla inceleyebilirsin.'
-                : `${totalOptions - selectedCount} başlık henüz seçilmedi. Doğum ekibin için rehber hazırla.`}
+                ? (isEn ? 'All core preferences set. Review with your doctor during visit.' : 'Tüm temel tercihler belirlendi. Muayenede doktorunla inceleyebilirsin.')
+                : (isEn ? `${totalOptions - selectedCount} items pending. Prepare your birth team guide.` : `${totalOptions - selectedCount} başlık henüz seçilmedi. Doğum ekibin için rehber hazırla.`)}
             </T>
             <Tap
               onPress={() => setShowDoctorSheet(!showDoctorSheet)}
-              label="Doktora Sunum Özeti"
+              label={isEn ? 'Doctor Presentation Summary' : 'Doktora Sunum Özeti'}
               style={[ws.presentationBtn, showDoctorSheet && { backgroundColor: '#EADCEE' }]}
             >
               <Icon name="clipboard" size={14} color={colors.purple} />
               <T bold style={{ fontSize: 11, color: colors.purple }}>
-                {showDoctorSheet ? 'Düzenleme Moduna Dön' : '📋 Doktora Göster Modu'}
+                {showDoctorSheet
+                  ? (isEn ? 'Back to Edit Mode' : 'Düzenleme Moduna Dön')
+                  : (isEn ? '📋 Show Doctor Mode' : '📋 Doktora Göster Modu')}
               </T>
             </Tap>
           </View>
@@ -229,7 +250,7 @@ export function BirthPlanBuilder({ state, update, toast }) {
             trackColor="#F0E5F2"
           >
             <T bold style={{ fontSize: 15, color: colors.purple }}>%{planPercent}</T>
-            <T style={{ fontSize: 9, color: colors.muted }}>hazır</T>
+            <T style={{ fontSize: 9, color: colors.muted }}>{isEn ? 'ready' : 'hazır'}</T>
           </ProgressRing>
         </View>
       </Card>
@@ -239,19 +260,21 @@ export function BirthPlanBuilder({ state, update, toast }) {
         <Card style={ws.clinicalSheet}>
           <View style={ws.clinicalHeader}>
             <View>
-              <T bold style={{ fontSize: 16, color: '#2C3E50' }}>MOMORA DOĞUM TERCİH FORMU</T>
+              <T bold style={{ fontSize: 16, color: '#2C3E50' }}>
+                {isEn ? 'MOMORA BIRTH PREFERENCE FORM' : 'MOMORA DOĞUM TERCİH FORMU'}
+              </T>
               <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                Anne Adayı: {state.user?.name || 'Momora Annesi'} · {state.week || 24}. Gebelik Haftası
+                {isEn ? 'Mother-to-be: ' : 'Anne Adayı: '}{state.user?.name || (isEn ? 'Momora Mother' : 'Momora Annesi')} · {isEn ? `Week ${state.week || 24}` : `${state.week || 24}. Gebelik Haftası`}
               </T>
             </View>
             <View style={ws.clinicalBadge}>
-              <T bold style={{ fontSize: 10, color: '#3E7B54' }}>ÖZET BELGE</T>
+              <T bold style={{ fontSize: 10, color: '#3E7B54' }}>{isEn ? 'SUMMARY DOC' : 'ÖZET BELGE'}</T>
             </View>
           </View>
 
           {selectedList.length === 0 ? (
             <View style={{ paddingVertical: 20, alignItems: 'center' }}>
-              <T style={{ fontSize: 13, color: colors.muted }}>Henüz bir tercih seçilmedi.</T>
+              <T style={{ fontSize: 13, color: colors.muted }}>{isEn ? 'No preferences selected yet.' : 'Henüz bir tercih seçilmedi.'}</T>
             </View>
           ) : (
             <View style={{ gap: 12, marginTop: 8 }}>
@@ -266,7 +289,9 @@ export function BirthPlanBuilder({ state, update, toast }) {
           )}
 
           <T style={ws.clinicalFooter}>
-            * Bu plan acil klinik gereksinimler ve doktor tavsiyeleri doğrultusunda esneklik göstermek üzere hazırlanmıştır.
+            {isEn
+              ? '* This plan is designed as a collaborative, flexible guide with medical advice.'
+              : '* Bu plan acil klinik gereksinimler ve doktor tavsiyeleri doğrultusunda esneklik göstermek üzere hazırlanmıştır.'}
           </T>
         </Card>
       ) : (
@@ -274,8 +299,8 @@ export function BirthPlanBuilder({ state, update, toast }) {
           <StatusCard
             level="info"
             icon="info"
-            title="Klinik Esneklik İlkesi"
-            description="Doğum planı bir talimatname değil, annenin konforunu ve ekiple iletişimi güçlendiren esnek bir rehberdir."
+            title={isEn ? "Clinical Flexibility Principle" : "Klinik Esneklik İlkesi"}
+            body={isEn ? "A birth plan is a collaborative, flexible guide rather than a rigid contract." : "Doğum planı bir talimatname değil, annenin konforunu ve ekiple iletişimi güçlendiren esnek bir rehberdir."}
           />
 
           {/* Kategori Sekmeleri */}
@@ -330,22 +355,36 @@ export function BirthPlanBuilder({ state, update, toast }) {
 }
 
 // ─── 6. DOKTORA SORULAR (DOCTOR QUESTIONS) ───────────────────────────────────
-const suggestedTrimesterQuestions = [
-  { text: '24-28. hafta Şeker Yükleme (OGTT) testi için doğru zaman nedir?', tag: 'Tahlil' },
-  { text: 'Kan uyuşmazlığı iğnesi (Anti-D) bu kontrolde yapılacak mı?', tag: 'Aşı/İlaç' },
-  { text: 'Gece krampları için magnezyum dozu yeterli mi?', tag: 'Semptom' },
-  { text: 'Bebek hareketleri gün içinde nasıl takip edilmeli?', tag: 'Hareket' },
-  { text: 'Doğum pozisyonu ve plasenta yerleşimi ne durumda?', tag: 'Ultrason' },
-];
-
-export function DoctorQuestions({ state, update, toast }) {
+export function DoctorQuestions({ state, update, toast, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [newQ, setNewQ] = useState('');
   const [readingMode, setReadingMode] = useState(false);
-  const questions = state.lists?.questions || [
+
+  const suggestedTrimesterQuestions = isEn ? [
+    { text: 'When is the right time for 24-28w Glucose Challenge Test (OGTT)?', tag: 'Labs' },
+    { text: 'Will the Anti-D Rh shot be administered during this checkup?', tag: 'Medication' },
+    { text: 'Is my magnesium dosage sufficient for night leg cramps?', tag: 'Symptom' },
+    { text: 'How should baby movements be monitored throughout the day?', tag: 'Fetal Kicks' },
+    { text: 'What is the current baby position and placenta location?', tag: 'Ultrasound' },
+  ] : [
+    { text: '24-28. hafta Şeker Yükleme (OGTT) testi için doğru zaman nedir?', tag: 'Tahlil' },
+    { text: 'Kan uyuşmazlığı iğnesi (Anti-D) bu kontrolde yapılacak mı?', tag: 'Aşı/İlaç' },
+    { text: 'Gece krampları için magnezyum dozu yeterli mi?', tag: 'Semptom' },
+    { text: 'Bebek hareketleri gün içinde nasıl takip edilmeli?', tag: 'Hareket' },
+    { text: 'Doğum pozisyonu ve plasenta yerleşimi ne durumda?', tag: 'Ultrason' },
+  ];
+
+  const defaultQuestions = isEn ? [
+    { id: 'dq1', text: 'Should I increase my iron or prenatal vitamin supplements this week?', done: false },
+    { id: 'dq2', text: 'Do I need a doctor clearance report for air travel or journeys?', done: false },
+    { id: 'dq3', text: 'Are the tightenings Braxton Hicks or signs of cervical dilation?', done: false },
+  ] : [
     { id: 'dq1', text: 'Bu hafta demir veya vitamin takviyelerimi artırmalı mıyım?', done: false },
     { id: 'dq2', text: 'Yolculuk veya seyahat için hekim onayı raporu almalı mıyım?', done: false },
     { id: 'dq3', text: 'Hissedilen kasılmalar Braxton Hicks mi yoksa servikal açılma mı?', done: false },
   ];
+
+  const questions = state.lists?.questions || defaultQuestions;
 
   function toggleQ(id) {
     const updated = questions.map(q => q.id === id ? { ...q, done: !q.done } : q);
@@ -362,7 +401,7 @@ export function DoctorQuestions({ state, update, toast }) {
       lists: { ...(old.lists || {}), questions: [item, ...(old.lists?.questions || questions)] },
     }));
     if (typeof textToAdd !== 'string') setNewQ('');
-    toast && toast('Soru listeye eklendi');
+    toast && toast(isEn ? 'Question added to list' : 'Soru listeye eklendi');
   }
 
   const openCount = questions.filter(q => !q.done).length;
@@ -370,29 +409,30 @@ export function DoctorQuestions({ state, update, toast }) {
 
   return (
     <View style={ws.container}>
-      <ScreenHero asset="card_ask_doctor"
+      <ScreenHero
+        asset="ui_doctor_prep_notebook"
         icon="chat"
-        kicker="KONTROL HAZIRLIĞI"
-        title="Randevuda unutma"
-        body="Soruları açık, yanıtlananları kapalı tut; sonraki muayene için gündemin eksiksiz olsun."
-        stat={`${openCount} açık soru`}
+        kicker={isEn ? 'VISIT PREP' : 'KONTROL HAZIRLIĞI'}
+        title={isEn ? "Don't Forget at Visit" : "Randevuda unutma"}
+        body={isEn ? 'Keep questions open and mark answered ones; keep your checklist ready for your next checkup.' : 'Soruları açık, yanıtlananları kapalı tut; sonraki muayene için gündemin eksiksiz olsun.'}
+        stat={isEn ? `${openCount} open questions` : `${openCount} açık soru`}
         tint="#7C5C96"
       />
 
       {/* Metrik Göstergeleri */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <MetricCard
-          title="AÇIK SORULAR"
+          title={isEn ? "OPEN QUESTIONS" : "AÇIK SORULAR"}
           value={openCount}
-          unit="adet"
-          subtext="Muayenede sorulacak"
+          unit={isEn ? "items" : "adet"}
+          subtext={isEn ? "To ask doctor" : "Muayenede sorulacak"}
           icon="chat"
         />
         <MetricCard
-          title="YANITLANANLAR"
+          title={isEn ? "ANSWERED" : "YANITLANANLAR"}
           value={answeredCount}
-          unit="tamamlandı"
-          subtext="Önceki kontrollerde"
+          unit={isEn ? "completed" : "tamamlandı"}
+          subtext={isEn ? "In past checkups" : "Önceki kontrollerde"}
           icon="check"
         />
       </View>
@@ -401,18 +441,18 @@ export function DoctorQuestions({ state, update, toast }) {
       <Card style={{ padding: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flex: 1, paddingRight: 10 }}>
-            <T bold style={{ fontSize: 14 }}>Muayene Odası Okuma Modu</T>
+            <T bold style={{ fontSize: 14 }}>{isEn ? 'Exam Room Reading Mode' : 'Muayene Odası Okuma Modu'}</T>
             <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-              Doktora gösterirken büyük puntolu, yüksek kontrastlı ekran açar.
+              {isEn ? 'Opens high-contrast, large text view for showing your doctor.' : 'Doktora gösterirken büyük puntolu, yüksek kontrastlı ekran açar.'}
             </T>
           </View>
           <Tap
             onPress={() => setReadingMode(!readingMode)}
-            label="Mod Değiştir"
+            label={isEn ? 'Toggle Mode' : 'Mod Değiştir'}
             style={[ws.modeToggle, readingMode && { backgroundColor: colors.purple }]}
           >
             <T bold style={{ fontSize: 11, color: readingMode ? 'white' : colors.purple }}>
-              {readingMode ? 'Standart Mod' : '🔍 Büyük Görünüm'}
+              {readingMode ? (isEn ? 'Standard Mode' : 'Standart Mod') : (isEn ? '🔍 Large View' : '🔍 Büyük Görünüm')}
             </T>
           </Tap>
         </View>
@@ -422,11 +462,11 @@ export function DoctorQuestions({ state, update, toast }) {
         /* Yüksek Kontrastlı Muayene Okuma Kartı */
         <Card style={ws.readingCard}>
           <T bold style={{ fontSize: 18, color: '#1B2A4A', marginBottom: 14 }}>
-            📋 Doktoruma Sorulacaklar ({openCount})
+            {isEn ? `📋 Questions for My Doctor (${openCount})` : `📋 Doktoruma Sorulacaklar (${openCount})`}
           </T>
           {openCount === 0 ? (
             <T style={{ fontSize: 16, color: colors.muted, textAlign: 'center', paddingVertical: 20 }}>
-              Şu an bekleyen açık soru bulunmuyor.
+              {isEn ? 'No pending questions at the moment.' : 'Şu an bekleyen açık soru bulunmuyor.'}
             </T>
           ) : (
             questions.filter(q => !q.done).map((q, idx) => (
@@ -448,12 +488,12 @@ export function DoctorQuestions({ state, update, toast }) {
             <TextInput
               value={newQ}
               onChangeText={setNewQ}
-              placeholder="Randevuda konuşmak istediğin soru..."
+              placeholder={isEn ? 'Question to ask during visit...' : 'Randevuda konuşmak istediğin soru...'}
               placeholderTextColor={colors.muted}
               style={ws.input}
               onSubmitEditing={() => addQ()}
             />
-            <Tap onPress={() => addQ()} label="Ekle" style={ws.addBtn}>
+            <Tap onPress={() => addQ()} label={isEn ? 'Add' : 'Ekle'} style={ws.addBtn}>
               <Icon name="plus" size={18} color="white" />
             </Tap>
           </View>
@@ -461,7 +501,7 @@ export function DoctorQuestions({ state, update, toast }) {
           {/* Haftaya Özel Önerilen Sorular */}
           <View style={{ gap: 8 }}>
             <T bold style={{ fontSize: 12, color: colors.muted, letterSpacing: 0.5 }}>
-              💡 BU HAFTA İÇİN ÖNERİLEN MEDİKAL SORULAR
+              {isEn ? '💡 RECOMMENDED QUESTIONS FOR THIS WEEK' : '💡 BU HAFTA İÇİN ÖNERİLEN MEDİKAL SORULAR'}
             </T>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
               {suggestedTrimesterQuestions.map((s, idx) => (
@@ -505,8 +545,8 @@ export function DoctorQuestions({ state, update, toast }) {
           <StatusCard
             level="safe"
             icon="check"
-            title="Randevu Sonrası Tamamla"
-            description="Doktorundan yanıt aldığın maddelerin üzerini tıkla; sonraki kontrol için otomatik olarak güncel kalır."
+            title={isEn ? "Check off after visit" : "Randevu Sonrası Tamamla"}
+            description={isEn ? "Tap items answered by your doctor; automatically stays updated for next time." : "Doktorundan yanıt aldığın maddelerin üzerini tıkla; sonraki kontrol için otomatik olarak güncel kalır."}
           />
         </>
       )}
@@ -515,7 +555,8 @@ export function DoctorQuestions({ state, update, toast }) {
 }
 
 // ─── 7. BEBEK İSİMLERİ KÜTÜPHANESİ (BABY NAME MATCHER & DISCOVERY) ───────────
-export function BabyNameMatcher({ state, update, toast }) {
+export function BabyNameMatcher({ state, update, toast, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [genderFilter, setGenderFilter] = useState('Tümü');
   const [themeFilter, setThemeFilter] = useState('Tümü');
   const [searchQuery, setSearchQuery] = useState('');
@@ -526,27 +567,27 @@ export function BabyNameMatcher({ state, update, toast }) {
     const exists = favNames.includes(id);
     const updated = exists ? favNames.filter(x => x !== id) : [...favNames, id];
     update({ favNames: updated });
-    toast && toast(exists ? 'Favorilerden çıkarıldı' : 'Favorilere eklendi 💛');
+    toast && toast(exists ? (isEn ? 'Removed from favorites' : 'Favorilerden çıkarıldı') : (isEn ? 'Added to favorites 💛' : 'Favorilere eklendi 💛'));
   }
 
   function pickRandom() {
     const pool = filtered.length ? filtered : babyNamesList;
     const randomIndex = Math.floor(Math.random() * pool.length);
     setRandomPick(pool[randomIndex]);
-    toast && toast('Şanslı isim seçildi ✨');
+    toast && toast(isEn ? 'Lucky name chosen ✨' : 'Şanslı isim seçildi ✨');
   }
 
   // Filtreleme mantığı
   const filtered = babyNamesList.filter(n => {
     // Cinsiyet filtresi
-    if (genderFilter !== 'Tümü' && n.gender !== genderFilter) return false;
+    if (genderFilter !== 'Tümü' && genderFilter !== 'All' && n.gender !== genderFilter) return false;
 
     // Tema filtresi
-    if (themeFilter === '💕 Ortak Eşleşmeler' && !n.partnerMatch) return false;
-    if (themeFilter === '🌿 Doğa & Çiçek' && n.tag !== 'Doğa & Çiçek') return false;
-    if (themeFilter === '🏛️ Tarihi & Göktürk' && n.tag !== 'Tarihi & Göktürk') return false;
-    if (themeFilter === '✨ Modern & Kısa' && n.tag !== 'Modern & Kısa') return false;
-    if (themeFilter === '📖 Kuran\'da Geçen' && !n.quran) return false;
+    if ((themeFilter === '💕 Ortak Eşleşmeler' || themeFilter === '💕 Partner Matches') && !n.partnerMatch) return false;
+    if ((themeFilter === '🌿 Doğa & Çiçek' || themeFilter === '🌿 Nature & Flowers') && n.tag !== 'Doğa & Çiçek') return false;
+    if ((themeFilter === '🏛️ Tarihi & Göktürk' || themeFilter === '🏛️ Historical & Classic') && n.tag !== 'Tarihi & Göktürk') return false;
+    if ((themeFilter === '✨ Modern & Kısa' || themeFilter === '✨ Modern & Short') && n.tag !== 'Modern & Kısa') return false;
+    if ((themeFilter === "📖 Kuran'da Geçen" || themeFilter === "📖 Quranic Names") && !n.quran) return false;
 
     // Arama sorgusu
     if (searchQuery.trim()) {
@@ -561,33 +602,44 @@ export function BabyNameMatcher({ state, update, toast }) {
   });
 
   const partnerMatchesCount = babyNamesList.filter(n => n.partnerMatch).length;
-  const originCount = Array.isArray(nameOrigins) ? nameOrigins.length : 0;
+
+  const themes = isEn
+    ? ['All', '💕 Partner Matches', '🌿 Nature & Flowers', '🏛️ Historical & Classic', '✨ Modern & Short', '📖 Quranic Names']
+    : nameThemes;
+
+  const genderOptions = [
+    { id: 'Tümü', label: isEn ? 'All' : 'Tümü' },
+    { id: 'Kız', label: isEn ? '👧 Girl' : '👧 Kız' },
+    { id: 'Erkek', label: isEn ? '👦 Boy' : '👦 Erkek' },
+    { id: 'Üniseks', label: isEn ? '🤍 Unisex' : '🤍 Üniseks' },
+  ];
 
   return (
     <View style={ws.container}>
-      <ScreenHero asset="baby"
+      <ScreenHero
+        asset="ui_baby_name_blocks"
         icon="heart"
-        kicker="İSİM KEŞFİ"
-        title="Anlam, köken ve favoriler"
-        body="Filtrele, eşinle ortakları gör, beğendiklerini kısa listeye al."
-        stat={`${favNames.length} favori`}
+        kicker={isEn ? 'NAME DISCOVERY' : 'İSİM KEŞFİ'}
+        title={isEn ? 'Meanings, origins & favorites' : 'Anlam, köken ve favoriler'}
+        body={isEn ? 'Filter, see shared matches with your partner, and curate your shortlist.' : 'Filtrele, eşinle ortakları gör, beğendiklerini kısa listeye al.'}
+        stat={`${favNames.length} ${isEn ? 'favorites' : 'favori'}`}
         tint="#9B4E76"
       />
 
       {/* Metrik Göstergeleri */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <MetricCard
-          title="KÜTÜPHANE"
+          title={isEn ? "LIBRARY" : "KÜTÜPHANE"}
           value={babyNamesList.length}
-          unit="seçkin isim"
-          subtext="Anlam & kökenli"
+          unit={isEn ? "curated names" : "seçkin isim"}
+          subtext={isEn ? "With meanings & origins" : "Anlam & kökenli"}
           icon="sparkles"
         />
         <MetricCard
-          title="EŞİMLE ORTAK"
+          title={isEn ? "SHARED MATCHES" : "EŞİMLE ORTAK"}
           value={partnerMatchesCount}
-          unit="eşleşme"
-          subtext="İkinizin de beğendiği"
+          unit={isEn ? "matches" : "eşleşme"}
+          subtext={isEn ? "Liked by both of you" : "İkinizin de beğendiği"}
           icon="heart"
         />
       </View>
@@ -596,14 +648,14 @@ export function BabyNameMatcher({ state, update, toast }) {
       <Card style={{ padding: 14, backgroundColor: '#FAF6FA', borderColor: '#EFE5F0' }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View style={{ flex: 1, paddingRight: 8 }}>
-            <T bold style={{ fontSize: 15, color: colors.purple }}>Günün Şanslı İsmi</T>
+            <T bold style={{ fontSize: 15, color: colors.purple }}>{isEn ? "Today's Lucky Name" : "Günün Şanslı İsmi"}</T>
             <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-              Karar vermekte zorlanıyorsan kütüphaneden rastgele bir ilham al.
+              {isEn ? 'Need a spark of inspiration? Pick a random name from the collection.' : 'Karar vermekte zorlanıyorsan kütüphaneden rastgele bir ilham al.'}
             </T>
           </View>
-          <Tap onPress={pickRandom} label="Şanslı İsim" style={{ backgroundColor: '#F0E5F2', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Tap onPress={pickRandom} label={isEn ? "Lucky Name" : "Şanslı İsim"} style={{ backgroundColor: '#F0E5F2', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <T style={{ fontSize: 14 }}>🎲</T>
-            <T bold style={{ fontSize: 11, color: colors.purple }}>Rastgele Seç</T>
+            <T bold style={{ fontSize: 11, color: colors.purple }}>{isEn ? "Roll Random" : "Rastgele Seç"}</T>
           </Tap>
         </View>
 
@@ -611,7 +663,7 @@ export function BabyNameMatcher({ state, update, toast }) {
         {randomPick && (
           <View style={{ marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#EAE0ED', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <View style={{ flex: 1, paddingRight: 8 }}>
-              <T bold style={{ fontSize: 14, color: colors.purple }}>✨ Şanslı Öneri: {randomPick.name} ({randomPick.gender})</T>
+              <T bold style={{ fontSize: 14, color: colors.purple }}>✨ {isEn ? 'Lucky Pick: ' : 'Şanslı Öneri: '}{randomPick.name} ({randomPick.gender === 'Kız' ? (isEn ? 'Girl' : 'Kız') : randomPick.gender === 'Erkek' ? (isEn ? 'Boy' : 'Erkek') : randomPick.gender})</T>
               <T style={{ fontSize: 11, color: '#6A5670', marginTop: 2 }}>{randomPick.meaning}</T>
             </View>
             <Tap onPress={() => toggleFav(randomPick.id)} style={{ padding: 6 }}>
@@ -626,7 +678,7 @@ export function BabyNameMatcher({ state, update, toast }) {
         <TextInput
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder="İsim, anlam veya kökene göre ara..."
+          placeholder={isEn ? 'Search by name, meaning or origin...' : 'İsim, anlam veya kökene göre ara...'}
           placeholderTextColor={colors.muted}
           style={ws.input}
         />
@@ -639,15 +691,15 @@ export function BabyNameMatcher({ state, update, toast }) {
 
       {/* Cinsiyet Filtresi */}
       <View style={{ flexDirection: 'row', gap: 8 }}>
-        {['Tümü', 'Kız', 'Erkek', 'Üniseks'].map(g => (
+        {genderOptions.map(g => (
           <Tap
-            key={g}
-            onPress={() => setGenderFilter(g)}
-            label={g}
-            style={[ws.filterPill, genderFilter === g && ws.filterPillActive]}
+            key={g.id}
+            onPress={() => setGenderFilter(g.id)}
+            label={g.label}
+            style={[ws.filterPill, (genderFilter === g.id || (g.id === 'Tümü' && genderFilter === 'All')) && ws.filterPillActive]}
           >
-            <T bold={genderFilter === g} style={{ fontSize: 12, color: genderFilter === g ? 'white' : colors.ink }}>
-              {g === 'Kız' ? '👧 Kız' : g === 'Erkek' ? '👦 Erkek' : g === 'Üniseks' ? '🤍 Üniseks' : 'Tümü'}
+            <T bold={(genderFilter === g.id || (g.id === 'Tümü' && genderFilter === 'All'))} style={{ fontSize: 12, color: (genderFilter === g.id || (g.id === 'Tümü' && genderFilter === 'All')) ? 'white' : colors.ink }}>
+              {g.label}
             </T>
           </Tap>
         ))}
@@ -655,14 +707,14 @@ export function BabyNameMatcher({ state, update, toast }) {
 
       {/* Tema & Kategori Rozetleri */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
-        {nameThemes.map(t => (
+        {themes.map(t => (
           <Tap
             key={t}
             onPress={() => setThemeFilter(t)}
             label={t}
-            style={[ws.themePill, themeFilter === t && ws.themePillActive]}
+            style={[ws.themePill, (themeFilter === t || (t === 'All' && themeFilter === 'Tümü')) && ws.themePillActive]}
           >
-            <T bold={themeFilter === t} style={{ fontSize: 11, color: themeFilter === t ? colors.purple : colors.muted }}>
+            <T bold={(themeFilter === t || (t === 'All' && themeFilter === 'Tümü'))} style={{ fontSize: 11, color: (themeFilter === t || (t === 'All' && themeFilter === 'Tümü')) ? colors.purple : colors.muted }}>
               {t}
             </T>
           </Tap>
@@ -674,7 +726,7 @@ export function BabyNameMatcher({ state, update, toast }) {
         {filtered.length === 0 ? (
           <Card style={{ padding: 24, alignItems: 'center' }}>
             <T style={{ fontSize: 14, color: colors.muted, textAlign: 'center' }}>
-              Aramana uygun isim bulunamadı. Filtreleri sıfırlayabilir veya farklı bir harf deneyebilirsin.
+              {isEn ? 'No names found matching your search. Try adjusting filters or searching a different term.' : 'Aramana uygun isim bulunamadı. Filtreleri sıfırlayabilir veya farklı bir harf deneyebilirsin.'}
             </T>
           </Card>
         ) : (
@@ -686,39 +738,39 @@ export function BabyNameMatcher({ state, update, toast }) {
                   {/* İsim, Cinsiyet ve Eşleşme Rozeti */}
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                     <T bold style={{ fontSize: 18, color: colors.ink }}>{n.name}</T>
-                    
+
                     <View style={[ws.genderBadge, n.gender === 'Kız' ? { backgroundColor: '#FBEBF2' } : n.gender === 'Erkek' ? { backgroundColor: '#EBF3FB' } : { backgroundColor: '#F0EEF5' }]}>
                       <T style={{ fontSize: 10, color: n.gender === 'Kız' ? '#B84570' : n.gender === 'Erkek' ? '#3B72A4' : '#6A5C78' }}>
-                        {n.gender}
+                        {n.gender === 'Kız' ? (isEn ? 'Girl' : 'Kız') : n.gender === 'Erkek' ? (isEn ? 'Boy' : 'Erkek') : (isEn ? 'Unisex' : 'Üniseks')}
                       </T>
                     </View>
 
                     {n.partnerMatch && (
                       <View style={ws.matchBadge}>
-                        <T style={{ fontSize: 10, color: '#9B3F63' }}>💕 Eşinle Ortak</T>
+                        <T style={{ fontSize: 10, color: '#9B3F63' }}>{isEn ? '💕 Partner Match' : '💕 Eşinle Ortak'}</T>
                       </View>
                     )}
 
                     {n.quran && (
                       <View style={[ws.matchBadge, { backgroundColor: '#EBF4ED' }]}>
-                        <T style={{ fontSize: 9, color: '#3E7D52' }}>📖 Kuran'da Geçen</T>
+                        <T style={{ fontSize: 9, color: '#3E7D52' }}>{isEn ? '📖 Quranic' : "📖 Kuran'da Geçen"}</T>
                       </View>
                     )}
                   </View>
 
                   {/* Anlam */}
                   <T style={{ fontSize: 13, color: '#554A58', marginTop: 5, lineHeight: 18 }}>{n.meaning}</T>
-                  
+
                   {/* Köken & Etiket */}
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 6 }}>
-                    <T style={{ fontSize: 11, color: colors.muted }}>Köken: {n.origin}</T>
+                    <T style={{ fontSize: 11, color: colors.muted }}>{isEn ? 'Origin: ' : 'Köken: '}{n.origin}</T>
                     <T style={{ fontSize: 11, color: '#88708E' }}>• {n.tag}</T>
                     <T style={{ fontSize: 11, color: '#88708E' }}>• {n.popularity}</T>
                   </View>
                 </View>
 
                 {/* Kalp Butonu */}
-                <Tap onPress={() => toggleFav(n.id)} label="Favoriye al" style={ws.favBtn}>
+                <Tap onPress={() => toggleFav(n.id)} label={isEn ? 'Favorite' : 'Favoriye al'} style={ws.favBtn}>
                   <Icon name="heart" size={24} color={isFav ? '#C55B77' : '#BFAEC2'} fill={isFav ? '#C55B77' : 'none'} />
                 </Tap>
               </Card>

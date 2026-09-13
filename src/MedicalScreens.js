@@ -9,28 +9,30 @@ import { generatedAssets } from './generatedAssets';
 import { usePulse } from './anim';
 
 // ─── EKRAN 10: 3'LÜ BOYUT KIYASLAMA REHBERİ (SIZE GUIDE HUB) ─────────────────
-export function SizeComparisonHub({ state, toast }) {
+export function SizeComparisonHub({ state, toast, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [week, setWeek] = useState(state.week || 24);
   const [mode, setMode] = useState('fruit'); // 'fruit' | 'animal' | 'sweet'
   const info = getWeekInfo(week);
 
   return (
     <View style={ms.container}>
-      <ScreenHero kicker="HAFTA HAFTA BOYUT"
-        title="Bebeğinin ölçeğini hisset"
-        body="Meyve, hayvan veya tatlı metaforuyla aynı haftayı daha sıcak ve akılda kalıcı gör."
+      <ScreenHero
+        kicker={isEn ? 'WEEK-BY-WEEK SIZE' : 'HAFTA HAFTA BOYUT'}
+        title={isEn ? "Feel your baby's scale" : "Bebeğinin ölçeğini hisset"}
+        body={isEn ? "See the same week warmly and memorably through fruit, animal, or sweet metaphors." : "Meyve, hayvan veya tatlı metaforuyla aynı haftayı daha sıcak ve akılda kalıcı gör."}
         icon="melon"
-        asset="fruit_apple"
+        asset="sweet_macaron"
         tint="#7B4C80"
       />
 
       {/* 4'lü Segment Seçici */}
       <View style={ms.segRow}>
         {[
-          { id: 'fruit', label: '🍏 Meyve', sub: 'Klasik' },
-          { id: 'ultrasound', label: '🩺 Ultrason', sub: 'Medikal' },
-          { id: 'animal', label: '🧸 Hayvan', sub: 'Doğa' },
-          { id: 'sweet', label: '🧁 Tatlı', sub: 'Keyif' },
+          { id: 'fruit', label: isEn ? '🍏 Fruit' : '🍏 Meyve', sub: isEn ? 'Classic' : 'Klasik' },
+          { id: 'ultrasound', label: isEn ? '🩺 Ultrasound' : '🩺 Ultrason', sub: isEn ? 'Medical' : 'Medikal' },
+          { id: 'animal', label: isEn ? '🧸 Animal' : '🧸 Hayvan', sub: isEn ? 'Nature' : 'Doğa' },
+          { id: 'sweet', label: isEn ? '🧁 Sweet' : '🧁 Tatlı', sub: isEn ? 'Delight' : 'Keyif' },
         ].map(s => (
           <Tap
             key={s.id}
@@ -55,9 +57,11 @@ export function SizeComparisonHub({ state, toast }) {
         />
         <View style={ms.heroMeta}>
           <T bold style={{ fontSize: 13, color: colors.purple }}>
-            {week}. HAFTA · {trimesterLabel(info.trimester).toLocaleUpperCase('tr')}
+            {week}. {isEn ? 'WEEK' : 'HAFTA'} · {trimesterLabel(info.trimester, lang).toLocaleUpperCase(isEn ? 'en' : 'tr')}
           </T>
-          <T style={{ fontSize: 11, color: colors.muted }}>Bebeğin Boyut Eşleşmesi</T>
+          <T style={{ fontSize: 11, color: colors.muted }}>
+            {isEn ? "Baby's Size Comparison" : "Bebeğin Boyut Eşleşmesi"}
+          </T>
         </View>
 
         {/* Görsel Sahne */}
@@ -83,10 +87,10 @@ export function SizeComparisonHub({ state, toast }) {
               : mode === 'animal'
               ? `${info.animalName}`
               : mode === 'ultrasound'
-              ? (info.ultrasound?.scan || 'Ultrason Anatomisi')
+              ? (info.ultrasound?.scan || (isEn ? 'Ultrasound Anatomy' : 'Ultrason Anatomisi'))
               : `${info.sweetName}`}
           </T>
-          <T style={ms.stageSub}>{mode === 'ultrasound' ? (info.ultrasound?.badge || 'Gelişim taraması') : 'büyüklüğünde'}</T>
+          <T style={ms.stageSub}>{mode === 'ultrasound' ? (info.ultrasound?.badge || (isEn ? 'Growth scan' : 'Gelişim taraması')) : (isEn ? 'in size' : 'büyüklüğünde')}</T>
         </View>
 
         {/* Boy & Ağırlık Şeridi */}
@@ -94,7 +98,7 @@ export function SizeComparisonHub({ state, toast }) {
           <View style={ms.metricItem}>
             <Icon name="ruler" size={16} color={colors.purple} />
             <View>
-              <T style={ms.metricLabel}>Yaklaşık Boy</T>
+              <T style={ms.metricLabel}>{isEn ? 'Approx. Length' : 'Yaklaşık Boy'}</T>
               <T bold style={ms.metricVal}>{formatLength(info.lengthCm)}</T>
             </View>
           </View>
@@ -102,7 +106,7 @@ export function SizeComparisonHub({ state, toast }) {
           <View style={ms.metricItem}>
             <Icon name="scale" size={16} color={colors.purple} />
             <View>
-              <T style={ms.metricLabel}>Yaklaşık Ağırlık</T>
+              <T style={ms.metricLabel}>{isEn ? 'Approx. Weight' : 'Yaklaşık Ağırlık'}</T>
               <T bold style={ms.metricVal}>{formatWeight(info.weightG)}</T>
             </View>
           </View>
@@ -110,19 +114,19 @@ export function SizeComparisonHub({ state, toast }) {
       </Card>
 
       {/* Hafta Seçici Şerit */}
-      <Section title="Haftayı Değiştir" />
+      <Section title={isEn ? 'Change Week' : 'Haftayı Değiştir'} />
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
         {Array.from({ length: 37 }, (_, i) => i + 4).map(w => (
           <Tap
             key={w}
-            label={`${w}. Hafta`}
+            label={isEn ? `Week ${w}` : `${w}. Hafta`}
             onPress={() => setWeek(w)}
             style={[ms.weekPill, week === w && ms.weekPillActive]}
           >
             <T bold={week === w} style={{ fontSize: 13, color: week === w ? 'white' : colors.ink }}>
               {w}
             </T>
-            <T style={{ fontSize: 9, color: week === w ? '#EDE0EF' : colors.muted }}>hf</T>
+            <T style={{ fontSize: 9, color: week === w ? '#EDE0EF' : colors.muted }}>{isEn ? 'wk' : 'hf'}</T>
           </Tap>
         ))}
       </ScrollView>
@@ -131,14 +135,19 @@ export function SizeComparisonHub({ state, toast }) {
 }
 
 // ─── EKRAN 11: 2D & 3D ULTRASON GALERİSİ (ULTRASOUND ATLAS) ─────────────────
-export function UltrasoundAtlas({ state }) {
+export function UltrasoundAtlas({ state, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [tab, setTab] = useState('3d');
   const [activeMarker, setActiveMarker] = useState(null);
   const week = state.week || 20;
   const info = getWeekInfo(week);
   const pulse = usePulse(0.95, 1.05, 1600);
 
-  const markers = [
+  const markers = isEn ? [
+    { id: 'spine', label: 'Spine Line', x: '46%', y: '38%', desc: 'Spinal bones and neural line are continuously closed.' },
+    { id: 'heart', label: '4-Chamber Heart', x: '52%', y: '52%', desc: 'Heart chambers and valves pump blood rhythmically.' },
+    { id: 'profile', label: 'Facial Profile & Nose', x: '35%', y: '28%', desc: 'Nasal bone, lips, and eye sockets are clearly visible.' },
+  ] : [
     { id: 'spine', label: 'Omurga Hattı', x: '46%', y: '38%', desc: 'Omurga kemikleri ve nöral hat kesintisiz kapanmıştır.' },
     { id: 'heart', label: '4 Odacıklı Kalp', x: '52%', y: '52%', desc: 'Kalp odacıkları ve kapakçıklar ritmik kan pompalar.' },
     { id: 'profile', label: 'Yüz Profili & Burun', x: '35%', y: '28%', desc: 'Burun kemiği, dudaklar ve göz çukurları seçilir.' },
@@ -146,11 +155,12 @@ export function UltrasoundAtlas({ state }) {
 
   return (
     <View style={ms.container}>
-      <ScreenHero kicker="ULTRASON REHBERİ"
-        title={`${week}. hafta görüntü okuma`}
-        body="Görüntüde neye baktığını anlamana yardım eden sade, işaretli bir keşif ekranı."
+      <ScreenHero
+        kicker={isEn ? 'ULTRASOUND GUIDE' : 'ULTRASON REHBERİ'}
+        title={isEn ? `Week ${week} image reading` : `${week}. hafta görüntü okuma`}
+        body={isEn ? 'A simple annotated view to help you understand what you are seeing in your scan.' : 'Görüntüde neye baktığını anlamana yardım eden sade, işaretli bir keşif ekranı.'}
         icon="calendar"
-        asset="card_ultrasound_frame"
+        asset="ui_ultrasound_hdlive_20w"
         tint="#5D4F88"
       />
 
@@ -158,20 +168,20 @@ export function UltrasoundAtlas({ state }) {
       <View style={ms.segRow}>
         <Tap
           onPress={() => setTab('2d')}
-          label="2D Ultrason"
+          label={isEn ? '2D Ultrasound Guide' : '2D Ultrason Rehberi'}
           style={[ms.segBtn, tab === '2d' && ms.segBtnActive]}
         >
           <T bold={tab === '2d'} style={[ms.segText, tab === '2d' && { color: 'white' }]}>
-            2D Ultrason Rehberi
+            {isEn ? '2D Ultrasound Guide' : '2D Ultrason Rehberi'}
           </T>
         </Tap>
         <Tap
           onPress={() => setTab('3d')}
-          label="3D / 4D HDLive"
+          label={isEn ? '3D / 4D Color HDLive' : '3D / 4D Renkli HDLive'}
           style={[ms.segBtn, tab === '3d' && ms.segBtnActive]}
         >
           <T bold={tab === '3d'} style={[ms.segText, tab === '3d' && { color: 'white' }]}>
-            3D / 4D Renkli HDLive
+            {isEn ? '3D / 4D Color HDLive' : '3D / 4D Renkli HDLive'}
           </T>
         </Tap>
       </View>
@@ -179,9 +189,11 @@ export function UltrasoundAtlas({ state }) {
       {/* Ultrason Ekranı Çerçevesi */}
       <Card style={ms.usgFrame}>
         <View style={ms.usgHeader}>
-          <T bold style={{ color: '#E8D298', fontSize: 13 }}>{week}. HAFTA ULTRASONU</T>
+          <T bold style={{ color: '#E8D298', fontSize: 13 }}>
+            {isEn ? `WEEK ${week} ULTRASOUND` : `${week}. HAFTA ULTRASONU`}
+          </T>
           <View style={ms.usgBadge}>
-            <T style={{ fontSize: 10, color: 'white' }}>{info.ultrasound?.badge || 'Detaylı USG'}</T>
+            <T style={{ fontSize: 10, color: 'white' }}>{info.ultrasound?.badge || (isEn ? 'Detailed USG' : 'Detaylı USG')}</T>
           </View>
         </View>
 
@@ -192,9 +204,9 @@ export function UltrasoundAtlas({ state }) {
             style={StyleSheet.absoluteFill}
           />
 
-          {generatedAssets['card_ultrasound_frame'] ? (
+          {(tab === '3d' ? generatedAssets['ui_ultrasound_hdlive_20w'] : generatedAssets['card_ultrasound_frame']) ? (
             <Image
-              source={generatedAssets['card_ultrasound_frame']}
+              source={tab === '3d' ? (generatedAssets['ui_ultrasound_hdlive_20w'] || generatedAssets['card_ultrasound_frame']) : generatedAssets['card_ultrasound_frame']}
               style={ms.usgImage}
               resizeMode="contain"
             />
@@ -232,9 +244,11 @@ export function UltrasoundAtlas({ state }) {
 
       {/* Bu Hafta Neye Bakılır? */}
       <Card style={{ padding: 14 }}>
-        <T bold style={{ fontSize: 15 }}>Bu haftaki kontrolde neler konuşulur?</T>
+        <T bold style={{ fontSize: 15 }}>
+          {isEn ? "What is discussed in this week's checkup?" : "Bu haftaki kontrolde neler konuşulur?"}
+        </T>
         <T style={{ fontSize: 13, color: '#554D5A', marginTop: 6, lineHeight: 20 }}>
-          {info.ultrasound?.milestone || 'Gelişim ölçümleri, amniyon sıvısı, plasenta konumu ve bebeğin pozisyonu kontrol notlarına eklenebilir.'}
+          {info.ultrasound?.milestone || (isEn ? 'Growth measurements, amniotic fluid, placental position, and baby position can be added to visit notes.' : 'Gelişim ölçümleri, amniyon sıvısı, plasenta konumu ve bebeğin pozisyonu kontrol notlarına eklenebilir.')}
         </T>
       </Card>
     </View>
@@ -252,20 +266,32 @@ export const medicalMilestones = [
   { weekRange: '37-40. Hafta', title: 'Doğuma Hazırlık & Çatı Muayenesi', desc: 'Doğum kanalı, baş inişi ve son hazırlıklar', upcoming: true, key: 'm7' },
 ];
 
-export function MedicalTimeline() {
+export function MedicalTimeline({ lang = 'tr' }) {
+  const isEn = lang === 'en';
+  const milestones = isEn ? [
+    { weekRange: 'Weeks 6-8', title: 'First Exam & Heartbeat', desc: 'Confirmation of gestational sac and fetal heartbeat', done: true, key: 'm1' },
+    { weekRange: 'Weeks 11-14', title: 'First Trimester Screening & NT', desc: 'Chromosomal abnormality screening and nuchal translucency', done: true, key: 'm2' },
+    { weekRange: 'Weeks 16-18', title: 'Quad Screen Test', desc: 'Optional biochemical risk screening', done: true, key: 'm3' },
+    { weekRange: 'Weeks 18-22', title: 'Detailed Anatomy Ultrasound · Level 2 USG', desc: 'Comprehensive scan of all internal organs, brain, heart, and limbs', current: true, key: 'm4' },
+    { weekRange: 'Weeks 24-28', title: 'Glucose Screening & Full Blood Count', desc: 'Gestational diabetes and anemia screening', upcoming: true, key: 'm5' },
+    { weekRange: 'Weeks 32-36', title: 'Growth & NST Scans', desc: 'Fetal heart rate monitoring, movement reactivity, and position', upcoming: true, key: 'm6' },
+    { weekRange: 'Weeks 37-40', title: 'Birth Preparation & Pelvic Check', desc: 'Birth canal readiness, head engagement, and final preparations', upcoming: true, key: 'm7' },
+  ] : medicalMilestones;
+
   return (
     <View style={ms.container}>
-      <ScreenHero kicker="KONTROL TAKVİMİ"
-        title="40 haftalık yol haritası"
-        body="Rutin kontrolleri ve yaklaşan başlıkları hafta hafta tek akışta gör."
+      <ScreenHero
+        kicker={isEn ? 'CHECKUP TIMELINE' : 'KONTROL TAKVİMİ'}
+        title={isEn ? '40-week roadmap' : '40 haftalık yol haritası'}
+        body={isEn ? 'Follow routine checkups and upcoming milestones week by week in a single stream.' : 'Rutin kontrolleri ve yaklaşan başlıkları hafta hafta tek akışta gör.'}
         icon="milestone"
-        asset="card_appointment"
+        asset="ui_timeline_sun_moon"
         tint="#915B38"
       />
 
       {/* Dikey Metro Haritası */}
       <View style={ms.timeline}>
-        {medicalMilestones.map((m, idx) => (
+        {milestones.map((m, idx) => (
           <View key={m.key} style={ms.timelineItem}>
             {/* Sol Hat & Rozet */}
             <View style={ms.timelineCol}>
@@ -285,7 +311,7 @@ export function MedicalTimeline() {
                   <T style={ms.nodeLock}>🔒</T>
                 )}
               </View>
-              {idx < medicalMilestones.length - 1 && <View style={ms.lineTrack} />}
+              {idx < milestones.length - 1 && <View style={ms.lineTrack} />}
             </View>
 
             {/* Sağ İçerik Kartı */}
@@ -296,7 +322,7 @@ export function MedicalTimeline() {
                 </T>
                 {m.current && (
                   <View style={ms.activeBadge}>
-                    <T bold style={{ fontSize: 10, color: 'white' }}>BU DÖNEM</T>
+                    <T bold style={{ fontSize: 10, color: 'white' }}>{isEn ? 'CURRENT' : 'BU DÖNEM'}</T>
                   </View>
                 )}
               </View>
@@ -311,15 +337,50 @@ export function MedicalTimeline() {
 }
 
 // ─── EKRAN 13: AYRINTILI ORGAN GELİŞİMİ & KALP SESİ ─────────────────────────
-export function OrganDevelopment({ state }) {
+export function OrganDevelopment({ state, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [activeTab, setActiveTab] = useState('heart');
   const [playing, setPlaying] = useState(false);
   const pulse = usePulse(0.9, 1.1, 800);
 
-  const organs = [
+  const organs = isEn ? [
+    {
+      id: 'heart',
+      title: 'Heart & Circulation',
+      tabLabel: 'Heart',
+      bpm: '145 BPM',
+      icon: 'heart',
+      desc: "Your baby's heart beats about 140-150 times per minute (twice an adult's!). Heart valves and 4 chambers are working perfectly.",
+    },
+    {
+      id: 'brain',
+      title: 'Brain & Nerves',
+      tabLabel: 'Brain',
+      bpm: null,
+      icon: 'milestone',
+      desc: 'Tens of thousands of new nerve cells connect every second. Centers for processing taste, smell, and sounds have activated.',
+    },
+    {
+      id: 'senses',
+      title: 'Senses & Movement',
+      tabLabel: 'Senses',
+      bpm: null,
+      icon: 'footprint',
+      desc: 'Eyelids react to light, recognizing your voice. Grasping reflex is practiced by clenching fingers.',
+    },
+    {
+      id: 'bones',
+      title: 'Bones & Fat',
+      tabLabel: 'Bones',
+      bpm: null,
+      icon: 'scale',
+      desc: 'Cartilage transforms into strong bone by storing calcium. Protective brown fat tissue accumulates under the skin.',
+    },
+  ] : [
     {
       id: 'heart',
       title: 'Kalp & Dolaşım',
+      tabLabel: 'Kalp',
       bpm: '145 BPM',
       icon: 'heart',
       desc: 'Bebeğin kalbi dakikada yaklaşık 140-150 kez atar (yetişkinin iki katı!). Kalp kapakçıkları ve 4 odacık kusursuz çalışıyor.',
@@ -327,6 +388,7 @@ export function OrganDevelopment({ state }) {
     {
       id: 'brain',
       title: 'Beyin & Sinirler',
+      tabLabel: 'Beyin',
       bpm: null,
       icon: 'milestone',
       desc: 'Her saniye on binlerce yeni sinir hücresi bağlantı kuruyor. Tat, koku ve sesleri işleme merkezleri aktifleşti.',
@@ -334,6 +396,7 @@ export function OrganDevelopment({ state }) {
     {
       id: 'senses',
       title: 'Duyular & Hareket',
+      tabLabel: 'Duyular',
       bpm: null,
       icon: 'footprint',
       desc: 'Göz kapakları ışığa tepki veriyor, sesinizi tanıyor. El parmaklarını sıkarak kavrama refleksini çalıştırıyor.',
@@ -341,6 +404,7 @@ export function OrganDevelopment({ state }) {
     {
       id: 'bones',
       title: 'Kemikler & Yağ',
+      tabLabel: 'Kemikler',
       bpm: null,
       icon: 'scale',
       desc: 'Kıkırdaklar kalsiyum depolayarak güçlü kemiklere dönüşüyor. Cilt altında koruyucu kahverengi yağ dokusu birikiyor.',
@@ -351,11 +415,12 @@ export function OrganDevelopment({ state }) {
 
   return (
     <View style={ms.container}>
-      <ScreenHero kicker="GELİŞİM ODAKLARI"
-        title="Organ gelişimini bölümlere ayır"
-        body="Kalp, beyin, duyular ve kemik gelişimini tek ekranda sade başlıklarla takip et."
+      <ScreenHero
+        kicker={isEn ? 'DEVELOPMENT FOCUS' : 'GELİŞİM ODAKLARI'}
+        title={isEn ? 'Explore organ development' : 'Organ gelişimini bölümlere ayır'}
+        body={isEn ? 'Follow heart, brain, senses, and bone development on a single screen with clear headings.' : 'Kalp, beyin, duyular ve kemik gelişimini tek ekranda sade başlıklarla takip et.'}
         icon="heart"
-        asset="card_blood_pressure"
+        asset="ui_fetal_heart_3d"
         tint="#A84D67"
       />
 
@@ -369,21 +434,27 @@ export function OrganDevelopment({ state }) {
           <Animated.View style={{ transform: [{ scale: playing ? pulse : 1 }] }}>
             <Tap
               onPress={() => setPlaying(!playing)}
-              label="Kalp atışını dinle"
+              label={isEn ? 'Listen to heartbeat' : 'Kalp atışını dinle'}
               style={ms.heartBtn}
             >
-              {generatedAssets['card_blood_pressure'] ? (
-                <Image source={generatedAssets['card_blood_pressure']} style={{ width: 44, height: 44 }} resizeMode="contain" />
+              {generatedAssets['ui_fetal_heart_3d'] ? (
+                <Image source={generatedAssets['ui_fetal_heart_3d']} style={{ width: 44, height: 44 }} resizeMode="contain" />
               ) : (
                 <Icon name="heart" size={38} color="#FF6E8F" fill={playing ? '#FF6E8F' : 'none'} />
               )}
             </Tap>
           </Animated.View>
           <View style={{ flex: 1, marginLeft: 14 }}>
-            <T bold style={{ color: 'white', fontSize: 16 }}>Ortalama Fetal Kalp Atımı</T>
-            <T style={{ color: '#FFB8CA', fontSize: 13, marginTop: 2 }}>~145 BPM · Dinamik Ritim</T>
+            <T bold style={{ color: 'white', fontSize: 16 }}>
+              {isEn ? 'Average Fetal Heart Rate' : 'Ortalama Fetal Kalp Atımı'}
+            </T>
+            <T style={{ color: '#FFB8CA', fontSize: 13, marginTop: 2 }}>
+              {isEn ? '~145 BPM · Dynamic Rhythm' : '~145 BPM · Dinamik Ritim'}
+            </T>
             <T style={{ color: '#D9C1CE', fontSize: 11, marginTop: 4 }}>
-              {playing ? '🎵 Kalp ritmi çalıyor...' : 'Dinlemek için dokunun'}
+              {playing
+                ? (isEn ? '🎵 Heart rhythm playing...' : '🎵 Kalp ritmi çalıyor...')
+                : (isEn ? 'Tap to listen' : 'Dinlemek için dokunun')}
             </T>
           </View>
         </View>
@@ -399,7 +470,7 @@ export function OrganDevelopment({ state }) {
             style={[ms.organPill, activeTab === o.id && ms.organPillActive]}
           >
             <T bold={activeTab === o.id} style={{ fontSize: 12, color: activeTab === o.id ? 'white' : colors.ink }}>
-              {o.title.split('&')[0]}
+              {o.tabLabel}
             </T>
           </Tap>
         ))}

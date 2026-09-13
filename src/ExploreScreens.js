@@ -41,7 +41,7 @@ export function FoodSafetyChecker({ toast }) {
 
   return (
     <View style={es.container}>
-      <ScreenHero kicker="BESİN GÜVENLİĞİ" title="Yenebilir mi?" body="Merak ettiğin gıdaları sade risk notları ve daha güvenli alternatiflerle incele." icon="bowl" asset="prod_baby_food" stat={`${filtered.length} sonuç`} tint="#4F8464" />
+      <ScreenHero kicker="BESİN GÜVENLİĞİ" title="Yenebilir mi?" body="Merak ettiğin gıdaları sade risk notları ve daha güvenli alternatiflerle incele." icon="bowl" asset="ui_food_safe_shield" stat={`${filtered.length} sonuç`} tint="#4F8464" />
 
       {/* Arama Kutusu */}
       <View style={es.searchBox}>

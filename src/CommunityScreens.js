@@ -204,6 +204,7 @@ export function CommunityHub({ open, state, update, toast }) {
         title={`${filteredPosts.length} aktif konu`}
         body="Deneyim paylaş; sağlık kararı gerektiren başlıklarda kendi uzmanının yönlendirmesini merkeze al."
         icon="chat"
+        asset="ui_community_mothers_circle"
         stat="moderasyon notları"
         tint={colors.purple}
       />

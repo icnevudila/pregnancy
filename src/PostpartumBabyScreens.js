@@ -92,7 +92,7 @@ export function NursingTimerScreen({ state, update, toast }) {
         title="Emzirme, Biberon ve Sağma"
         body="Beslenme seanslarını süre, taraf ve mililitre hassasiyetiyle tek noktadan takip et."
         icon="nursing"
-        asset={feedMode === 'pump' ? 'btn_breast_pump' : feedMode === 'bottle' ? 'btn_bottle' : 'btn_nursing'}
+        asset={feedMode === 'pump' ? 'btn_breast_pump' : feedMode === 'bottle' ? 'btn_bottle' : 'ui_nursing_dual_timer'}
         stat={feedMode === 'breast' ? (activeSide ? 'emziriliyor' : lastSide) : feedMode === 'bottle' ? `${bottleMl} ml` : `${pumpMl} ml`}
         tint="#9B4E76"
       />
@@ -414,7 +414,7 @@ export function SleepWhiteNoiseScreen({ state, update, toast }) {
         title="Uyku ve Sakin Sesler"
         body="Uyku durumunu kaydet, uyanıklık penceresini izle ve beyaz gürültüyü kontrollü zamanlayıcıyla çal."
         icon="moon"
-        asset="btn_sleep"
+        asset="ui_white_noise_headphones"
         stat={isAsleep ? 'uykuda' : 'uyanık'}
         tint="#6E5A96"
       />
@@ -640,7 +640,7 @@ export function DiaperTrackerScreen({ state, update, toast }) {
         title="Bez Değiştirme ve Hidrasyon"
         body="Islak, kirli ve karışık bez kayıtlarını anında işle; günlük 6+ ıslak bez hedefini takip et."
         icon="diaper"
-        asset="btn_diaper"
+        asset="ui_diaper_wet_drop"
         stat={`${wetCount}/6 ıslak bez`}
         tint="#4896BC"
       />
@@ -672,8 +672,8 @@ export function DiaperTrackerScreen({ state, update, toast }) {
       {/* 3 Hızlı Dokunsal Seçici */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
         {[
-          { id: 'Islak', asset: 'cat_wipes', label: 'Islak Bez', tint: '#4896BC', bg: '#EDF6FA' },
-          { id: 'Kirli', asset: 'cat_diaper', label: 'Kirli Bez', tint: '#8A6840', bg: '#F9F4EE' },
+          { id: 'Islak', asset: 'ui_diaper_wet_drop', label: 'Islak Bez', tint: '#4896BC', bg: '#EDF6FA' },
+          { id: 'Kirli', asset: 'ui_diaper_dirty', label: 'Kirli Bez', tint: '#8A6840', bg: '#F9F4EE' },
           { id: 'Karışık', asset: 'btn_diaper', label: 'Karışık', tint: '#6E4D84', bg: '#F6EFF8' },
         ].map(item => (
           <Tap
@@ -790,7 +790,7 @@ export function PostpartumSelfCareScreen({ state, update, toast }) {
         title={`${day}. Gün Toparlanma`}
         body="İyileşme adımlarını, pelvik taban egzersizini ve günlük sıvı ihtiyacını şefkatle takip et."
         icon="leaf"
-        asset="mother-baby"
+        asset="ui_postpartum_lotus"
         stat="şefkatli bakım"
         tint="#86518A"
       />

@@ -55,7 +55,8 @@ function AppleIcon({ size = 20, color = '#FFFFFF' }) {
   );
 }
 
-export function AuthModal({ close, toast, onAuthSuccess }) {
+export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [tab, setTab] = useState('signin'); // 'signin' | 'signup' | 'forgot' | 'key'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -75,7 +76,7 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
   async function handleSignIn() {
     setErrorMsg('');
     if (!email.trim() || !password.trim()) {
-      setErrorMsg('Lütfen e-posta ve şifrenizi girin.');
+      setErrorMsg(isEn ? 'Please enter your email and password.' : 'Lütfen e-posta ve şifrenizi girin.');
       return;
     }
     setLoading(true);
@@ -86,11 +87,11 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
     setLoading(false);
 
     if (error) {
-      setErrorMsg(error.message || 'Giriş yapılamadı. Bilgilerinizi kontrol edin.');
+      setErrorMsg(error.message || (isEn ? 'Sign in failed. Please check your credentials.' : 'Giriş yapılamadı. Bilgilerinizi kontrol edin.'));
       return;
     }
 
-    toast && toast('Momora\'ya hoş geldiniz 🌸');
+    toast && toast(isEn ? 'Welcome to Momora 🌸' : 'Momora\'ya hoş geldiniz 🌸');
     onAuthSuccess && onAuthSuccess(data?.user);
     close && close();
   }
@@ -98,15 +99,15 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
   async function handleSignUp() {
     setErrorMsg('');
     if (!fullName.trim()) {
-      setErrorMsg('Lütfen adınızı ve soyadınızı girin.');
+      setErrorMsg(isEn ? 'Please enter your full name.' : 'Lütfen adınızı ve soyadınızı girin.');
       return;
     }
     if (!email.trim() || !password.trim()) {
-      setErrorMsg('Lütfen e-posta ve şifre belirleyin.');
+      setErrorMsg(isEn ? 'Please set an email and password.' : 'Lütfen e-posta ve şifre belirleyin.');
       return;
     }
     if (password.length < 6) {
-      setErrorMsg('Şifreniz en az 6 karakter olmalıdır.');
+      setErrorMsg(isEn ? 'Password must be at least 6 characters.' : 'Şifreniz en az 6 karakter olmalıdır.');
       return;
     }
 
@@ -121,11 +122,11 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
     setLoading(false);
 
     if (error) {
-      setErrorMsg(error.message || 'Kayıt sırasında bir hata oluştu.');
+      setErrorMsg(error.message || (isEn ? 'An error occurred during registration.' : 'Kayıt sırasında bir hata oluştu.'));
       return;
     }
 
-    toast && toast('Hesabınız başarıyla oluşturuldu! Hoş geldiniz 🤍');
+    toast && toast(isEn ? 'Account created successfully! Welcome 🤍' : 'Hesabınız başarıyla oluşturuldu! Hoş geldiniz 🤍');
     onAuthSuccess && onAuthSuccess(data?.user);
     close && close();
   }
@@ -137,16 +138,16 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
     setLoading(false);
 
     if (error) {
-      setErrorMsg(error.message || `${provider} ile giriş başlatılamadı.`);
+      setErrorMsg(error.message || (isEn ? `Failed to initiate sign in with ${provider}.` : `${provider} ile giriş başlatılamadı.`));
       return;
     }
-    toast && toast(`${provider === 'google' ? 'Google' : 'Apple'} ile giriş yapılıyor...`);
+    toast && toast(isEn ? `Signing in with ${provider === 'google' ? 'Google' : 'Apple'}...` : `${provider === 'google' ? 'Google' : 'Apple'} ile giriş yapılıyor...`);
   }
 
   async function handleForgotPassword() {
     setErrorMsg('');
     if (!email.trim()) {
-      setErrorMsg('Lütfen kayıtlı e-posta adresinizi girin.');
+      setErrorMsg(isEn ? 'Please enter your registered email address.' : 'Lütfen kayıtlı e-posta adresinizi girin.');
       return;
     }
     setLoading(true);
@@ -154,11 +155,11 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
     setLoading(false);
 
     if (error) {
-      setErrorMsg(error.message || 'Şifre sıfırlama e-postası gönderilemedi.');
+      setErrorMsg(error.message || (isEn ? 'Could not send password reset email.' : 'Şifre sıfırlama e-postası gönderilemedi.'));
       return;
     }
 
-    toast && toast('Şifre sıfırlama bağlantısı e-postanıza iletildi.');
+    toast && toast(isEn ? 'Password reset link sent to your email.' : 'Şifre sıfırlama bağlantısı e-postanıza iletildi.');
     setTab('signin');
   }
 
@@ -168,9 +169,9 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
     if (ok) {
       setConfigured(true);
       setTab('signin');
-      toast && toast('Supabase anahtarı kaydedildi ve bağlandı!');
+      toast && toast(isEn ? 'Supabase key saved and connected!' : 'Supabase anahtarı kaydedildi ve bağlandı!');
     } else {
-      setErrorMsg('Geçersiz anahtar.');
+      setErrorMsg(isEn ? 'Invalid key.' : 'Geçersiz anahtar.');
     }
   }
 
@@ -184,10 +185,10 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
             <T style={s.brandTitle}>MOMORA</T>
           </View>
           <T style={s.subtitle}>
-            {tab === 'signin' && 'Hesabına giriş yap, hamilelik ve bebek takibine kaldığın yerden devam et.'}
-            {tab === 'signup' && 'Anne & baba ortak hesabı oluştur, bebeğin gelişimini birlikte takip edin.'}
-            {tab === 'forgot' && 'Kayıtlı e-postanı gir, şifre sıfırlama bağlantısını hemen gönderelim.'}
-            {tab === 'key' && 'Supabase Anon / Publishable Key yapılandırması'}
+            {tab === 'signin' && (isEn ? 'Sign in to your account and continue your journey right where you left off.' : 'Hesabına giriş yap, hamilelik ve bebek takibine kaldığın yerden devam et.')}
+            {tab === 'signup' && (isEn ? 'Create a shared family account to track baby development together.' : 'Anne & baba ortak hesabı oluştur, bebeğin gelişimini birlikte takip edin.')}
+            {tab === 'forgot' && (isEn ? 'Enter your registered email and we will send a password reset link.' : 'Kayıtlı e-postanı gir, şifre sıfırlama bağlantısını hemen gönderelim.')}
+            {tab === 'key' && (isEn ? 'Supabase Anon / Publishable Key setup' : 'Supabase Anon / Publishable Key yapılandırması')}
           </T>
         </View>
 
@@ -197,14 +198,14 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
             <Icon name="sparkle" size={16} color={colors.purple} />
             <View style={{ flex: 1 }}>
               <T bold style={{ fontSize: 13, color: colors.purple }}>
-                Supabase Projesi: fpcovwexojrauddbszab
+                Supabase: fpcovwexojrauddbszab
               </T>
               <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                Canlı bağlantı için Publishable / Anon Key bekleniyor.
+                {isEn ? 'Awaiting Publishable / Anon Key for cloud sync.' : 'Canlı bağlantı için Publishable / Anon Key bekleniyor.'}
               </T>
             </View>
             <Tap onPress={() => setTab('key')} style={s.keyEnterBtn}>
-              <T bold style={{ fontSize: 11, color: 'white' }}>Key Gir</T>
+              <T bold style={{ fontSize: 11, color: 'white' }}>{isEn ? 'Enter Key' : 'Key Gir'}</T>
             </Tap>
           </View>
         )}
@@ -217,7 +218,7 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
               style={[s.tabButton, tab === 'signin' && s.tabButtonActive]}
             >
               <T bold={tab === 'signin'} style={[s.tabText, tab === 'signin' && s.tabTextActive]}>
-                Giriş Yap
+                {isEn ? 'Sign In' : 'Giriş Yap'}
               </T>
             </Tap>
             <Tap
@@ -225,7 +226,7 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
               style={[s.tabButton, tab === 'signup' && s.tabButtonActive]}
             >
               <T bold={tab === 'signup'} style={[s.tabText, tab === 'signup' && s.tabTextActive]}>
-                Hesap Oluştur
+                {isEn ? 'Create Account' : 'Hesap Oluştur'}
               </T>
             </Tap>
           </View>
@@ -243,10 +244,10 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
         {tab === 'signin' && (
           <View style={s.form}>
             <View style={s.inputGroup}>
-              <T bold style={s.inputLabel}>E-posta Adresi</T>
+              <T bold style={s.inputLabel}>{isEn ? 'Email Address' : 'E-posta Adresi'}</T>
               <TextInput
                 style={s.input}
-                placeholder="ornek@momora.app"
+                placeholder={isEn ? 'example@momora.app' : 'ornek@momora.app'}
                 placeholderTextColor="#A499A6"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -258,9 +259,9 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
 
             <View style={s.inputGroup}>
               <View style={s.labelRow}>
-                <T bold style={s.inputLabel}>Şifre</T>
+                <T bold style={s.inputLabel}>{isEn ? 'Password' : 'Şifre'}</T>
                 <Tap onPress={() => { setTab('forgot'); setErrorMsg(''); }}>
-                  <T style={s.forgotLink}>Şifremi Unuttum</T>
+                  <T style={s.forgotLink}>{isEn ? 'Forgot Password?' : 'Şifremi Unuttum'}</T>
                 </Tap>
               </View>
               <TextInput
@@ -277,7 +278,7 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
               {loading ? (
                 <ActivityIndicator color="white" />
               ) : (
-                <T bold style={s.primaryBtnText}>Giriş Yap</T>
+                <T bold style={s.primaryBtnText}>{isEn ? 'Sign In' : 'Giriş Yap'}</T>
               )}
             </Tap>
           </View>
@@ -288,7 +289,7 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
           <View style={s.form}>
             {/* Rol Seçimi */}
             <View style={s.inputGroup}>
-              <T bold style={s.inputLabel}>Rolünüzü Seçin</T>
+              <T bold style={s.inputLabel}>{isEn ? 'Select Your Role' : 'Rolünüzü Seçin'}</T>
               <View style={s.roleRow}>
                 <Tap
                   onPress={() => setRole('mother')}
@@ -296,11 +297,11 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
                 >
                   <View style={s.roleTop}>
                     <T bold style={[s.roleTitle, role === 'mother' && s.roleTitleActive]}>
-                      Ben Anneyim
+                      {isEn ? "I'm the Mother" : 'Ben Anneyim'}
                     </T>
                     {role === 'mother' && <Icon name="check" size={16} color={colors.purple} />}
                   </View>
-                  <T style={s.roleDesc}>Gebelik, belirti ve bebek takibi</T>
+                  <T style={s.roleDesc}>{isEn ? 'Pregnancy, symptoms and baby care' : 'Gebelik, belirti ve bebek takibi'}</T>
                 </Tap>
 
                 <Tap
@@ -309,20 +310,20 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
                 >
                   <View style={s.roleTop}>
                     <T bold style={[s.roleTitle, role === 'father' && s.roleTitleActive]}>
-                      Ben Babayım
+                      {isEn ? "I'm the Father" : 'Ben Babayım'}
                     </T>
                     {role === 'father' && <Icon name="check" size={16} color={colors.purple} />}
                   </View>
-                  <T style={s.roleDesc}>Eş desteği ve baba rehberi</T>
+                  <T style={s.roleDesc}>{isEn ? 'Partner support and dad guide' : 'Eş desteği ve baba rehberi'}</T>
                 </Tap>
               </View>
             </View>
 
             <View style={s.inputGroup}>
-              <T bold style={s.inputLabel}>Adınız ve Soyadınız</T>
+              <T bold style={s.inputLabel}>{isEn ? 'Full Name' : 'Adınız ve Soyadınız'}</T>
               <TextInput
                 style={s.input}
-                placeholder="Zeynep Yılmaz"
+                placeholder={isEn ? 'Emma Watson' : 'Zeynep Yılmaz'}
                 placeholderTextColor="#A499A6"
                 value={fullName}
                 onChangeText={setFullName}
@@ -330,10 +331,10 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
             </View>
 
             <View style={s.inputGroup}>
-              <T bold style={s.inputLabel}>E-posta Adresi</T>
+              <T bold style={s.inputLabel}>{isEn ? 'Email Address' : 'E-posta Adresi'}</T>
               <TextInput
                 style={s.input}
-                placeholder="zeynep@example.com"
+                placeholder={isEn ? 'emma@example.com' : 'zeynep@example.com'}
                 placeholderTextColor="#A499A6"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -344,10 +345,10 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
             </View>
 
             <View style={s.inputGroup}>
-              <T bold style={s.inputLabel}>Şifre</T>
+              <T bold style={s.inputLabel}>{isEn ? 'Password' : 'Şifre'}</T>
               <TextInput
                 style={s.input}
-                placeholder="En az 6 karakter"
+                placeholder={isEn ? 'At least 6 characters' : 'En az 6 karakter'}
                 placeholderTextColor="#A499A6"
                 secureTextEntry
                 value={password}
@@ -362,13 +363,15 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
             >
               <Icon name={showPartnerCodeInput ? 'chevron' : 'plus'} size={15} color={colors.purple} />
               <T bold style={{ fontSize: 13, color: colors.purple }}>
-                {showPartnerCodeInput ? 'Eş kodunu gizle' : 'Eşimin aile kodu var (Birlikte Takip)'}
+                {showPartnerCodeInput
+                  ? (isEn ? 'Hide partner code' : 'Eş kodunu gizle')
+                  : (isEn ? 'Have a partner family code (Shared)' : 'Eşimin aile kodu var (Birlikte Takip)')}
               </T>
             </Tap>
 
             {showPartnerCodeInput && (
               <View style={[s.inputGroup, { marginTop: 4 }]}>
-                <T style={s.inputLabel}>Eşinizin Momora Kodu</T>
+                <T style={s.inputLabel}>{isEn ? "Partner's Momora Code" : 'Eşinizin Momora Kodu'}</T>
                 <TextInput
                   style={[s.input, { letterSpacing: 2, textTransform: 'uppercase' }]}
                   placeholder="MOM-7829-TR"
@@ -378,7 +381,9 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
                   onChangeText={setPartnerCode}
                 />
                 <T style={s.helperText}>
-                  Eşiniz daha önce kayıt olduysa Profil sekmesindeki kodu buraya yazabilirsiniz.
+                  {isEn
+                    ? 'If your partner already registered, enter the code from their Profile tab here.'
+                    : 'Eşiniz daha önce kayıt olduysa Profil sekmesindeki kodu buraya yazabilirsiniz.'}
                 </T>
               </View>
             )}
@@ -387,7 +392,7 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
               {loading ? (
                 <ActivityIndicator color="white" />
               ) : (
-                <T bold style={s.primaryBtnText}>Hesap Oluştur</T>
+                <T bold style={s.primaryBtnText}>{isEn ? 'Create Account' : 'Hesap Oluştur'}</T>
               )}
             </Tap>
           </View>
@@ -397,10 +402,10 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
         {tab === 'forgot' && (
           <View style={s.form}>
             <View style={s.inputGroup}>
-              <T bold style={s.inputLabel}>Kayıtlı E-posta Adresiniz</T>
+              <T bold style={s.inputLabel}>{isEn ? 'Your Registered Email Address' : 'Kayıtlı E-posta Adresiniz'}</T>
               <TextInput
                 style={s.input}
-                placeholder="ornek@momora.app"
+                placeholder={isEn ? 'example@momora.app' : 'ornek@momora.app'}
                 placeholderTextColor="#A499A6"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -413,12 +418,12 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
               {loading ? (
                 <ActivityIndicator color="white" />
               ) : (
-                <T bold style={s.primaryBtnText}>Sıfırlama Bağlantısı Gönder</T>
+                <T bold style={s.primaryBtnText}>{isEn ? 'Send Reset Link' : 'Sıfırlama Bağlantısı Gönder'}</T>
               )}
             </Tap>
 
             <Tap onPress={() => setTab('signin')} style={s.textCancelBtn}>
-              <T bold style={{ color: colors.purple, fontSize: 13 }}>← Giriş Ekranına Dön</T>
+              <T bold style={{ color: colors.purple, fontSize: 13 }}>{isEn ? '← Back to Sign In' : '← Giriş Ekranına Dön'}</T>
             </Tap>
           </View>
         )}
@@ -437,16 +442,18 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
                 onChangeText={setManualKey}
               />
               <T style={s.helperText}>
-                Supabase Dashboard &gt; Project Settings &gt; API kısmından kopyaladığınız key'i buraya yapıştırabilirsiniz.
+                {isEn
+                  ? 'Paste the key copied from Supabase Dashboard > Project Settings > API here.'
+                  : "Supabase Dashboard > Project Settings > API kısmından kopyaladığınız key'i buraya yapıştırabilirsiniz."}
               </T>
             </View>
 
             <Tap onPress={handleSaveKey} style={s.primaryBtn}>
-              <T bold style={s.primaryBtnText}>Key'i Kaydet ve Bağlan</T>
+              <T bold style={s.primaryBtnText}>{isEn ? 'Save Key & Connect' : "Key'i Kaydet ve Bağlan"}</T>
             </Tap>
 
             <Tap onPress={() => setTab('signin')} style={s.textCancelBtn}>
-              <T bold style={{ color: colors.purple, fontSize: 13 }}>← Giriş Ekranına Dön</T>
+              <T bold style={{ color: colors.purple, fontSize: 13 }}>{isEn ? '← Back to Sign In' : '← Giriş Ekranına Dön'}</T>
             </Tap>
           </View>
         )}
@@ -456,7 +463,7 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
           <View style={s.oauthSection}>
             <View style={s.dividerRow}>
               <View style={s.dividerLine} />
-              <T style={s.dividerText}>veya şununla devam et</T>
+              <T style={s.dividerText}>{isEn ? 'or continue with' : 'veya şununla devam et'}</T>
               <View style={s.dividerLine} />
             </View>
 
@@ -467,7 +474,7 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
                 disabled={loading}
               >
                 <GoogleIcon size={20} />
-                <T bold style={s.googleBtnText}>Google ile Devam Et</T>
+                <T bold style={s.googleBtnText}>{isEn ? 'Continue with Google' : 'Google ile Devam Et'}</T>
               </Tap>
 
               <Tap
@@ -476,7 +483,7 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
                 disabled={loading}
               >
                 <AppleIcon size={20} color="#FFFFFF" />
-                <T bold style={s.appleBtnText}>Apple ile Devam Et</T>
+                <T bold style={s.appleBtnText}>{isEn ? 'Continue with Apple' : 'Apple ile Devam Et'}</T>
               </Tap>
             </View>
           </View>
@@ -484,7 +491,7 @@ export function AuthModal({ close, toast, onAuthSuccess }) {
 
         {/* Misafir Olarak Devam Et */}
         <Tap onPress={() => close && close()} style={s.guestBtn}>
-          <T style={s.guestBtnText}>Şimdilik misafir olarak devam et</T>
+          <T style={s.guestBtnText}>{isEn ? 'Continue as guest for now' : 'Şimdilik misafir olarak devam et'}</T>
         </Tap>
       </ScrollView>
     </View>

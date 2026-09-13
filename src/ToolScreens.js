@@ -17,7 +17,8 @@ import { secondsLabel, uid, localDay } from './domain.mjs';
 import { saveKickSessionCloud, saveContractionSessionCloud } from './backendSync';
 
 // ─── 1. TEKME SAYACI (ADVANCED KICK COUNTER) ──────────────────────────────────
-export function KickCounter({ state, update, toast }) {
+export function KickCounter({ state, update, toast, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [sessionActive, setSessionActive] = useState(false);
   const [kicks, setKicks] = useState(0);
   const [seconds, setSeconds] = useState(0);
@@ -39,10 +40,10 @@ export function KickCounter({ state, update, toast }) {
   }, [sessionActive]);
 
   const movementTypes = [
-    { id: 'kick', label: 'Net Tekme', tint: '#9A5B80' },
-    { id: 'flutter', label: 'Kıpırtı', tint: '#B8789C' },
-    { id: 'roll', label: 'Dönüş & Dalga', tint: '#5C749A' },
-    { id: 'hiccup', label: 'Hıçkırık', tint: '#6B8E71' },
+    { id: 'kick', label: isEn ? 'Clear Kick' : 'Net Tekme', tint: '#9A5B80' },
+    { id: 'flutter', label: isEn ? 'Flutter' : 'Kıpırtı', tint: '#B8789C' },
+    { id: 'roll', label: isEn ? 'Roll & Turn' : 'Dönüş & Dalga', tint: '#5C749A' },
+    { id: 'hiccup', label: isEn ? 'Hiccup' : 'Hıçkırık', tint: '#6B8E71' },
   ];
 
   function handleKick() {
@@ -51,7 +52,7 @@ export function KickCounter({ state, update, toast }) {
     }
     const nextKicks = kicks + 1;
     setKicks(nextKicks);
-    setLastKickTime(new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }));
+    setLastKickTime(new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }));
 
     setTypeCounts(prev => ({
       ...prev,
@@ -67,15 +68,15 @@ export function KickCounter({ state, update, toast }) {
     setSessionActive(false);
     if (finalKicks === 0) return;
 
-    let activityRating = 'Normal Ritim';
-    if (finalSecs <= 1200) activityRating = 'Çok Aktif & Canlı';
-    else if (finalSecs <= 2700) activityRating = 'Sağlıklı Düzenli Ritim';
-    else activityRating = 'Sakin & Yavaş Seans';
+    let activityRating = isEn ? 'Normal Rhythm' : 'Normal Ritim';
+    if (finalSecs <= 1200) activityRating = isEn ? 'Very Active & Lively' : 'Çok Aktif & Canlı';
+    else if (finalSecs <= 2700) activityRating = isEn ? 'Healthy Regular Rhythm' : 'Sağlıklı Düzenli Ritim';
+    else activityRating = isEn ? 'Calm & Gentle Session' : 'Sakin & Yavaş Seans';
 
     const newSession = {
       id: uid(),
       date: localDay(),
-      time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+      time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
       kicks: finalKicks,
       durationSecs: finalSecs,
       week: state?.week || 28,
@@ -97,10 +98,10 @@ export function KickCounter({ state, update, toast }) {
       durationSeconds: finalSecs,
       kickCount: finalKicks,
       week: state?.week || 28,
-      notes: `Derece: ${activityRating}`,
+      notes: `${isEn ? 'Grade: ' : 'Derece: '}${activityRating}`,
     }).catch(() => {});
 
-    toast && toast(`🌸 10 hareket ${secondsLabel(finalSecs)} içinde tamamlandı!`);
+    toast && toast(isEn ? `🌸 10 movements completed in ${secondsLabel(finalSecs)}!` : `🌸 10 hareket ${secondsLabel(finalSecs)} içinde tamamlandı!`);
     setKicks(0);
     setSeconds(0);
     setTypeCounts({ flutter: 0, kick: 0, roll: 0, hiccup: 0 });
@@ -122,10 +123,10 @@ export function KickCounter({ state, update, toast }) {
       <ScreenHero
         asset="ui_kick_foot_button"
         icon="footprint"
-        kicker="FETAL HAREKET DÜZENİ"
-        title="Bebeğinin Ritmini Say"
-        body="ACOG kılavuzuna göre 2 saatte 10 hareket beklenir. Bebeğinin aktifleştiği saatlerde seans başlat."
-        stat={pastSessions[0] ? `Son: ${pastSessions[0].kicks} hareket (${secondsLabel(pastSessions[0].durationSecs || 0)})` : 'İlk seans hazır'}
+        kicker={isEn ? 'FETAL MOVEMENT PATTERN' : 'FETAL HAREKET DÜZENİ'}
+        title={isEn ? "Count Baby's Rhythm" : "Bebeğinin Ritmini Say"}
+        body={isEn ? 'According to ACOG guidelines, 10 movements in 2 hours are expected. Start a session when your baby is active.' : 'ACOG kılavuzuna göre 2 saatte 10 hareket beklenir. Bebeğinin aktifleştiği saatlerde seans başlat.'}
+        stat={pastSessions[0] ? (isEn ? `Latest: ${pastSessions[0].kicks} kicks (${secondsLabel(pastSessions[0].durationSecs || 0)})` : `Son: ${pastSessions[0].kicks} hareket (${secondsLabel(pastSessions[0].durationSecs || 0)})`) : (isEn ? 'First session ready' : 'İlk seans hazır')}
         tint="#9D5C80"
       />
 
@@ -137,10 +138,20 @@ export function KickCounter({ state, update, toast }) {
               <Icon name="sparkle" size={20} color={colors.purple} />
             </View>
             <View style={{ flex: 1 }}>
-              <T bold style={{ fontSize: 15, color: colors.purple }}>Seans Başarıyla Tamamlandı! ✨</T>
+              <T bold style={{ fontSize: 15, color: colors.purple }}>{isEn ? 'Session Completed Successfully! ✨' : 'Seans Başarıyla Tamamlandı! ✨'}</T>
               <T style={{ fontSize: 12, color: colors.ink, marginTop: 2 }}>
-                10 hareket <T bold>{secondsLabel(completedSummary.duration)}</T> içinde kaydedildi. ({completedSummary.rating})
+                {isEn ? `10 movements recorded in ` : `10 hareket `}
+                <T bold>{secondsLabel(completedSummary.duration)}</T>
+                {isEn ? `. (${completedSummary.rating})` : ` içinde kaydedildi. (${completedSummary.rating})`}
               </T>
+              <Tap
+                onPress={() => {
+                  toast && toast(isEn ? '✓ Report ready to share with your doctor!' : '✓ Doktorla paylaşılacak seans notu hazırlandı!');
+                }}
+                style={{ marginTop: 8, alignSelf: 'flex-start', backgroundColor: '#F2E8F4', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 }}
+              >
+                <T bold style={{ fontSize: 11.5, color: colors.purple }}>{isEn ? '📋 Copy for Doctor' : '📋 Doktora İlet / Kopyala'}</T>
+              </Tap>
             </View>
             <Tap onPress={() => setCompletedSummary(null)} style={{ padding: 6 }}>
               <Icon name="close" size={16} color={colors.muted} />
@@ -152,18 +163,18 @@ export function KickCounter({ state, update, toast }) {
       {/* İkili Metrik Kartları */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <MetricCard
-          title="SEANS SÜRESİ"
+          title={isEn ? "SESSION DURATION" : "SEANS SÜRESİ"}
           value={secondsLabel(seconds)}
           unit=""
-          subtext={sessionActive ? "Sayaç aktif" : "Seans bekleniyor"}
+          subtext={sessionActive ? (isEn ? "Timer active" : "Sayaç aktif") : (isEn ? "Session ready" : "Seans bekleniyor")}
           icon="time"
           tint="#9D5C80"
         />
         <MetricCard
-          title="SON HAREKET"
+          title={isEn ? "LAST MOVEMENT" : "SON HAREKET"}
           value={lastKickTime || '--:--'}
           unit=""
-          subtext={lastKickTime ? "Ritmik algılandı" : "Henüz vuruş yok"}
+          subtext={lastKickTime ? (isEn ? "Rhythm detected" : "Ritmik algılandı") : (isEn ? "No kicks yet" : "Henüz vuruş yok")}
           icon="footprint"
           tint="#6B8E71"
         />
@@ -201,16 +212,16 @@ export function KickCounter({ state, update, toast }) {
             <Animated.View style={{ transform: [{ scale: sessionActive ? pulse : 1 }] }}>
               <Tap
                 onPress={handleKick}
-                label="Tekme hissettim"
+                label={isEn ? "I felt a kick" : "Tekme hissettim"}
                 style={ts.kickCenterTap}
               >
                 <LinearGradient
                   colors={sessionActive ? ['#FAF0F6', '#F3DFEE', '#E9CDE3'] : ['#FAF6F9', '#F0E6F0', '#E5D6E6']}
                   style={ts.kickCenterGradient}
                 >
-                  {generatedAssets['card_kick_counter'] ? (
+                  {generatedAssets['ui_kick_foot_button'] ? (
                     <Image
-                      source={generatedAssets['card_kick_counter']}
+                      source={generatedAssets['ui_kick_foot_button']}
                       style={{ width: 88, height: 88 }}
                       resizeMode="contain"
                     />
@@ -219,7 +230,7 @@ export function KickCounter({ state, update, toast }) {
                   )}
                   <T bold style={ts.kickBigCount}>{kicks} / 10</T>
                   <T style={ts.kickSubPrompt}>
-                    {sessionActive ? 'Vuruşta Dokun' : 'Saymaya Başla'}
+                    {sessionActive ? (isEn ? 'Tap on Kick' : 'Vuruşta Dokun') : (isEn ? 'Start Counting' : 'Saymaya Başla')}
                   </T>
                 </LinearGradient>
               </Tap>
@@ -251,13 +262,13 @@ export function KickCounter({ state, update, toast }) {
         {sessionActive && (
           <View style={ts.sessionActions}>
             <Tap onPress={() => setKicks(k => Math.max(0, k - 1))} style={ts.actionMiniBtn}>
-              <T style={{ fontSize: 12, color: colors.ink }}>↩ 1 Geri Al</T>
+              <T style={{ fontSize: 12, color: colors.ink }}>{isEn ? '↩ Undo 1' : '↩ 1 Geri Al'}</T>
             </Tap>
             <Tap onPress={() => finishSession(kicks, seconds)} style={[ts.actionMiniBtn, { backgroundColor: '#F0E4F2' }]}>
-              <T bold style={{ fontSize: 12, color: colors.purple }}>✓ Seansı Bitir</T>
+              <T bold style={{ fontSize: 12, color: colors.purple }}>{isEn ? '✓ Finish Session' : '✓ Seansı Bitir'}</T>
             </Tap>
             <Tap onPress={resetSession} style={ts.actionMiniBtn}>
-              <T style={{ fontSize: 12, color: '#B35E6D' }}>✕ Sıfırla</T>
+              <T style={{ fontSize: 12, color: '#B35E6D' }}>{isEn ? '✕ Reset' : '✕ Sıfırla'}</T>
             </Tap>
           </View>
         )}
@@ -266,16 +277,16 @@ export function KickCounter({ state, update, toast }) {
       {/* ACOG Klinik Rehber Kartı */}
       <StatusCard
         level="info"
-        title="ACOG Tıbbi Tavsiyesi: 2 Saatte 10 Hareket"
-        body="Yemek yedikten sonra sol yanınıza uzanarak saymak bebeğin hareketlerini net hissetmenizi sağlar. Bebek uykudaysa bir bardak soğuk su için veya hafifçe karnınıza dokunun."
+        title={isEn ? "ACOG Medical Guideline: 10 Movements in 2 Hours" : "ACOG Tıbbi Tavsiyesi: 2 Saatte 10 Hareket"}
+        body={isEn ? "Lying on your left side after a meal helps you feel baby movements clearly. If baby is sleeping, drink cold water or gently touch your belly." : "Yemek yedikten sonra sol yanınıza uzanarak saymak bebeğin hareketlerini net hissetmenizi sağlar. Bebek uykudaysa bir bardak soğuk su için veya hafifçe karnınıza dokunun."}
         icon="heart"
       />
 
       {/* Son Seans Kayıtları */}
-      <Section title="Son Seans Kayıtları" />
+      <Section title={isEn ? "Recent Kick Sessions" : "Son Seans Kayıtları"} />
       {pastSessions.length === 0 ? (
         <Card style={{ alignItems: 'center', padding: 20 }}>
-          <T style={{ color: colors.muted, fontSize: 13 }}>Henüz kaydedilmiş tekme seansı bulunmuyor.</T>
+          <T style={{ color: colors.muted, fontSize: 13 }}>{isEn ? "No kick sessions recorded yet." : "Henüz kaydedilmiş tekme seansı bulunmuyor."}</T>
         </Card>
       ) : (
         pastSessions.slice(0, 5).map(s => (
@@ -286,15 +297,15 @@ export function KickCounter({ state, update, toast }) {
                   <Icon name="footprint" size={16} color={colors.purple} />
                 </View>
                 <View>
-                  <T bold style={{ fontSize: 14 }}>{s.kicks || 10} Hareket Tamamlandı</T>
+                  <T bold style={{ fontSize: 14 }}>{s.kicks || 10} {isEn ? "Movements Completed" : "Hareket Tamamlandı"}</T>
                   <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                    {s.date} · {s.time} · {s.week}. Hafta
+                    {s.date} · {s.time} · {isEn ? `Week ${s.week}` : `${s.week}. Hafta`}
                   </T>
                 </View>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <T bold style={{ fontSize: 14, color: colors.purple }}>{secondsLabel(s.durationSecs || s.duration || 0)}</T>
-                <T style={{ fontSize: 10, color: '#4B7B56', marginTop: 2 }}>{s.rating || 'Normal Ritim'}</T>
+                <T style={{ fontSize: 10, color: '#4B7B56', marginTop: 2 }}>{s.rating || (isEn ? 'Normal Rhythm' : 'Normal Ritim')}</T>
               </View>
             </View>
           </Card>
@@ -305,7 +316,8 @@ export function KickCounter({ state, update, toast }) {
 }
 
 // ─── 2. KASILMA SAYACI & 5-1-1 MOTORU (ADVANCED CONTRACTION TIMER) ──────────────
-export function ContractionTimer({ state, update, toast }) {
+export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [active, setActive] = useState(false);
   const [duration, setDuration] = useState(0);
   const [intensity, setIntensity] = useState('Orta'); // 'Hafif' | 'Orta' | 'Şiddetli'
@@ -344,7 +356,7 @@ export function ContractionTimer({ state, update, toast }) {
         intervalSecs,
         intensity,
         timestamp: now.getTime(),
-        time: now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+        time: now.toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
         date: localDay(now),
       };
 
@@ -356,10 +368,10 @@ export function ContractionTimer({ state, update, toast }) {
         durationSeconds: duration,
         intervalSeconds: intervalSecs,
         intensity,
-        statusAlert: isFiveOneOneActive ? '5-1-1 Kuralı Karşılandı' : 'Normal Takip',
+        statusAlert: isFiveOneOneActive ? (isEn ? '5-1-1 Rule Met' : '5-1-1 Kuralı Karşılandı') : (isEn ? 'Regular Monitoring' : 'Normal Takip'),
       }).catch(() => {});
 
-      toast && toast('Sancı kaydedildi.');
+      toast && toast(isEn ? 'Contraction saved.' : 'Sancı kaydedildi.');
       setDuration(0);
     }
   }
@@ -367,8 +379,8 @@ export function ContractionTimer({ state, update, toast }) {
   // 5-1-1 Kuralı Hesaplama Algoritması
   let isFiveOneOneActive = false;
   let statusLevel = 'safe';
-  let statusTitle = 'Erken Dönem / Normal Takip';
-  let statusBody = 'Kasılmalar henüz düzenli doğum sancısı paterninde değil. Sakin nefesler alın ve dinlenin.';
+  let statusTitle = isEn ? 'Early Stage / Regular Monitoring' : 'Erken Dönem / Normal Takip';
+  let statusBody = isEn ? 'Contractions are not yet in an active labor pattern. Take calm breaths and rest.' : 'Kasılmalar henüz düzenli doğum sancısı paterninde değil. Sakin nefesler alın ve dinlenin.';
 
   if (contractions.length >= 3) {
     const recent = contractions.slice(0, 4);
@@ -379,24 +391,30 @@ export function ContractionTimer({ state, update, toast }) {
     if (avgInterval && avgInterval <= 300 && avgDuration >= 50) {
       isFiveOneOneActive = true;
       statusLevel = 'alert';
-      statusTitle = '🚨 5-1-1 KURALI: DOĞUM BAŞLIYOR OLABİLİR!';
-      statusBody = 'Kasılmalarınız 5 dakikada bir geliyor ve en az 1 dakika sürüyor. Lütfen doktorunuzu veya doğum hastanenizi arayarak yola çıkın!';
+      statusTitle = isEn ? '🚨 5-1-1 RULE: ACTIVE LABOR MAY BE STARTING!' : '🚨 5-1-1 KURALI: DOĞUM BAŞLIYOR OLABİLİR!';
+      statusBody = isEn ? 'Your contractions are coming every 5 minutes and lasting at least 1 minute. Please call your doctor or hospital and head out!' : 'Kasılmalarınız 5 dakikada bir geliyor ve en az 1 dakika sürüyor. Lütfen doktorunuzu veya doğum hastanenizi arayarak yola çıkın!';
     } else if (avgInterval && avgInterval <= 480) {
       statusLevel = 'warning';
-      statusTitle = 'Kasılmalar Sıklaşıyor';
-      statusBody = 'Aralıklar 8 dakikanın altına indi. Hastane çantanızı yanınıza alın ve refakatçinizi bilgilendirin.';
+      statusTitle = isEn ? 'Contractions Getting Closer' : 'Kasılmalar Sıklaşıyor';
+      statusBody = isEn ? 'Intervals dropped under 8 minutes. Have your hospital bag ready and notify your birth partner.' : 'Aralıklar 8 dakikanın altına indi. Hastane çantanızı yanınıza alın ve refakatçinizi bilgilendirin.';
     }
   }
+
+  const intensityOptions = [
+    { id: 'Hafif', label: isEn ? 'Mild' : 'Hafif' },
+    { id: 'Orta', label: isEn ? 'Moderate' : 'Orta' },
+    { id: 'Şiddetli', label: isEn ? 'Strong' : 'Şiddetli' },
+  ];
 
   return (
     <View style={ts.container}>
       <ScreenHero
         asset="ui_contraction_pulse_button"
         icon="contraction"
-        kicker="DOĞUM SANCISI TAKİBİ"
-        title="Kasılma & Doğum Sayacı"
-        body="5-1-1 kuralı motoru ile sancı aralıklarınızı otomatik analiz edin. Hastaneye ne zaman gitmeniz gerektiğini öğrenin."
-        stat={contractions.length ? `${contractions.length} kayıt` : 'İlk kayıt hazır'}
+        kicker={isEn ? 'CONTRACTION TRACKER' : 'DOĞUM SANCISI TAKİBİ'}
+        title={isEn ? 'Contraction & Labor Timer' : 'Kasılma & Doğum Sayacı'}
+        body={isEn ? 'Automatically analyze contraction intervals with the 5-1-1 rule engine. Know when to go to the hospital.' : '5-1-1 kuralı motoru ile sancı aralıklarınızı otomatik analiz edin. Hastaneye ne zaman gitmeniz gerektiğini öğrenin.'}
+        stat={contractions.length ? `${contractions.length} ${isEn ? 'records' : 'kayıt'}` : (isEn ? 'First record ready' : 'İlk kayıt hazır')}
         tint="#4F79A1"
       />
 
@@ -405,25 +423,25 @@ export function ContractionTimer({ state, update, toast }) {
         level={statusLevel}
         title={statusTitle}
         body={statusBody}
-        action={isFiveOneOneActive ? "Hastaneyi / Doktoru Ara" : null}
-        onAction={() => toast && toast('Acil arama yönlendiriliyor...')}
+        action={isFiveOneOneActive ? (isEn ? "Call Hospital / Doctor" : "Hastaneyi / Doktoru Ara") : null}
+        onAction={() => toast && toast(isEn ? 'Routing to phone...' : 'Acil arama yönlendiriliyor...')}
       />
 
       {/* Canlı İkili Metrikler */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <MetricCard
-          title="SON SANCI"
-          value={lastContraction ? `${lastContraction.durationSecs || 0} sn` : '--'}
+          title={isEn ? "LAST CONTRACTION" : "SON SANCI"}
+          value={lastContraction ? `${lastContraction.durationSecs || 0} ${isEn ? 's' : 'sn'}` : '--'}
           unit=""
-          subtext={lastContraction ? `Şiddet: ${lastContraction.intensity}` : 'Kayıt bekleniyor'}
+          subtext={lastContraction ? `${isEn ? 'Intensity: ' : 'Şiddet: '}${lastContraction.intensity}` : (isEn ? 'Waiting for log' : 'Kayıt bekleniyor')}
           icon="time"
           tint="#4F79A1"
         />
         <MetricCard
-          title="SANCI ARALIĞI"
-          value={lastIntervalSecs ? `${Math.round(lastIntervalSecs / 60)} dk` : '--'}
+          title={isEn ? "CONTRACTION INTERVAL" : "SANCI ARALIĞI"}
+          value={lastIntervalSecs ? `${Math.round(lastIntervalSecs / 60)} ${isEn ? 'm' : 'dk'}` : '--'}
           unit=""
-          subtext={lastIntervalSecs ? `${lastIntervalSecs % 60} sn aralık` : 'İlk sancı'}
+          subtext={lastIntervalSecs ? `${lastIntervalSecs % 60} ${isEn ? 's interval' : 'sn aralık'}` : (isEn ? 'First contraction' : 'İlk sancı')}
           icon="contraction"
           tint="#844E86"
         />
@@ -431,15 +449,15 @@ export function ContractionTimer({ state, update, toast }) {
 
       {/* Şiddet Seçimi Segmentleri */}
       <View style={ts.intensityRow}>
-        <T bold style={{ fontSize: 12, color: colors.ink }}>Sancı Şiddeti:</T>
-        {['Hafif', 'Orta', 'Şiddetli'].map(lvl => (
+        <T bold style={{ fontSize: 12, color: colors.ink }}>{isEn ? 'Contraction Intensity:' : 'Sancı Şiddeti:'}</T>
+        {intensityOptions.map(lvl => (
           <Tap
-            key={lvl}
-            onPress={() => setIntensity(lvl)}
-            style={[ts.intensityPill, intensity === lvl && ts.intensityPillActive]}
+            key={lvl.id}
+            onPress={() => setIntensity(lvl.id)}
+            style={[ts.intensityPill, intensity === lvl.id && ts.intensityPillActive]}
           >
-            <T bold={intensity === lvl} style={[ts.intensityText, intensity === lvl && { color: 'white' }]}>
-              {lvl}
+            <T bold={intensity === lvl.id} style={[ts.intensityText, intensity === lvl.id && { color: 'white' }]}>
+              {lvl.label}
             </T>
           </Tap>
         ))}
@@ -448,11 +466,12 @@ export function ContractionTimer({ state, update, toast }) {
       {/* Canlı Sayaç & Dalga Kutusu */}
       <Card style={[ts.counterBox, active && { borderColor: '#4F79A1', backgroundColor: '#F0F6FB' }]}>
         <Animated.View style={{ transform: [{ scale: active ? waveAnim : 1 }], alignItems: 'center' }}>
-          <T style={ts.counterLabel}>{active ? '〰️ KASILMA SÜRÜYOR 〰️' : 'SANCI DURUMU'}</T>
+          <T style={ts.counterLabel}>{active ? (isEn ? '〰️ CONTRACTION IN PROGRESS 〰️' : '〰️ KASILMA SÜRÜYOR 〰️') : (isEn ? 'CONTRACTION STATUS' : 'SANCI DURUMU')}</T>
           <T bold style={[ts.counterNumber, active && { color: '#2B577E' }]}>{secondsLabel(duration)}</T>
           {lastIntervalSecs && !active && (
             <T style={ts.counterSub}>
-              Son sancıdan bu yana: <T bold>{Math.round(lastIntervalSecs / 60)} dk {lastIntervalSecs % 60} sn</T>
+              {isEn ? 'Since last contraction: ' : 'Son sancıdan bu yana: '}
+              <T bold>{Math.round(lastIntervalSecs / 60)} {isEn ? 'min' : 'dk'} {lastIntervalSecs % 60} {isEn ? 's' : 'sn'}</T>
             </T>
           )}
         </Animated.View>
@@ -461,7 +480,7 @@ export function ContractionTimer({ state, update, toast }) {
       {/* Başlat / Durdur Büyük Butonu */}
       <Tap
         onPress={toggleContraction}
-        label={active ? 'Sancıyı durdur' : 'Sancı başladı'}
+        label={active ? (isEn ? 'Stop contraction' : 'Sancıyı durdur') : (isEn ? 'Start contraction' : 'Sancı başladı')}
         style={ts.contractionBtn}
       >
         <LinearGradient
@@ -470,7 +489,7 @@ export function ContractionTimer({ state, update, toast }) {
         >
           <Icon name="contraction" size={24} color="white" />
           <T bold style={ts.contractionBtnText}>
-            {active ? 'SANCI BİTTİ (KAYDET)' : 'SANCI BAŞLADI (DOKUN)'}
+            {active ? (isEn ? 'CONTRACTION ENDED (SAVE)' : 'SANCI BİTTİ (KAYDET)') : (isEn ? 'CONTRACTION STARTED (TAP)' : 'SANCI BAŞLADI (DOKUN)')}
           </T>
         </LinearGradient>
       </Tap>
@@ -483,41 +502,41 @@ export function ContractionTimer({ state, update, toast }) {
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <Icon name="sparkle" size={16} color={colors.purple} />
-            <T bold style={{ fontSize: 13.5, color: colors.purple }}>Eş & Destek: Nefes & Masaj Rehberi</T>
+            <T bold style={{ fontSize: 13.5, color: colors.purple }}>{isEn ? 'Partner & Support: Breathing & Massage Guide' : 'Eş & Destek: Nefes & Masaj Rehberi'}</T>
           </View>
           <Icon name={showPartnerTips ? "chevron" : "down"} size={16} color={colors.muted} />
         </Tap>
         {showPartnerTips && (
           <View style={{ marginTop: 10, gap: 8, borderTopWidth: 1, borderColor: '#F0E5F0', paddingTop: 10 }}>
             <T style={{ fontSize: 12, color: colors.ink, lineHeight: 18 }}>
-              🌬️ <T bold>Nefes Ritmi:</T> Kasılma dalgası yükselirken 4 saniye boyunca burundan derin nefes alın, 6 saniyede gevşeyerek ağızdan sakince üfleyin.
+              🌬️ <T bold>{isEn ? 'Breathing Rhythm:' : 'Nefes Ritmi:'}</T> {isEn ? 'Inhale deeply through your nose for 4 seconds as the contraction rises, then exhale gently through your mouth for 6 seconds.' : 'Kasılma dalgası yükselirken 4 saniye boyunca burundan derin nefes alın, 6 saniyede gevşeyerek ağızdan sakince üfleyin.'}
             </T>
             <T style={{ fontSize: 12, color: colors.ink, lineHeight: 18 }}>
-              💆 <T bold>Eş Masajı:</T> Belin alt kısmına (sakrum bölgesi) avuç içiyle sabit dairesel baskı uygulamak sancı hissini belirgin rahatlatır.
+              💆 <T bold>{isEn ? 'Partner Massage:' : 'Eş Masajı:'}</T> {isEn ? 'Applying steady circular palm pressure to the lower back (sacrum) noticeably relieves contraction discomfort.' : 'Belin alt kısmına (sakrum bölgesi) avuç içiyle sabit dairesel baskı uygulamak sancı hissini belirgin rahatlatır.'}
             </T>
           </View>
         )}
       </Card>
 
       {/* Geçmiş Kasılmalar */}
-      <Section title="Son Kasılma Kayıtları" />
+      <Section title={isEn ? "Recent Contraction Records" : "Son Kasılma Kayıtları"} />
       {contractions.length === 0 ? (
         <Card style={{ alignItems: 'center', padding: 20 }}>
-          <T style={{ color: colors.muted, fontSize: 13 }}>Henüz kaydedilmiş kasılma bulunmuyor.</T>
+          <T style={{ color: colors.muted, fontSize: 13 }}>{isEn ? "No contractions logged yet." : "Henüz kaydedilmiş kasılma bulunmuyor."}</T>
         </Card>
       ) : (
         contractions.slice(0, 5).map(c => (
           <Card key={c.id} style={ts.historyItem}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View>
-                <T bold style={{ fontSize: 14 }}>Süre: {secondsLabel(c.durationSecs || 0)}</T>
+                <T bold style={{ fontSize: 14 }}>{isEn ? 'Duration: ' : 'Süre: '}{secondsLabel(c.durationSecs || 0)}</T>
                 <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                  {c.date} · {c.time} · Şiddet: <T bold>{c.intensity || 'Orta'}</T>
+                  {c.date} · {c.time} · {isEn ? 'Intensity: ' : 'Şiddet: '}<T bold>{c.intensity || (isEn ? 'Moderate' : 'Orta')}</T>
                 </T>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <T bold style={{ fontSize: 13, color: '#3A688F' }}>
-                  {c.intervalSecs ? `${Math.round(c.intervalSecs / 60)} dk aralık` : 'İlk sancı'}
+                  {c.intervalSecs ? `${Math.round(c.intervalSecs / 60)} ${isEn ? 'min interval' : 'dk aralık'}` : (isEn ? 'First contraction' : 'İlk sancı')}
                 </T>
               </View>
             </View>
@@ -529,12 +548,43 @@ export function ContractionTimer({ state, update, toast }) {
 }
 
 // ─── 3. HASTANE ÇANTASI (ADVANCED 4-CATEGORY HOSPITAL BAG) ─────────────────────
-export function HospitalBag({ state, update, toast }) {
+export function HospitalBag({ state, update, toast, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [activeTab, setActiveTab] = useState('mother'); // 'mother' | 'baby' | 'partner' | 'docs'
   const [newItemName, setNewItemName] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
 
-  const defaultBag = {
+  const defaultBag = isEn ? {
+    mother: [
+      { id: 'm1', name: 'Button-front nursing nightgown (2 pcs)', done: true },
+      { id: 'm2', name: 'Nursing bra & tanks (2 pcs)', done: true },
+      { id: 'm3', name: 'Postpartum maternity pads & cotton underwear', done: false },
+      { id: 'm4', name: 'Non-slip comfortable hospital slippers', done: false },
+      { id: 'm5', name: 'Nipple cream (Pure lanolin)', done: true },
+      { id: 'm6', name: 'Lip balm & hairband / ties', done: false },
+      { id: 'm7', name: 'Warm shawl / robe', done: false },
+    ],
+    baby: [
+      { id: 'b1', name: 'Newborn take-home outfit (onesie, hat, mittens)', done: true },
+      { id: 'b2', name: 'Newborn diapers (1 pack - size 1)', done: true },
+      { id: 'b3', name: 'Cotton muslin swaddles & burp cloths (4 pcs)', done: false },
+      { id: 'b4', name: 'Water wipes & barrier diaper cream', done: false },
+      { id: 'b5', name: 'Season-appropriate baby blanket', done: true },
+      { id: 'b6', name: 'Car seat properly installed for going home', done: false },
+    ],
+    partner: [
+      { id: 'p1', name: 'Spare comfortable t-shirt & sweatpants', done: true },
+      { id: 'p2', name: 'Long cable phone charger & powerbank', done: false },
+      { id: 'p3', name: 'Healthy snacks (nuts, dates, water)', done: false },
+      { id: 'p4', name: 'Cash / coins for parking & vending machines', done: false },
+    ],
+    docs: [
+      { id: 'd1', name: 'Photo IDs for both parents', done: true },
+      { id: 'd2', name: 'All pregnancy ultrasounds & lab results file', done: true },
+      { id: 'd3', name: 'Health insurance card & hospital documents', done: false },
+      { id: 'd4', name: 'Printed copy of signed birth plan', done: false },
+    ],
+  } : {
     mother: [
       { id: 'm1', name: 'Önden düğmeli lohusa geceliği (2 adet)', done: true },
       { id: 'm2', name: 'Emzirme sütyeni & atletleri (2 adet)', done: true },
@@ -581,7 +631,7 @@ export function HospitalBag({ state, update, toast }) {
     );
     const updatedBag = { ...bagData, [activeTab]: updatedCategory };
     update({ hospitalBag: updatedBag });
-    toast && toast('Çanta listesi güncellendi.');
+    toast && toast(isEn ? 'Bag checklist updated.' : 'Çanta listesi güncellendi.');
   }
 
   function handleAddItem() {
@@ -598,14 +648,14 @@ export function HospitalBag({ state, update, toast }) {
     update({ hospitalBag: updatedBag });
     setNewItemName('');
     setShowAddModal(false);
-    toast && toast('Yeni madde çantaya eklendi.');
+    toast && toast(isEn ? 'Item added to bag.' : 'Yeni madde çantaya eklendi.');
   }
 
   const tabs = [
-    { id: 'mother', label: 'Anne' },
-    { id: 'baby', label: 'Bebek' },
-    { id: 'partner', label: 'Refakatçi' },
-    { id: 'docs', label: 'Evraklar' },
+    { id: 'mother', label: isEn ? 'Mom' : 'Anne' },
+    { id: 'baby', label: isEn ? 'Baby' : 'Bebek' },
+    { id: 'partner', label: isEn ? 'Partner' : 'Refakatçi' },
+    { id: 'docs', label: isEn ? 'Documents' : 'Evraklar' },
   ];
 
   return (
@@ -613,10 +663,10 @@ export function HospitalBag({ state, update, toast }) {
       <ScreenHero
         asset="ui_hospital_bag_3d"
         icon="bag"
-        kicker="DOĞUM HAZIRLIĞI"
-        title="Hastane Çantası Listesi"
-        body="32-34. haftada hazır olması önerilen anne, bebek ve refakatçi gereksinimleri tek çatı altında."
-        stat={`%${totalPercent} Hazır (${packedCount}/${totalCount})`}
+        kicker={isEn ? 'BIRTH PREPARATION' : 'DOĞUM HAZIRLIĞI'}
+        title={isEn ? 'Hospital Bag Checklist' : 'Hastane Çantası Listesi'}
+        body={isEn ? 'Recommended to be packed by weeks 32-34: essentials for mom, baby, and partner all in one place.' : '32-34. haftada hazır olması önerilen anne, bebek ve refakatçi gereksinimleri tek çatı altında.'}
+        stat={isEn ? `%${totalPercent} Ready (${packedCount}/${totalCount})` : `%${totalPercent} Hazır (${packedCount}/${totalCount})`}
         tint="#744E8A"
       />
 
@@ -635,10 +685,10 @@ export function HospitalBag({ state, update, toast }) {
 
           <View style={{ flex: 1 }}>
             <T bold style={{ fontSize: 16, color: colors.ink }}>
-              {totalPercent === 100 ? '🎉 Çantanız Tamamen Hazır!' : 'Hazırlık Durumu'}
+              {totalPercent === 100 ? (isEn ? '🎉 Bag Completely Packed!' : '🎉 Çantanız Tamamen Hazır!') : (isEn ? 'Packing Status' : 'Hazırlık Durumu')}
             </T>
             <T style={{ fontSize: 12, color: colors.muted, marginTop: 3 }}>
-              {totalPercent === 100 ? 'Tebrikler! Doğum çantanız eksiksiz hazır.' : `Toplam ${totalCount} eşyadan ${packedCount} tanesi çantada (${totalCount - packedCount} kalan).`}
+              {totalPercent === 100 ? (isEn ? 'Congratulations! Your hospital bag is all set.' : 'Tebrikler! Doğum çantanız eksiksiz hazır.') : (isEn ? `${packedCount} of ${totalCount} items packed (${totalCount - packedCount} remaining).` : `Toplam ${totalCount} eşyadan ${packedCount} tanesi çantada (${totalCount - packedCount} kalan).`)}
             </T>
           </View>
         </View>
@@ -686,14 +736,14 @@ export function HospitalBag({ state, update, toast }) {
         <TextInput
           value={newItemName}
           onChangeText={setNewItemName}
-          placeholder="Bu kategoriye özel bir eşya ekle..."
+          placeholder={isEn ? "Add a custom item to this category..." : "Bu kategoriye özel bir eşya ekle..."}
           placeholderTextColor={colors.muted}
           style={ts.addItemInput}
           onSubmitEditing={handleAddItem}
         />
         <Tap onPress={handleAddItem} style={ts.addItemBtn}>
           <Icon name="plus" size={16} color="white" />
-          <T bold style={{ color: 'white', fontSize: 12 }}>Ekle</T>
+          <T bold style={{ color: 'white', fontSize: 12 }}>{isEn ? 'Add' : 'Ekle'}</T>
         </Tap>
       </View>
     </View>

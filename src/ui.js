@@ -157,7 +157,7 @@ export function MetricCard({ title, value, unit, subtext, icon, tint = colors.pu
     </View>
   );
 }
-export function StatusCard({ level = 'info', title, body, icon, action, onAction, style }) {
+export function StatusCard({ level = 'info', title, body, description, icon, action, onAction, style }) {
   const configs = {
     safe: { bg: '#EDF7F1', border: '#BEE7CD', color: '#2B754B', icon: 'check' },
     warning: { bg: '#FEF8EB', border: '#F6E0B4', color: '#996C26', icon: 'sparkle' },
@@ -173,7 +173,7 @@ export function StatusCard({ level = 'info', title, body, icon, action, onAction
         </View>
         <View style={{ flex: 1 }}>
           <T bold style={{ fontSize: 13.5, color: c.color }}>{title}</T>
-          <T style={{ fontSize: 12, color: '#4B4252', lineHeight: 18, marginTop: 2 }}>{body}</T>
+          <T style={{ fontSize: 12, color: '#4B4252', lineHeight: 18, marginTop: 2 }}>{body || description}</T>
           {action ? (
             <Tap onPress={onAction} style={{ marginTop: 6, alignSelf: 'flex-start' }}>
               <T bold style={{ fontSize: 12, color: c.color }}>{action} →</T>

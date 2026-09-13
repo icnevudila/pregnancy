@@ -1,21 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, TextInput, ScrollView, Switch, Platform } from 'react-native';
-import { colors, fonts, shadow } from './theme';
+import { View, StyleSheet, TextInput, ScrollView, Switch } from 'react-native';
+import { colors, shadow } from './theme';
 import { Icon, BrandMark } from './Icons';
-import { T, Tap, Card, Section, ScreenHero } from './ui';
+import { T, Tap, Card, ScreenHero, LanguageToggle } from './ui';
 import { babyNamesList } from './babyNamesData';
 import { dateLabel, pregnancyAt } from './domain.mjs';
 import { isSupabaseConfigured, supabase } from './supabaseClient';
-import { signInWithEmail, signOut, cloudStatusLabel, saveCloudState, linkPartnerAccount, sendPartnerMessage as sendPartnerMessageCloud, fetchPartnerMessages, saveBabyLetterCloud, fetchBabyLettersCloud } from './backendSync';
+import {
+  signInWithEmail,
+  signOut,
+  cloudStatusLabel,
+  saveCloudState,
+  linkPartnerAccount,
+} from './backendSync';
 
 export function ProfileScreen({ state, update, open, toast, choose, cloudStatus, refreshFromCloud }) {
+  const lang = state?.lang || 'tr';
+  const isEn = lang === 'en';
+
   const [activeTab, setActiveTab] = useState('family'); // 'family' | 'personal' | 'favorites' | 'settings'
 
   // Kişisel Form State'leri
-  const [userName, setUserName] = useState(state.name || 'Zeynep');
-  const [partnerName, setPartnerName] = useState(state.partnerName || 'Mehmet');
-  const [babyName, setBabyName] = useState(state.babyName || 'Ada');
-  const [babyGender, setBabyGender] = useState(state.babyGender || 'Kız');
+  const [userName, setUserName] = useState(state.name || (isEn ? 'Emma' : 'Zeynep'));
+  const [partnerName, setPartnerName] = useState(state.partnerName || (isEn ? 'Alex' : 'Mehmet'));
+  const [babyName, setBabyName] = useState(state.babyName || (isEn ? 'Maya' : 'Ada'));
+  const [babyGender, setBabyGender] = useState(state.babyGender || (isEn ? 'Girl' : 'Kız'));
   const [bloodType, setBloodType] = useState(state.bloodType || 'A Rh+');
   const [doctor, setDoctor] = useState(state.doctor || '');
   const [hospital, setHospital] = useState(state.hospital || '');
@@ -32,15 +41,13 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
   const [remindVitamin, setRemindVitamin] = useState(state.remindVitamin !== false);
   const [remindLetter, setRemindLetter] = useState(state.remindLetter !== false);
   const [remindPartner, setRemindPartner] = useState(state.remindPartner !== false);
-  const [authEmail, setAuthEmail] = useState('');
-  const [authPassword, setAuthPassword] = useState('');
-  const [authMode, setAuthMode] = useState('signin');
   const [cloudUser, setCloudUser] = useState(null);
-  const [authBusy, setAuthBusy] = useState(false);
 
   const currentRole = state.role || 'mother'; // 'mother' | 'father'
   const journey = pregnancyAt(state);
-  const remainingLabel = journey.remaining >= 0 ? `${journey.remaining} Gün` : 'Tarih Geçti';
+  const remainingLabel = journey.remaining >= 0
+    ? `${journey.remaining} ${isEn ? 'Days' : 'Gün'}`
+    : (isEn ? 'Past Due' : 'Tarih Geçti');
 
   useEffect(() => {
     if (!supabase) return undefined;
@@ -52,14 +59,21 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
   }, []);
 
   // Eşler Arası Varsayılan Mesajlar
-  const defaultPartnerMessages = [
+  const defaultPartnerMessages = isEn ? [
+    { id: 'pm-1', sender: 'father', senderName: partnerName, text: 'How are you feeling today sweetie? Bringing home some of your favorite fresh fruits tonight 💕', time: '12:45' },
+    { id: 'pm-2', sender: 'mother', senderName: userName, text: 'Thank you so much darling! The baby was super active today, you must feel the kicks tonight 🌸', time: '13:10' },
+    { id: 'pm-3', sender: 'father', senderName: partnerName, text: 'Wonderful news! I already added our Thursday ultrasound checkup to my calendar 🩺✨', time: '14:20' },
+  ] : [
     { id: 'pm-1', sender: 'father', senderName: partnerName, text: 'Bugün nasılsın birtanem? Akşam senin sevdiğin meyvelerden alıp geliyorum 💕', time: '12:45' },
     { id: 'pm-2', sender: 'mother', senderName: userName, text: 'Çok teşekkür ederim sevgilim! Bebeğimiz bugün çok hareketliydi, tekmelerini akşam hissetmelisin 🌸', time: '13:10' },
     { id: 'pm-3', sender: 'father', senderName: partnerName, text: 'Harika bir haber! Perşembe günkü ultrason kontrolümüzü takvimime ekledim bile 🩺✨', time: '14:20' },
   ];
 
   // Bebeğe Yazılan Notlar
-  const defaultBabyLetters = [
+  const defaultBabyLetters = isEn ? [
+    { id: 'bl-1', author: 'Mom & Dad', text: 'Our dearest baby, we entered week 24. We cannot wait for the day you bring joy and light to our world... 🤍', date: 'Today' },
+    { id: 'bl-2', author: 'Dad', text: 'As your father, I am already practicing your first lullabies. Can’t wait to hold you, our little angel. 👶', date: '3 days ago' },
+  ] : [
     { id: 'bl-1', author: 'Anne & Baba', text: 'Canımız kızımız, 24. haftana girdik. Dünyamıza neşe ve ışık getireceğin günü sabırsızlıkla bekliyoruz... 🤍', date: 'Bugün' },
     { id: 'bl-2', author: 'Baba', text: 'Baban olarak ilk ninnini şimdiden ezberliyorum, seninle tanışmak için sabırsızlanıyorum küçük meleğim. 👶', date: '3 gün önce' },
   ];
@@ -70,15 +84,19 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
 
   function toggleRole() {
     const nextRole = currentRole === 'mother' ? 'father' : 'mother';
-    const nextName = nextRole === 'father' ? (partnerName || 'Mehmet') : (userName || 'Zeynep');
-    const nextPartner = nextRole === 'father' ? (userName || 'Zeynep') : (partnerName || 'Mehmet');
+    const nextName = nextRole === 'father' ? (partnerName || (isEn ? 'Alex' : 'Mehmet')) : (userName || (isEn ? 'Emma' : 'Zeynep'));
+    const nextPartner = nextRole === 'father' ? (userName || (isEn ? 'Emma' : 'Zeynep')) : (partnerName || (isEn ? 'Alex' : 'Mehmet'));
     update({
       role: nextRole,
       name: nextName,
       partnerName: nextPartner,
       partnerRole: nextRole === 'father' ? 'mother' : 'father',
     });
-    toast && toast(nextRole === 'father' ? 'Baba moduna geçildi 👨‍🍼' : 'Anne moduna geçildi 🤰');
+    toast && toast(
+      nextRole === 'father'
+        ? (isEn ? 'Switched to Father mode 👨‍🍼' : 'Baba moduna geçildi 👨‍🍼')
+        : (isEn ? 'Switched to Mother mode 🤰' : 'Anne moduna geçildi 🤰')
+    );
   }
 
   function savePersonalInfo() {
@@ -92,13 +110,12 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
       hospital: hospital.trim(),
       dueDate: dueDate.trim(),
     });
-    toast && toast('Profil bilgilerin başarıyla güncellendi 🌸');
+    toast && toast(isEn ? 'Profile details updated successfully 🌸' : 'Profil bilgilerin başarıyla güncellendi 🌸');
   }
-
 
   async function handleLinkPartner() {
     if (!inputPartnerCode.trim()) {
-      toast && toast('Lütfen eşinizin aile kodunu girin.');
+      toast && toast(isEn ? "Please enter your partner's family code." : 'Lütfen eşinizin aile kodunu girin.');
       return;
     }
     setPartnerSyncBusy(true);
@@ -106,7 +123,7 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
     setPartnerSyncBusy(false);
 
     if (result?.error) {
-      toast && toast(result.error.message || 'Eşleşme başarısız oldu.');
+      toast && toast(result.error.message || (isEn ? 'Pairing failed.' : 'Eşleşme başarısız oldu.'));
       return;
     }
 
@@ -118,7 +135,7 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
         babyName: result.data.baby_name || state.babyName,
       });
       setInputPartnerCode('');
-      toast && toast('Eşinizle başarıyla eşleşildi! 💚 Tüm verileriniz senkronize.');
+      toast && toast(isEn ? 'Successfully paired with partner! 💚 All data synced.' : 'Eşinizle başarıyla eşleşildi! 💚 Tüm verileriniz senkronize.');
     }
   }
 
@@ -129,49 +146,34 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
       sender: currentRole,
       senderName: currentRole === 'mother' ? userName : partnerName,
       text: newPartnerMsg.trim(),
-      time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+      time: new Date().toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' }),
     };
     update(old => ({
       partnerMessages: [...(old.partnerMessages || defaultPartnerMessages), newMsg],
     }));
     setNewPartnerMsg('');
-    toast && toast('Eşine mesajın iletildi 💌');
+    toast && toast(isEn ? 'Message sent to partner 💌' : 'Eşine mesajın iletildi 💌');
   }
 
   function sendBabyLetter() {
     if (!newBabyLetter.trim()) return;
     const newLetter = {
       id: 'bl-' + Date.now(),
-      author: currentRole === 'mother' ? 'Anne' : 'Baba',
+      author: currentRole === 'mother' ? (isEn ? 'Mom' : 'Anne') : (isEn ? 'Dad' : 'Baba'),
       text: newBabyLetter.trim(),
-      date: 'Bugün',
+      date: isEn ? 'Today' : 'Bugün',
     };
     update(old => ({
       babyLetters: [newLetter, ...(old.babyLetters || defaultBabyLetters)],
     }));
     setNewBabyLetter('');
-    toast && toast('Bebeğine mektubun sevgiyle saklandı 💌');
-  }
-
-  async function handleAuth() {
-    if (!authEmail.trim() || authPassword.length < 6) {
-      toast && toast('E-posta ve en az 6 karakter şifre yaz.');
-      return;
-    }
-    setAuthBusy(true);
-    const { error, data } = await signInWithEmail(authEmail.trim(), authPassword, authMode === 'signup');
-    setAuthBusy(false);
-    if (error) return toast && toast(error.message);
-    setCloudUser(data.user || data.session?.user || null);
-    const syncResult = refreshFromCloud ? await refreshFromCloud() : await saveCloudState(state);
-    if (syncResult?.error) toast && toast('Giriş yapıldı; bulut kaydı daha sonra eşitlenecek.');
-    else toast && toast(authMode === 'signup' ? 'Hesap oluşturuldu ve kayıtların hazırlandı.' : 'Bulut hesabına giriş yapıldı.');
+    toast && toast(isEn ? 'Letter lovingly saved for your baby 💌' : 'Bebeğine mektubun sevgiyle saklandı 💌');
   }
 
   async function handleSignOut() {
     await signOut();
     setCloudUser(null);
-    toast && toast('Bulut hesabından çıkıldı.');
+    toast && toast(isEn ? 'Signed out of cloud account.' : 'Bulut hesabından çıkıldı.');
   }
 
   const bloodTypes = ['A Rh+', 'A Rh-', 'B Rh+', 'B Rh-', '0 Rh+', '0 Rh-', 'AB Rh+', 'AB Rh-'];
@@ -182,9 +184,11 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
   return (
     <ScrollView contentContainerStyle={ps.container} showsVerticalScrollIndicator={false}>
       <ScreenHero
-        kicker="AİLE PROFİLİ"
-        title={`${currentRole === 'mother' ? userName : partnerName} · ${journey.week}. hafta`}
-        body="Aile rolü, bebeğin bilgileri, favoriler ve eşitleme ayarları aynı merkezde düzenli kalır."
+        kicker={isEn ? 'FAMILY PROFILE' : 'AİLE PROFİLİ'}
+        title={`${currentRole === 'mother' ? userName : partnerName} · ${isEn ? `Week ${journey.week}` : `${journey.week}. hafta`}`}
+        body={isEn
+          ? 'Family roles, baby milestones, favorites, and cloud sync settings organized in one place.'
+          : 'Aile rolü, bebeğin bilgileri, favoriler ve eşitleme ayarları aynı merkezde düzenli kalır.'}
         icon="profile"
         stat={cloudStatusLabel(cloudStatus)}
         tint={currentRole === 'mother' ? '#B84570' : '#396F9E'}
@@ -201,42 +205,48 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
               <T bold style={ps.userName}>{currentRole === 'mother' ? userName : partnerName}</T>
               <View style={[ps.roleBadge, currentRole === 'mother' ? { backgroundColor: '#F9ECF4' } : { backgroundColor: '#E9F1F9' }]}>
                 <T bold style={{ fontSize: 11, color: currentRole === 'mother' ? '#B84570' : '#396F9E' }}>
-                  {currentRole === 'mother' ? '🤰 Anne Adayı' : '👨‍🍼 Baba Adayı'}
+                  {currentRole === 'mother' ? (isEn ? '🤰 Mother-to-be' : '🤰 Anne Adayı') : (isEn ? '👨‍🍼 Father-to-be' : '👨‍🍼 Baba Adayı')}
                 </T>
               </View>
             </View>
-            <T style={ps.userMotto}>"Her adımda, birlikte daha güçlüyüz."</T>
-            
+            <T style={ps.userMotto}>{isEn ? '"Stronger together, every step of the way."' : '"Her adımda, birlikte daha güçlüyüz."'}</T>
+
             {/* Bağlı Partner Bilgisi */}
             <View style={ps.partnerPill}>
-              <T style={{ fontSize: 11, color: '#3E7D52' }}>💚 Aile profili: {currentRole === 'mother' ? partnerName : userName} ile ortak alan hazır</T>
+              <T style={{ fontSize: 11, color: '#3E7D52' }}>
+                {isEn
+                  ? `💚 Family profile: Shared space ready with ${currentRole === 'mother' ? partnerName : userName}`
+                  : `💚 Aile profili: ${currentRole === 'mother' ? partnerName : userName} ile ortak alan hazır`}
+              </T>
             </View>
           </View>
         </View>
 
         {/* Rol Değiştirici Buton */}
-        <Tap onPress={toggleRole} label="Rol değiştir" style={ps.roleSwitchBtn}>
+        <Tap onPress={toggleRole} label={isEn ? 'Switch role' : 'Rol değiştir'} style={ps.roleSwitchBtn}>
           <Icon name="refresh" size={14} color={colors.purple} />
           <T bold style={{ fontSize: 12, color: colors.purple }}>
-            {currentRole === 'mother' ? 'Baba Görünümüne Geç 👨‍🍼' : 'Anne Görünümüne Geç 🤰'}
+            {currentRole === 'mother'
+              ? (isEn ? 'Switch to Father View 👨‍🍼' : 'Baba Görünümüne Geç 👨‍🍼')
+              : (isEn ? 'Switch to Mother View 🤰' : 'Anne Görünümüne Geç 🤰')}
           </T>
         </Tap>
 
         {/* Hafta & Kalan Gün Özeti */}
         <View style={ps.statStrip}>
           <View style={ps.statCol}>
-            <T bold style={ps.statNum}>{journey.week}. Hafta</T>
-            <T style={ps.statLbl}>Hamilelik İlerlemesi</T>
+            <T bold style={ps.statNum}>{journey.week}. {isEn ? 'Week' : 'Hafta'}</T>
+            <T style={ps.statLbl}>{isEn ? 'Pregnancy Progress' : 'Hamilelik İlerlemesi'}</T>
           </View>
           <View style={ps.statDivider} />
           <View style={ps.statCol}>
             <T bold style={ps.statNum}>{remainingLabel}</T>
-            <T style={ps.statLbl}>Kalan Süre</T>
+            <T style={ps.statLbl}>{isEn ? 'Time Left' : 'Kalan Süre'}</T>
           </View>
           <View style={ps.statDivider} />
           <View style={ps.statCol}>
             <T bold style={ps.statNum}>{babyName}</T>
-            <T style={ps.statLbl}>Bebeğin Adı ({babyGender})</T>
+            <T style={ps.statLbl}>{isEn ? `Baby (${babyGender})` : `Bebeğin Adı (${babyGender})`}</T>
           </View>
         </View>
       </Card>
@@ -244,10 +254,10 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
       {/* ─── 2. ALT SEKME NAVİGASYONU ─── */}
       <View style={ps.tabBar}>
         {[
-          { key: 'family', label: '👨‍👩‍👧 Eş & Aile', badge: partnerMessages.length },
-          { key: 'personal', label: '👤 Bilgiler' },
-          { key: 'favorites', label: '⭐ Anılar', badge: favNames.length },
-          { key: 'settings', label: '⚙️ Tercihler' },
+          { key: 'family', label: isEn ? '👨‍👩‍👧 Family' : '👨‍👩‍👧 Eş & Aile', badge: partnerMessages.length },
+          { key: 'personal', label: isEn ? '👤 Info' : '👤 Bilgiler' },
+          { key: 'favorites', label: isEn ? '⭐ Memories' : '⭐ Anılar', badge: favNames.length },
+          { key: 'settings', label: isEn ? '⚙️ Settings' : '⚙️ Tercihler' },
         ].map(t => (
           <Tap
             key={t.key}
@@ -274,22 +284,28 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
           <Card style={{ padding: 18, backgroundColor: '#FAF6FA', borderColor: '#EDE0EE' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View>
-                <T style={{ fontSize: 11, color: colors.muted, letterSpacing: 1 }}>SENİN AİLE SENKRONİZASYON KODUN</T>
-                <T bold style={{ fontSize: 22, color: colors.purple, marginTop: 3, letterSpacing: 1 }}>{state.familyCode || 'MOM-7829-TR'}</T>
+                <T style={{ fontSize: 11, color: colors.muted, letterSpacing: 1 }}>
+                  {isEn ? 'YOUR FAMILY SYNC CODE' : 'SENİN AİLE SENKRONİZASYON KODUN'}
+                </T>
+                <T bold style={{ fontSize: 22, color: colors.purple, marginTop: 3, letterSpacing: 1 }}>
+                  {state.familyCode || 'MOM-7829-TR'}
+                </T>
               </View>
               <Tap
-                onPress={() => toast && toast('Aile kodu kopyalandı! Eşinle paylaşabilirsin 📲')}
-                label="Kodu Kopyala"
+                onPress={() => toast && toast(isEn ? 'Family code copied! Share with your partner 📲' : 'Aile kodu kopyalandı! Eşinle paylaşabilirsin 📲')}
+                label={isEn ? 'Copy Code' : 'Kodu Kopyala'}
                 style={ps.copyBtn}
               >
                 <Icon name="check" size={14} color="white" />
-                <T bold style={{ fontSize: 12, color: 'white' }}>Kodu Kopyala</T>
+                <T bold style={{ fontSize: 12, color: 'white' }}>{isEn ? 'Copy Code' : 'Kodu Kopyala'}</T>
               </Tap>
             </View>
 
             {/* Eş Kodu Girme Alanı */}
             <View style={{ marginTop: 16, paddingTop: 14, borderTopWidth: 1, borderColor: '#EDE0EE' }}>
-              <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 6 }}>Eşinin Kodunu Gir (Canlı Eşleşme)</T>
+              <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 6 }}>
+                {isEn ? "Enter Partner's Code (Live Sync)" : 'Eşinin Kodunu Gir (Canlı Eşleşme)'}
+              </T>
               <View style={{ flexDirection: 'row', gap: 8 }}>
                 <TextInput
                   value={inputPartnerCode}
@@ -305,12 +321,14 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
                   style={[ps.sendBtn, { paddingHorizontal: 16, backgroundColor: colors.purple }]}
                 >
                   <T bold style={{ color: 'white', fontSize: 13 }}>
-                    {partnerSyncBusy ? 'Bağlanıyor...' : 'Eşleş 💚'}
+                    {partnerSyncBusy ? (isEn ? 'Pairing...' : 'Bağlanıyor...') : (isEn ? 'Pair 💚' : 'Eşleş 💚')}
                   </T>
                 </Tap>
               </View>
               <T style={{ fontSize: 11, color: colors.muted, marginTop: 6 }}>
-                Eşin kendi telefonundaki Momora kodunu buraya yazdığında tüm verileriniz otomatik eşitlenir.
+                {isEn
+                  ? 'When your partner enters this code on their device, all data syncs automatically.'
+                  : 'Eşin kendi telefonundaki Momora kodunu buraya yazdığında tüm verileriniz otomatik eşitlenir.'}
               </T>
             </View>
           </Card>
@@ -319,7 +337,9 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <T style={{ fontSize: 18 }}>💬</T>
-              <T bold style={{ fontSize: 16, color: colors.ink }}>Eşler Arası Destek Sohbeti</T>
+              <T bold style={{ fontSize: 16, color: colors.ink }}>
+                {isEn ? 'Partner Support Chat' : 'Eşler Arası Destek Sohbeti'}
+              </T>
             </View>
 
             <View style={{ gap: 10, marginBottom: 14 }}>
@@ -335,7 +355,7 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
                   >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
                       <T bold style={{ fontSize: 11, color: isMe ? '#893B60' : '#2A5D8A' }}>
-                        {m.senderName} ({m.sender === 'mother' ? 'Anne' : 'Baba'})
+                        {m.senderName} ({m.sender === 'mother' ? (isEn ? 'Mom' : 'Anne') : (isEn ? 'Dad' : 'Baba')})
                       </T>
                       <T style={{ fontSize: 9, color: colors.muted }}>{m.time}</T>
                     </View>
@@ -350,13 +370,15 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
               <TextInput
                 value={newPartnerMsg}
                 onChangeText={setNewPartnerMsg}
-                placeholder={currentRole === 'mother' ? 'Eşine bir sevgi notu yaz... 💕' : 'Eşine destek mesajı gönder... 🌸'}
+                placeholder={currentRole === 'mother'
+                  ? (isEn ? 'Write a loving note to your partner... 💕' : 'Eşine bir sevgi notu yaz... 💕')
+                  : (isEn ? 'Send supportive message to partner... 🌸' : 'Eşine destek mesajı gönder... 🌸')}
                 placeholderTextColor={colors.muted}
                 style={ps.input}
                 onSubmitEditing={sendPartnerMessage}
               />
-              <Tap onPress={sendPartnerMessage} label="Gönder" style={ps.sendBtn}>
-                <T bold style={{ color: 'white', fontSize: 13 }}>Gönder</T>
+              <Tap onPress={sendPartnerMessage} label={isEn ? 'Send' : 'Gönder'} style={ps.sendBtn}>
+                <T bold style={{ color: 'white', fontSize: 13 }}>{isEn ? 'Send' : 'Gönder'}</T>
               </Tap>
             </View>
           </Card>
@@ -365,14 +387,18 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <T style={{ fontSize: 18 }}>💌</T>
-              <T bold style={{ fontSize: 16, color: colors.ink }}>{babyName}'mıza Mektuplar</T>
+              <T bold style={{ fontSize: 16, color: colors.ink }}>
+                {isEn ? `Letters to ${babyName}` : `${babyName}'mıza Mektuplar`}
+              </T>
             </View>
 
             <View style={{ gap: 10, marginBottom: 14 }}>
               {babyLetters.map(l => (
                 <View key={l.id} style={ps.letterCard}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <T bold style={{ fontSize: 12, color: colors.purple }}>✍️ {l.author} Kaleme Aldı</T>
+                    <T bold style={{ fontSize: 12, color: colors.purple }}>
+                      ✍️ {isEn ? `Written by ${l.author === 'Anne' ? 'Mom' : l.author === 'Baba' ? 'Dad' : l.author}` : `${l.author} Kaleme Aldı`}
+                    </T>
                     <T style={{ fontSize: 10, color: colors.muted }}>{l.date}</T>
                   </View>
                   <T style={{ fontSize: 13, color: '#4B4252', lineHeight: 19 }}>{l.text}</T>
@@ -385,13 +411,13 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
               <TextInput
                 value={newBabyLetter}
                 onChangeText={setNewBabyLetter}
-                placeholder="Bebeğine gelecekte okuyacağı bir not bırak..."
+                placeholder={isEn ? 'Write a note for your baby to read in the future...' : 'Bebeğine gelecekte okuyacağı bir not bırak...'}
                 placeholderTextColor={colors.muted}
                 style={ps.input}
                 onSubmitEditing={sendBabyLetter}
               />
-              <Tap onPress={sendBabyLetter} label="Kaydet" style={ps.sendBtn}>
-                <T bold style={{ color: 'white', fontSize: 13 }}>Sakla</T>
+              <Tap onPress={sendBabyLetter} label={isEn ? 'Save' : 'Kaydet'} style={ps.sendBtn}>
+                <T bold style={{ color: 'white', fontSize: 13 }}>{isEn ? 'Save' : 'Sakla'}</T>
               </Tap>
             </View>
           </Card>
@@ -401,34 +427,40 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
       {/* ─── 4. TAB 2: KİŞİSEL & BEBEK BİLGİLERİ FORMU ─── */}
       {activeTab === 'personal' && (
         <Card style={{ padding: 18 }}>
-          <T bold style={{ fontSize: 17, marginBottom: 14 }}>Aile & Gebelik Bilgileri</T>
+          <T bold style={{ fontSize: 17, marginBottom: 14 }}>
+            {isEn ? 'Family & Pregnancy Info' : 'Aile & Gebelik Bilgileri'}
+          </T>
 
           <View style={ps.fieldGroup}>
-            <T bold style={ps.fieldLabel}>Anne Adayının Adı</T>
+            <T bold style={ps.fieldLabel}>{isEn ? "Mother's Name" : 'Anne Adayının Adı'}</T>
             <TextInput value={userName} onChangeText={setUserName} style={ps.fieldInput} />
           </View>
 
           <View style={ps.fieldGroup}>
-            <T bold style={ps.fieldLabel}>Baba Adayının Adı</T>
+            <T bold style={ps.fieldLabel}>{isEn ? "Father's Name" : 'Baba Adayının Adı'}</T>
             <TextInput value={partnerName} onChangeText={setPartnerName} style={ps.fieldInput} />
           </View>
 
           <View style={ps.fieldGroup}>
-            <T bold style={ps.fieldLabel}>Bebeğin Adı / Lakabı</T>
+            <T bold style={ps.fieldLabel}>{isEn ? "Baby's Name / Nickname" : 'Bebeğin Adı / Lakabı'}</T>
             <TextInput value={babyName} onChangeText={setBabyName} style={ps.fieldInput} />
           </View>
 
           <View style={ps.fieldGroup}>
-            <T bold style={ps.fieldLabel}>Bebeğin Cinsiyeti</T>
+            <T bold style={ps.fieldLabel}>{isEn ? "Baby's Gender" : 'Bebeğin Cinsiyeti'}</T>
             <View style={{ flexDirection: 'row', gap: 8 }}>
-              {['Kız', 'Erkek', 'Henüz Sürpriz 🤍'].map(g => (
+              {[
+                { id: 'Kız', label: isEn ? '👧 Girl' : '👧 Kız' },
+                { id: 'Erkek', label: isEn ? '👦 Boy' : '👦 Erkek' },
+                { id: 'Henüz Sürpriz 🤍', label: isEn ? '🤍 Surprise' : 'Henüz Sürpriz 🤍' },
+              ].map(g => (
                 <Tap
-                  key={g}
-                  onPress={() => setBabyGender(g)}
-                  style={[ps.genderPick, babyGender === g && ps.genderPickActive]}
+                  key={g.id}
+                  onPress={() => setBabyGender(g.id)}
+                  style={[ps.genderPick, babyGender === g.id && ps.genderPickActive]}
                 >
-                  <T bold={babyGender === g} style={{ fontSize: 12, color: babyGender === g ? colors.purple : colors.ink }}>
-                    {g === 'Kız' ? '👧 Kız' : g === 'Erkek' ? '👦 Erkek' : g}
+                  <T bold={babyGender === g.id} style={{ fontSize: 12, color: babyGender === g.id ? colors.purple : colors.ink }}>
+                    {g.label}
                   </T>
                 </Tap>
               ))}
@@ -436,13 +468,13 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
           </View>
 
           <View style={ps.fieldGroup}>
-            <T bold style={ps.fieldLabel}>Tahmini Doğum Tarihi</T>
+            <T bold style={ps.fieldLabel}>{isEn ? 'Estimated Due Date' : 'Tahmini Doğum Tarihi'}</T>
             <TextInput value={dueDate} onChangeText={setDueDate} placeholder="2026-07-24" style={ps.fieldInput} />
-            {!!dueDate && <T style={{ fontSize: 11, color: colors.muted, marginTop: 4 }}>{dateLabel(dueDate)}</T>}
+            {!!dueDate && <T style={{ fontSize: 11, color: colors.muted, marginTop: 4 }}>{dateLabel(dueDate, isEn ? 'en-US' : 'tr-TR')}</T>}
           </View>
 
           <View style={ps.fieldGroup}>
-            <T bold style={ps.fieldLabel}>Annenin Kan Grubu</T>
+            <T bold style={ps.fieldLabel}>{isEn ? "Mother's Blood Type" : 'Annenin Kan Grubu'}</T>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
               {bloodTypes.map(bt => (
                 <Tap
@@ -457,22 +489,22 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
               ))}
             </View>
             <T style={{ fontSize: 11, color: colors.muted, marginTop: 4 }}>
-              Bu alan doktor görüşmelerinde hızlı hatırlama içindir; tıbbi karar yerine geçmez.
+              {isEn ? 'For prenatal visit reference; not a medical substitute.' : 'Bu alan doktor görüşmelerinde hızlı hatırlama içindir; tıbbi karar yerine geçmez.'}
             </T>
           </View>
 
           <View style={ps.fieldGroup}>
-            <T bold style={ps.fieldLabel}>Takip Eden Doktor</T>
+            <T bold style={ps.fieldLabel}>{isEn ? 'Attending Doctor / Obstetrician' : 'Takip Eden Doktor'}</T>
             <TextInput value={doctor} onChangeText={setDoctor} style={ps.fieldInput} />
           </View>
 
           <View style={ps.fieldGroup}>
-            <T bold style={ps.fieldLabel}>Planlanan Doğum Hastanesi</T>
+            <T bold style={ps.fieldLabel}>{isEn ? 'Planned Hospital / Birth Clinic' : 'Planlanan Doğum Hastanesi'}</T>
             <TextInput value={hospital} onChangeText={setHospital} style={ps.fieldInput} />
           </View>
 
-          <Tap onPress={savePersonalInfo} label="Bilgileri kaydet" style={ps.saveFullBtn}>
-            <T bold style={{ color: 'white', fontSize: 15 }}>Bilgilerimi Kaydet 🌸</T>
+          <Tap onPress={savePersonalInfo} label={isEn ? 'Save Info' : 'Bilgileri kaydet'} style={ps.saveFullBtn}>
+            <T bold style={{ color: 'white', fontSize: 15 }}>{isEn ? 'Save My Details 🌸' : 'Bilgilerimi Kaydet 🌸'}</T>
           </Tap>
         </Card>
       )}
@@ -483,15 +515,17 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
           {/* Favori Bebek İsimleri */}
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <T bold style={{ fontSize: 16 }}>Beğendiğin Bebek İsimleri ({favNames.length})</T>
+              <T bold style={{ fontSize: 16 }}>{isEn ? `Saved Baby Names (${favNames.length})` : `Beğendiğin Bebek İsimleri (${favNames.length})`}</T>
               <Tap onPress={() => open && open('babyNames')} style={{ padding: 4 }}>
-                <T bold style={{ fontSize: 12, color: colors.purple }}>Tümünü Gör →</T>
+                <T bold style={{ fontSize: 12, color: colors.purple }}>{isEn ? 'See All →' : 'Tümünü Gör →'}</T>
               </Tap>
             </View>
 
             {matchedFavs.length === 0 ? (
               <T style={{ fontSize: 13, color: colors.muted, paddingVertical: 10 }}>
-                Henüz favorilere isim eklemedin. Bebek İsimleri Kütüphanesini açarak beğendiklerini kalp ile kaydedebilirsin.
+                {isEn
+                  ? 'No favorite names saved yet. Explore the Baby Names directory to save names you love.'
+                  : 'Henüz favorilere isim eklemedin. Bebek İsimleri Kütüphanesini açarak beğendiklerini kalp ile kaydedebilirsin.'}
               </T>
             ) : (
               <View style={{ gap: 8 }}>
@@ -501,7 +535,7 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                         <T bold style={{ fontSize: 15 }}>{n.name}</T>
                         <T style={{ fontSize: 11, color: colors.muted }}>({n.gender})</T>
-                        {n.partnerMatch && <T style={{ fontSize: 11, color: '#B84570' }}>💕 Ortak Eşleşme</T>}
+                        {n.partnerMatch && <T style={{ fontSize: 11, color: '#B84570' }}>{isEn ? '💕 Partner Match' : '💕 Ortak Eşleşme'}</T>}
                       </View>
                       <T style={{ fontSize: 11, color: '#55485B', marginTop: 2 }} numberOfLines={1}>{n.meaning}</T>
                     </View>
@@ -515,15 +549,15 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
           {/* Günlük Notları */}
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <T bold style={{ fontSize: 16 }}>Anı Defteri & Notlarım ({state.notes.length})</T>
+              <T bold style={{ fontSize: 16 }}>{isEn ? `Memories & Notes (${state.notes.length})` : `Anı Defteri & Notlarım (${state.notes.length})`}</T>
               <Tap onPress={() => open && open('note')} style={{ padding: 4 }}>
-                <T bold style={{ fontSize: 12, color: colors.purple }}>+ Not Yaz</T>
+                <T bold style={{ fontSize: 12, color: colors.purple }}>{isEn ? '+ Write Note' : '+ Not Yaz'}</T>
               </Tap>
             </View>
 
             {state.notes.length === 0 ? (
               <T style={{ fontSize: 13, color: colors.muted, paddingVertical: 8 }}>
-                Henüz kaydedilmiş notun yok. İlk küçük anını saklayabilirsin.
+                {isEn ? 'No notes saved yet. You can keep your first memory.' : 'Henüz kaydedilmiş notun yok. İlk küçük anını saklayabilirsin.'}
               </T>
             ) : (
               state.notes.slice(0, 5).map(n => (
@@ -539,22 +573,41 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
       {/* ─── 6. TAB 4: TERCİHLER & AYARLAR ─── */}
       {activeTab === 'settings' && (
         <Card style={{ padding: 18 }}>
-          <T bold style={{ fontSize: 17, marginBottom: 14 }}>Bildirimler & Tercihler</T>
+          <T bold style={{ fontSize: 17, marginBottom: 14 }}>
+            {isEn ? 'Notifications & Preferences' : 'Bildirimler & Tercihler'}
+          </T>
 
+          {/* Dil Değiştirici Bölümü (TR | EN) */}
+          <View style={[ps.switchRow, { backgroundColor: '#FBF7FC', padding: 12, borderRadius: 14, marginBottom: 14 }]}>
+            <View style={{ flex: 1, paddingRight: 10 }}>
+              <T bold style={{ fontSize: 14 }}>🌐 {isEn ? 'Application Language' : 'Uygulama Dili'}</T>
+              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                {isEn ? 'Switch between Turkish and English' : 'Türkçe ve İngilizce tam dil desteği'}
+              </T>
+            </View>
+            <LanguageToggle
+              lang={lang}
+              onChange={newLang => update({ lang: newLang })}
+            />
+          </View>
+
+          {/* Bulut Durumu */}
           <Card style={{ padding: 16, backgroundColor: '#FAF6FA', borderColor: '#EDE0EE', marginBottom: 14 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <BrandMark size={32} />
                 <View>
-                  <T bold style={{ fontSize: 15, color: colors.ink }}>Momora Bulut & Aile Hesabı</T>
+                  <T bold style={{ fontSize: 15, color: colors.ink }}>
+                    {isEn ? 'Momora Cloud & Family Account' : 'Momora Bulut & Aile Hesabı'}
+                  </T>
                   <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
-                    {cloudUser ? `Aktif: ${cloudUser.email}` : 'Cihazlar arası anlık eşitleme'}
+                    {cloudUser ? `${isEn ? 'Active:' : 'Aktif:'} ${cloudUser.email}` : (isEn ? 'Real-time multi-device sync' : 'Cihazlar arası anlık eşitleme')}
                   </T>
                 </View>
               </View>
               {cloudUser && (
                 <View style={{ backgroundColor: '#EDF7ED', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10 }}>
-                  <T bold style={{ fontSize: 11, color: '#2E7D32' }}>Bağlı</T>
+                  <T bold style={{ fontSize: 11, color: '#2E7D32' }}>{isEn ? 'Connected' : 'Bağlı'}</T>
                 </View>
               )}
             </View>
@@ -562,74 +615,95 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
             {cloudUser ? (
               <View style={{ marginTop: 12, gap: 8 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderTopWidth: 1, borderColor: '#EFE5F0' }}>
-                  <T style={{ fontSize: 12, color: colors.muted }}>Rol</T>
-                  <T bold style={{ fontSize: 12, color: colors.purple }}>{currentRole === 'mother' ? 'Anne Hesabı' : 'Baba Hesabı'}</T>
+                  <T style={{ fontSize: 12, color: colors.muted }}>{isEn ? 'Role' : 'Rol'}</T>
+                  <T bold style={{ fontSize: 12, color: colors.purple }}>
+                    {currentRole === 'mother' ? (isEn ? 'Mother Account' : 'Anne Hesabı') : (isEn ? 'Father Account' : 'Baba Hesabı')}
+                  </T>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderTopWidth: 1, borderColor: '#EFE5F0' }}>
-                  <T style={{ fontSize: 12, color: colors.muted }}>Eşleşme Kodu</T>
+                  <T style={{ fontSize: 12, color: colors.muted }}>{isEn ? 'Sync Code' : 'Eşleşme Kodu'}</T>
                   <T bold style={{ fontSize: 12, letterSpacing: 1, color: colors.ink }}>{state.familyCode || 'MOM-7829-TR'}</T>
                 </View>
-                <Tap onPress={handleSignOut} label="Çıkış yap" style={[ps.secondaryBtn, { marginTop: 6 }]}>
-                  <T bold style={{ fontSize: 13, color: '#B42318' }}>Oturumu Kapat</T>
+                <Tap onPress={handleSignOut} label={isEn ? 'Sign out' : 'Çıkış yap'} style={[ps.secondaryBtn, { marginTop: 6 }]}>
+                  <T bold style={{ fontSize: 13, color: '#B42318' }}>{isEn ? 'Sign Out' : 'Oturumu Kapat'}</T>
                 </Tap>
               </View>
             ) : (
               <View style={{ marginTop: 12 }}>
                 <T style={{ fontSize: 12, color: '#5C5463', lineHeight: 18, marginBottom: 12 }}>
-                  Anne ve baba olarak aynı hesaba bağlanabilir, tüm verilerinizi ve eş notlarınızı güvenle senkronize edebilirsiniz.
+                  {isEn
+                    ? 'Both parents can connect to the same family account and sync all logs and notes securely.'
+                    : 'Anne ve baba olarak aynı hesaba bağlanabilir, tüm verilerinizi ve eş notlarınızı güvenle senkronize edebilirsiniz.'}
                 </T>
                 <Tap onPress={() => open && open('auth')} style={ps.saveFullBtn}>
-                  <T bold style={{ color: 'white', fontSize: 14 }}>Giriş Yap / Hesap Oluştur 🌸</T>
+                  <T bold style={{ color: 'white', fontSize: 14 }}>
+                    {isEn ? 'Sign In / Create Account 🌸' : 'Giriş Yap / Hesap Oluştur 🌸'}
+                  </T>
                 </Tap>
               </View>
             )}
           </Card>
 
+          {/* Hatırlatıcılar */}
           <View style={ps.switchRow}>
             <View style={{ flex: 1, paddingRight: 10 }}>
-              <T bold style={{ fontSize: 14 }}>💧 Günlük Su Hatırlatıcısı</T>
-              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>Bildirim altyapısı bağlandığında günlük su hatırlatması al</T>
+              <T bold style={{ fontSize: 14 }}>💧 {isEn ? 'Daily Water Reminder' : 'Günlük Su Hatırlatıcısı'}</T>
+              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                {isEn ? 'Receive reminders when push notifications are active' : 'Bildirim altyapısı bağlandığında günlük su hatırlatması al'}
+              </T>
             </View>
             <Switch value={remindWater} onValueChange={v => { setRemindWater(v); update({ remindWater: v }); }} trackColor={{ true: colors.purple }} />
           </View>
 
           <View style={ps.switchRow}>
             <View style={{ flex: 1, paddingRight: 10 }}>
-              <T bold style={{ fontSize: 14 }}>💊 Sabah Vitamin Hatırlatıcısı</T>
-              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>Vitamin kaydını sabah akışında öne çıkar</T>
+              <T bold style={{ fontSize: 14 }}>💊 {isEn ? 'Morning Vitamin Reminder' : 'Sabah Vitamin Hatırlatıcısı'}</T>
+              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                {isEn ? 'Highlight prenatal vitamin in morning feed' : 'Vitamin kaydını sabah akışında öne çıkar'}
+              </T>
             </View>
             <Switch value={remindVitamin} onValueChange={v => { setRemindVitamin(v); update({ remindVitamin: v }); }} trackColor={{ true: colors.purple }} />
           </View>
 
           <View style={ps.switchRow}>
             <View style={{ flex: 1, paddingRight: 10 }}>
-              <T bold style={{ fontSize: 14 }}>💌 Bebeğin Günlük Mektubu</T>
-              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>Günün mektubunu ana akışta önceliklendir</T>
+              <T bold style={{ fontSize: 14 }}>💌 {isEn ? 'Daily Baby Letter' : 'Bebeğin Günlük Mektubu'}</T>
+              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                {isEn ? 'Prioritize daily letter in today feed' : 'Günün mektubunu ana akışta önceliklendir'}
+              </T>
             </View>
             <Switch value={remindLetter} onValueChange={v => { setRemindLetter(v); update({ remindLetter: v }); }} trackColor={{ true: colors.purple }} />
           </View>
 
           <View style={ps.switchRow}>
             <View style={{ flex: 1, paddingRight: 10 }}>
-              <T bold style={{ fontSize: 14 }}>👨‍👩‍👧 Eş Sevgi Notu Bildirimleri</T>
-              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>Ortak aile hesabı bağlandığında eş notlarını öne çıkar</T>
+              <T bold style={{ fontSize: 14 }}>👨‍👩‍👧 {isEn ? 'Partner Note Alerts' : 'Eş Sevgi Notu Bildirimleri'}</T>
+              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                {isEn ? 'Highlight partner notes when account is synced' : 'Ortak aile hesabı bağlandığında eş notlarını öne çıkar'}
+              </T>
             </View>
             <Switch value={remindPartner} onValueChange={v => { setRemindPartner(v); update({ remindPartner: v }); }} trackColor={{ true: colors.purple }} />
           </View>
 
           <View style={{ height: 1, backgroundColor: colors.line, marginVertical: 16 }} />
 
-          <T bold style={{ fontSize: 15, marginBottom: 10 }}>Yolculuk Modu</T>
-          <Tap onPress={() => open && open('journey')} label="Yolculuğu değiştir" style={ps.secondaryBtn}>
-            <T bold style={{ fontSize: 14, color: colors.purple }}>Yolculuk Aşamasını Değiştir</T>
+          <T bold style={{ fontSize: 15, marginBottom: 10 }}>{isEn ? 'Journey Phase' : 'Yolculuk Modu'}</T>
+          <Tap onPress={() => open && open('journey')} label={isEn ? 'Change journey' : 'Yolculuğu değiştir'} style={ps.secondaryBtn}>
+            <T bold style={{ fontSize: 14, color: colors.purple }}>{isEn ? 'Change Journey Stage' : 'Yolculuk Aşamasını Değiştir'}</T>
           </Tap>
 
           <View style={{ marginTop: 20, alignItems: 'center' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#48945A' }} />
-              <T style={{ fontSize: 12, color: colors.muted }}>Momora Bulut Eşitleme · {isSupabaseConfigured ? 'Hazır' : 'Hazırlanıyor'}</T>
+              <T style={{ fontSize: 12, color: colors.muted }}>
+                {isEn
+                  ? `Momora Cloud Sync · ${isSupabaseConfigured ? 'Ready' : 'Configuring'}`
+                  : `Momora Bulut Eşitleme · ${isSupabaseConfigured ? 'Hazır' : 'Hazırlanıyor'}`}
+              </T>
             </View>
-            <T style={{ fontSize: 10, color: '#A092A3', marginTop: 4 }}>Yerel kayıtlar cihazda saklanıyor</T>
+            <T style={{ fontSize: 10, color: '#A092A3', marginTop: 4 }}>
+              {isEn ? 'Local logs securely saved on device' : 'Yerel kayıtlar cihazda saklanıyor'}
+            </T>
           </View>
         </Card>
       )}

@@ -1050,8 +1050,8 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
         {/* 3. Tekme Takibi */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderColor: '#F2EAF3' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            {generatedAssets['card_kick_counter'] ? (
-              <Image source={generatedAssets['card_kick_counter']} style={{ width: 34, height: 34 }} resizeMode="contain" />
+            {generatedAssets['ui_kick_foot_button'] ? (
+              <Image source={generatedAssets['ui_kick_foot_button']} style={{ width: 34, height: 34 }} resizeMode="contain" />
             ) : (
               <Icon name="footprint" size={26} color="#A03B64" />
             )}
@@ -1070,8 +1070,8 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
         {/* 4. Kilo Takibi */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderColor: '#F2EAF3' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            {generatedAssets['card_scale'] ? (
-              <Image source={generatedAssets['card_scale']} style={{ width: 34, height: 34 }} resizeMode="contain" />
+            {generatedAssets['ui_weight_bmi_gauge'] ? (
+              <Image source={generatedAssets['ui_weight_bmi_gauge']} style={{ width: 34, height: 34 }} resizeMode="contain" />
             ) : (
               <Icon name="scale" size={26} color="#34754B" />
             )}
@@ -1187,8 +1187,8 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
           style={{width:145,padding:14,borderRadius:18,backgroundColor:'#FAF1F5',borderWidth:1,borderColor:'#F0DFE8',...shadow}}
         >
           <View style={{width:38,height:38,borderRadius:19,backgroundColor:'white',alignItems:'center',justifyContent:'center',marginBottom:8}}>
-            {generatedAssets['card_kick_counter'] ? (
-              <Image source={generatedAssets['card_kick_counter']} style={{width:30,height:30}} resizeMode="contain"/>
+            {generatedAssets['ui_kick_foot_button'] ? (
+              <Image source={generatedAssets['ui_kick_foot_button']} style={{width:32,height:32}} resizeMode="contain"/>
             ) : (
               <Icon name="footprint" size={20} color="#9A5B80"/>
             )}
@@ -1203,8 +1203,8 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
           style={{width:145,padding:14,borderRadius:18,backgroundColor:'#F0F6FB',borderWidth:1,borderColor:'#DDE9F3',...shadow}}
         >
           <View style={{width:38,height:38,borderRadius:19,backgroundColor:'white',alignItems:'center',justifyContent:'center',marginBottom:8}}>
-            {generatedAssets['card_contractions'] ? (
-              <Image source={generatedAssets['card_contractions']} style={{width:30,height:30}} resizeMode="contain"/>
+            {generatedAssets['ui_contraction_pulse_button'] ? (
+              <Image source={generatedAssets['ui_contraction_pulse_button']} style={{width:32,height:32}} resizeMode="contain"/>
             ) : (
               <Icon name="contraction" size={20} color="#4F79A1"/>
             )}
@@ -1219,8 +1219,8 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
           style={{width:145,padding:14,borderRadius:18,backgroundColor:'#F4EEF7',borderWidth:1,borderColor:'#E7DAED',...shadow}}
         >
           <View style={{width:38,height:38,borderRadius:19,backgroundColor:'white',alignItems:'center',justifyContent:'center',marginBottom:8}}>
-            {generatedAssets['card_hospital_bag'] ? (
-              <Image source={generatedAssets['card_hospital_bag']} style={{width:30,height:30}} resizeMode="contain"/>
+            {generatedAssets['ui_hospital_bag_3d'] ? (
+              <Image source={generatedAssets['ui_hospital_bag_3d']} style={{width:32,height:32}} resizeMode="contain"/>
             ) : (
               <Icon name="bag" size={20} color="#7C5292"/>
             )}
@@ -1235,8 +1235,8 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
           style={{width:145,padding:14,borderRadius:18,backgroundColor:'#EBF3EE',borderWidth:1,borderColor:'#D7E8DD',...shadow}}
         >
           <View style={{width:38,height:38,borderRadius:19,backgroundColor:'white',alignItems:'center',justifyContent:'center',marginBottom:8}}>
-            {generatedAssets['card_scale'] ? (
-              <Image source={generatedAssets['card_scale']} style={{width:30,height:30}} resizeMode="contain"/>
+            {generatedAssets['ui_weight_bmi_gauge'] ? (
+              <Image source={generatedAssets['ui_weight_bmi_gauge']} style={{width:32,height:32}} resizeMode="contain"/>
             ) : (
               <Icon name="scale" size={20} color="#4F8464"/>
             )}
@@ -1321,7 +1321,7 @@ export function Baby({state,open,lang='tr'}) {
   ];
   const records=[...state.records,...sampleRecords].slice(0,4);
   return <Page>
-    <ScreenHero kicker={isEn ? 'BABY CARE' : 'BEBEK BAKIMI'} title={`${state.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · ${isEn ? '6 weeks old' : '6 haftalık'}`} body={isEn ? 'Feeding, sleep, diaper logs, and milestone guides gathered in one daily dashboard.' : 'Beslenme, uyku, bez kayıtları ve bakım rehberleri tek günlük panelde birleşir.'} icon="baby" asset="baby" stat={`${records.length} ${isEn ? 'logs' : 'kayıt'}`} tint="#6E5A96" />
+    <ScreenHero kicker={isEn ? 'BABY CARE' : 'BEBEK BAKIMI'} title={`${state.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · ${isEn ? '6 weeks old' : '6 haftalık'}`} body={isEn ? 'Feeding, sleep, diaper logs, and milestone guides gathered in one daily dashboard.' : 'Beslenme, uyku, bez kayıtları ve bakım rehberleri tek günlük panelde birleşir.'} icon="baby" asset="ui_baby_crib" stat={`${records.length} ${isEn ? 'logs' : 'kayıt'}`} tint="#6E5A96" />
     <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage} resizeMode="cover"/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · {isEn ? '6 weeks old' : '6 haftalık'}</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>{isEn ? "Today's daily rhythm" : 'Bugünün bakım ritmi'}</T></View></View><RoundButton icon="down" label={isEn ? 'Change journey' : 'Yolculuğunu değiştir'} onPress={()=>open('journey')}/></View>
     <View style={s.babyGrid}>
       {babyActions.map(a=>(
