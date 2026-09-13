@@ -268,7 +268,7 @@ export const en = {
       pause: 'Pause',
     },
     medical: {
-      sizeGuide: '3-Way Size Guide',
+      sizeGuide: 'Size Comparison Guide',
       ultrasoundAtlas: 'Ultrasound Atlas',
       medicalTimeline: 'Checkup Timeline',
       organDevelopment: 'Organ Development & Heartbeat',
@@ -386,7 +386,7 @@ export const en = {
       doctorQuestions: 'Doctor Questions',
       babyNames: 'Baby Names Directory',
       toolsHub: 'Momora Tools',
-      sizeGuide: '3-Way Size Guide',
+      sizeGuide: 'Size Comparison Guide',
       ultrasoundAtlas: 'Ultrasound Atlas',
       medicalTimeline: 'Checkup Timeline',
       organDevelopment: 'Organ Development & Heartbeat',

@@ -104,7 +104,7 @@ export function SizeComparisonHub({ state, toast, lang = 'tr' }) {
         </View>
 
         {/* Görsel Sahne */}
-        <View style={[ms.stage, { minHeight: 180, justifyContent: 'center' }]}>
+        <View style={[ms.stage, { minHeight: 215, justifyContent: 'center' }]}>
           {mode === 'baby' ? (
             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
               <Image
@@ -121,12 +121,12 @@ export function SizeComparisonHub({ state, toast, lang = 'tr' }) {
               />
             </View>
           ) : mode === 'fruit' ? (
-            <FruitArt type={info.fruit} size={170} />
+            <FruitArt type={info.fruit} size={200} />
           ) : (
             <ComparisonArt
               mode={mode}
               type={mode === 'animal' ? info.animal : info.sweet}
-              size={155}
+              size={185}
               emoji={mode === 'animal' ? (info.animalEmoji || '🐾') : (info.sweetEmoji || '🧁')}
               info={info}
               week={week}

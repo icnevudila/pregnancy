@@ -268,7 +268,7 @@ export const tr = {
       pause: 'Durdur',
     },
     medical: {
-      sizeGuide: '3’lü Boyut Kıyaslama',
+      sizeGuide: 'Boyut Kıyaslama Rehberi',
       ultrasoundAtlas: 'Ultrason Atlası',
       medicalTimeline: 'Kontrol Zaman Çizelgesi',
       organDevelopment: 'Organ Gelişimi & Kalp Ritim',
@@ -386,7 +386,7 @@ export const tr = {
       doctorQuestions: 'Randevu Soruları',
       babyNames: 'Bebek İsim Rehberi',
       toolsHub: 'Momora Araçlar',
-      sizeGuide: '3’lü Boyut Kıyaslama',
+      sizeGuide: 'Boyut Kıyaslama Rehberi',
       ultrasoundAtlas: 'Ultrason Atlası',
       medicalTimeline: 'Kontrol Zaman Çizelgesi',
       organDevelopment: 'Organ Gelişimi & Kalp Ritim',
