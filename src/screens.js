@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { assets, colors, fonts, shadow } from './theme';
 import { Icon, BrandMark, ProductArt, FruitArt, ComparisonArt } from './Icons';
 import { generatedAssets, getAsset } from './generatedAssets';
-import { T, Tap, Card, RoundButton, Section, Tabs, MoodPicker, Progress, SmallStat, Page, ScreenHero, ToolExperienceCard, CleanIcon } from './ui';
+import { T, Tap, Card, RoundButton, Section, Tabs, MoodPicker, Progress, SmallStat, Page, ScreenHero, ToolExperienceCard, CleanIcon, HorizontalScroll } from './ui';
 import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel, pregnancyProgress, TOTAL_WEEKS } from './weekData';
 import { usePulse, useCrossFade } from './anim';
 import { articles, searchArticles, searchFaqs } from './content';
@@ -806,13 +806,13 @@ function PremiumWeeklyPlan({ week, state, update, open, lang = 'tr' }) {
   const done = (state.tasks || []).filter(Boolean).length;
   const items = isEn
     ? [
-        ['Movement routine', 'Start one calm kick session', 'kickCounter', 'ui_kick_foot_button'],
+        ['Movement routine', 'Start one calm kick session', 'kickCounter', 'card_kick_counter'],
         ['Body note', 'Log weight, mood or symptom', 'weight', 'ui_weight_bmi_gauge'],
         ['Appointment prep', 'Save one question for the visit', 'doctorQuestions', 'ui_doctor_prep_notebook'],
         ['Birth prep', 'Review hospital bag and plan', 'hospitalBag', 'ui_hospital_bag_3d'],
       ]
     : [
-        ['Hareket rutini', 'Sakin bir tekme seansı başlat', 'kickCounter', 'ui_kick_foot_button'],
+        ['Hareket rutini', 'Sakin bir tekme seansı başlat', 'kickCounter', 'card_kick_counter'],
         ['Beden notu', 'Kilo, ruh hali veya belirti kaydet', 'weight', 'ui_weight_bmi_gauge'],
         ['Randevu hazırlığı', 'Kontrol için bir soru sakla', 'doctorQuestions', 'ui_doctor_prep_notebook'],
         ['Doğum hazırlığı', 'Çanta ve planı gözden geçir', 'hospitalBag', 'ui_hospital_bag_3d'],
@@ -876,7 +876,7 @@ function BabyDaySummary({ state, open, lang = 'tr' }) {
   );
 }
 
-export function Pregnancy({ state, update, open, lang = 'tr' }) {
+export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
   const isEn = lang === 'en';
   const [timelineDay, setTimelineDay] = useState('bugun'); // 'dun' | 'bugun' | 'yarin'
   const week = state.week ?? 24;
@@ -930,16 +930,31 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
   return <Page>
     {/* ─── 1. ÜST BAŞLIK & GERİ SAYIM ─── */}
     <View style={s.topline}>
-      <View>
+      <View style={{ flex: 1, paddingRight: 8 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <T bold style={{ color: '#684574', fontSize: 18 }}>{isEn ? `Hello, ${state.name}` : `Merhaba, ${state.name}`}</T>
-          <T style={{ fontSize: 18 }}>🌸</T>
+          <T bold style={{ color: '#684574', fontSize: 18 }}>
+            {state.role === 'father'
+              ? (isEn ? `Hello Dad, ${state.name || 'Alex'}` : `Merhaba Baba, ${state.name || 'Mehmet'}`)
+              : (isEn ? `Hello, ${state.name || 'Emma'}` : `Merhaba, ${state.name || 'Zeynep'}`)}
+          </T>
+          <T style={{ fontSize: 18 }}>{state.role === 'father' ? '👨‍🍼' : '🌸'}</T>
         </View>
-        <T style={s.subtitle}>{isEn ? `Today · Week ${week} Day 5` : `Bugün: 12 Eylül Cumartesi · ${week}. Hafta 5. Gün`}</T>
+        <T style={s.subtitle}>{isEn ? `Today · Week ${week} Day 5` : `Bugün · ${week}. Hafta 5. Gün`}</T>
       </View>
-      <Tap onPress={() => open('appointment')} label={isEn ? 'Appointments' : 'Randevularım'} style={s.iconHit}>
-        <Icon name="bell" size={26}/>
-      </Tap>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        {state.avatar ? (
+          <Tap onPress={() => (setPage ? setPage('profile') : open('profile'))} label={isEn ? 'Profile' : 'Profil'} style={{ width: 34, height: 34, borderRadius: 17, overflow: 'hidden', borderWidth: 1.5, borderColor: colors.purpleLight, backgroundColor: '#FAF5FB', alignItems: 'center', justifyContent: 'center' }}>
+            {state.avatar.startsWith('http') || state.avatar.startsWith('file:') || state.avatar.startsWith('blob:') || state.avatar.startsWith('data:') ? (
+              <Image source={{ uri: state.avatar }} style={{ width: '100%', height: '100%' }} />
+            ) : (
+              <T style={{ fontSize: 18 }}>{state.avatar}</T>
+            )}
+          </Tap>
+        ) : null}
+        <Tap onPress={() => open('appointment')} label={isEn ? 'Appointments' : 'Randevularım'} style={s.iconHit}>
+          <Icon name="bell" size={26}/>
+        </Tap>
+      </View>
     </View>
 
     {/* Geri Sayım Rozet Şeridi */}
@@ -1112,7 +1127,7 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
         {/* 3. Tekme Takibi */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderColor: '#F2EAF3' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <CleanIcon asset="ui_kick_foot_button" size={36} imgSize={32} icon="footprint" tint="#A03B64" />
+            <CleanIcon asset="card_kick_counter" size={36} imgSize={32} icon="footprint" tint="#A03B64" />
             <View>
               <T bold style={{ fontSize: 13 }}>{isEn ? 'Kick Session' : 'Hareket Seansı'}</T>
               <T style={{ fontSize: 11, color: colors.muted }}>
@@ -1218,13 +1233,13 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
     {/* ─── 10. GEBELİK SAYAÇLARI & ARAÇLAR ─── */}
     <View style={{marginTop:6}}>
       <Section title={isEn ? 'Quick smart tools' : 'Sık kullanılan araçlar'} action={isEn ? 'Open hub' : 'Koleksiyonu aç'} onPress={()=>open('toolsHub')}/>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:10,paddingBottom:4}}>
+      <HorizontalScroll contentContainerStyle={{gap:10,paddingBottom:4}}>
         <Tap
           onPress={()=>open('kickCounter')}
           label="Tekme sayacını aç"
           style={{width:145,padding:14,borderRadius:18,backgroundColor:'#FAF1F5',borderWidth:1,borderColor:'#F0DFE8',...shadow}}
         >
-          <CleanIcon asset="ui_kick_foot_button" size={36} imgSize={32} icon="footprint" tint="#9A5B80" style={{ marginBottom: 8 }} />
+          <CleanIcon asset="card_kick_counter" size={44} imgSize={40} icon="footprint" tint="#9A5B80" style={{ marginBottom: 8 }} />
           <T bold style={{fontSize:13,color:'#632D4C'}}>{isEn ? 'Kick Counter' : 'Tekme Sayacı'}</T>
           <T style={{fontSize:10,color:'#91637F',marginTop:2}}>{isEn ? '10-movement session' : '10 tekme seansı'}</T>
         </Tap>
@@ -1234,7 +1249,7 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
           label="Kasılma sayacını aç"
           style={{width:145,padding:14,borderRadius:18,backgroundColor:'#F0F6FB',borderWidth:1,borderColor:'#DDE9F3',...shadow}}
         >
-          <CleanIcon asset="ui_contraction_pulse_button" size={36} imgSize={32} icon="contraction" tint="#4F79A1" style={{ marginBottom: 8 }} />
+          <CleanIcon asset="card_contractions" size={44} imgSize={40} icon="contraction" tint="#4F79A1" style={{ marginBottom: 8 }} />
           <T bold style={{fontSize:13,color:'#274969'}}>{isEn ? 'Contraction Timer' : 'Kasılma Sayacı'}</T>
           <T style={{fontSize:10,color:'#567594',marginTop:2}}>{isEn ? 'Duration & interval' : 'Süre & aralık'}</T>
         </Tap>
@@ -1244,7 +1259,7 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
           label="Hastane çantasını aç"
           style={{width:145,padding:14,borderRadius:18,backgroundColor:'#F4EEF7',borderWidth:1,borderColor:'#E7DAED',...shadow}}
         >
-          <CleanIcon asset="ui_hospital_bag_3d" size={36} imgSize={32} icon="bag" tint="#7C5292" style={{ marginBottom: 8 }} />
+          <CleanIcon asset="card_hospital_bag" size={44} imgSize={40} icon="bag" tint="#7C5292" style={{ marginBottom: 8 }} />
           <T bold style={{fontSize:13,color:'#452A56'}}>{isEn ? 'Hospital Bag' : 'Doğum Çantası'}</T>
           <T style={{fontSize:10,color:'#7A6588',marginTop:2}}>{isEn ? 'Mom, baby & partner' : 'Anne, bebek & refakatçi'}</T>
         </Tap>
@@ -1254,42 +1269,43 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
           label="Kilo takibini aç"
           style={{width:145,padding:14,borderRadius:18,backgroundColor:'#EBF3EE',borderWidth:1,borderColor:'#D7E8DD',...shadow}}
         >
-          <CleanIcon asset="ui_weight_bmi_gauge" size={36} imgSize={32} icon="scale" tint="#4F8464" style={{ marginBottom: 8 }} />
+          <CleanIcon asset="card_scale" size={44} imgSize={40} icon="scale" tint="#4F8464" style={{ marginBottom: 8 }} />
           <T bold style={{fontSize:13,color:'#284F38'}}>{isEn ? 'Weight Tracker' : 'Kilo Takibi'}</T>
           <T style={{fontSize:10,color:'#567E67',marginTop:2}}>{isEn ? 'Weekly trend' : 'Haftalık eğilim'}</T>
         </Tap>
-      </ScrollView>
+      </HorizontalScroll>
     </View>
 
     {/* ─── 11. HAFTANIN UZMAN REHBERLERİ ─── */}
     <View style={{marginTop:8}}>
       <Section title={isEn ? 'Weekly Curated Guides' : 'Haftanın Seçilmiş Rehberleri'} action={isEn ? 'See all' : 'Tümünü gör'} onPress={()=>open('topicHub')}/>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:12,paddingBottom:4}}>
-        {articles.filter(a=>a.topic==='pregnancy'||a.topic==='nutrition'||a.topic==='wellbeing').slice(0,4).map(art=>(
+      <HorizontalScroll contentContainerStyle={{gap:12,paddingBottom:4}}>
+        {articles.filter(a=>a.topic==='pregnancy'||a.topic==='nutrition'||a.topic==='wellbeing').slice(0,5).map(art=>(
           <Tap
             key={art.id}
             onPress={()=>open('editorialArticle',{article:art})}
             label={art.title}
-            style={{width:220,borderRadius:18,backgroundColor:'#FFFFFF',overflow:'hidden',borderWidth:1,borderColor:'#EBE2EB',...shadow}}
+            style={{width:232,borderRadius:22,backgroundColor:'#FFFFFF',overflow:'hidden',borderWidth:1,borderColor:'#ECE2EC',...shadow}}
           >
             {(() => {
               const coverImg = generatedAssets[art.image] || getAsset(art.image);
               return coverImg ? (
-                <View style={{height:110,backgroundColor:'#F2EBF4'}}>
-                  <Image source={coverImg} style={StyleSheet.absoluteFill} resizeMode="contain"/>
-                  <View style={{position:'absolute',top:8,right:8,backgroundColor:'#00000077',paddingHorizontal:7,paddingVertical:2,borderRadius:8}}>
-                    <T style={{fontSize:10,color:'white'}}>⏱️ {art.minutes} dk</T>
+                <View style={{width:'100%',aspectRatio:640/349,backgroundColor:'#F6F0F3',position:'relative',overflow:'hidden',alignItems:'center',justifyContent:'center'}}>
+                  <Image source={coverImg} style={{width:'100%',height:'100%'}} resizeMode="cover"/>
+                  <View style={{position:'absolute',top:8,right:8,backgroundColor:'rgba(0, 0, 0, 0.62)',paddingHorizontal:8,paddingVertical:3,borderRadius:10,flexDirection:'row',alignItems:'center',gap:4}}>
+                    <Icon name="clock" size={11} color="white" />
+                    <T bold style={{fontSize:10.5,color:'white'}}>{art.minutes} {isEn ? 'min' : 'dk'}</T>
                   </View>
                 </View>
               ) : null;
             })()}
-            <View style={{padding:12}}>
-              <T bold numberOfLines={2} style={{fontSize:13,color:colors.ink,lineHeight:18}}>{art.title}</T>
-              <T numberOfLines={1} style={{fontSize:11,color:colors.muted,marginTop:4}}>{art.subtitle}</T>
+            <View style={{padding:14}}>
+              <T bold numberOfLines={2} style={{fontSize:14,color:colors.ink,lineHeight:20}}>{art.title}</T>
+              <T numberOfLines={1} style={{fontSize:11.5,color:colors.muted,marginTop:4}}>{art.subtitle}</T>
             </View>
           </Tap>
         ))}
-      </ScrollView>
+      </HorizontalScroll>
     </View>
   </Page>;
 }
@@ -1376,7 +1392,7 @@ export function Baby({state,open,lang='tr'}) {
     {/* Bebek Bakım Rehberleri */}
     <View style={{marginTop:10}}>
     <Section title={isEn ? 'Baby Care & Development Guides' : 'Bebek Bakımı & Gelişim Rehberleri'} action={isEn ? 'See all' : 'Tümünü gör'} onPress={()=>open('topicHub')}/>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:12,paddingBottom:4}}>
+      <HorizontalScroll contentContainerStyle={{gap:12,paddingBottom:4}}>
         {articles.filter(a=>a.topic==='baby'||a.topic==='postpartum').slice(0,5).map(rawArt=>{
           const art = getLocalizedArticle(rawArt, lang);
           return (
@@ -1384,27 +1400,28 @@ export function Baby({state,open,lang='tr'}) {
             key={art.id}
             onPress={()=>open('editorialArticle',{article:art})}
             label={art.title}
-            style={{width:220,borderRadius:18,backgroundColor:'#FFFFFF',overflow:'hidden',borderWidth:1,borderColor:'#EBE2EB',...shadow}}
+            style={{width:232,borderRadius:22,backgroundColor:'#FFFFFF',overflow:'hidden',borderWidth:1,borderColor:'#ECE2EC',...shadow}}
           >
             {(() => {
               const coverImg = generatedAssets[art.image] || getAsset(art.image);
               return coverImg ? (
-                <View style={{height:110,backgroundColor:'#EEF4F7'}}>
-                  <Image source={coverImg} style={StyleSheet.absoluteFill} resizeMode="contain"/>
-                  <View style={{position:'absolute',top:8,right:8,backgroundColor:'#00000077',paddingHorizontal:7,paddingVertical:2,borderRadius:8}}>
-                    <T style={{fontSize:10,color:'white'}}>⏱️ {art.minutes} {isEn ? 'min' : 'dk'}</T>
+                <View style={{width:'100%',aspectRatio:640/349,backgroundColor:'#F6F0F3',position:'relative',overflow:'hidden',alignItems:'center',justifyContent:'center'}}>
+                  <Image source={coverImg} style={{width:'100%',height:'100%'}} resizeMode="cover"/>
+                  <View style={{position:'absolute',top:8,right:8,backgroundColor:'rgba(0, 0, 0, 0.62)',paddingHorizontal:8,paddingVertical:3,borderRadius:10,flexDirection:'row',alignItems:'center',gap:4}}>
+                    <Icon name="clock" size={11} color="white" />
+                    <T bold style={{fontSize:10.5,color:'white'}}>{art.minutes} {isEn ? 'min' : 'dk'}</T>
                   </View>
                 </View>
               ) : null;
             })()}
-            <View style={{padding:12}}>
-              <T bold numberOfLines={2} style={{fontSize:13,color:colors.ink,lineHeight:18}}>{art.title}</T>
-              <T numberOfLines={1} style={{fontSize:11,color:colors.muted,marginTop:4}}>{art.subtitle}</T>
+            <View style={{padding:14}}>
+              <T bold numberOfLines={2} style={{fontSize:14,color:colors.ink,lineHeight:20}}>{art.title}</T>
+              <T numberOfLines={1} style={{fontSize:11.5,color:colors.muted,marginTop:4}}>{art.subtitle}</T>
             </View>
           </Tap>
           );
         })}
-      </ScrollView>
+      </HorizontalScroll>
     </View>
   </Page>;
 }

@@ -258,11 +258,11 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
           ? 'Complete your daily tracking first; prep, development, and newborn tools are curated below.'
           : 'Önce günlük takiplerini tamamla; hazırlık, gelişim ve bebek araçları altta ayrı koleksiyonlar halinde duruyor.'}
         icon="track"
+        asset="screen_hero_trackers_hub"
         stat={`${kickSessions.length + contractionSessions.length + weights.length} ${isEn ? 'records' : 'kayıt'}`}
         tint={colors.purple}
       />
 
-      
       {/* ─── ÜST İKİLİ SEKME (TAKİP KAYITLARIM vs TÜM ARAÇLAR) ─── */}
       <View style={th.hubTabs}>
         <Tap
@@ -270,18 +270,24 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
           label={isEn ? 'My Logs' : 'Takiplerim'}
           style={[th.hubTabBtn, hubTab === 'tracking' && th.hubTabBtnActive]}
         >
-          <T bold={hubTab === 'tracking'} style={[th.hubTabLabel, hubTab === 'tracking' && th.hubTabLabelActive]}>
-            📊 {isEn ? 'Daily Logs' : 'Günlük Kayıtlar'}
-          </T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Icon name="track" size={15} color={hubTab === 'tracking' ? colors.purple : '#8C7A96'} />
+            <T bold={hubTab === 'tracking'} style={[th.hubTabLabel, hubTab === 'tracking' && th.hubTabLabelActive]}>
+              {isEn ? 'Daily Logs' : 'Günlük Kayıtlar'}
+            </T>
+          </View>
         </Tap>
         <Tap
           onPress={() => setHubTab('apps')}
           label={isEn ? 'All Tools' : 'Tüm Araçlar'}
           style={[th.hubTabBtn, hubTab === 'apps' && th.hubTabBtnActive]}
         >
-          <T bold={hubTab === 'apps'} style={[th.hubTabLabel, hubTab === 'apps' && th.hubTabLabelActive]}>
-            🛠️ {isEn ? 'Tool Library' : 'Araç Kütüphanesi'}
-          </T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Icon name="grid" size={15} color={hubTab === 'apps' ? colors.purple : '#8C7A96'} />
+            <T bold={hubTab === 'apps'} style={[th.hubTabLabel, hubTab === 'apps' && th.hubTabLabelActive]}>
+              {isEn ? 'Tool Library' : 'Araç Kütüphanesi'}
+            </T>
+          </View>
         </Tap>
       </View>
 
@@ -483,8 +489,8 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
             </View>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 9 }}>
               {[
-                ['kickCounter', isEn ? 'Movement' : 'Hareket', 'ui_kick_foot_button', '#FAF0F5'],
-                ['contractionTimer', isEn ? 'Contractions' : 'Kasılma', 'ui_contraction_pulse_button', '#FDF1EC'],
+                ['kickCounter', isEn ? 'Movement' : 'Hareket', 'card_kick_counter', '#FAF0F5'],
+                ['contractionTimer', isEn ? 'Contractions' : 'Kasılma', 'card_contractions', '#FDF1EC'],
                 ['hospitalBag', isEn ? 'Bag' : 'Çanta', 'ui_hospital_bag_3d', '#F8F2FA'],
                 ['birthPlan', isEn ? 'Plan' : 'Plan', 'ui_birth_plan_scroll', '#F3F6F0'],
               ].map(([id, label, asset, bg]) => (

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TextInput, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Path } from 'react-native-svg';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
 import { T, Tap, Card, Section, ScreenHero, ToolExperienceCard } from './ui';
@@ -657,11 +658,13 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
   );
 }
 
-// ─── EKRAN 15: MAKALE DETAY EKRANI (LUXURY MAGAZINE EDITORIAL READER) ────────
-export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
+// ─── EKRAN 15: MAKALE DETAY EKRANI (LUXURY MAGAZINE EDITORIAL FULLSCREEN READER) ────────
+export function EditorialArticleScreen({ article, close, openArticle, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
   const [playingAudio, setPlayingAudio] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
+  const [fontSizeStep, setFontSizeStep] = useState(0); // 0: 15px, 1: 17px, 2: 19px
+  const [readProgress, setReadProgress] = useState(0);
 
   React.useEffect(() => {
     return () => {
@@ -711,227 +714,332 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
   const displaySubtitle = isEn ? (a.subtitleEn || a.subtitle) : a.subtitle;
   const displayKeyPoints = isEn ? (a.keyPointsEn || a.keyPoints) : a.keyPoints;
 
+  const fontSizes = [
+    { p: 15, lh: 24, h: 17 },
+    { p: 17, lh: 27, h: 19 },
+    { p: 19, lh: 30, h: 21 },
+  ];
+  const currentFont = fontSizes[fontSizeStep];
+
   return (
-    <View style={es.container}>
-      {/* 1. Büyük Editoryal Kapak (16:9 Hero Image with Vignette Gradient) */}
-      <View style={es.articleCoverBox}>
-        {coverAsset ? (
-          <Image source={coverAsset} style={es.fitImage} resizeMode="contain" />
-        ) : (
-          <LinearGradient colors={['#9A779A', '#664566']} style={StyleSheet.absoluteFill} />
-        )}
-        <LinearGradient
-          colors={['transparent', 'rgba(22, 10, 26, 0.45)', 'rgba(18, 9, 22, 0.92)']}
-          style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 180 }}
-        />
-        <View style={es.coverMeta}>
-          <View style={es.coverBadgeRow}>
-            <View style={es.categoryPill}>
+    <View style={es.fullscreenReaderRoot}>
+      {/* ─── 1. STICKY TOP APP BAR (GERİ, İLERLEME ÇUBUĞU, FONT, FAVORİ) ─── */}
+      <View style={es.readerTopBar}>
+        {/* Okuma İlerleme Çizgisi (%0 -> %100) */}
+        <View style={es.progressBarTrack}>
+          <View style={[es.progressBarFill, { width: `${readProgress}%` }]} />
+        </View>
+
+        <View style={es.readerTopBarRow}>
+          <Tap
+            onPress={() => {
+              stopSpeech();
+              close && close();
+            }}
+            label={isEn ? "Back" : "Geri"}
+            style={es.readerBackBtn}
+          >
+            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+              <Path d="M19 12H5M12 19l-7-7 7-7" stroke={colors.ink} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+            <T bold style={{ fontSize: 13.5, color: colors.ink }}>{isEn ? 'Back' : 'Geri'}</T>
+          </Tap>
+
+          <View style={es.readerTopCenter}>
+            <T bold numberOfLines={1} style={{ fontSize: 11, color: colors.purple, letterSpacing: 0.6 }}>
+              {isEn ? (a.categoryNameEn || 'EDITORIAL GUIDE') : (a.categoryName ? a.categoryName.toLocaleUpperCase('tr') : 'EDİTORYAL REHBER')}
+            </T>
+            <T numberOfLines={1} style={{ fontSize: 10.5, color: colors.muted, marginTop: 1 }}>
+              %{Math.round(readProgress)} {isEn ? 'read' : 'okundu'}
+            </T>
+          </View>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            {/* Aa Yazı Boyutu Butonu */}
+            <Tap
+              onPress={() => {
+                const next = (fontSizeStep + 1) % 3;
+                setFontSizeStep(next);
+                toast && toast(
+                  next === 0
+                    ? (isEn ? 'Font: Standard' : 'Yazı Boyutu: Standart')
+                    : next === 1
+                    ? (isEn ? 'Font: Medium' : 'Yazı Boyutu: Orta')
+                    : (isEn ? 'Font: Large' : 'Yazı Boyutu: Büyük')
+                );
+              }}
+              label="Font Size"
+              style={es.readerActionBtn}
+            >
+              <T bold style={{ fontSize: fontSizeStep === 0 ? 12 : fontSizeStep === 1 ? 14 : 16, color: colors.purple }}>
+                Aa
+              </T>
+            </Tap>
+
+            {/* Favoriye Ekle / Kaydet */}
+            <Tap
+              onPress={() => {
+                setBookmarked(!bookmarked);
+                toast && toast(bookmarked ? (isEn ? 'Removed from saved' : 'Kaydedilenlerden kaldırıldı') : (isEn ? 'Saved to reading list 🔖' : 'Okuma listene kaydedildi 🔖'));
+              }}
+              label="Bookmark"
+              style={es.readerActionBtn}
+            >
+              <Icon name="book" size={17} color={bookmarked ? colors.purple : colors.muted} />
+            </Tap>
+          </View>
+        </View>
+      </View>
+
+      {/* ─── 2. SÜRÜKLEYİCİ MAKALE İÇERİĞİ (SCROLL VIEW) ─── */}
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={es.readerScrollContent}
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        onScroll={(e) => {
+          const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
+          const maxScroll = Math.max(1, contentSize.height - layoutMeasurement.height);
+          const percent = Math.min(100, Math.max(0, (contentOffset.y / maxScroll) * 100));
+          setReadProgress(percent);
+        }}
+      >
+        {/* Tam Genişlikte Kapak Fotoğrafı (Sıfır Kırpılma, Doğal Oran) */}
+        <View style={es.fullscreenCoverBox}>
+          {coverAsset ? (
+            <Image source={coverAsset} style={es.fitImage} resizeMode="contain" />
+          ) : (
+            <LinearGradient colors={['#9A779A', '#664566']} style={StyleSheet.absoluteFill} />
+          )}
+        </View>
+
+        {/* Porselen Beyaz Editoryal Başlık Bloğu */}
+        <View style={es.readerHeaderBody}>
+          <View style={es.readerBadgeRow}>
+            <View style={es.readerCatBadge}>
               <T bold style={{ fontSize: 10, color: colors.purple, letterSpacing: 0.8 }}>
                 {isEn ? (a.categoryNameEn || a.categoryName || 'EDITORIAL GUIDE') : (a.categoryName ? a.categoryName.toLocaleUpperCase('tr') : 'EDİTORYAL REHBER')}
               </T>
             </View>
-            <View style={es.readingTimePill}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Icon name="clock" size={11} color="white" /><T style={{ fontSize: 11, color: 'white' }}>{readingTime}</T></View>
+            <View style={es.readerTimeBadge}>
+              <Icon name="clock" size={12} color={colors.muted} />
+              <T style={{ fontSize: 11.5, color: colors.muted }}>{readingTime}</T>
             </View>
           </View>
-          <T bold style={es.articleTitle}>{displayTitle}</T>
-          <T style={es.articleCoverSub}>{displaySubtitle}</T>
-        </View>
-      </View>
 
-      {/* 2. Kaynak Notu & Yer İmleri Butonu */}
-      <Card style={es.doctorCard}>
-        <View style={es.docAvatar}>
-          <Icon name="book" size={20} color={colors.purple} />
+          <T bold style={es.readerMainTitle}>{displayTitle}</T>
+          {displaySubtitle ? <T style={es.readerMainSub}>{displaySubtitle}</T> : null}
         </View>
-        <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-            <T bold style={{ fontSize: 13.5, color: colors.ink }}>{isEn ? 'Editorial Source Note' : 'Editoryal Kaynak Notu'}</T>
-            <T style={{ fontSize: 12, color: colors.purple }}>✓</T>
-          </View>
-          <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2 }}>{doctorName}</T>
-        </View>
-        <Tap
-          onPress={() => {
-            setBookmarked(!bookmarked);
-            toast && toast(bookmarked ? (isEn ? 'Removed from bookmarks' : 'Yer imlerinden kaldırıldı') : (isEn ? 'Article bookmarked 🔖' : 'Makale kaydedildi 🔖'));
-          }}
-          label={isEn ? "Bookmark" : "Kaydet"}
-          style={es.bookmarkBtn}
-        >
-          <Icon name="book" size={20} color={bookmarked ? colors.purple : colors.muted} />
-        </Tap>
-      </Card>
 
-      {/* 3. Momora Audio: Sesli Dinleme (Gerçek Text-to-Speech Motoru) */}
-      <Card style={es.audioBar}>
-        <Tap
-          onPress={() => {
-            if (playingAudio) {
-              stopSpeech();
-              setPlayingAudio(false);
-              toast && toast(isEn ? 'Audio narration paused' : 'Sesli okuma durduruldu');
-            } else {
-              const fullSpeechText = compileArticleSpeechText(a, lang);
-              setPlayingAudio(true);
-              speakText(fullSpeechText, {
-                lang,
-                rate: 0.92,
-                pitch: 1.0,
-                onStart: () => setPlayingAudio(true),
-                onDone: () => setPlayingAudio(false),
-                onError: () => setPlayingAudio(false),
-              });
-              toast && toast(isEn ? '🎙️ Reading article aloud...' : '🎙️ Makale sesli okunuyor...');
-            }
-          }}
-          label={isEn ? (playingAudio ? "Pause narration" : "Listen to article") : (playingAudio ? "Sesli okumayı durdur" : "Yazıyı sesli dinle")}
-          style={es.audioPlayBtn}
-        >
-          <T style={{ fontSize: 15 }}>{playingAudio ? '⏸️' : '▶️'}</T>
-        </Tap>
-        <View style={{ flex: 1, marginLeft: 14 }}>
-          <T bold style={{ fontSize: 13, color: colors.ink }}>
-            {isEn ? 'Momora Text-to-Speech' : 'Momora Sesli Dinleme'}
-          </T>
-          <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-            {playingAudio
-              ? (isEn ? 'Reading article aloud...' : 'Yazı seslendiriliyor...')
-              : `${a.audioDuration || (a.minutes ? `${a.minutes}:00` : '3:45')} · ${isEn ? 'AI Narrator' : 'Yapay Zeka Seslendirme'}`}
-          </T>
-          {/* Dalga Formu / Waveform Görselleştirmesi */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 6 }}>
-            {[8, 14, 20, 12, 18, 10, 16, 22, 14, 8, 12].map((h, i) => (
-              <View
-                key={i}
-                style={{
-                  width: 3,
-                  height: playingAudio ? (i % 2 === 0 ? h : h * 0.7) : 5,
-                  borderRadius: 2,
-                  backgroundColor: playingAudio ? colors.purple : '#D8CCD8',
-                }}
-              />
-            ))}
-          </View>
-        </View>
-        <Tap
-          onPress={() => toast && toast(isEn ? 'Article link copied 🔗' : 'Makale bağlantısı kopyalandı 🔗')}
-          label={isEn ? "Share" : "Paylaş"}
-          style={{ padding: 8 }}
-        >
-          <Icon name="heart" size={19} color={colors.purple} />
-        </Tap>
-      </Card>
-
-      {/* 4. Özetle: Önemli Noktalar Kartı */}
-      {displayKeyPoints && displayKeyPoints.length > 0 && (
-        <Card style={es.keyPointsCard}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 }}>
-            <Icon name="sparkle" size={16} color={colors.purple} />
-            <T bold style={{ fontSize: 13.5, color: colors.purple, letterSpacing: 0.5 }}>
-              {isEn ? 'IN BRIEF: KEY TAKEAWAYS' : 'ÖZETLE: ÖNE ÇIKAN NOKTALAR'}
-            </T>
-          </View>
-          {displayKeyPoints.map((kp, idx) => (
-            <View key={idx} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 9, marginTop: 6 }}>
-              <T style={{ color: colors.purple, fontSize: 14, marginTop: 1 }}>•</T>
-              <T style={{ fontSize: 13.5, color: colors.ink, lineHeight: 20, flex: 1 }}>{kp}</T>
+        {/* İçerik Kartları & Gövde */}
+        <View style={es.readerContentWrap}>
+          {/* Kaynak Notu & Doktor Bilgisi */}
+          <Card style={es.doctorCard}>
+            <View style={es.docAvatar}>
+              <Icon name="book" size={20} color={colors.purple} />
             </View>
-          ))}
-        </Card>
-      )}
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                <T bold style={{ fontSize: 13.5, color: colors.ink }}>{isEn ? 'Editorial Source Note' : 'Editoryal Kaynak Notu'}</T>
+                <T style={{ fontSize: 12, color: colors.purple }}>✓</T>
+              </View>
+              <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2 }}>{doctorName}</T>
+            </View>
+          </Card>
 
-      {/* 5. Makale Bölümleri & Geniş Editoryal Görseller (16:9) */}
-      <View style={{ gap: 16 }}>
-        {a.sections ? (
-          a.sections.map((sec, idx) => {
-            const inlineAsset = sec.image && (generatedAssets[sec.image] || getAsset(sec.image));
-            const secTitle = isEn ? (sec.titleEn || sec.title) : sec.title;
-            const secText = isEn ? (sec.textEn || sec.text) : sec.text;
-            const secTip = isEn ? (sec.tipEn || sec.tip) : sec.tip;
-            const secCaption = isEn ? (sec.captionEn || sec.caption || `${secTitle} visual guide`) : (sec.caption || `${secTitle} görsel rehberi`);
-            return (
-              <Card key={idx} style={{ padding: 18 }}>
-                {/* Bölüm Başlığı & Numara Rozeti */}
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                  <View style={es.sectionNumberBadge}>
-                    <T bold style={{ fontSize: 11, color: colors.purple }}>{String(idx + 1).padStart(2, '0')}</T>
-                  </View>
-                  <T bold style={{ fontSize: 17, color: colors.ink, lineHeight: 23, flex: 1 }}>
-                    {secTitle}
-                  </T>
+          {/* Momora Audio: Sesli Dinleme */}
+          <Card style={es.audioBar}>
+            <Tap
+              onPress={() => {
+                if (playingAudio) {
+                  stopSpeech();
+                  setPlayingAudio(false);
+                  toast && toast(isEn ? 'Audio narration paused' : 'Sesli okuma durduruldu');
+                } else {
+                  const fullSpeechText = compileArticleSpeechText(a, lang);
+                  setPlayingAudio(true);
+                  speakText(fullSpeechText, {
+                    lang,
+                    rate: 0.92,
+                    pitch: 1.0,
+                    onStart: () => setPlayingAudio(true),
+                    onDone: () => setPlayingAudio(false),
+                    onError: () => setPlayingAudio(false),
+                  });
+                  toast && toast(isEn ? '🎙️ Reading article aloud...' : '🎙️ Makale sesli okunuyor...');
+                }
+              }}
+              label={isEn ? (playingAudio ? "Pause narration" : "Listen to article") : (playingAudio ? "Sesli okumayı durdur" : "Yazıyı sesli dinle")}
+              style={es.audioPlayBtn}
+            >
+              <T style={{ fontSize: 15 }}>{playingAudio ? '⏸️' : '▶️'}</T>
+            </Tap>
+            <View style={{ flex: 1, marginLeft: 14 }}>
+              <T bold style={{ fontSize: 13, color: colors.ink }}>
+                {isEn ? 'Momora Text-to-Speech' : 'Momora Sesli Dinleme'}
+              </T>
+              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                {playingAudio
+                  ? (isEn ? 'Reading article aloud...' : 'Yazı seslendiriliyor...')
+                  : `${a.audioDuration || (a.minutes ? `${a.minutes}:00` : '3:45')} · ${isEn ? 'AI Narrator' : 'Yapay Zeka Seslendirme'}`}
+              </T>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 6 }}>
+                {[8, 14, 20, 12, 18, 10, 16, 22, 14, 8, 12].map((h, i) => (
+                  <View
+                    key={i}
+                    style={{
+                      width: 3,
+                      height: playingAudio ? (i % 2 === 0 ? h : h * 0.7) : 5,
+                      borderRadius: 2,
+                      backgroundColor: playingAudio ? colors.purple : '#D8CCD8',
+                    }}
+                  />
+                ))}
+              </View>
+            </View>
+            <Tap
+              onPress={() => toast && toast(isEn ? 'Article link copied 🔗' : 'Makale bağlantısı kopyalandı 🔗')}
+              label={isEn ? "Share" : "Paylaş"}
+              style={{ padding: 8 }}
+            >
+              <Icon name="heart" size={19} color={colors.purple} />
+            </Tap>
+          </Card>
+
+          {/* Özet: Önemli Noktalar Kartı */}
+          {displayKeyPoints && displayKeyPoints.length > 0 && (
+            <Card style={es.keyPointsCard}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 }}>
+                <Icon name="sparkle" size={16} color={colors.purple} />
+                <T bold style={{ fontSize: 13.5, color: colors.purple, letterSpacing: 0.5 }}>
+                  {isEn ? 'IN BRIEF: KEY TAKEAWAYS' : 'ÖZETLE: ÖNE ÇIKAN NOKTALAR'}
+                </T>
+              </View>
+              {displayKeyPoints.map((kp, idx) => (
+                <View key={idx} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 9, marginTop: 6 }}>
+                  <T style={{ color: colors.purple, fontSize: 14, marginTop: 1 }}>•</T>
+                  <T style={{ fontSize: currentFont.p - 1, color: colors.ink, lineHeight: currentFont.lh - 3, flex: 1 }}>{kp}</T>
                 </View>
+              ))}
+            </Card>
+          )}
 
-                {/* 16:9 Geniş Fotoğraf ve İtalyan Altyazı Kartı */}
-                {inlineAsset && (
-                  <View style={es.inlineFigureBox}>
-                    <View style={es.inlineImgFrame}>
-                      <Image source={inlineAsset} style={es.fitImage} resizeMode="contain" />
-                    </View>
-                    <View style={es.inlineCaptionRow}>
-                      <Icon name="search" size={12} color="#7E6D82" style={{ marginRight: 5 }} />
-                      <T style={es.inlineCaptionText}>
-                        {secCaption}
+          {/* Makale Bölümleri & Geniş Görseller (16:9) */}
+          <View style={{ gap: 16 }}>
+            {a.sections ? (
+              a.sections.map((sec, idx) => {
+                const inlineAsset = sec.image && (generatedAssets[sec.image] || getAsset(sec.image));
+                const secTitle = isEn ? (sec.titleEn || sec.title) : sec.title;
+                const secText = isEn ? (sec.textEn || sec.text) : sec.text;
+                const secTip = isEn ? (sec.tipEn || sec.tip) : sec.tip;
+                const secCaption = isEn ? (sec.captionEn || sec.caption || `${secTitle} visual guide`) : (sec.caption || `${secTitle} görsel rehberi`);
+                return (
+                  <Card key={idx} style={{ padding: 18 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                      <View style={es.sectionNumberBadge}>
+                        <T bold style={{ fontSize: 11, color: colors.purple }}>{String(idx + 1).padStart(2, '0')}</T>
+                      </View>
+                      <T bold style={{ fontSize: currentFont.h, color: colors.ink, lineHeight: currentFont.h * 1.35, flex: 1 }}>
+                        {secTitle}
                       </T>
                     </View>
-                  </View>
-                )}
 
-                {/* Paragraf Metni */}
-                <T style={es.articleP}>
-                  {secText}
-                </T>
+                    {inlineAsset && (
+                      <View style={es.inlineFigureBox}>
+                        <View style={es.inlineImgFrame}>
+                          <Image source={inlineAsset} style={es.fitImage} resizeMode="contain" />
+                        </View>
+                        <View style={es.inlineCaptionRow}>
+                          <Icon name="search" size={12} color="#7E6D82" style={{ marginRight: 5 }} />
+                          <T style={es.inlineCaptionText}>
+                            {secCaption}
+                          </T>
+                        </View>
+                      </View>
+                    )}
 
-                {/* Kaynak İpucu / Uyarı Kutusu */}
-                {secTip && (
-                  <View style={[
-                    es.clinicTipBox,
-                    secTip.includes('⚠️') && es.clinicWarningBox
-                  ]}>
-                    <T style={[
-                      es.clinicTipText,
-                      secTip.includes('⚠️') && { color: '#99352A' }
-                    ]}>
-                      {secTip}
+                    <T style={[es.articleP, { fontSize: currentFont.p, lineHeight: currentFont.lh }]}>
+                      {secText}
                     </T>
-                  </View>
-                )}
-              </Card>
-            );
-          })
-        ) : a.paragraphs ? (
-          a.paragraphs.map((p, idx) => (
-            <Card key={idx} style={{ padding: 16 }}>
-              <T style={es.articleP}>{p}</T>
-            </Card>
-          ))
-        ) : null}
-      </View>
 
-      {/* 6. Benzer Rehberler */}
-      {relatedArticles.length > 0 && (
-        <View style={{ marginTop: 14, gap: 11 }}>
-          <Section title={isEn ? "Related Guides" : "Konuyla İlgili Diğer Rehberler"} />
-          {relatedArticles.map(rel => (
+                    {secTip && (
+                      <View style={[
+                        es.clinicTipBox,
+                        secTip.includes('⚠️') && es.clinicWarningBox
+                      ]}>
+                        <T style={[
+                          es.clinicTipText,
+                          secTip.includes('⚠️') && { color: '#99352A' }
+                        ]}>
+                          {secTip}
+                        </T>
+                      </View>
+                    )}
+                  </Card>
+                );
+              })
+            ) : a.paragraphs ? (
+              a.paragraphs.map((p, idx) => (
+                <Card key={idx} style={{ padding: 16 }}>
+                  <T style={[es.articleP, { fontSize: currentFont.p, lineHeight: currentFont.lh }]}>{p}</T>
+                </Card>
+              ))
+            ) : null}
+          </View>
+
+          {/* Benzer Rehberler */}
+          {relatedArticles.length > 0 && (
+            <View style={{ marginTop: 14, gap: 11 }}>
+              <Section title={isEn ? "Related Guides" : "Konuyla İlgili Diğer Rehberler"} />
+              {relatedArticles.map(rel => (
+                <Tap
+                  key={rel.id}
+                  onPress={() => {
+                    if (openArticle) {
+                      openArticle(rel);
+                    } else {
+                      toast && toast(isEn ? `Opening "${rel.title}"...` : `"${rel.title}" açılıyor...`);
+                    }
+                  }}
+                  label={rel.title}
+                  style={es.relatedCard}
+                >
+                  {generatedAssets[rel.image] && (
+                    <Image source={generatedAssets[rel.image]} style={es.relatedImg} resizeMode="contain" />
+                  )}
+                  <View style={{ flex: 1 }}>
+                    <T bold numberOfLines={1} style={{ fontSize: 13.5, color: colors.ink }}>{rel.title}</T>
+                    <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 4 }}>⏱️ {rel.minutes} {isEn ? 'min read' : 'dk okuma'}</T>
+                  </View>
+                  <Icon name="chevron" size={16} color={colors.purple} />
+                </Tap>
+              ))}
+            </View>
+          )}
+
+          {/* 7. Okuma Tamamlama & Kapatma Kartı */}
+          <Card style={es.completionCard}>
+            <T style={{ fontSize: 26 }}>🌸</T>
+            <T bold style={{ fontSize: 16.5, color: colors.ink, marginTop: 6 }}>
+              {isEn ? 'You finished this guide!' : 'Bu rehberi tamamladın!'}
+            </T>
+            <T style={{ fontSize: 12.5, color: colors.muted, textAlign: 'center', marginTop: 4, lineHeight: 18 }}>
+              {isEn ? 'Gentle daily knowledge brings confidence throughout pregnancy.' : 'Bilgi, hamilelik yolculuğuna sakinlik ve güven katar.'}
+            </T>
             <Tap
-              key={rel.id}
-              onPress={() => toast && toast(isEn ? `Opening "${rel.title}"...` : `"${rel.title}" açılıyor...`)}
-              label={rel.title}
-              style={es.relatedCard}
+              onPress={() => {
+                stopSpeech();
+                close && close();
+              }}
+              style={es.backToExploreBtn}
             >
-              {generatedAssets[rel.image] && (
-                <Image source={generatedAssets[rel.image]} style={es.relatedImg} resizeMode="contain" />
-              )}
-              <View style={{ flex: 1 }}>
-                <T bold numberOfLines={1} style={{ fontSize: 13.5, color: colors.ink }}>{rel.title}</T>
-                <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 4 }}>⏱️ {rel.minutes} {isEn ? 'min read' : 'dk okuma'}</T>
-              </View>
-              <Icon name="chevron" size={16} color={colors.purple} />
+              <T bold style={{ fontSize: 14, color: 'white' }}>
+                {isEn ? '← Return to Explore & Magazine' : '← Keşfet & Magazin’e Dön'}
+              </T>
             </Tap>
-          ))}
+          </Card>
         </View>
-      )}
+      </ScrollView>
     </View>
   );
 }
@@ -1023,4 +1131,113 @@ const es = StyleSheet.create({
   clinicTipText: { fontSize: 12.5, color: '#634468', lineHeight: 19 },
   relatedCard: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#EAE1EB', gap: 12 },
   relatedImg: { width: 52, height: 52, borderRadius: 12, backgroundColor: '#F6F0F3' },
+  // Fullscreen Magazine Reader Styles
+  fullscreenReaderRoot: { flex: 1, backgroundColor: colors.canvas },
+  readerTopBar: {
+    backgroundColor: '#FAF6F4',
+    borderBottomWidth: 1,
+    borderColor: '#EBE2DE',
+    zIndex: 10,
+    elevation: 4,
+  },
+  progressBarTrack: { height: 3, width: '100%', backgroundColor: '#EFE5EB' },
+  progressBarFill: { height: 3, backgroundColor: colors.purple },
+  readerTopBarRow: {
+    height: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+  },
+  readerBackBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    backgroundColor: '#F3ECE9',
+  },
+  readerTopCenter: {
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  readerActionBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F3ECE9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  readerScrollContent: { paddingBottom: 48 },
+  fullscreenCoverBox: {
+    width: '100%',
+    aspectRatio: 640 / 349,
+    backgroundColor: '#F4ECEF',
+    overflow: 'hidden',
+  },
+  readerHeaderBody: {
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 10,
+  },
+  readerBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  readerCatBadge: {
+    backgroundColor: '#F4EDF6',
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  readerTimeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#F0ECE8',
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  readerMainTitle: {
+    fontSize: 22,
+    color: '#25172A',
+    lineHeight: 30,
+    letterSpacing: -0.3,
+  },
+  readerMainSub: {
+    fontSize: 13.5,
+    color: '#655A6B',
+    marginTop: 6,
+    lineHeight: 20,
+  },
+  readerContentWrap: {
+    paddingHorizontal: 18,
+    gap: 14,
+    marginTop: 8,
+  },
+  completionCard: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 22,
+    marginTop: 10,
+    backgroundColor: '#FBF6FA',
+    borderWidth: 1,
+    borderColor: '#EFE3EE',
+  },
+  backToExploreBtn: {
+    backgroundColor: colors.purple,
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 22,
+    marginTop: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadow,
+  },
 });

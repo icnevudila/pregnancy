@@ -62,6 +62,25 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
     dailyMood: [isEn ? 'Start with yourself' : 'Önce kendini dinle', isEn ? ['Pick the closest feeling.', 'Add a small note if needed.', 'Continue the day with one gentle cue.'] : ['Sana en yakın hissi seç.', 'Gerekirse küçük not ekle.', 'Güne tek nazik ipucuyla devam et.'], 'mood_good', '#B66C7E'],
     notifications: [isEn ? 'Notification & Alert Center' : 'Bildirim & Hatırlatıcı Merkezi', isEn ? ['Manage clinical reminders.', 'Choose your preferred times.', 'Send instant test alerts.'] : ['Klinik hatırlatıcıları yönet.', 'Tercih ettiğin saatleri belirle.', 'Canlı test bildirimleri gönder.'], 'settings_notification_bell', '#7E4E8A'],
   }[kind];
+
+  if (kind === 'editorialArticle') {
+    return (
+      <Modal visible transparent animationType="slide" onRequestClose={close}>
+        <View style={s.fullscreenBackdrop}>
+          <View style={s.fullscreenReader}>
+            <EditorialArticleScreen
+              article={data?.article}
+              close={close}
+              toast={toast}
+              lang={lang}
+              openArticle={(newArt) => open('editorialArticle', { article: newArt })}
+            />
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
   return <Modal visible transparent animationType="fade" onRequestClose={close}><KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':undefined} style={s.backdrop}><Tap label="Pencereyi kapat" style={StyleSheet.absoluteFill} onPress={close}/><View style={s.sheet}><View style={s.handle}/><View style={s.heading}><View style={{flex:1}}><T style={s.kicker}>MOMORA · {isEn ? 'WITH YOU' : 'YANINDA'}</T><T bold style={s.title}>{sheetTitle}</T>{premiumSheetIntro&&<T style={{fontSize:12.5,color:colors.muted,marginTop:3}}>{premiumSheetIntro[0]}</T>}</View><Tap onPress={close} label="Kapat" style={s.close}><Icon name="close" size={22}/></Tap></View><ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{paddingBottom:28}} showsVerticalScrollIndicator={false}>
     {kind==='journey'&&journeys.map(j=><Tap key={j.key} onPress={()=>{choose(j.key);close()}} style={s.option}><T bold style={{flex:1}}>{j.title.replace('\n',' ')}</T><Icon name="chevron"/></Tap>)}
     {kind==='profile'&&<ProfileScreen state={state} update={update} open={open} toast={toast} choose={choose} close={close} lang={lang}/>}
@@ -220,7 +239,6 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
     {/* Modül 3: Keşfet & Makale */}
     {kind==='foodSafety'&&<FoodSafetyChecker toast={toast} lang={lang}/>}
     {kind==='topicHub'&&<TopicHubScreen openArticle={(article)=>open('editorialArticle', {article})} openFoodChecker={()=>open('foodSafety')} lang={lang}/>}
-    {kind==='editorialArticle'&&<EditorialArticleScreen article={data?.article} toast={toast} lang={lang}/>}
     {/* Modül 4: Bugün & Günlük Akış */}
     {kind==='babyLetter'&&<DailyBabyLetterScreen state={state} toast={toast} lang={lang}/>}
     {kind==='timelineFeed'&&<DailyTimelineFeed lang={lang}/>}
@@ -237,7 +255,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
     {!!error&&<T accessibilityRole="alert" style={{color:'#A95769',marginTop:12}}>{error}</T>}
     </ScrollView></View></KeyboardAvoidingView></Modal>;
 }
-const s=StyleSheet.create({backdrop:{flex:1,backgroundColor:'#211A304D',alignItems:'center',justifyContent:'flex-end'},sheet:{width:'100%',maxWidth:440,maxHeight:'86%',backgroundColor:colors.canvas,borderTopLeftRadius:30,borderTopRightRadius:30,paddingHorizontal:24},handle:{height:4,width:40,borderRadius:3,backgroundColor:'#D9CDD7',alignSelf:'center',marginTop:10,marginBottom:23},heading:{flexDirection:'row',alignItems:'center',gap:12,paddingBottom:17,borderBottomWidth:1,borderColor:colors.line},kicker:{fontSize:10,letterSpacing:2,color:colors.purple,marginBottom:8},title:{fontSize:23},close:{height:38,width:38,borderRadius:19,alignItems:'center',justifyContent:'center',backgroundColor:'#F1EAEF'},body:{fontSize:15,color:'#787080',lineHeight:23,marginTop:12},label:{fontSize:14,marginBottom:8},input:{fontFamily:fonts.regular,fontSize:16,color:colors.ink,padding:14,borderWidth:1,borderColor:'#DED2DB',borderRadius:15,backgroundColor:'#FFFDFA',outlineStyle:'none'},button:{backgroundColor:colors.purple,borderRadius:18,minHeight:50,alignItems:'center',justifyContent:'center',marginTop:16,padding:12},secondary:{backgroundColor:'#F0E8F2'},option:{flexDirection:'row',alignItems:'center',padding:18,backgroundColor:'#F2EAEE',borderRadius:17,marginTop:13},profileHeader:{flexDirection:'row',alignItems:'center',gap:12,marginVertical:12},helper:{fontSize:12,color:colors.muted,lineHeight:19,marginTop:16},chips:{flexDirection:'row',gap:10,marginTop:18},chip:{padding:14,borderRadius:16,borderWidth:1,borderColor:colors.line},chipSelected:{backgroundColor:'#E7D8EB',borderColor:'#B89DC0'}});
+const s=StyleSheet.create({fullscreenBackdrop:{flex:1,backgroundColor:'#1E142433',alignItems:'center',justifyContent:'center'},fullscreenReader:{flex:1,width:'100%',maxWidth:500,backgroundColor:colors.canvas,overflow:'hidden'},backdrop:{flex:1,backgroundColor:'#211A304D',alignItems:'center',justifyContent:'flex-end'},sheet:{width:'100%',maxWidth:440,maxHeight:'86%',backgroundColor:colors.canvas,borderTopLeftRadius:30,borderTopRightRadius:30,paddingHorizontal:24},handle:{height:4,width:40,borderRadius:3,backgroundColor:'#D9CDD7',alignSelf:'center',marginTop:10,marginBottom:23},heading:{flexDirection:'row',alignItems:'center',gap:12,paddingBottom:17,borderBottomWidth:1,borderColor:colors.line},kicker:{fontSize:10,letterSpacing:2,color:colors.purple,marginBottom:8},title:{fontSize:23},close:{height:38,width:38,borderRadius:19,alignItems:'center',justifyContent:'center',backgroundColor:'#F1EAEF'},body:{fontSize:15,color:'#787080',lineHeight:23,marginTop:12},label:{fontSize:14,marginBottom:8},input:{fontFamily:fonts.regular,fontSize:16,color:colors.ink,padding:14,borderWidth:1,borderColor:'#DED2DB',borderRadius:15,backgroundColor:'#FFFDFA',outlineStyle:'none'},button:{backgroundColor:colors.purple,borderRadius:18,minHeight:50,alignItems:'center',justifyContent:'center',marginTop:16,padding:12},secondary:{backgroundColor:'#F0E8F2'},option:{flexDirection:'row',alignItems:'center',padding:18,backgroundColor:'#F2EAEE',borderRadius:17,marginTop:13},profileHeader:{flexDirection:'row',alignItems:'center',gap:12,marginVertical:12},helper:{fontSize:12,color:colors.muted,lineHeight:19,marginTop:16},chips:{flexDirection:'row',gap:10,marginTop:18},chip:{padding:14,borderRadius:16,borderWidth:1,borderColor:colors.line},chipSelected:{backgroundColor:'#E7D8EB',borderColor:'#B89DC0'}});
 const ds=StyleSheet.create({
   weekFruitBox:{flexDirection:'row',alignItems:'center',gap:16,marginTop:16,padding:16,backgroundColor:'#F7F0FA',borderRadius:20},
   weekFruitInfo:{flex:1},

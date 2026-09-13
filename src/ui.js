@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Text, View, Pressable, StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { Text, View, Pressable, StyleSheet, ScrollView, Image, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Path, Line, Rect } from 'react-native-svg';
 import { colors, fonts, shadow } from './theme';
@@ -108,6 +108,75 @@ export function RoundButton({ icon = 'chevron', onPress, label, style }) {
 export function Section({ title, action, onPress }) {
   return <View style={s.section}><T bold style={{ fontSize: 17 }}>{title}</T>{action && <Tap onPress={onPress} style={s.inline}><T style={s.meta}>{action}</T><Icon name="chevron" size={14} color={colors.muted}/></Tap>}</View>;
 }
+
+export const HorizontalScroll = React.forwardRef(({ children, style, contentContainerStyle, ...props }, ref) => {
+  const internalRef = useRef(null);
+  const scrollRef = ref || internalRef;
+  const isDown = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const el = scrollRef.current?.getScrollableNode ? scrollRef.current.getScrollableNode() : scrollRef.current;
+    if (!el) return;
+
+    const handleMouseDown = (e) => {
+      if (e.button !== 0) return;
+      isDown.current = true;
+      startX.current = e.pageX - el.offsetLeft;
+      scrollLeft.current = el.scrollLeft;
+      el.style.cursor = 'grabbing';
+      el.style.userSelect = 'none';
+    };
+
+    const handleMouseMove = (e) => {
+      if (!isDown.current) return;
+      e.preventDefault();
+      const x = e.pageX - el.offsetLeft;
+      const walk = (x - startX.current) * 1.35;
+      el.scrollLeft = scrollLeft.current - walk;
+    };
+
+    const handleMouseUp = () => {
+      if (!isDown.current) return;
+      isDown.current = false;
+      el.style.cursor = 'grab';
+      el.style.removeProperty('user-select');
+    };
+
+    const handleWheel = (e) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && e.deltaY !== 0) {
+        el.scrollLeft += e.deltaY * 0.8;
+      }
+    };
+
+    el.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    el.addEventListener('wheel', handleWheel, { passive: true });
+
+    return () => {
+      el.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      el.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
+
+  return (
+    <ScrollView
+      ref={scrollRef}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={contentContainerStyle}
+      style={[{ cursor: Platform.OS === 'web' ? 'grab' : undefined }, style]}
+      {...props}
+    >
+      {children}
+    </ScrollView>
+  );
+});
 export function Tabs({ items, active, onChange }) {
   return <View style={s.tabs}>{items.map(item => <Tap key={item} onPress={() => onChange(item)} accessibilityState={{ selected: active === item }} style={[s.tab, active === item && { backgroundColor: colors.purple }]}><T style={[s.tabText, active === item && { color: 'white' }]}>{item}</T></Tap>)}</View>;
 }
@@ -133,23 +202,23 @@ export function MoodPicker({ postpartum, value, onChange, lang = 'tr' }) {
     </View>
   );
 }
-export function LanguageToggle({ lang = 'tr', onChange, style }) {
+export function LanguageToggle({ lang = 'tr', onChange, style, compact = false }) {
   const isEn = lang === 'en';
   return (
-    <View style={[s.langPill, style]}>
+    <View style={[s.langPill, compact && { padding: 2, borderRadius: 11 }, style]}>
       <Tap
         onPress={() => onChange && onChange('tr')}
         label="Türkçe"
-        style={[s.langBtn, !isEn && s.langBtnActive]}
+        style={[s.langBtn, compact && { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 9 }, !isEn && s.langBtnActive]}
       >
-        <T bold={!isEn} style={[s.langText, !isEn && s.langTextActive]}>TR</T>
+        <T bold={!isEn} style={[s.langText, compact && { fontSize: 11 }, !isEn && s.langTextActive]}>TR</T>
       </Tap>
       <Tap
         onPress={() => onChange && onChange('en')}
         label="English"
-        style={[s.langBtn, isEn && s.langBtnActive]}
+        style={[s.langBtn, compact && { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 9 }, isEn && s.langBtnActive]}
       >
-        <T bold={isEn} style={[s.langText, isEn && s.langTextActive]}>EN</T>
+        <T bold={isEn} style={[s.langText, compact && { fontSize: 11 }, isEn && s.langTextActive]}>EN</T>
       </Tap>
     </View>
   );

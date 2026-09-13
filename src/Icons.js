@@ -46,6 +46,7 @@ const paths = {
   clock: 'M12 2A10 10 0 1 0 22 12 10 10 0 0 0 12 2ZM12 6V12L16 14',
   sparkle: 'M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z',
   folder: 'M22 19A2 2 0 0 1 20 21H4A2 2 0 0 1 2 19V5A2 2 0 0 1 4 3H9L11 6H20A2 2 0 0 1 22 8Z',
+  camera: 'M23 19A2 2 0 0 1 21 21H3A2 2 0 0 1 1 19V8A2 2 0 0 1 3 6H7L9 3H15L17 6H21A2 2 0 0 1 23 8ZM12 17A4 4 0 1 0 12 9A4 4 0 0 0 12 17Z',
 };
 
 export function Icon({ name, size = 24, color = colors.ink, fill = 'none', strokeWidth = 1.55, ...props }) {

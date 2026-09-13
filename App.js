@@ -128,13 +128,24 @@ function Momora() {
     };
   }, [state.user?.id]);
 
-  const props={state,update,addRecord,open,cloudStatus,refreshFromCloud,lang};
+  const props={state,update,addRecord,open,cloudStatus,refreshFromCloud,lang,choose,setPage};
   const renderPage=()=>{switch(active){case'pregnancy':return <Pregnancy {...props}/>;case'tools':return <ToolsHub {...props} toast={setNotice}/>;case'postpartum':return <Postpartum {...props}/>;case'baby':return <Baby {...props}/>;case'discover':return <Discover {...props}/>;case'assistant':return <Assistant {...props} toast={setNotice}/>;case'profile':return <ProfileScreen {...props} toast={setNotice} choose={choose}/>;case'auth':return <AuthModal close={()=>setPage(state.mode||'pregnancy')} toast={setNotice} onAuthSuccess={u=>{update({user:u});if(u?.user_metadata?.full_name)update({name:u.user_metadata.full_name});setPage(state.mode||'pregnancy');}} lang={lang}/>;default:return <Onboarding choose={choose} update={update} toast={setNotice} lang={lang}/>}};
   return <View style={[s.root,desktop&&s.desktop]}>
     {desktop&&<View style={s.sidebar}><View style={s.desktopBrand}><BrandMark size={55}/><T style={s.desktopWordmark}>MOMORA</T></View><T style={s.desktopTag}>{t('preview.desktopTag', lang)}</T><View style={{flexDirection:'row',alignItems:'center',gap:8,marginTop:12}}><T style={{fontSize:12,color:colors.muted}}>{t('common.language', lang)}:</T><LanguageToggle lang={lang} onChange={l=>update({lang:l})}/></View><View style={{gap:8,marginTop:28}}>{previewScreens.map(([id,label],index)=><Tap key={id} onPress={()=>setPage(id)} label={'Ekran: '+label} accessibilityState={{selected:active===id}} style={[s.previewTab,active===id&&s.previewTabActive]}><T style={[s.previewNumber,active===id&&{color:colors.purple}]}>{String(index+1).padStart(2,'0')}</T><T bold={active===id} style={{fontSize:15}}>{label}</T><View style={{flex:1}}/>{active===id&&<Icon name="chevron" color={colors.purple} size={18}/>}</Tap>)}</View><View style={s.localBadge}><View style={s.dot}/><T style={{fontSize:12,color:colors.muted}}>{t('preview.devPreview', lang)}</T></View></View>}
     <View style={[s.phone,desktop&&[s.phoneDesktop,{height:Math.min(944,height-44)}]]}>
       <StatusBar style="dark"/>
-      {desktop?<View style={s.statusMock}><T bold style={{fontSize:13}}>9:41</T><View style={s.island}/><View style={{flexDirection:'row',alignItems:'center',gap:10}}><LanguageToggle lang={lang} onChange={l=>update({lang:l})}/><T style={{fontSize:13}}>▮▮▮  ▰</T></View></View>:<View style={{height:insets.top,flexDirection:'row',justifyContent:'flex-end',paddingHorizontal:12,paddingTop:4}}><LanguageToggle lang={lang} onChange={l=>update({lang:l})}/></View>}
+      {desktop ? (
+        <View style={s.statusMock}>
+          <T bold style={{fontSize:13}}>9:41</T>
+          <View style={s.island}/>
+          <View style={{flexDirection:'row',alignItems:'center',gap:10}}>
+            <LanguageToggle lang={lang} onChange={l=>update({lang:l})} compact/>
+            <T style={{fontSize:13}}>▮▮▮  ▰</T>
+          </View>
+        </View>
+      ) : (
+        <View style={{ height: Math.max(insets.top, Platform.OS === 'ios' ? 44 : 0) }} />
+      )}
       <View style={{flex:1}} key={active}>{renderPage()}</View>
       {active!=='onboarding'&&<View style={[s.nav,{paddingBottom:desktop?19:Math.max(12,insets.bottom)}]}>{[
         {label:t('nav.today', lang),icon:'home',selected:['pregnancy','postpartum','baby'].includes(active),action:()=>setPage(state.mode||'pregnancy')},
