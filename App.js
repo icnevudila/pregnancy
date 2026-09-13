@@ -19,10 +19,23 @@ import {
   registerForPushNotificationsAsync,
   rescheduleAllReminders,
   syncPushTokenWithSupabase,
+  loadNotificationSettings,
 } from './src/notifications';
 
 function Momora() {
-  const {state,update,addRecord,ready,storageError,cloudStatus,refreshFromCloud}=useMomoraStore();
+  const {
+    state,
+    update,
+    addRecord,
+    addTrackerRecord,
+    updateTrackerRecord,
+    deleteTrackerRecord,
+    undoLastAction,
+    ready,
+    storageError,
+    cloudStatus,
+    refreshFromCloud,
+  } = useMomoraStore();
   const [page,setPage]=useState(null);const [sheet,setSheet]=useState(null);const [notice,setNotice]=useState('');
   const insets=useSafeAreaInsets();const {width,height}=useWindowDimensions();
   const desktop=Platform.OS==='web'&&width>=850;
@@ -83,7 +96,8 @@ function Momora() {
         if (token && state.user?.id) {
           syncPushTokenWithSupabase(token, state.user.id);
         }
-        await rescheduleAllReminders();
+        const savedSettings = await loadNotificationSettings();
+        await rescheduleAllReminders(savedSettings, state.pregnancyWeek || 24, lang);
       } catch (err) {
         console.warn('Push notification init error:', err);
       }
@@ -128,7 +142,21 @@ function Momora() {
     };
   }, [state.user?.id]);
 
-  const props={state,update,addRecord,open,cloudStatus,refreshFromCloud,lang,choose,setPage};
+  const props = {
+    state,
+    update,
+    addRecord,
+    addTrackerRecord,
+    updateTrackerRecord,
+    deleteTrackerRecord,
+    undoLastAction,
+    open,
+    cloudStatus,
+    refreshFromCloud,
+    lang,
+    choose,
+    setPage,
+  };
   const renderPage=()=>{switch(active){case'pregnancy':return <Pregnancy {...props}/>;case'tools':return <ToolsHub {...props} toast={setNotice}/>;case'postpartum':return <Postpartum {...props}/>;case'baby':return <Baby {...props}/>;case'discover':return <Discover {...props}/>;case'assistant':return <Assistant {...props} toast={setNotice}/>;case'profile':return <ProfileScreen {...props} toast={setNotice} choose={choose}/>;case'auth':return <AuthModal close={()=>setPage(state.mode||'pregnancy')} toast={setNotice} onAuthSuccess={u=>{update({user:u});if(u?.user_metadata?.full_name)update({name:u.user_metadata.full_name});setPage(state.mode||'pregnancy');}} lang={lang}/>;default:return <Onboarding choose={choose} update={update} toast={setNotice} lang={lang} open={open} setPage={setPage}/>}};
   return <View style={[s.root,desktop&&s.desktop]}>
     {desktop&&<View style={s.sidebar}><View style={s.desktopBrand}><BrandMark size={55}/><T style={s.desktopWordmark}>MOMORA</T></View><T style={s.desktopTag}>{t('preview.desktopTag', lang)}</T><View style={{flexDirection:'row',alignItems:'center',gap:8,marginTop:12}}><T style={{fontSize:12,color:colors.muted}}>{t('common.language', lang)}:</T><LanguageToggle lang={lang} onChange={l=>update({lang:l})}/></View><View style={{gap:8,marginTop:28}}>{previewScreens.map(([id,label],index)=><Tap key={id} onPress={()=>setPage(id)} label={'Ekran: '+label} accessibilityState={{selected:active===id}} style={[s.previewTab,active===id&&s.previewTabActive]}><T style={[s.previewNumber,active===id&&{color:colors.purple}]}>{String(index+1).padStart(2,'0')}</T><T bold={active===id} style={{fontSize:15}}>{label}</T><View style={{flex:1}}/>{active===id&&<Icon name="chevron" color={colors.purple} size={18}/>}</Tap>)}</View><View style={s.localBadge}><View style={s.dot}/><T style={{fontSize:12,color:colors.muted}}>{t('preview.devPreview', lang)}</T></View></View>}

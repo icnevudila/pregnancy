@@ -1389,7 +1389,7 @@ export const sampleRecords = [
   { id: 'rec-sample-4', type: 'Uyku', value: '1 sa 40 dk', time: '09:15' },
 ];
 
-export function RecordList({ records = [], lang = 'tr' }) {
+export function RecordList({ records = [], trackerEvents = [], onDelete, onUndo, lastUndoAction, lang = 'tr' }) {
   const isEn = lang === 'en';
   const typeMap = {
     'Emzirme': isEn ? 'Nursing' : 'Emzirme',
@@ -1397,6 +1397,9 @@ export function RecordList({ records = [], lang = 'tr' }) {
     'Uyku': isEn ? 'Sleep' : 'Uyku',
     'Bez': isEn ? 'Diaper' : 'Bez',
     'Tekme': isEn ? 'Kicks' : 'Tekme',
+    'Fetal Hareket': isEn ? 'Fetal Movement' : 'Fetal Hareket',
+    'Sancı & Kasılma': isEn ? 'Contraction' : 'Sancı & Kasılma',
+    'Kasılma': isEn ? 'Contraction' : 'Kasılma',
     'Su': isEn ? 'Water' : 'Su',
     'Vitamin': isEn ? 'Vitamin' : 'Vitamin',
     'Kilo': isEn ? 'Weight' : 'Kilo',
@@ -1407,6 +1410,9 @@ export function RecordList({ records = [], lang = 'tr' }) {
     'Uyku': 'moon',
     'Bez': 'diaper',
     'Tekme': 'footprint',
+    'Fetal Hareket': 'footprint',
+    'Sancı & Kasılma': 'clock',
+    'Kasılma': 'clock',
     'Su': 'drop',
     'Vitamin': 'heart',
     'Kilo': 'scale',
@@ -1424,20 +1430,46 @@ export function RecordList({ records = [], lang = 'tr' }) {
       .replace('Kirli', 'Dirty')
       .replace('Temiz', 'Clean')
       .replace('tekme', 'kicks')
+      .replace('hareket', 'movements')
       .replace('seans', 'session')
       .replace('bardak içildi', 'glasses logged')
       .replace('alındı', 'taken')
       .replace('Haftalık takip', 'Weekly log');
   }
 
+  const displayItems = trackerEvents && trackerEvents.length > 0
+    ? trackerEvents.filter(e => !e.deletedAt).map(e => ({
+        id: e.id,
+        type: e.title || e.type,
+        value: e.value ? `${e.value} ${e.unit || ''}`.trim() : (e.notes || ''),
+        time: new Date(e.occurredAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        syncState: e.syncState,
+      }))
+    : records;
+
+  const isUndoActive = lastUndoAction && (Date.now() < (lastUndoAction.expiresAt || 0));
+
   return (
     <Card style={{ padding: 14 }}>
-      {records.length === 0 ? (
+      {isUndoActive && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F3EAF6', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, marginBottom: 12 }}>
+          <T style={{ fontSize: 12, color: colors.purple }}>
+            {isEn
+              ? (lastUndoAction.actionType === 'delete' ? 'Record deleted' : 'Record added')
+              : (lastUndoAction.actionType === 'delete' ? 'Kayıt silindi' : 'Kayıt eklendi')}
+          </T>
+          <Tap onPress={onUndo} style={{ paddingHorizontal: 10, paddingVertical: 4, backgroundColor: colors.purple, borderRadius: 6 }}>
+            <T bold style={{ fontSize: 11, color: '#fff' }}>{isEn ? 'Undo' : 'Geri Al'}</T>
+          </Tap>
+        </View>
+      )}
+
+      {displayItems.length === 0 ? (
         <T style={{ fontSize: 13, color: colors.muted, textAlign: 'center', paddingVertical: 12 }}>
           {isEn ? 'No logs recorded yet today.' : 'Bugün henüz kayıt girilmedi.'}
         </T>
       ) : (
-        records.map((r, i) => {
+        displayItems.map((r, i) => {
           const typeDisplay = typeMap[r.type] || r.type;
           const iconName = iconMap[r.type] || 'calendar';
           return (
@@ -1449,7 +1481,14 @@ export function RecordList({ records = [], lang = 'tr' }) {
                 <T bold style={{ fontSize: 13, color: colors.ink }}>{typeDisplay}</T>
                 <T style={s.recordValue}>{localizeValue(r.value)}</T>
               </View>
-              <T style={s.recordTime}>{r.time}</T>
+              <View style={{ alignItems: 'flex-end', justifyContent: 'center' }}>
+                <T style={s.recordTime}>{r.time}</T>
+              </View>
+              {onDelete && (
+                <Tap onPress={() => onDelete(r.id)} style={{ padding: 6, marginLeft: 6 }} label={isEn ? 'Delete record' : 'Kaydı sil'}>
+                  <Icon name="close" size={14} color={colors.muted} />
+                </Tap>
+              )}
             </View>
           );
         })

@@ -19,7 +19,7 @@ import { NotificationSettingsScreen } from './NotificationSettingsScreen';
 import { MilkStashTrackerScreen, PartnerTaskBoardScreen } from './ExtraToolScreens';
 import { t } from './i18n/index.js';
 
-export default function DetailSheet({ sheet, close, state, update, addRecord, choose, open, toast, lang: propLang }) {
+export default function DetailSheet({ sheet, close, state, update, addRecord, deleteTrackerRecord, undoLastAction, choose, open, toast, lang: propLang }) {
   const lang = propLang || state?.lang || 'tr';
   const isEn = lang === 'en';
   const {kind,data={}}=sheet;
@@ -91,7 +91,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
       return <>{input(isEn?'Appointment Title':'Randevu adı',initialTitle,setText)}{input(isEn?'Date':'Tarih',initialDate,setSecondary,{placeholder:isEn?'Friday, May 16':'16 Mayıs Cuma'})}{input(isEn?'Time':'Saat',time,setTime,{placeholder:'10:00',maxLength:5})}{button(isEn?'Save Appointment':'Randevuyu kaydet',save)}<T style={s.helper}>{isEn?'Saved to your appointment diary; can be used as a reminder.':'Randevu günlüğüne kaydedilir; bildirim ayarı bağlandığında hatırlatma olarak kullanılabilir.'}</T></>;
     })()}
     {kind==='log'&&<><T style={s.body}>{data.type==='Bez'?(isEn?'Add diaper change log.':'Alt değiştirme kaydını ekle.'):(isEn?'A quick entry helps you recall your daily rhythm.':'Küçük bir kayıt, günün akışını hatırlamana yardımcı olur.')}</T>{data.type==='Emzirme'&&<View style={s.chips}>{[isEn?'Right breast':'Sağ meme',isEn?'Left breast':'Sol meme'].map(v=><Tap key={v} onPress={()=>setSide(v)} style={[s.chip,side===v&&s.chipSelected]}><T>{v}</T></Tap>)}</View>}{data.type==='Bez'?<View style={s.chips}>{[isEn?'Clean':'Temiz',isEn?'Wet':'Islak',isEn?'Dirty':'Kirli'].map(v=><Tap key={v} onPress={()=>setSide(v)} style={[s.chip,(side===v||v===(isEn?'Clean':'Temiz')&&side===(isEn?'Right breast':'Sağ meme'))&&s.chipSelected]}><T>{v}</T></Tap>)}</View>:input(data.type==='Biberon'?(isEn?'Amount (ml)':'Miktar (ml)'):(isEn?'Duration (min)':'Süre (dakika)'),text,setText,{keyboardType:'decimal-pad',placeholder:data.type==='Biberon'?'120':'15'})}{button(t('common.save', lang),save)}</>}
-    {kind==='records'&&<><T style={s.helper}>{isEn?'Your latest records appear at the top. Synced across devices when cloud account is linked.':'Yeni kayıtların en üstte görünür. Bulut hesabı bağlandığında cihazlar arasında eşitlenir.'}</T><RecordList records={[...state.records,...sampleRecords]} lang={lang}/></>}
+    {kind==='records'&&<><T style={s.helper}>{isEn?'Your latest records appear at the top. Synced across devices when cloud account is linked.':'Yeni kayıtların en üstte görünür. Bulut hesabı bağlandığında cihazlar arasında eşitlenir.'}</T><RecordList records={[...state.records,...sampleRecords]} trackerEvents={state.trackerEvents} onDelete={deleteTrackerRecord} onUndo={undoLastAction} lastUndoAction={state.lastUndoAction} lang={lang}/></>}
     {kind==='note'&&<>{input(isEn?'Leave a note for today ✍️':'Bugüne ait bir not bırak ✍️',text,setText,{multiline:true,placeholder:isEn?'A feeling or moment from your heart...':'İçinden geçen bir his ya da an...'})}{button(isEn?'Save Note':'Notumu sakla',save)}</>}
     {kind==='week'&&(()=>{
       const wi=getWeekInfo(data.week||24, lang);

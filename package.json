@@ -28,7 +28,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build": "expo export -p web"
+    "build": "expo export -p web",
+    "test": "node scripts/test_suite.mjs"
   },
   "private": true,
   "devDependencies": {

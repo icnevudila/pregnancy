@@ -132,6 +132,7 @@ export function resolveJourneyState(state) {
 
   return {
     stage: mode,
+    mode,
     pregnancy: preg,
     postpartum: post,
     babyAge,

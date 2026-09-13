@@ -2,6 +2,15 @@ import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { defaultLists, extendedDefaults, migrateState } from './domain.mjs';
 import { loadCloudState, saveCloudState, saveTrackingEvent, cloudStatusLabel } from './backendSync';
+import {
+  createTrackerRecord,
+  applyOptimisticCreate,
+  applyOptimisticUpdate,
+  applyOptimisticDelete,
+  applyUndoAction,
+  enqueueOfflineRecord,
+  UNDO_TIMEOUT_MS,
+} from './domain/trackerEngine';
 
 const KEY = 'momora.local.v1';
 export const initialState = {
@@ -51,6 +60,58 @@ export const initialState = {
     { id: 'rec3', type: 'Vitamin', value: 'Prenatal Multivitamin alındı', time: '09:00' },
     { id: 'rec4', type: 'Kilo', value: '65.4 kg · Haftalık takip', time: '08:30' },
   ],
+  trackerEvents: [
+    {
+      id: 'rec1',
+      clientGeneratedId: 'cli_rec1',
+      type: 'movement',
+      title: 'Fetal Hareket',
+      value: '10 hareket',
+      unit: '',
+      durationSeconds: 18 * 60,
+      occurredAt: new Date().toISOString(),
+      metadata: { count: 10, sessionDurationSeconds: 1080 },
+      notes: '18 dk seans',
+      syncState: 'synced',
+    },
+    {
+      id: 'rec2',
+      clientGeneratedId: 'cli_rec2',
+      type: 'water',
+      title: 'Su Takibi',
+      value: '1.0',
+      unit: 'L',
+      occurredAt: new Date().toISOString(),
+      metadata: { glassCount: 4 },
+      notes: '4. bardak içildi',
+      syncState: 'synced',
+    },
+    {
+      id: 'rec3',
+      clientGeneratedId: 'cli_rec3',
+      type: 'vitamin',
+      title: 'Prenatal Vitamin',
+      value: 'Alındı',
+      unit: '',
+      occurredAt: new Date().toISOString(),
+      metadata: { taken: true },
+      notes: 'Prenatal Multivitamin alındı',
+      syncState: 'synced',
+    },
+    {
+      id: 'rec4',
+      clientGeneratedId: 'cli_rec4',
+      type: 'weight',
+      title: 'Kilo Takibi',
+      value: '65.4',
+      unit: 'kg',
+      occurredAt: new Date().toISOString(),
+      metadata: { weight: 65.4 },
+      notes: 'Haftalık takip',
+      syncState: 'synced',
+    },
+  ],
+  lastUndoAction: null,
   favorites: [], liked: false, messages: [],
   favNames: ['bn_defne', 'bn_lina', 'bn_atlas', 'bn_cinar'],
   // Extended state (tools & tracking)
@@ -120,10 +181,101 @@ export function useMomoraStore() {
     if (result?.ok) setCloudStatus('Bu cihazdaki kayıt buluta aktarıldı.');
     return result;
   };
-  const addRecord = (type, value) => {
-    const record = { id: Date.now().toString(), type, value, time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }), createdAt: new Date().toISOString() };
-    update(old => ({ records: [record, ...old.records] }));
-    saveTrackingEvent(type, { value, record }).catch(() => {});
+
+  const addTrackerRecord = (params) => {
+    const record = createTrackerRecord({
+      ...params,
+      householdId: state.household?.id || 'hh_local_1',
+      createdBy: state.user?.id || 'user',
+    });
+
+    update(old => {
+      const nextEvents = applyOptimisticCreate(old.trackerEvents || [], record);
+      const legacyRecord = {
+        id: record.id,
+        type: record.title || record.type,
+        value: record.value ? `${record.value} ${record.unit || ''}`.trim() : (record.notes || ''),
+        time: new Date(record.occurredAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+        createdAt: record.occurredAt,
+      };
+      return {
+        trackerEvents: nextEvents,
+        records: [legacyRecord, ...(old.records || [])],
+        lastUndoAction: { actionType: 'create', record, expiresAt: Date.now() + UNDO_TIMEOUT_MS },
+      };
+    });
+
+    enqueueOfflineRecord(record).catch(() => {});
+    saveTrackingEvent(record.type, { value: record.value, record }).catch(() => {});
+    return record;
   };
-  return { state, update, addRecord, ready, storageError, cloudStatus, refreshFromCloud };
+
+  const updateTrackerRecord = (id, patch) => {
+    update(old => {
+      const nextEvents = applyOptimisticUpdate(old.trackerEvents || [], id, patch);
+      return { trackerEvents: nextEvents };
+    });
+  };
+
+  const deleteTrackerRecord = (id) => {
+    update(old => {
+      const { updatedList, deletedRecord } = applyOptimisticDelete(old.trackerEvents || [], id);
+      return {
+        trackerEvents: updatedList,
+        records: (old.records || []).filter(r => r.id !== id),
+        lastUndoAction: deletedRecord ? {
+          actionType: 'delete',
+          record: deletedRecord,
+          expiresAt: Date.now() + UNDO_TIMEOUT_MS,
+        } : old.lastUndoAction,
+      };
+    });
+  };
+
+  const undoLastAction = () => {
+    update(old => {
+      if (!old.lastUndoAction) return old;
+      const nextEvents = applyUndoAction(old.trackerEvents || [], old.lastUndoAction);
+      let nextRecords = old.records || [];
+      if (old.lastUndoAction.actionType === 'delete' && old.lastUndoAction.record) {
+        const r = old.lastUndoAction.record;
+        nextRecords = [{
+          id: r.id,
+          type: r.title || r.type,
+          value: r.value ? `${r.value} ${r.unit || ''}`.trim() : (r.notes || ''),
+          time: new Date(r.occurredAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
+          createdAt: r.occurredAt,
+        }, ...nextRecords];
+      } else if (old.lastUndoAction.actionType === 'create' && old.lastUndoAction.record) {
+        nextRecords = nextRecords.filter(r => r.id !== old.lastUndoAction.record.id);
+      }
+      return {
+        trackerEvents: nextEvents,
+        records: nextRecords,
+        lastUndoAction: null,
+      };
+    });
+  };
+
+  const addRecord = (type, value) => {
+    return addTrackerRecord({
+      type,
+      title: type,
+      value,
+    });
+  };
+
+  return {
+    state,
+    update,
+    addRecord,
+    addTrackerRecord,
+    updateTrackerRecord,
+    deleteTrackerRecord,
+    undoLastAction,
+    ready,
+    storageError,
+    cloudStatus,
+    refreshFromCloud,
+  };
 }

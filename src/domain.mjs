@@ -70,12 +70,13 @@ export const extendedDefaults = {
   appointments:[{ id: 'app1', title: 'Detaylı Ultrason Kontrolü', date: '2026-05-16', time: '10:00' }],
   kickSessions:sampleKickSessions,
   contractionSessions:sampleContractionSessions,
+  trackerEvents:[],
   journal:[],lists:defaultLists,birthPlan:{ bp1: true, bp4: true, bp6: true },activeKick:null,activeContraction:null,
 };
 export function migrateState(saved = {}, defaults = {}, now = new Date()) {
   const safe = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
   const state = {...defaults,...extendedDefaults,...safe,version:2};
-  for(const key of ['records','notes','favorites','messages','savedArticles','readArticles','weights','appointments','kickSessions','contractionSessions','journal','favNames','vitaminsList'])state[key]=Array.isArray(state[key])&&state[key].length?state[key]:(extendedDefaults[key]||[]);
+  for(const key of ['records','trackerEvents','notes','favorites','messages','savedArticles','readArticles','weights','appointments','kickSessions','contractionSessions','journal','favNames','vitaminsList'])state[key]=Array.isArray(state[key])&&state[key].length?state[key]:(extendedDefaults[key]||[]);
   state.birthPlan = typeof safe.birthPlan === 'object' && safe.birthPlan && !Array.isArray(safe.birthPlan) ? safe.birthPlan : extendedDefaults.birthPlan;
   state.lists = Object.fromEntries(Object.entries(defaultLists).map(([key,items])=>[key,Array.isArray(safe.lists?.[key])?safe.lists[key]:items.map(item=>({...item}))]));
   if(state.dailyDate!==localDay(now)){state.dailyDate=localDay(now);state.water=4;state.vitamin=true;state.mood=0;state.postpartumMood=null;}
