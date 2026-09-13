@@ -9,6 +9,8 @@ let currentGain = null;
 let currentSoundId = null;
 let currentVolume = 0.5;
 let sleepTimerId = null;
+let currentTimerEndTime = null;
+let currentTimerMinutes = null;
 const listeners = new Set();
 
 function getAudioContext() {
@@ -25,7 +27,13 @@ function getAudioContext() {
 }
 
 function notify() {
-  const state = { soundId: currentSoundId, isPlaying: !!currentSource || !!currentAudioElement, volume: currentVolume };
+  const state = {
+    soundId: currentSoundId,
+    isPlaying: !!currentSource || !!currentAudioElement,
+    volume: currentVolume,
+    timerMinutes: currentTimerMinutes,
+    timerEndTime: currentTimerEndTime,
+  };
   listeners.forEach(fn => { try { fn(state); } catch (e) {} });
 }
 
@@ -34,6 +42,15 @@ export function playSound(id, options = {}) {
   currentVolume = Math.max(0, Math.min(1, volume));
 
   stopSound();
+
+  if (timerMinutes && timerMinutes > 0) {
+    currentTimerMinutes = timerMinutes;
+    currentTimerEndTime = Date.now() + timerMinutes * 60 * 1000;
+    sleepTimerId = setTimeout(() => stopSound(), timerMinutes * 60 * 1000);
+  } else {
+    currentTimerMinutes = 0;
+    currentTimerEndTime = null;
+  }
 
   // 1. First priority: Real high-fidelity studio recordings when available
   const audioFileMap = {
@@ -52,9 +69,6 @@ export function playSound(id, options = {}) {
       audio.volume = currentVolume;
       currentAudioElement = audio;
       currentSoundId = id;
-      if (timerMinutes && timerMinutes > 0) {
-        sleepTimerId = setTimeout(() => stopSound(), timerMinutes * 60 * 1000);
-      }
       const playPromise = audio.play();
       if (playPromise && typeof playPromise.catch === 'function') {
         playPromise.catch((err) => {
@@ -341,6 +355,8 @@ export function stopSound() {
   }
   currentGain = null;
   currentSoundId = null;
+  currentTimerEndTime = null;
+  currentTimerMinutes = null;
   if (sleepTimerId) {
     clearTimeout(sleepTimerId);
     sleepTimerId = null;
@@ -363,11 +379,39 @@ export function setVolume(vol) {
   notify();
 }
 
+export function extendTimer(extraMinutes = 15) {
+  if (!currentSoundId) return null;
+  const now = Date.now();
+  const base = currentTimerEndTime && currentTimerEndTime > now ? currentTimerEndTime : now;
+  const newEnd = base + extraMinutes * 60 * 1000;
+  if (sleepTimerId) clearTimeout(sleepTimerId);
+  currentTimerEndTime = newEnd;
+  currentTimerMinutes = Math.round((newEnd - now) / 60000);
+  sleepTimerId = setTimeout(() => stopSound(), Math.max(1000, newEnd - now));
+  notify();
+  return currentTimerEndTime;
+}
+
+export function setSoundTimer(minutes) {
+  if (sleepTimerId) clearTimeout(sleepTimerId);
+  if (minutes && minutes > 0) {
+    currentTimerMinutes = minutes;
+    currentTimerEndTime = Date.now() + minutes * 60 * 1000;
+    sleepTimerId = setTimeout(() => stopSound(), minutes * 60 * 1000);
+  } else {
+    currentTimerMinutes = 0;
+    currentTimerEndTime = null;
+  }
+  notify();
+}
+
 export function getCurrentSound() {
   return {
     soundId: currentSoundId,
     isPlaying: !!currentSource || !!currentAudioElement,
     volume: currentVolume,
+    timerMinutes: currentTimerMinutes,
+    timerEndTime: currentTimerEndTime,
   };
 }
 

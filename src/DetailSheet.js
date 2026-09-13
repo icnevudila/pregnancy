@@ -31,6 +31,17 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
   const [selectedMood,setSelectedMood]=useState(state.mood??0);
   const [moodNote,setMoodNote]=useState('');
   const [error,setError]=useState('');
+  const [sheetNotice, setSheetNotice] = useState('');
+  function showToast(msg) {
+    setSheetNotice(msg);
+    toast && toast(msg);
+  }
+  React.useEffect(() => {
+    if (sheetNotice) {
+      const timer = setTimeout(() => setSheetNotice(''), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [sheetNotice]);
   function save(){
     if(kind==='profile'){if(!text.trim())return setError(isEn ? 'Please enter your name.' : 'Adını yazabilir misin?');update({name:text.trim(),babyName:secondary.trim()||'Ada'});}
     else if(kind==='appointment'){if(!text.trim()||!secondary.trim()||!/^([01]\d|2[0-3]):[0-5]\d$/.test(time))return setError(isEn ? 'Please fill title, date and time (e.g. 10:00).' : 'Randevu adını, tarihini ve saati (10:00 gibi) doldur.');update({appointment:{title:text.trim(),date:secondary.trim(),time}});}
@@ -347,16 +358,39 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     {kind==='communityThread'&&<CommunityThreadScreen post={data} toast={toast} lang={lang}/>}
     {/* Modül 6: Lohusalık & Yenidoğan */}
     {kind==='nursingTimer'&&<NursingTimerScreen state={state} update={update} toast={toast} lang={lang}/>}
-    {kind==='sleepWhiteNoise'&&<SleepWhiteNoiseScreen state={state} update={update} toast={toast} lang={lang}/>}
-    {kind==='diaperTracker'&&<DiaperTrackerScreen update={update} toast={toast} lang={lang}/>}
-    {kind==='postpartumCare'&&<PostpartumSelfCareScreen state={state} update={update} toast={toast} lang={lang}/>}
-    {kind==='milkStash'&&<MilkStashTrackerScreen state={state} update={update} toast={toast} lang={lang}/>}
-    {kind==='partnerTasks'&&<PartnerTaskBoardScreen state={state} update={update} toast={toast} lang={lang}/>}
-    {kind==='notifications'&&<NotificationSettingsScreen toast={toast} lang={lang} week={state.week||24} close={close}/>}
+    {kind==='sleepWhiteNoise'&&<SleepWhiteNoiseScreen state={state} update={update} toast={showToast} lang={lang}/>}
+    {kind==='diaperTracker'&&<DiaperTrackerScreen update={update} toast={showToast} lang={lang}/>}
+    {kind==='postpartumCare'&&<PostpartumSelfCareScreen state={state} update={update} toast={showToast} lang={lang}/>}
+    {kind==='milkStash'&&<MilkStashTrackerScreen state={state} update={update} toast={showToast} lang={lang}/>}
+    {kind==='partnerTasks'&&<PartnerTaskBoardScreen state={state} update={update} toast={showToast} lang={lang}/>}
+    {kind==='notifications'&&<NotificationSettingsScreen toast={showToast} lang={lang} week={state.week||24} close={close}/>}
     {kind==='legal'&&<LegalScreen initialTab={data?.tab||'privacy'} lang={lang} close={close}/>}
     {!!error&&<T accessibilityRole="alert" style={{color:'#A95769',marginTop:12}}>{error}</T>}
     </ScrollView></View></KeyboardAvoidingView>
     <InAppNotificationBanner lang={lang} onOpen={d => { if (d?.tool) open(d.tool); else if (d?.screen) choose(d.screen); }} />
+    {!!sheetNotice && (
+      <View style={{
+        position: 'absolute',
+        top: Platform.OS === 'web' ? 20 : 50,
+        left: 20,
+        right: 20,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 16,
+        backgroundColor: '#1E293BF5',
+        zIndex: 999999,
+        elevation: 9999,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOpacity: 0.35,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 4 },
+      }}>
+        <T bold style={{ color: 'white', fontSize: 13.5, textAlign: 'center' }}>
+          {sheetNotice}
+        </T>
+      </View>
+    )}
     </Modal>
   );
 }

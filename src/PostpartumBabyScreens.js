@@ -6,7 +6,7 @@ import { Icon } from './Icons';
 import { T, Tap, Card, Section, Progress, ScreenHero, MetricCard, StatusCard, ProgressRing, ToolExperienceCard } from './ui';
 import { secondsLabel, uid, localDay } from './domain.mjs';
 import { generatedAssets } from './generatedAssets';
-import { playSound, stopSound, setVolume as setEngineVolume, getCurrentSound, addSoundListener } from './soundEngine';
+import { playSound, stopSound, setVolume as setEngineVolume, getCurrentSound, addSoundListener, playActionCue } from './soundEngine';
 import { offlineSyncQueue } from './services/offlineSyncQueue';
 import { createTrackerEvent } from './domain/types';
 import { calculatePostpartumProgress } from './domain/journeyState';
@@ -491,6 +491,53 @@ export function SleepWhiteNoiseScreen({ state, update, toast, lang = 'tr' }) {
   const [playingNoise, setPlayingNoise] = useState(null);
   const [volume, setVolume] = useState(0.8);
   const [timerMins, setTimerMins] = useState(30);
+  const [timerEndTime, setTimerEndTime] = useState(null);
+  const [remainingSecs, setRemainingSecs] = useState(0);
+
+  function getEstimatedOffTime(mins) {
+    if (!mins) return null;
+    const d = new Date(Date.now() + mins * 60 * 1000);
+    return d.toLocaleTimeString(isEn ? 'en-US' : 'tr-TR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // Live countdown ticker
+  useEffect(() => {
+    let interval = null;
+    if (playingNoise && timerEndTime) {
+      function tick() {
+        const diff = Math.max(0, Math.round((timerEndTime - Date.now()) / 1000));
+        setRemainingSecs(diff);
+        if (diff <= 0) {
+          setTimerEndTime(null);
+        }
+      }
+      tick();
+      interval = setInterval(tick, 1000);
+    } else {
+      setRemainingSecs(0);
+    }
+    return () => { if (interval) clearInterval(interval); };
+  }, [playingNoise, timerEndTime]);
+
+  function handleSelectTimer(m) {
+    setTimerMins(m);
+    playActionCue && playActionCue('soft');
+    if (m === 0) {
+      setTimerEndTime(null);
+      if (playingNoise) {
+        playSound(playingNoise, { volume, timerMinutes: 0 });
+      }
+      toast && toast(isEn ? '♾️ Continuous playback selected (stays on)' : '♾️ Kesintisiz çalma seçildi (siz durdurana kadar devam eder)');
+    } else {
+      const offTime = getEstimatedOffTime(m);
+      if (playingNoise) {
+        const newEnd = Date.now() + m * 60 * 1000;
+        setTimerEndTime(newEnd);
+        playSound(playingNoise, { volume, timerMinutes: m });
+      }
+      toast && toast(isEn ? `🕒 Timer set: Turns off at ${offTime} (${m} min)` : `🕒 Zamanlayıcı: Saat ${offTime}'te otomatik kapanacak (${m} dk)`);
+    }
+  }
 
   // Sleep tracking state (tracker-data driven)
   const isAsleep = !!state?.activeSleep;
@@ -541,6 +588,7 @@ export function SleepWhiteNoiseScreen({ state, update, toast, lang = 'tr' }) {
   useEffect(() => {
     const unsub = addSoundListener(({ soundId, isPlaying }) => {
       setPlayingNoise(isPlaying ? soundId : null);
+      if (!isPlaying) setTimerEndTime(null);
     });
     const current = getCurrentSound();
     if (current.isPlaying) {
@@ -555,13 +603,24 @@ export function SleepWhiteNoiseScreen({ state, update, toast, lang = 'tr' }) {
   function handlePlayToggle(id) {
     if (playingNoise === id) {
       stopSound();
+      setTimerEndTime(null);
       toast && toast(isEn ? '⏹️ Sound stopped' : '⏹️ Ses durduruldu');
     } else {
       playSound(id, { volume, timerMinutes: timerMins });
       const found = whiteNoises.find(w => w.id === id);
-      toast && toast(isEn
-        ? `🎵 Playing ${found ? found.name : 'Sound'} (${timerMins ? timerMins + ' min' : 'Continuous'})`
-        : `🎵 ${found ? found.name : 'Ses'} çalınıyor (${timerMins ? timerMins + ' dk' : 'Sürekli'})`);
+      if (timerMins > 0) {
+        const end = Date.now() + timerMins * 60 * 1000;
+        setTimerEndTime(end);
+        const offTime = getEstimatedOffTime(timerMins);
+        toast && toast(isEn
+          ? `🎵 Playing ${found ? found.name : 'Sound'} · Turns off at ${offTime} (${timerMins} min) 🕒`
+          : `🎵 ${found ? found.name : 'Ses'} çalınıyor · Saat ${offTime}'te kapanacak (${timerMins} dk) 🕒`);
+      } else {
+        setTimerEndTime(null);
+        toast && toast(isEn
+          ? `🎵 Playing ${found ? found.name : 'Sound'} · Continuous playback ♾️`
+          : `🎵 ${found ? found.name : 'Ses'} çalınıyor · Kesintisiz çalma ♾️`);
+      }
     }
   }
 
@@ -727,27 +786,89 @@ export function SleepWhiteNoiseScreen({ state, update, toast, lang = 'tr' }) {
       {/* ─── TAB 2: BEYAZ GÜRÜLTÜ SESLERİ & PLAYER ─── */}
       {activeTab === 'sounds' && (
         <>
-          <Card style={{ padding: 14 }}>
-            <T bold style={{ fontSize: 14, color: colors.ink, marginBottom: 8 }}>
-              {isEn ? 'Auto-Off Sleep Timer:' : 'Kapanma Zamanlayıcısı:'}
-            </T>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
+          <Card style={{ padding: 14, backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Icon name="clock" size={16} color="#3B597F" />
+                <T bold style={{ fontSize: 14, color: '#1E293B' }}>
+                  {isEn ? 'Auto-Off Timer' : 'Kapanma Zamanlayıcısı'}
+                </T>
+              </View>
+              {timerMins > 0 ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#E0F2FE', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 8 }}>
+                  <Icon name="clock" size={12} color="#0284C7" />
+                  <T bold style={{ fontSize: 12, color: '#0369A1' }}>
+                    {isEn ? `Off at ${getEstimatedOffTime(timerMins)}` : `Bitiş Saati: ${getEstimatedOffTime(timerMins)}`}
+                  </T>
+                </View>
+              ) : (
+                <View style={{ backgroundColor: '#F1F5F9', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 8 }}>
+                  <T bold style={{ fontSize: 11, color: '#64748B' }}>
+                    {isEn ? 'Continuous ♾️' : 'Kesintisiz ♾️'}
+                  </T>
+                </View>
+              )}
+            </View>
+
+            {/* Timer Pills */}
+            <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
               {[15, 30, 45, 60, 0].map(m => (
                 <Tap
                   key={m}
-                  onPress={() => setTimerMins(m)}
+                  onPress={() => handleSelectTimer(m)}
                   style={{
                     paddingHorizontal: 12,
-                    paddingVertical: 7,
+                    paddingVertical: 8,
                     borderRadius: 10,
-                    backgroundColor: timerMins === m ? '#3B597F' : '#F0F3F7',
+                    backgroundColor: timerMins === m ? '#3B597F' : '#EDF2F7',
+                    minWidth: 54,
+                    alignItems: 'center',
                   }}
                 >
                   <T bold={timerMins === m} style={{ fontSize: 12, color: timerMins === m ? 'white' : colors.ink }}>
-                    {m === 0 ? (isEn ? 'Inf' : 'Sürekli') : `${m} dk`}
+                    {m === 0 ? (isEn ? '♾️ Sürekli' : '♾️ Sürekli') : `${m} dk`}
                   </T>
                 </Tap>
               ))}
+              {playingNoise && timerMins > 0 && (
+                <Tap
+                  onPress={() => handleSelectTimer(timerMins + 15)}
+                  style={{
+                    paddingHorizontal: 11,
+                    paddingVertical: 8,
+                    borderRadius: 10,
+                    backgroundColor: '#E0E7FF',
+                    alignItems: 'center',
+                  }}
+                >
+                  <T bold style={{ fontSize: 12, color: '#4338CA' }}>+15 dk</T>
+                </Tap>
+              )}
+            </View>
+
+            {/* Live Status & Clock Ticker Box */}
+            <View style={{ marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderColor: '#E2E8F0', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
+                <T style={{ fontSize: 12, color: colors.muted }}>
+                  {timerMins > 0 ? (
+                    isEn
+                      ? `🕒 Stops at ${getEstimatedOffTime(timerMins)} (${timerMins} min)`
+                      : `🕒 Saat ${getEstimatedOffTime(timerMins)}'te otomatik kapanacak (${timerMins} dk)`
+                  ) : (
+                    isEn
+                      ? '♾️ Playing continuously until you stop it'
+                      : '♾️ Ses siz durdurana kadar kesintisiz çalacak'
+                  )}
+                </T>
+              </View>
+              {playingNoise && timerEndTime && remainingSecs > 0 && (
+                <View style={{ backgroundColor: '#DCFCE7', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#16A34A' }} />
+                  <T bold style={{ fontSize: 12, color: '#15803D' }}>
+                    {Math.floor(remainingSecs / 60).toString().padStart(2, '0')}:{(remainingSecs % 60).toString().padStart(2, '0')}
+                  </T>
+                </View>
+              )}
             </View>
           </Card>
 
@@ -755,15 +876,34 @@ export function SleepWhiteNoiseScreen({ state, update, toast, lang = 'tr' }) {
             {whiteNoises.map(noise => {
               const isPlaying = playingNoise === noise.id;
               return (
-                <Card key={noise.id} style={{ padding: 14, borderColor: isPlaying ? '#3B597F' : '#EAEFF4', borderWidth: isPlaying ? 1.5 : 1 }}>
+                <Card key={noise.id} style={{ padding: 14, borderColor: isPlaying ? '#3B597F' : '#EAEFF4', borderWidth: isPlaying ? 1.5 : 1, backgroundColor: isPlaying ? '#F8FAFC' : 'white' }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                     <View style={{ flex: 1, paddingRight: 10 }}>
-                      <T bold style={{ fontSize: 15, color: isPlaying ? '#27476F' : colors.ink }}>
-                        {noise.name}
-                      </T>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        {isPlaying && <View style={{ width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#16A34A' }} />}
+                        <T bold style={{ fontSize: 15, color: isPlaying ? '#1E3A8A' : colors.ink }}>
+                          {noise.name}
+                        </T>
+                      </View>
                       <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
                         {noise.desc}
                       </T>
+                      {isPlaying && (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 }}>
+                          <View style={{ backgroundColor: '#E0F2FE', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6 }}>
+                            <T bold style={{ fontSize: 11, color: '#0369A1' }}>
+                              {timerMins > 0 ? `🕒 Bitiş: ${getEstimatedOffTime(timerMins)}` : '♾️ Kesintisiz'}
+                            </T>
+                          </View>
+                          {timerEndTime && remainingSecs > 0 && (
+                            <View style={{ backgroundColor: '#DCFCE7', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6 }}>
+                              <T bold style={{ fontSize: 11, color: '#15803D' }}>
+                                {Math.floor(remainingSecs / 60).toString().padStart(2, '0')}:{(remainingSecs % 60).toString().padStart(2, '0')}
+                              </T>
+                            </View>
+                          )}
+                        </View>
+                      )}
                     </View>
                     <Tap
                       onPress={() => handlePlayToggle(noise.id)}
@@ -783,6 +923,71 @@ export function SleepWhiteNoiseScreen({ state, update, toast, lang = 'tr' }) {
               );
             })}
           </View>
+
+          {/* Canlı Ekran Oynatıcı & Bitiş Saati Barı */}
+          {playingNoise && (
+            <View style={{
+              backgroundColor: '#1E293B',
+              borderRadius: 18,
+              padding: 14,
+              marginTop: 12,
+              marginBottom: 20,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              shadowColor: '#000',
+              shadowOpacity: 0.25,
+              shadowRadius: 10,
+              shadowOffset: { width: 0, height: 4 },
+              borderWidth: 1,
+              borderColor: '#334155',
+            }}>
+              <View style={{ flex: 1, paddingRight: 10 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#22C55E' }} />
+                  <T bold style={{ color: 'white', fontSize: 14 }} numberOfLines={1}>
+                    {whiteNoises.find(w => w.id === playingNoise)?.name || (isEn ? 'Sound' : 'Ses')}
+                  </T>
+                </View>
+                <T style={{ color: '#94A3B8', fontSize: 12, marginTop: 3 }}>
+                  {timerMins > 0
+                    ? (isEn
+                        ? `🕒 Auto-off at ${getEstimatedOffTime(timerMins)} · ⏱️ ${Math.floor(remainingSecs / 60).toString().padStart(2, '0')}:${(remainingSecs % 60).toString().padStart(2, '0')} left`
+                        : `🕒 Saat ${getEstimatedOffTime(timerMins)}'te kapanacak · ⏱️ Kalan: ${Math.floor(remainingSecs / 60).toString().padStart(2, '0')}:${(remainingSecs % 60).toString().padStart(2, '0')}`)
+                    : (isEn ? '♾️ Continuous playback (stays on)' : '♾️ Kesintisiz çalma (durdurana kadar)')}
+                </T>
+              </View>
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                {timerMins > 0 && (
+                  <Tap
+                    onPress={() => handleSelectTimer(timerMins + 15)}
+                    style={{
+                      backgroundColor: '#334155',
+                      paddingHorizontal: 11,
+                      paddingVertical: 7,
+                      borderRadius: 10,
+                    }}
+                  >
+                    <T bold style={{ color: '#E2E8F0', fontSize: 11 }}>+15 dk</T>
+                  </Tap>
+                )}
+                <Tap
+                  onPress={() => handlePlayToggle(playingNoise)}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 20,
+                    backgroundColor: '#EF4444',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Icon name="close" size={18} color="white" />
+                </Tap>
+              </View>
+            </View>
+          )}
         </>
       )}
     </View>

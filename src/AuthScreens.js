@@ -25,6 +25,7 @@ import {
   resetPasswordForEmail,
   setManualSupabaseKey,
   getCurrentUser,
+  signOutUser,
   DEFAULT_SUPABASE_URL,
 } from './supabaseClient';
 
@@ -59,7 +60,17 @@ function AppleIcon({ size = 20, color = '#FFFFFF' }) {
   );
 }
 
-export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
+export function AuthModal({
+  close,
+  toast,
+  onAuthSuccess,
+  lang = 'tr',
+  user,
+  state,
+  update,
+  setPage,
+  refreshFromCloud,
+}) {
   const isEn = lang === 'en';
   const [tab, setTab] = useState('signin'); // 'signin' | 'signup' | 'forgot' | 'key'
   const [email, setEmail] = useState('');
@@ -72,10 +83,48 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [manualKey, setManualKey] = useState('');
   const [configured, setConfigured] = useState(isSupabaseConfigured());
+  const [sessionUser, setSessionUser] = useState(user || state?.user || null);
+
+  useEffect(() => {
+    if (user) setSessionUser(user);
+    else if (state?.user) setSessionUser(state.user);
+  }, [user, state?.user]);
 
   useEffect(() => {
     setConfigured(isSupabaseConfigured());
+    if (!supabase) return;
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user?.email) {
+        setSessionUser(data.user);
+      }
+    }).catch(() => {});
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSessionUser(session?.user || null);
+    });
+    return () => listener?.subscription?.unsubscribe();
   }, []);
+
+  const activeUser = sessionUser?.email ? sessionUser : (state?.user?.email ? state.user : (user?.email ? user : null));
+  const isLoggedIn = Boolean(activeUser?.email);
+
+  async function handleSignOut() {
+    setLoading(true);
+    await signOutUser();
+    setSessionUser(null);
+    if (update) {
+      update(old => ({
+        user: {
+          id: 'usr_local_' + (old?.role || 'mother'),
+          displayName: old?.name || 'Zeynep',
+          locale: old?.lang || 'tr',
+          activeRole: old?.role || 'mother',
+        },
+      }));
+    }
+    setLoading(false);
+    toast && toast(isEn ? 'Signed out successfully.' : 'Oturum kapatıldı. Başarıyla çıkış yaptınız.');
+    setTab('signin');
+  }
 
   async function handleSignIn() {
     setErrorMsg('');
@@ -262,7 +311,9 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
           <T bold style={s.backBtnText}>{isEn ? 'Back' : 'Geri'}</T>
         </Tap>
         <T bold style={s.topBarTitle}>
-          {tab === 'signup'
+          {isLoggedIn
+            ? (isEn ? 'My Account' : 'Hesabım & Oturum')
+            : tab === 'signup'
             ? (isEn ? 'Create Account' : 'Hesap Oluştur')
             : tab === 'forgot'
             ? (isEn ? 'Reset Password' : 'Şifre Sıfırla')
@@ -283,12 +334,203 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
             <T style={s.brandTitle}>MOMORA</T>
           </View>
           <T style={s.subtitle}>
-            {tab === 'signin' && (isEn ? 'Sign in to your account to sync baby logs.' : 'Hamilelik ve bebek takibine kaldığın yerden devam et.')}
-            {tab === 'signup' && (isEn ? 'Create an account to track development together.' : 'Anne & baba ortak hesabı oluştur, birlikte takip edin.')}
-            {tab === 'forgot' && (isEn ? 'Enter your email to receive a password reset link.' : 'Kayıtlı e-postanı gir, şifre sıfırlama bağlantısı gönderelim.')}
-            {tab === 'key' && (isEn ? 'Supabase Anon / Publishable Key setup' : 'Supabase Anon / Publishable Key yapılandırması')}
+            {isLoggedIn
+              ? (isEn ? 'Your cloud account is active and synced.' : 'Momora hesabınız aktif, bulut senkronizasyonu çalışıyor.')
+              : tab === 'signin' && (isEn ? 'Sign in to your account to sync baby logs.' : 'Hamilelik ve bebek takibine kaldığın yerden devam et.')}
+            {!isLoggedIn && tab === 'signup' && (isEn ? 'Create an account to track development together.' : 'Anne & baba ortak hesabı oluştur, birlikte takip edin.')}
+            {!isLoggedIn && tab === 'forgot' && (isEn ? 'Enter your email to receive a password reset link.' : 'Kayıtlı e-postanı gir, şifre sıfırlama bağlantısı gönderelim.')}
+            {!isLoggedIn && tab === 'key' && (isEn ? 'Supabase Anon / Publishable Key setup' : 'Supabase Anon / Publishable Key yapılandırması')}
           </T>
         </View>
+
+        {isLoggedIn ? (
+          /* ─── AKTİF OTURUM / HESAP DETAYLARI ─── */
+          <View style={{ gap: 14, marginTop: 4 }}>
+            {/* Profil Özeti Kartı */}
+            <View style={{
+              backgroundColor: 'white',
+              borderRadius: 20,
+              padding: 18,
+              borderWidth: 1,
+              borderColor: '#EAE4DE',
+              shadowColor: '#5E4C7A',
+              shadowOpacity: 0.08,
+              shadowRadius: 10,
+              shadowOffset: { width: 0, height: 4 },
+              alignItems: 'center',
+            }}>
+              <View style={{
+                width: 68,
+                height: 68,
+                borderRadius: 34,
+                backgroundColor: '#F3EBF4',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 12,
+                borderWidth: 2,
+                borderColor: colors.purple,
+              }}>
+                <T style={{ fontSize: 32 }}>
+                  {state?.avatarEmoji || (state?.role === 'father' ? '👨‍🍼' : '🤰')}
+                </T>
+              </View>
+
+              <T bold style={{ fontSize: 18, color: colors.ink, textAlign: 'center' }}>
+                {state?.name || activeUser?.user_metadata?.full_name || activeUser?.user_metadata?.name || activeUser?.email?.split('@')[0]}
+              </T>
+
+              <T style={{ fontSize: 13, color: colors.muted, marginTop: 2, textAlign: 'center' }}>
+                {activeUser?.email}
+              </T>
+
+              <View style={{ flexDirection: 'row', gap: 8, marginTop: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+                <View style={{ backgroundColor: '#F3EBF4', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 }}>
+                  <T bold style={{ fontSize: 11, color: colors.purple }}>
+                    {state?.role === 'father' ? (isEn ? '👨‍🍼 Father Account' : '👨‍🍼 Baba Hesabı') : (isEn ? '🌸 Mother Account' : '🌸 Anne Hesabı')}
+                  </T>
+                </View>
+                <View style={{ backgroundColor: '#DCFCE7', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#16A34A' }} />
+                  <T bold style={{ fontSize: 11, color: '#15803D' }}>
+                    {isEn ? 'Signed In & Active' : 'Oturum Açık'}
+                  </T>
+                </View>
+              </View>
+            </View>
+
+            {/* Bulut Senkronizasyon Kartı */}
+            <View style={{
+              backgroundColor: '#F9FAFB',
+              borderRadius: 16,
+              padding: 14,
+              borderWidth: 1,
+              borderColor: '#E5E7EB',
+            }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <Icon name="check" size={16} color="#16A34A" />
+                <T bold style={{ fontSize: 13, color: '#1F2937' }}>
+                  {isEn ? 'Supabase Cloud Sync Active' : 'Supabase Bulut Eşitlemesi Aktif'}
+                </T>
+              </View>
+              <T style={{ fontSize: 12, color: colors.muted, lineHeight: 18 }}>
+                {isEn
+                  ? 'All pregnancy milestones, kick counter logs, baby feeding & sleep logs are safely synchronized in the cloud.'
+                  : 'Tüm hamilelik takibi, tekme sayaçları, bebek beslenme ve uyku kayıtlarınız bulutta güvende ve anlık eşitleniyor.'}
+              </T>
+              <View style={{ marginTop: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <T style={{ fontSize: 11, color: '#9CA3AF' }}>rnkrjmblgcdqlyslbhob.supabase.co</T>
+                <Tap
+                  onPress={async () => {
+                    if (refreshFromCloud) await refreshFromCloud();
+                    toast && toast(isEn ? 'Cloud data synchronized ☁️' : 'Bulut verileri başarıyla eşitlendi ☁️');
+                  }}
+                  style={{ backgroundColor: '#EDE9FE', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 8 }}
+                >
+                  <T bold style={{ fontSize: 11, color: colors.purple }}>
+                    {isEn ? 'Sync Now' : 'Şimdi Eşitle'}
+                  </T>
+                </Tap>
+              </View>
+            </View>
+
+            {/* Eş ve Aile Takip Kodu */}
+            <View style={{
+              backgroundColor: '#FFF7ED',
+              borderRadius: 16,
+              padding: 14,
+              borderWidth: 1,
+              borderColor: '#FED7AA',
+            }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <Icon name="community" size={16} color="#EA580C" />
+                <T bold style={{ fontSize: 13, color: '#9A3412' }}>
+                  {isEn ? 'Family & Partner Sharing Code' : 'Eş & Aile Paylaşım Kodu'}
+                </T>
+              </View>
+              <T style={{ fontSize: 12, color: '#7C2D12', lineHeight: 17, marginBottom: 8 }}>
+                {isEn
+                  ? 'Share this code with your partner so you can track the same baby logs together.'
+                  : 'Eşiniz bu kodu girerek aynı bebek ve hamilelik günlüğüne ortak olabilir.'}
+              </T>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'white', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: '#FDBA74' }}>
+                <T bold style={{ fontSize: 13, color: '#9A3412', letterSpacing: 1.5, fontFamily: fonts.bold }}>
+                  {state?.partnerCode || (activeUser?.id ? `MOM-${activeUser.id.slice(0, 6).toUpperCase()}` : 'MOM-8421-TR')}
+                </T>
+                <Tap
+                  onPress={() => {
+                    const code = state?.partnerCode || (activeUser?.id ? `MOM-${activeUser.id.slice(0, 6).toUpperCase()}` : 'MOM-8421-TR');
+                    if (typeof navigator !== 'undefined' && navigator?.clipboard) {
+                      navigator.clipboard.writeText(code).catch(() => {});
+                    }
+                    toast && toast(isEn ? 'Family code copied! 📋' : 'Aile kodu panoya kopyalandı! 📋');
+                  }}
+                  style={{ backgroundColor: '#EA580C', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6 }}
+                >
+                  <T bold style={{ fontSize: 11, color: 'white' }}>{isEn ? 'Copy' : 'Kopyala'}</T>
+                </Tap>
+              </View>
+            </View>
+
+            {/* Butonlar */}
+            <View style={{ gap: 10, marginTop: 4 }}>
+              <Tap
+                onPress={() => close && close()}
+                style={s.primaryBtn}
+              >
+                <T bold style={s.primaryBtnText}>
+                  {isEn ? 'Return to App' : 'Uygulamaya Devam Et'}
+                </T>
+              </Tap>
+
+              <Tap
+                onPress={() => {
+                  if (setPage) setPage('profile');
+                  close && close();
+                }}
+                style={{
+                  backgroundColor: '#F3EBF4',
+                  borderRadius: 14,
+                  paddingVertical: 12,
+                  alignItems: 'center',
+                }}
+              >
+                <T bold style={{ fontSize: 13, color: colors.purple }}>
+                  {isEn ? 'Manage Profile & Family Sharing' : 'Profil ve Aile Ayarlarını Aç'}
+                </T>
+              </Tap>
+
+              {/* HESAPTAN ÇIKIŞ YAP (SIGN OUT) */}
+              <Tap
+                onPress={handleSignOut}
+                disabled={loading}
+                style={{
+                  backgroundColor: '#FEF2F2',
+                  borderColor: '#FECACA',
+                  borderWidth: 1.2,
+                  borderRadius: 14,
+                  paddingVertical: 12,
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  gap: 8,
+                  marginTop: 6,
+                }}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#DC2626" size="small" />
+                ) : (
+                  <>
+                    <Icon name="close" size={15} color="#DC2626" />
+                    <T bold style={{ fontSize: 13, color: '#DC2626' }}>
+                      {isEn ? 'Sign Out of Account' : 'Hesaptan Çıkış Yap'}
+                    </T>
+                  </>
+                )}
+              </Tap>
+            </View>
+          </View>
+        ) : (
+          <>
 
         {/* Proje Durumu / Key Uyarısı */}
         {!configured && tab !== 'key' && (
@@ -614,6 +856,8 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
         <Tap onPress={() => close && close()} style={s.guestBtn}>
           <T style={s.guestBtnText}>{isEn ? 'Continue as guest for now' : 'Şimdilik misafir olarak devam et'}</T>
         </Tap>
+        </>
+        )}
       </ScrollView>
 
       {/* ─── GOOGLE SIGN-IN DIALOG ────────────────────────────────────────── */}
