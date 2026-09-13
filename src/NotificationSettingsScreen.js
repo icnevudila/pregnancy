@@ -327,18 +327,18 @@ export function NotificationSettingsScreen({ toast, lang = 'tr', week = 24, clos
           )}
         </Card>
 
-        {/* 🥑 Günün Gelişimi & Başyazı */}
+        {/* 🥑 Günün Gelişimi & Editörün Seçimi */}
         <Card style={ns.channelCard}>
           <View style={ns.toggleRow}>
             <View style={{ flex: 1, paddingRight: 10 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <T style={{ fontSize: 16 }}>🥑</T>
-                <T bold style={{ fontSize: 14 }}>{isEn ? 'Daily Growth & Lead Story' : 'Günün Gelişimi & Başyazı'}</T>
+                <T bold style={{ fontSize: 14 }}>{isEn ? "Daily Growth & Editor's Choice" : 'Günün Gelişimi & Editörün Seçimi'}</T>
               </View>
               <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 3, lineHeight: 16 }}>
                 {isEn
                   ? 'Morning brief on your baby’s exact millimeter growth and today’s editorial guide.'
-                  : 'Sabah bebeğinizin milimetrik büyüme haberi ve günün uzman başyazı rehberi.'}
+                  : 'Sabah bebeğinizin milimetrik büyüme haberi ve editörün seçtiği uzman rehber.'}
               </T>
             </View>
             <Switch

@@ -467,7 +467,7 @@ export function SleepWhiteNoiseScreen({ state, update, toast, lang = 'tr' }) {
           value={activeSoundObj ? activeSoundObj.name.split(' ')[0] : (isEn ? 'Off' : 'Kapalı')}
           unit={activeSoundObj ? `${timerMins || '∞'} ${isEn ? 'min' : 'dk'}` : (isEn ? 'Ready' : 'Hazır')}
           subtext={activeSoundObj ? (isEn ? 'White noise active' : 'Beyaz gürültü aktif') : (isEn ? 'Tap to play' : 'Dinletmek için dokun')}
-          icon="sparkles"
+          icon="volume"
         />
       </View>
 

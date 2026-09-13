@@ -52,7 +52,7 @@ export function InfoNote({ icon = 'heart', title, body, tint = colors.purple, st
   );
 }
 
-export function CleanIcon({ asset, icon = 'sparkle', size = 36, imgSize = 32, tint = colors.purple, style }) {
+export function CleanIcon({ asset, icon = 'leaf', size = 36, imgSize = 32, tint = colors.purple, style }) {
   const art = typeof asset === 'string' ? (generatedAssets[asset] || getAsset(asset)) : asset;
   return (
     <View style={[{ width: size, height: size, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' }, style]}>
@@ -77,7 +77,7 @@ export function ToolExperienceCard({ title, steps = [], outcome, asset, tint = c
         style={{ flexDirection: 'row', alignItems: 'center', gap: 11 }}
       >
         <View style={[s.toolExperienceArtCompact, { backgroundColor: 'transparent' }]}>
-          {art ? <Image source={art} style={{ width: 26, height: 26 }} resizeMode="contain" /> : <Icon name="sparkle" size={17} color={tint} />}
+          {art ? <Image source={art} style={{ width: 26, height: 26 }} resizeMode="contain" /> : <Icon name="leaf" size={17} color={tint} />}
         </View>
         <View style={{ flex: 1 }}>
           <T style={{ fontSize: 9.5, color: tint, letterSpacing: 0.8, fontFamily: fonts.bold }}>{isEn ? 'CLINICAL RITUAL' : 'KLİNİK RİTÜEL & REHBER'}</T>
@@ -280,7 +280,7 @@ export function MetricCard({ title, value, unit, subtext, icon, tint = colors.pu
 export function StatusCard({ level = 'info', title, body, description, icon, action, onAction, style }) {
   const configs = {
     safe: { bg: '#EDF7F1', border: '#BEE7CD', color: '#2B754B', icon: 'check' },
-    warning: { bg: '#FEF8EB', border: '#F6E0B4', color: '#996C26', icon: 'sparkle' },
+    warning: { bg: '#FEF8EB', border: '#F6E0B4', color: '#996C26', icon: 'clock' },
     alert: { bg: '#FDEEEF', border: '#F8C7CB', color: '#B53443', icon: 'heart' },
     info: { bg: '#F5EFF9', border: '#E4D5EC', color: '#6A4482', icon: 'heart' },
   };

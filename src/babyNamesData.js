@@ -817,5 +817,131 @@ export const babyNamesList = [
   }
 ];
 
-export const nameOrigins = ['Tümü', 'Türkçe', 'Arapça', 'Farsça', 'Evrensel'];
-export const nameThemes = ['Tümü', '💕 Ortak Eşleşmeler', '🌿 Doğa & Çiçek', '🏛️ Tarihi & Göktürk', '✨ Modern & Kısa', '📖 Kuran\'da Geçen'];
+export const nameThemes = ['Tümü', '💕 Ortak Eşleşmeler', '🌿 Doğa & Çiçek', '🏛️ Tarihi & Göktürk', '💎 Modern & Kısa', '📖 Kuran\'da Geçen'];
+
+const tagMapEn = {
+  'Doğa & Çiçek': 'Nature & Floral',
+  'Zamansız Klasik': 'Timeless Classic',
+  'Manevi & Dini': 'Spiritual & Traditional',
+  'Modern & Kısa': 'Modern & Short',
+  'Tarihi & Göktürk': 'Historical & Epic',
+  'Güç & Asalet': 'Strength & Nobility',
+  'Zarafet & Sanat': 'Grace & Art',
+  'Özgün & Nadir': 'Unique & Rare',
+};
+
+const popMapEn = {
+  'Trend 2026': 'Trending 2026',
+  'Zamansız Klasik': 'Timeless Classic',
+  'Özgün & Nadir': 'Unique & Rare',
+};
+
+const originMapEn = {
+  'Yunanca / Akdeniz': 'Greek / Mediterranean',
+  'Arapça': 'Arabic',
+  'Türkçe': 'Turkish',
+  'Türkçe / Evrensel': 'Turkish / Universal',
+  'Arapça / Türkçe': 'Arabic / Turkish',
+  'Farsça': 'Persian',
+  'Farsça / Türkçe': 'Persian / Turkish',
+  'Mısır / Arapça': 'Egyptian / Arabic',
+  'İbranice / Arapça': 'Hebrew / Arabic',
+  'Süryanice / Arapça': 'Syriac / Arabic',
+  'Mitoloji / Evrensel': 'Mythology / Universal',
+  'Türkçe / Farsça': 'Turkish / Persian',
+  'Yunanca / Türkçe': 'Greek / Turkish',
+  'Türkçe / Moğolca': 'Turkish / Mongolian',
+  'Sanskritçe / İtalyanca': 'Sanskrit / Italian',
+  'Türkçe / Yunanca': 'Turkish / Greek',
+  'Latince / Sanskritçe': 'Latin / Sanskrit',
+};
+
+const meaningsEn = {
+  bn_defne: 'Noble laurel tree with fragrant leaves evergreen in summer and winter; symbol of victory, peace, and grace.',
+  bn_zeynep: "Father's precious ornament, rare jewels and radiant gemstones.",
+  bn_asel: 'Stream of pure honey in paradise; wholesome, soothing, and sweet.',
+  bn_lina: 'Delicate palm seedling in paradise; tenderhearted, gentle, and loving.',
+  bn_alara: 'Water nymph in ancient Turkic mythology; crimson river bringing freshness and vitality.',
+  bn_zumra: 'Intelligent, courageous, and noble-spirited woman; also emerald beauty.',
+  bn_elis: 'Fragrant flower scent spreading in the air; pure and graceful.',
+  bn_doga: 'Nature itself, encompassing all natural beauty, life, and green vitality.',
+  bn_beren: 'Intelligent, quick-witted, talented, and courageous.',
+  bn_masal: 'Enchanting fairytale; world filled with imagination, wonders, and sweet dreams.',
+  bn_bade: 'Pure essence of love and devotion; radiant and sincere.',
+  bn_miray: 'Radiant like the moon; shining leader who brightens the world.',
+  bn_derin: 'Profound intellect, bottomless wisdom, and emotional depth.',
+  bn_ipek: 'Silken softness, delicate grace, and timeless nobility.',
+  bn_nehir: 'Vibrant river flowing steadily towards the sea; life and serenity.',
+  bn_duru: 'Crystal clear, transparent, and pure spirit.',
+  bn_mercan: 'Vibrant coral gemstone from the deep seas; protection and precious beauty.',
+  bn_alya: 'Highest peak of the skies, heavenly nobility and grandeur.',
+  bn_hazel: 'Autumn tree leaves; calm, wisdom, and warm beauty.',
+  bn_beliz: 'Clear sign, distinct mark, and memorable footprint.',
+  bn_ada: 'Peaceful island surrounded by clear waters; safe haven and uniqueness.',
+  bn_nil: 'Life-giving, majestic river bringing fertility and abundance.',
+  bn_sare: 'Pure, distinguished lady; beloved and sincere.',
+  bn_inci: 'Precious pearl formed with patience inside the oyster; rare grace.',
+  bn_eylul: 'Gentle autumn breeze; romance, peace, and serenity.',
+  bn_ruya: 'Beautiful dream, visionary imagination, and cherished desire.',
+  bn_ece: 'Beloved queen, graceful and esteemed ruler.',
+  bn_verda: 'Fresh morning dew and blooming rose petals.',
+  bn_azra: 'Pure, untouched pearl; symbol of maiden innocence and brilliance.',
+  bn_asli: 'Authentic, rooted, and noble essence; legendary enduring love.',
+  bn_ilayda: 'Enchanting water fairy, life of clear streams and springs.',
+  bn_dilara: 'Heart-soothing and charming sweetheart; source of joy.',
+  bn_atlas: 'Vast heavens, bearer of the skies; world atlas and celestial strength.',
+  bn_alparslan: 'Brave, legendary lion; symbol of courage and heroic leadership.',
+  bn_kerem: 'Generosity, noble benevolence, and magnanimous kindness.',
+  bn_gokturk: 'Noble sky nomads; legendary ancient Turkic roots and heritage.',
+  bn_metehan: 'Legendary emperor of the Great Steppe; founder of military order.',
+  bn_kaan: 'Ruler of rulers, grand sovereign, and dignified king.',
+  bn_emir: 'Commanding prince, leader with innate authority.',
+  bn_aras: 'Mighty river cutting through great mountains; unstoppable force.',
+  bn_toprak: 'Generous earth; fertile mother soil giving life to all.',
+  bn_cinar: 'Majestic plane tree standing for centuries; shade, wisdom, and endurance.',
+  bn_yaman: 'Resourceful, determined, courageous, and capable.',
+  bn_ruzgar: 'Fresh breeze, free-spirited wind carrying autumn scents.',
+  bn_poyraz: 'Invigorating north-east wind; freshness and lively energy.',
+  bn_doruk: 'Highest mountain summit, pinnacle of achievement and vision.',
+  bn_eymen: 'Blessed, fortunate, safe, and right-handed virtue.',
+  bn_ali: 'Exalted, honorable, and occupying the highest moral station.',
+  bn_yigit: 'Fearless hero, brave warrior of exceptional character.',
+  bn_ozan: 'Poetic bard, master of words, storyteller and musical soul.',
+  bn_pamir: 'Roof of the world, grand snow-capped peaks reaching the stars.',
+  bn_meric: 'Majestic river connecting lands; life-giving and calm.',
+  bn_pars: 'Swift, agile leopard; nobility and sharp perception.',
+  bn_kayra: 'Divine grace, sovereign benevolence, and heavenly gift.',
+  bn_ayaz: 'Crisp, crystal-clear starlit winter frost; sharp and pure.',
+  bn_barlas: 'Valiant warrior, steadfast protector, and fearless leader.',
+  bn_selim: 'Peaceful, sound-minded, gentle, and free of malice.',
+  bn_yagiz: 'Stalwart, handsome, strong, and noble-hearted youth.',
+  bn_tuna: 'Majestic blue river flowing through continents; wealth and life.',
+  bn_barin: 'Unshakeable strength, all-embracing peace, and quiet power.',
+  bn_deniz: 'Vast ocean, freedom, endless horizon, and deep wisdom.',
+  bn_arya: 'Operatic melody, noble spirit, and poetic harmony.',
+  bn_evren: 'The vast cosmos, eternity, and all-encompassing harmony.',
+  bn_umut: 'Eternal hope, morning light, and inspiring optimism.',
+  bn_ilgaz: 'Snowy evergreen mountain pine; fresh air and enduring spirit.',
+  bn_yagmur: 'Life-giving gentle rain showers; fertility and peaceful fragrance.',
+  bn_gunes: 'Golden sun, warmth, vital energy, and guiding light.',
+  bn_ege: 'Turquoise Aegean breeze, warmth, olive branches, and hospitality.',
+  bn_bilge: 'Wise sage, deep knowledge, understanding, and guiding mind.',
+  bn_cagri: 'Noble call, invitation to unity, and welcoming proclamation.',
+  bn_baris: 'Harmonious peace, reconciliation, and tranquil stillness.',
+  bn_eren: 'Enlightened soul, spiritual wisdom, and saintly friend.',
+  bn_utku: 'Noble victory achieved through devotion and righteous effort.',
+  bn_mira: 'Shining celestial star; also ocean, wonder, and harmony.',
+};
+
+export function getLocalizedBabyName(nameObj, lang = 'tr') {
+  if (!nameObj) return nameObj;
+  if (lang !== 'en') return nameObj;
+  return {
+    ...nameObj,
+    meaning: meaningsEn[nameObj.id] || nameObj.meaning,
+    origin: originMapEn[nameObj.origin] || nameObj.origin,
+    tag: tagMapEn[nameObj.tag] || nameObj.tag,
+    popularity: popMapEn[nameObj.popularity] || nameObj.popularity,
+    gender: nameObj.gender === 'Kız' ? 'Girl' : nameObj.gender === 'Erkek' ? 'Boy' : 'Unisex',
+  };
+}

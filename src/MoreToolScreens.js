@@ -4,7 +4,7 @@ import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
 import { T, Tap, Card, Section, Progress, ScreenHero, InfoNote, MetricCard, StatusCard, ProgressRing, ToolExperienceCard } from './ui';
 import { uid, localDay } from './domain.mjs';
-import { babyNamesList, nameThemes, nameOrigins } from './babyNamesData';
+import { babyNamesList, nameThemes, nameOrigins, getLocalizedBabyName } from './babyNamesData';
 
 // ─── 4. KİLO TAKİBİ (WEIGHT TRACKER) ─────────────────────────────────────────
 export function WeightTracker({ state, update, toast, lang = 'tr' }) {
@@ -88,7 +88,7 @@ export function WeightTracker({ state, update, toast, lang = 'tr' }) {
           ? (isEn ? "You are doing great! Your weight gain is progressing within international standard guidelines for your week." : "Harika gidiyorsunuz! Kilo artışınız gebelik haftanıza göre uluslararası standart bantta ilerliyor.")
           : (isEn ? "Weight gain is evaluated by weekly trends. If you experience sudden swelling, consult your doctor." : "Kilo artışı haftalık eğilimle değerlendirilir. Ani ödem veya endişeniz olursa doktor kontrolünüzde danışın.")
         }
-        icon="sparkle"
+        icon="scale"
       />
 
       {/* Hızlı Kilo Ekleme & Dokunmatik Butonlar */}
@@ -589,7 +589,7 @@ export function BabyNameMatcher({ state, update, toast, lang = 'tr' }) {
     if ((themeFilter === '💕 Ortak Eşleşmeler' || themeFilter === '💕 Partner Matches') && !n.partnerMatch) return false;
     if ((themeFilter === '🌿 Doğa & Çiçek' || themeFilter === '🌿 Nature & Flowers') && n.tag !== 'Doğa & Çiçek') return false;
     if ((themeFilter === '🏛️ Tarihi & Göktürk' || themeFilter === '🏛️ Historical & Classic') && n.tag !== 'Tarihi & Göktürk') return false;
-    if ((themeFilter === '✨ Modern & Kısa' || themeFilter === '✨ Modern & Short') && n.tag !== 'Modern & Kısa') return false;
+    if ((themeFilter === '💎 Modern & Kısa' || themeFilter === '💎 Modern & Short') && n.tag !== 'Modern & Kısa') return false;
     if ((themeFilter === "📖 Kuran'da Geçen" || themeFilter === "📖 Quranic Names") && !n.quran) return false;
 
     // Arama sorgusu
@@ -607,7 +607,7 @@ export function BabyNameMatcher({ state, update, toast, lang = 'tr' }) {
   const partnerMatchesCount = babyNamesList.filter(n => n.partnerMatch).length;
 
   const themes = isEn
-    ? ['All', '💕 Partner Matches', '🌿 Nature & Flowers', '🏛️ Historical & Classic', '✨ Modern & Short', '📖 Quranic Names']
+    ? ['All', '💕 Partner Matches', '🌿 Nature & Flowers', '🏛️ Historical & Classic', '💎 Modern & Short', '📖 Quranic Names']
     : nameThemes;
 
   const genderOptions = [
@@ -637,7 +637,7 @@ export function BabyNameMatcher({ state, update, toast, lang = 'tr' }) {
           value={babyNamesList.length}
           unit={isEn ? "curated names" : "seçkin isim"}
           subtext={isEn ? "With meanings & origins" : "Anlam & kökenli"}
-          icon="sparkles"
+          icon="book"
         />
         <MetricCard
           title={isEn ? "SHARED MATCHES" : "EŞİMLE ORTAK"}

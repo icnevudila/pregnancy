@@ -317,10 +317,10 @@ export async function scheduleDailyGuideReminder(settings = DEFAULT_NOTIFICATION
 
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: isEn ? `🥑 Week ${week} Daily Growth Story` : `🥑 ${week}. Hafta Günün Başyazısı & Gelişim`,
+        title: isEn ? `🥑 Week ${week} Daily Growth Story` : `🥑 ${week}. Hafta Günün Gelişimi & Editörün Seçimi`,
         body: isEn
           ? `Discover what milestone your baby is developing today. Read today's physician-checked guide in Momora.`
-          : `${week}. haftada bebeğinizin yeni duyuları aktifleşiyor. Uzman hekim onaylı günün başyazısını inceleyin.`,
+          : `${week}. haftada bebeğinizin yeni duyuları aktifleşiyor. Uzman hekim onaylı editoryal rehberi inceleyin.`,
         data: { screen: 'discover' },
         channelId: 'daily-guides',
         sound: settings.sound,

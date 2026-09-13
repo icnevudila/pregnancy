@@ -718,10 +718,10 @@ function ComparisonHero({ week, info, onPress, lang = 'tr' }) {
       {/* 3'lü Kıyaslama Switcher (Pregnancy+ Stili) */}
       <View style={s.compTabs}>
         {[
-          { key: 'fruit', label: isEn ? '🍏 Fruit' : '🍏 Meyve' },
-          { key: 'animal', label: isEn ? '🧸 Animal' : '🧸 Hayvan' },
-          { key: 'sweet', label: isEn ? '🧁 Sweet' : '🧁 Tatlı' },
-          { key: 'ultrasound', label: isEn ? '🩺 Ultrasound' : '🩺 Ultrason' },
+          { key: 'fruit', label: isEn ? 'Fruit' : 'Meyve', icon: 'apple' },
+          { key: 'animal', label: isEn ? 'Animal' : 'Hayvan', icon: 'paw' },
+          { key: 'sweet', label: isEn ? 'Sweet' : 'Tatlı', icon: 'cupcake' },
+          { key: 'ultrasound', label: isEn ? 'Ultrasound' : 'Ultrason', icon: 'ultrasound' },
         ].map(t => (
           <Tap
             key={t.key}

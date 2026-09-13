@@ -1635,10 +1635,10 @@
       "transparent": true,
       "preferredPlatform": "any",
       "status": "processing",
-      "attempts": 1,
+      "attempts": 2,
       "createdAt": 1789250674104,
       "updatedAt": 1789290274150,
-      "startedAt": 1789290625478,
+      "startedAt": 1789291833749,
       "platform": "chatgpt"
     },
     {

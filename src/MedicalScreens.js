@@ -27,13 +27,13 @@ export function SizeComparisonHub({ state, toast, lang = 'tr' }) {
       />
       <ToolExperienceCard lang={lang} title={isEn ? 'Make growth tangible' : 'Boyutu üç farklı dille anlat'} steps={isEn ? ['Switch between fruit, animal, and sweet comparisons.', 'Move week by week.', 'Open the weekly detail when curious.'] : ['Meyve, hayvan ve tatlı kıyasını değiştir.', 'Hafta hafta ilerle.', 'Merak ettiğinde hafta detayını aç.']} outcome={isEn ? 'Growth feels visual and memorable.' : 'Gelişim görsel ve akılda kalıcı hale gelir.'} asset="fruit_apple" tint="#7B4C80" />
 
-      {/* 4'lü Segment Seçici */}
+      {/* 4'lü Segment Seçici (Lüks İkonlu Tasarım) */}
       <View style={ms.segRow}>
         {[
-          { id: 'fruit', label: isEn ? '🍏 Fruit' : '🍏 Meyve', sub: isEn ? 'Classic' : 'Klasik' },
-          { id: 'ultrasound', label: isEn ? '🩺 Ultrasound' : '🩺 Ultrason', sub: isEn ? 'Medical' : 'Medikal' },
-          { id: 'animal', label: isEn ? '🧸 Animal' : '🧸 Hayvan', sub: isEn ? 'Nature' : 'Doğa' },
-          { id: 'sweet', label: isEn ? '🧁 Sweet' : '🧁 Tatlı', sub: isEn ? 'Delight' : 'Keyif' },
+          { id: 'fruit', label: isEn ? 'Fruit' : 'Meyve', icon: 'apple' },
+          { id: 'ultrasound', label: isEn ? 'Ultrasound' : 'Ultrason', icon: 'ultrasound' },
+          { id: 'animal', label: isEn ? 'Animal' : 'Hayvan', icon: 'paw' },
+          { id: 'sweet', label: isEn ? 'Sweet' : 'Tatlı', icon: 'cupcake' },
         ].map(s => (
           <Tap
             key={s.id}
@@ -41,9 +41,12 @@ export function SizeComparisonHub({ state, toast, lang = 'tr' }) {
             onPress={() => setMode(s.id)}
             style={[ms.segBtn, mode === s.id && ms.segBtnActive]}
           >
-            <T bold={mode === s.id} style={[ms.segText, mode === s.id && { color: 'white' }]}>
-              {s.label}
-            </T>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+              <Icon name={s.icon} size={14} color={mode === s.id ? 'white' : colors.purple} />
+              <T bold={mode === s.id} style={[ms.segText, mode === s.id && { color: 'white' }]}>
+                {s.label}
+              </T>
+            </View>
           </Tap>
         ))}
       </View>

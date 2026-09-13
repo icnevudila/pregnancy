@@ -305,7 +305,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
           style={[es.hubTabBtn, hubTab === 'infographics' && es.hubTabBtnActive]}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Icon name="sparkle" size={14} color={hubTab === 'infographics' ? 'white' : colors.purple} />
+            <Icon name="bookmark" size={13} color={hubTab === 'infographics' ? 'white' : colors.purple} />
             <T bold={hubTab === 'infographics'} style={[es.hubTabText, hubTab === 'infographics' && { color: 'white' }]}>
               {isEn ? 'Infographics' : 'İnfografikler'}
             </T>
@@ -363,13 +363,13 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
             ))}
           </ScrollView>
 
-          {/* Öne Çıkan Başyazı (Featured Lead Story Hero - TAM RESİM) */}
+          {/* Editörün Seçimi (Featured Editorial Story Hero - TAM RESİM) */}
           {!articleQuery && articleFilter === 'all' && featuredArticle && (() => {
             const feat = getLocalizedArticle(featuredArticle, lang);
             return (
               <Tap
                 onPress={() => openArticle && openArticle(feat)}
-                label={isEn ? "Featured Lead Story" : "Öne Çıkan Başyazı"}
+                label={isEn ? "Editor's Choice" : "Editörün Seçimi"}
                 style={es.featuredHeroCard}
               >
                 {/* Üst Kısım: Tam 16:9 Kesilmemiş Orijinal Fotoğraf */}
@@ -381,9 +381,9 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                     ) : null;
                   })()}
                   <View style={es.featuredHeroBadge}>
-                    <Icon name="sparkle" size={12} color={colors.purple} />
+                    <Icon name="bookmark" size={11} color={colors.purple} />
                     <T bold style={{ fontSize: 10.5, color: colors.purple, letterSpacing: 0.8 }}>
-                      {isEn ? "TODAY'S LEAD STORY" : "GÜNÜN BAŞYAZISI"}
+                      {isEn ? "EDITOR'S CHOICE" : "EDİTÖRÜN SEÇİMİ"}
                     </T>
                   </View>
                 </View>
@@ -876,12 +876,12 @@ export function EditorialArticleScreen({ article, close, openArticle, toast, lan
             </Tap>
             <View style={{ flex: 1, marginLeft: 14 }}>
               <T bold style={{ fontSize: 13, color: colors.ink }}>
-                {isEn ? 'Momora Text-to-Speech' : 'Momora Sesli Dinleme'}
+                {isEn ? 'Momora Audio Edition' : 'Momora Sesli Edisyon'}
               </T>
               <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
                 {playingAudio
-                  ? (isEn ? 'Reading article aloud...' : 'Yazı seslendiriliyor...')
-                  : `${a.audioDuration || (a.minutes ? `${a.minutes}:00` : '3:45')} · ${isEn ? 'AI Narrator' : 'Yapay Zeka Seslendirme'}`}
+                  ? (isEn ? 'Reading article aloud...' : 'Sesli anlatım dinleniyor...')
+                  : `${a.audioDuration || (a.minutes ? `${a.minutes}:00` : '3:45')} · ${isEn ? 'Editorial Narration' : 'Momora Sesli Anlatım'}`}
               </T>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 6 }}>
                 {[8, 14, 20, 12, 18, 10, 16, 22, 14, 8, 12].map((h, i) => (
@@ -909,10 +909,12 @@ export function EditorialArticleScreen({ article, close, openArticle, toast, lan
           {/* Özet: Önemli Noktalar Kartı */}
           {displayKeyPoints && displayKeyPoints.length > 0 && (
             <Card style={es.keyPointsCard}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 10 }}>
-                <Icon name="sparkle" size={16} color={colors.purple} />
-                <T bold style={{ fontSize: 13.5, color: colors.purple, letterSpacing: 0.5 }}>
-                  {isEn ? 'IN BRIEF: KEY TAKEAWAYS' : 'ÖZETLE: ÖNE ÇIKAN NOKTALAR'}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: colors.purple + '18', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="check" size={13} color={colors.purple} />
+                </View>
+                <T bold style={{ fontSize: 12.5, color: colors.purple, letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                  {isEn ? 'Key Clinical Highlights' : 'Öne Çıkan Klinik Notlar'}
                 </T>
               </View>
               {displayKeyPoints.map((kp, idx) => (

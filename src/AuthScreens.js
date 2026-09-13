@@ -264,7 +264,7 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
         {/* Proje Durumu / Key Uyarısı */}
         {!configured && tab !== 'key' && (
           <View style={s.keyNotice}>
-            <Icon name="sparkle" size={16} color={colors.purple} />
+            <Icon name="refresh" size={16} color={colors.purple} />
             <View style={{ flex: 1 }}>
               <T bold style={{ fontSize: 13, color: colors.purple }}>
                 Supabase: fpcovwexojrauddbszab

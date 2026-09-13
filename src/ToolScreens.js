@@ -144,10 +144,10 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
         <Card style={ts.summaryBanner}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={ts.trophyBadge}>
-              <Icon name="sparkle" size={20} color={colors.purple} />
+              <Icon name="check" size={20} color={colors.purple} />
             </View>
             <View style={{ flex: 1 }}>
-              <T bold style={{ fontSize: 15, color: colors.purple }}>{isEn ? 'Session Completed Successfully! ✨' : 'Seans Başarıyla Tamamlandı! ✨'}</T>
+              <T bold style={{ fontSize: 15, color: colors.purple }}>{isEn ? 'Session Completed Successfully' : 'Seans Başarıyla Tamamlandı'}</T>
               <T style={{ fontSize: 12, color: colors.ink, marginTop: 2 }}>
                 {isEn ? `10 movements recorded in ` : `10 hareket `}
                 <T bold>{secondsLabel(completedSummary.duration)}</T>
@@ -509,7 +509,7 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
           style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Icon name="sparkle" size={16} color={colors.purple} />
+            <Icon name="heart" size={16} color={colors.purple} />
             <T bold style={{ fontSize: 13.5, color: colors.purple }}>{isEn ? 'Partner & Support: Breathing & Massage Guide' : 'Eş & Destek: Nefes & Masaj Rehberi'}</T>
           </View>
           <Icon name={showPartnerTips ? "chevron" : "down"} size={16} color={colors.muted} />
