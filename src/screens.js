@@ -29,7 +29,12 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [pendingJourney, setPendingJourney] = useState('pregnancy');
   const [babyNameInput, setBabyNameInput] = useState(isEn ? 'Maya' : 'Ada');
+  const [selectedOnboardingWeek, setSelectedOnboardingWeek] = useState(24);
+  const [deliveryTypeChoice, setDeliveryTypeChoice] = useState('vaginal');
+  const [babyAgeChoice, setBabyAgeChoice] = useState(14);
+  const [supportStyle, setSupportStyle] = useState('gentle');
   const [careFocus, setCareFocus] = useState('daily');
+  const [prepDone, setPrepDone] = useState(false);
   const [showSyncInput, setShowSyncInput] = useState(false);
   const [partnerCode, setPartnerCode] = useState('');
 
@@ -84,6 +89,41 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
   const currentJourneys = role === 'father' ? fatherJourneys : motherJourneys;
 
   const selectedJourneyCopy = currentJourneys.find(j => j.key === pendingJourney) || currentJourneys[0];
+  const journeyDetailCopy = {
+    pregnancy: isEn ? `Week ${selectedOnboardingWeek} pregnancy plan is prepared.` : `${selectedOnboardingWeek}. hafta gebelik planı hazırlandı.`,
+    postpartum: isEn ? `${deliveryTypeChoice === 'cesarean' ? 'Cesarean' : 'Vaginal'} postpartum recovery rhythm is prepared.` : `${deliveryTypeChoice === 'cesarean' ? 'Sezaryen' : 'Normal doğum'} lohusalık ritmi hazırlandı.`,
+    baby: isEn ? `${babyAgeChoice}-day baby care rhythm is prepared.` : `${babyAgeChoice} günlük bebek bakım ritmi hazırlandı.`,
+  };
+  const detailTitle = {
+    pregnancy: isEn ? 'Which pregnancy week are you in?' : 'Hamileliğin kaçıncı haftası?',
+    postpartum: isEn ? 'How should recovery be shaped?' : 'Toparlanma nasıl şekillensin?',
+    baby: isEn ? 'How old is your baby?' : 'Bebeğin kaç günlük?',
+  };
+  const detailSub = {
+    pregnancy: isEn ? 'Momora adjusts weekly growth, articles and trackers around this week.' : 'Momora haftalık gelişimi, yazıları ve takipleri bu haftaya göre ayarlar.',
+    postpartum: isEn ? 'Recovery cards and reminders change by birth type.' : 'Toparlanma kartları ve hatırlatmalar doğum tipine göre değişir.',
+    baby: isEn ? 'Sleep, feeding and care rhythm start from baby age.' : 'Uyku, beslenme ve bakım ritmi bebek yaşına göre başlar.',
+  };
+  const focusOptions = {
+    pregnancy: [
+      ['daily', isEn ? 'Weekly growth' : 'Haftalık gelişim', isEn ? 'Baby size, letters, trimester cards' : 'Bebek boyutu, mektuplar, trimester kartları'],
+      ['tools', isEn ? 'Pregnancy trackers' : 'Gebelik takipleri', isEn ? 'Kick, symptoms, appointment prep' : 'Tekme, belirti, randevu hazırlığı'],
+      ['calm', isEn ? 'Birth calm' : 'Doğum sakinliği', isEn ? 'Breath, affirmations, soft audio' : 'Nefes, olumlama, yumuşak ses']
+    ],
+    postpartum: [
+      ['daily', isEn ? 'Recovery rhythm' : 'Toparlanma ritmi', isEn ? 'Hydration, rest, gentle daily cards' : 'Sıvı, dinlenme, nazik günlük kartlar'],
+      ['tools', isEn ? 'Postpartum tools' : 'Lohusa araçları', isEn ? 'Mood, notes, checklists' : 'Ruh hali, notlar, kontrol listeleri'],
+      ['calm', isEn ? 'Soft reset' : 'Yumuşak reset', isEn ? 'Short calm sessions for hard moments' : 'Zor anlar için kısa sakinlik seansları']
+    ],
+    baby: [
+      ['daily', isEn ? 'Baby routine' : 'Bebek rutini', isEn ? 'Sleep, feed, diaper rhythm' : 'Uyku, beslenme, bez ritmi'],
+      ['tools', isEn ? 'Care tools' : 'Bakım araçları', isEn ? 'Timers, growth, care logs' : 'Sayaçlar, büyüme, bakım kayıtları'],
+      ['calm', isEn ? 'Sleep sounds' : 'Uyku sesleri', isEn ? 'Lullaby, rain, womb and lo-fi calm' : 'Ninni, yağmur, anne karnı ve lo-fi sakinlik']
+    ],
+  };
+  const supportOptions = role === 'father'
+    ? [['gentle', isEn ? 'Gentle support' : 'Nazik destek'], ['tasks', isEn ? 'Task partner' : 'Görev ortağı'], ['emotional', isEn ? 'Emotional anchor' : 'Duygusal destek']]
+    : [['gentle', isEn ? 'Gentle reminders' : 'Nazik hatırlatma'], ['tasks', isEn ? 'Clear tasks' : 'Net görevler'], ['emotional', isEn ? 'Emotional care' : 'Duygusal bakım']];
   const focusCopy = {
     daily: isEn ? 'Daily letters, reminders and week cards are prioritized.' : 'Günlük mektuplar, hatırlatmalar ve hafta kartları öne alındı.',
     tools: isEn ? 'Kick, contraction, bag and practical trackers are placed closer.' : 'Tekme, sancı, çanta ve pratik takipler daha yakına alındı.',
@@ -93,8 +133,15 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
     ? (isEn ? 'Partner support mode is ready.' : 'Baba ve eş desteği modu hazırlandı.')
     : (isEn ? 'Mother care mode is ready.' : 'Anne bakım modu hazırlandı.');
 
+  useEffect(() => {
+    if (onboardingStep !== 4) return;
+    setPrepDone(false);
+    const timer = setTimeout(() => setPrepDone(true), 1350);
+    return () => clearTimeout(timer);
+  }, [onboardingStep, pendingJourney, role, careFocus, supportStyle]);
+
   function selectJourney(key) {
-    const defaultDueDate = calculateDueDateFromWeek(24, 5);
+    const defaultDueDate = calculateDueDateFromWeek(selectedOnboardingWeek, 5);
     const guestUser = {
       id: role === 'father' ? 'usr_local_father' : 'usr_local_mother',
       displayName: role === 'father' ? (isEn ? 'Alex' : 'Mehmet') : (isEn ? 'Emma' : 'Zeynep'),
@@ -119,13 +166,13 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
     const baby = {
       id: 'bby_local_1',
       name: babyNameInput.trim() || (isEn ? 'Maya' : 'Ada'),
-      birthDate: key === 'baby' ? new Date(Date.now() - 14 * 86400000).toISOString().slice(0, 10) : '',
+      birthDate: key === 'baby' ? new Date(Date.now() - babyAgeChoice * 86400000).toISOString().slice(0, 10) : '',
       sex: 'female',
     };
     const postpartumProfile = {
       id: 'post_local_1',
       birthDate: key === 'postpartum' ? new Date(Date.now() - 10 * 86400000).toISOString().slice(0, 10) : '',
-      deliveryType: 'vaginal',
+      deliveryType: deliveryTypeChoice,
     };
 
     if (update) {
@@ -142,8 +189,10 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
         partnerName: household.members[1].name,
         partnerRole: household.members[1].role,
         partnerConnected: true,
-        week: key === 'pregnancy' ? 24 : 40,
+        week: key === 'pregnancy' ? selectedOnboardingWeek : 40,
         day: 5,
+        onboardingFocus: careFocus,
+        supportStyle,
       });
     }
     toast && toast(role === 'father'
@@ -314,13 +363,19 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
       {onboardingStep === 3 && (
         <View style={{ gap: 14 }}>
           <Card style={{ padding: 16, backgroundColor: '#FFFCF8', borderColor: '#EFE4EA' }}>
-            <T bold style={{ fontSize: 19, color: colors.ink }}>{isEn ? 'Personalize your daily Momora' : 'Günlük Momora’nı kişiselleştir'}</T>
-            <T style={{ fontSize: 12.5, color: colors.muted, lineHeight: 18, marginTop: 5 }}>{isEn ? 'These details bring back the extra onboarding pages before the app starts.' : 'Uygulama başlamadan önceki ek başlangıç sayfaları burada geri geldi.'}</T>
+            <T bold style={{ fontSize: 19, color: colors.ink }}>{detailTitle[pendingJourney]}</T>
+            <T style={{ fontSize: 12.5, color: colors.muted, lineHeight: 18, marginTop: 5 }}>{detailSub[pendingJourney]}</T>
             <View style={{ marginTop: 14, gap: 10 }}>
-              <T bold style={{ fontSize: 12, color: colors.purple }}>{isEn ? 'Baby name' : 'Bebek adı'}</T>
+              <T bold style={{ fontSize: 12, color: colors.purple }}>{pendingJourney === 'postpartum' ? (isEn ? 'Birth type' : 'Doğum tipi') : pendingJourney === 'baby' ? (isEn ? 'Baby name & age' : 'Bebek adı ve yaşı') : (isEn ? 'Baby name & week' : 'Bebek adı ve hafta')}</T>
               <TextInput value={babyNameInput} onChangeText={setBabyNameInput} placeholder={isEn ? 'Maya' : 'Ada'} placeholderTextColor={colors.muted} style={s.obTextInput} />
               {pendingJourney === 'pregnancy' && <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
-                {[12, 20, 24, 32].map(w => <Tap key={w} onPress={() => update && update({ week: w })} style={s.obOptionPill}><T bold style={{ fontSize: 12, color: colors.ink }}>{w}. {isEn ? 'week' : 'hafta'}</T></Tap>)}
+                {[12, 20, 24, 32].map(w => <Tap key={w} onPress={() => setSelectedOnboardingWeek(w)} style={[s.obOptionPill, selectedOnboardingWeek === w && s.obOptionPillActive]}><T bold style={{ fontSize: 12, color: selectedOnboardingWeek === w ? 'white' : colors.ink }}>{w}. {isEn ? 'week' : 'hafta'}</T></Tap>)}
+              </View>}
+              {pendingJourney === 'postpartum' && <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+                {[["vaginal", isEn ? "Vaginal birth" : "Normal doğum"], ["cesarean", isEn ? "Cesarean" : "Sezaryen"]].map(item => <Tap key={item[0]} onPress={() => setDeliveryTypeChoice(item[0])} style={[s.obOptionPill, deliveryTypeChoice === item[0] && s.obOptionPillActive]}><T bold style={{ fontSize: 12, color: deliveryTypeChoice === item[0] ? 'white' : colors.ink }}>{item[1]}</T></Tap>)}
+              </View>}
+              {pendingJourney === 'baby' && <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+                {[7, 14, 30, 90].map(d => <Tap key={d} onPress={() => setBabyAgeChoice(d)} style={[s.obOptionPill, babyAgeChoice === d && s.obOptionPillActive]}><T bold style={{ fontSize: 12, color: babyAgeChoice === d ? 'white' : colors.ink }}>{d} {isEn ? 'days' : 'gün'}</T></Tap>)}
               </View>}
             </View>
           </Card>
@@ -344,12 +399,25 @@ export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state 
       {onboardingStep === 4 && (
         <Card style={{ padding: 18, alignItems: 'center', gap: 14, backgroundColor: '#FFFCF8', borderColor: '#EFE4EA' }}>
           <View style={s.obPrepLogoBox}><BrandMark size={54} /></View>
-          <T bold style={{ fontSize: 23, color: colors.ink, textAlign: 'center' }}>{isEn ? 'Your Momora is ready' : 'Momora’n hazır'}</T>
-          <T style={{ fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 19 }}>{selectedJourneyCopy?.title?.replace('\n', ' ')} · {role === 'father' ? (isEn ? 'family support' : 'aile desteği') : (isEn ? 'mother care' : 'anne bakımı')} · {babyNameInput.trim() || (isEn ? 'Maya' : 'Ada')}</T>
-          <View style={s.obChecklist}>
-            {[roleReadyText, selectedJourneyCopy?.title ? (isEn ? `${selectedJourneyCopy.title.replace('\n', ' ')} journey prepared` : `${selectedJourneyCopy.title.replace('\n', ' ')} yolculuğu hazırlandı`) : (isEn ? 'Journey mode selected' : 'Yolculuk modu seçildi'), focusCopy[careFocus]].map(x => <View key={x} style={s.obCheckItem}><View style={[s.obMiniCheck, s.obMiniCheckDone]}><Icon name='check' size={11} color='white' /></View><T bold style={s.obCheckLabelDone}>{x}</T></View>)}
-          </View>
-          <Tap onPress={() => selectJourney(pendingJourney)} style={[s.obPrimaryBtn, { width: '100%' }]}><T bold style={s.obPrimaryBtnText}>{isEn ? 'Start Momora' : 'Momora’ya Başla'} →</T></Tap>
+          {!prepDone ? (
+            <>
+              <T bold style={{ fontSize: 23, color: colors.ink, textAlign: 'center' }}>{isEn ? 'Preparing your Momora' : 'Momora’n hazırlanıyor'}</T>
+              <T style={{ fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 19 }}>{isEn ? 'We are shaping the first daily flow from your choices.' : 'İlk günlük akış seçimlerine göre şekilleniyor.'}</T>
+              <View style={s.obProgressTrack}><View style={[s.obProgressFill, { width: '78%' }]} /></View>
+              <View style={s.obChecklist}>
+                {[journeyDetailCopy[pendingJourney], focusCopy[careFocus], isEn ? 'Placing the right tools on your home screen.' : 'Doğru araçlar ana ekrana yerleştiriliyor.'].map((x, i) => <View key={x} style={s.obCheckItem}><View style={[s.obMiniCheck, i < 2 && s.obMiniCheckDone]}>{i < 2 ? <Icon name='check' size={11} color='white' /> : <View style={s.obMiniDot} />}</View><T bold={i < 2} style={i < 2 ? s.obCheckLabelDone : s.obCheckLabel}>{x}</T></View>)}
+              </View>
+            </>
+          ) : (
+            <>
+              <T bold style={{ fontSize: 23, color: colors.ink, textAlign: 'center' }}>{isEn ? 'Your Momora is ready' : 'Momora’n hazır'}</T>
+              <T style={{ fontSize: 13, color: colors.muted, textAlign: 'center', lineHeight: 19 }}>{selectedJourneyCopy?.title?.replace('\n', ' ')} · {role === 'father' ? (isEn ? 'family support' : 'aile desteği') : (isEn ? 'mother care' : 'anne bakımı')} · {babyNameInput.trim() || (isEn ? 'Maya' : 'Ada')}</T>
+              <View style={s.obChecklist}>
+                {[roleReadyText, journeyDetailCopy[pendingJourney], supportOptions.find(x => x[0] === supportStyle)?.[1], focusCopy[careFocus]].filter(Boolean).map(x => <View key={x} style={s.obCheckItem}><View style={[s.obMiniCheck, s.obMiniCheckDone]}><Icon name='check' size={11} color='white' /></View><T bold style={s.obCheckLabelDone}>{x}</T></View>)}
+              </View>
+              <Tap onPress={() => selectJourney(pendingJourney)} style={[s.obPrimaryBtn, { width: '100%' }]}><T bold style={s.obPrimaryBtnText}>{isEn ? 'Start Momora' : 'Momora’ya Başla'} →</T></Tap>
+            </>
+          )}
         </Card>
       )}
 

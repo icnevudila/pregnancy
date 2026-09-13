@@ -350,6 +350,8 @@ export const generatedAssets = {
   'usg_2d_w36_cephalic_presentation': require('../assets/usg_2d_w36_cephalic_presentation.png'),
   'usg_2d_w37_biparietal_engagement': require('../assets/usg_2d_w37_biparietal_engagement.png'),
   'usg_2d_w38_full_term_cheeks_profile': require('../assets/usg_2d_w38_full_term_cheeks_profile.png'),
+  'usg_2d_w39_cervical_length_internal_os': require('../assets/usg_2d_w39_cervical_length_internal_os.png'),
+  'usg_2d_w40_term_biophysical_profile': require('../assets/usg_2d_w40_term_biophysical_profile.png'),
   'usg_doppler_cardiac_flow': require('../assets/usg_doppler_cardiac_flow.png'),
   'usg_doppler_umbilical_flow': require('../assets/usg_doppler_umbilical_flow.png'),
 };

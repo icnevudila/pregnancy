@@ -2798,22 +2798,28 @@
       "filename": "usg_2d_w39_cervical_length_internal_os.png",
       "prompt": "Clinical obstetric 2D ultrasound sonogram of a 39-week pregnancy at cervix level, showing internal cervical os with presenting fetal cranial pole resting against cervix, authentic hospital sonography display, monochrome grayscale, no text, no watermark.",
       "transparent": false,
-      "status": "processing",
+      "status": "done",
       "attempts": 1,
       "createdAt": 1789308089199,
       "preferredPlatform": "chatgpt",
       "startedAt": 1789310335424,
-      "platform": "chatgpt"
+      "platform": "chatgpt",
+      "updatedAt": 1789310378079,
+      "thumb": "https://chatgpt.com/backend-api/estuary/content?id=file_00000000d3ac8210b421914a8affe4e8&ts=497030&p=fs&cid=1&sig=75b073e0ab1cf2f76c3600c4a6d8bd84aec437c65c40d476f22b660552cdac18&v=0"
     },
     {
       "id": "job_usg_1789308089199_w40",
       "filename": "usg_2d_w40_term_biophysical_profile.png",
       "prompt": "Clinical 2D ultrasound sonogram of a 40-week full-term pregnancy displaying complete biophysical profile scan, tightly flexed fetus with vernix particles suspended in fluid, mature Grade 3 placenta, authentic hospital ultrasound monitor texture, monochrome grayscale, no text, no watermark.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789308089199,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "chatgpt",
+      "startedAt": 1789310383482,
+      "platform": "chatgpt",
+      "updatedAt": 1789310458200,
+      "thumb": "https://chatgpt.com/backend-api/estuary/content?id=file_00000000463481f4850679cf4f9624eb&ts=497030&p=fs&cid=1&sig=68db15a0be78bfdb5eebcae91f62d4c76126eb8d01904475ffd91cea2c10de2a&v=0"
     }
   ]
 }
