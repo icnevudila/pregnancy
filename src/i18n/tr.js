@@ -146,7 +146,7 @@ export const tr = {
   discover: {
     heroKicker: 'BİLGİ & İLHAM',
     heroTitle: 'Kütüphane & Rehberler',
-    heroSub: 'Uzman onaylı güvenilir makaleler, doğum hazırlığı ve beslenme rehberleri.',
+    heroSub: 'Hafta hafta kaynak notları, doğum hazırlığı ve beslenme rehberleri.',
     searchPlaceholder: 'Makalelerde veya konularda ara...',
     categories: {
       all: 'Tümü',

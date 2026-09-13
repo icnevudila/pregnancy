@@ -240,10 +240,10 @@ export function NursingTimerScreen({ state, update, toast, lang = 'tr' }) {
           <StatusCard
             level="safe"
             icon="heart"
-            title={isEn ? 'Clinical Nursing Tip' : 'Klinik Emzirme İpucu'}
+            title={isEn ? 'Nursing Rhythm Note' : 'Emzirme Ritmi Notu'}
             description={isEn
-              ? "Nursing each breast for at least 10-15 minutes ensures the baby reaches high-calorie 'hindmilk' (fat-rich milk)."
-              : "Her memeyi en az 10-15 dakika emzirmek, bebeğin kalorisi yüksek olan 'son süt'e (yağlı süt) ulaşmasını sağlar."}
+              ? "Recording side and duration helps you discuss feeding rhythm with your care team when needed."
+              : "Taraf ve süre kaydı, gerekirse beslenme ritmini bakım ekibinle konuşmanı kolaylaştırır."}
           />
         </>
       )}

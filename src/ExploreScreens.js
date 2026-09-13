@@ -380,7 +380,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                     <Icon name="clock" size={12} color="#E4D6E6" />
                     <T style={{ fontSize: 11, color: '#E4D6E6' }}>{featuredArticle.minutes} {isEn ? 'min read' : 'dk okuma'}</T>
                   </View>
-                  <T style={{ fontSize: 11, color: '#E4D6E6' }}>• {featuredArticle.doctor ? featuredArticle.doctor.split('·')[0] : (isEn ? 'Clinical Team' : 'Klinik Ekip')}</T>
+                  <T style={{ fontSize: 11, color: '#E4D6E6' }}>• {featuredArticle.doctor ? featuredArticle.doctor.split('·')[0].replace('Uzm. Dr.', 'Kaynak').replace('Prof. Dr.', 'Kaynak').replace('Dr.', 'Kaynak') : (isEn ? 'Editorial Team' : 'Editoryal Ekip')}</T>
                 </View>
               </View>
             </Tap>

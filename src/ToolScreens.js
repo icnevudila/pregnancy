@@ -125,7 +125,7 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
         icon="footprint"
         kicker={isEn ? 'FETAL MOVEMENT PATTERN' : 'FETAL HAREKET DÜZENİ'}
         title={isEn ? "Count Baby's Rhythm" : "Bebeğinin Ritmini Say"}
-        body={isEn ? 'According to ACOG guidelines, 10 movements in 2 hours are expected. Start a session when your baby is active.' : 'ACOG kılavuzuna göre 2 saatte 10 hareket beklenir. Bebeğinin aktifleştiği saatlerde seans başlat.'}
+        body={isEn ? 'Build a calm daily movement routine and compare sessions over time when your baby is active.' : 'Bebeğinin aktif olduğu saatlerde sakin bir hareket rutini oluştur; seansları zaman içinde karşılaştır.'}
         stat={pastSessions[0] ? (isEn ? `Latest: ${pastSessions[0].kicks} kicks (${secondsLabel(pastSessions[0].durationSecs || 0)})` : `Son: ${pastSessions[0].kicks} hareket (${secondsLabel(pastSessions[0].durationSecs || 0)})`) : (isEn ? 'First session ready' : 'İlk seans hazır')}
         tint="#9D5C80"
       />
@@ -274,11 +274,11 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
         )}
       </Card>
 
-      {/* ACOG Klinik Rehber Kartı */}
+      {/* Hareket Takibi Rehber Kartı */}
       <StatusCard
         level="info"
-        title={isEn ? "ACOG Medical Guideline: 10 Movements in 2 Hours" : "ACOG Tıbbi Tavsiyesi: 2 Saatte 10 Hareket"}
-        body={isEn ? "Lying on your left side after a meal helps you feel baby movements clearly. If baby is sleeping, drink cold water or gently touch your belly." : "Yemek yedikten sonra sol yanınıza uzanarak saymak bebeğin hareketlerini net hissetmenizi sağlar. Bebek uykudaysa bir bardak soğuk su için veya hafifçe karnınıza dokunun."}
+        title={isEn ? "Movement Tracking Note" : "Hareket Takibi Notu"}
+        body={isEn ? "Counting in a calm moment helps you notice your baby’s rhythm. If movement feels unusual, follow your own care team’s guidance." : "Sakin bir anda saymak bebeğinin ritmini fark etmeyi kolaylaştırır. Hareket düzeni olağan dışı gelirse kendi bakım ekibinin yönlendirmesini izle."}
         icon="heart"
       />
 

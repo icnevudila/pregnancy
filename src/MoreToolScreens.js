@@ -238,7 +238,7 @@ export function BirthPlanBuilder({ state, update, toast, lang = 'tr' }) {
               <T bold style={{ fontSize: 11, color: colors.purple }}>
                 {showDoctorSheet
                   ? (isEn ? 'Back to Edit Mode' : 'Düzenleme Moduna Dön')
-                  : (isEn ? '📋 Show Doctor Mode' : '📋 Doktora Göster Modu')}
+                  : (isEn ? '📋 Share Summary' : '📋 Özeti Paylaş')}
               </T>
             </Tap>
           </View>
@@ -255,7 +255,7 @@ export function BirthPlanBuilder({ state, update, toast, lang = 'tr' }) {
         </View>
       </Card>
 
-      {/* Doktora Göster / Klinik Sunum Modu */}
+      {/* Paylaşılabilir Özet Modu */}
       {showDoctorSheet ? (
         <Card style={ws.clinicalSheet}>
           <View style={ws.clinicalHeader}>
@@ -290,8 +290,8 @@ export function BirthPlanBuilder({ state, update, toast, lang = 'tr' }) {
 
           <T style={ws.clinicalFooter}>
             {isEn
-              ? '* This plan is designed as a collaborative, flexible guide with medical advice.'
-              : '* Bu plan acil klinik gereksinimler ve doktor tavsiyeleri doğrultusunda esneklik göstermek üzere hazırlanmıştır.'}
+              ? '* This plan is a flexible conversation guide for your birth team.'
+              : '* Bu plan doğum ekibiyle konuşmayı kolaylaştıran esnek bir tercih özetidir.'}
           </T>
         </Card>
       ) : (
@@ -299,7 +299,7 @@ export function BirthPlanBuilder({ state, update, toast, lang = 'tr' }) {
           <StatusCard
             level="info"
             icon="info"
-            title={isEn ? "Clinical Flexibility Principle" : "Klinik Esneklik İlkesi"}
+            title={isEn ? "Flexible Birth Preference" : "Esnek Doğum Tercihi"}
             body={isEn ? "A birth plan is a collaborative, flexible guide rather than a rigid contract." : "Doğum planı bir talimatname değil, annenin konforunu ve ekiple iletişimi güçlendiren esnek bir rehberdir."}
           />
 

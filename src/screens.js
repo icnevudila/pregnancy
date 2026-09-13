@@ -512,7 +512,7 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
       { id: 'partnerSync', label: isEn ? 'Partner Sync & Notes' : 'Eş Senkronizasyonu & Ortak Notlar', icon: 'community', sub: isEn ? 'Messaging and shared milestones' : 'Eşler arası mesajlaşma ve ortak takip' },
       { id: 'babyNames', label: isEn ? 'Baby Names Directory' : 'Geniş Bebek İsimleri Keşfi', icon: 'book', sub: isEn ? 'Meaningful names with origins' : '65+ anlamlı Türkçe ve evrensel isim' },
       { id: 'whiteNoise', label: isEn ? 'White Noise & Soothing Sounds' : 'Beyaz Gürültü & Uyku Sesleri', icon: 'moon', sub: isEn ? 'Womb, rain, and calming sounds' : 'Rahim içi, fön ve sakinleştirici sesler' },
-      { id: 'library', label: isEn ? 'Curated Medical Library' : 'Uzman Onaylı Editoryal Kütüphane', icon: 'search', sub: isEn ? 'Expert-reviewed clinical guides' : '65 klinik rehber ve hekim tavsiyesi' },
+      { id: 'library', label: isEn ? 'Curated Momora Library' : 'Momora Editoryal Kütüphanesi', icon: 'search', sub: isEn ? 'Week-by-week guides and practical notes' : 'Hafta hafta rehberler ve pratik kaynak notları' },
     ];
 
     return (
