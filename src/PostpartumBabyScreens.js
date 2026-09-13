@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
-import { T, Tap, Card, Section, Progress, ScreenHero, MetricCard, StatusCard, ProgressRing } from './ui';
+import { T, Tap, Card, Section, Progress, ScreenHero, MetricCard, StatusCard, ProgressRing, ToolExperienceCard } from './ui';
 import { secondsLabel, uid, localDay } from './domain.mjs';
 import { generatedAssets } from './generatedAssets';
 import { playSound, stopSound, setVolume as setEngineVolume, getCurrentSound, addSoundListener } from './soundEngine';
@@ -100,6 +100,7 @@ export function NursingTimerScreen({ state, update, toast, lang = 'tr' }) {
         stat={feedMode === 'breast' ? (activeSide ? (isEn ? 'nursing' : 'emziriliyor') : lastSide) : feedMode === 'bottle' ? `${bottleMl} ml` : `${pumpMl} ml`}
         tint="#9B4E76"
       />
+      <ToolExperienceCard lang={lang} title={isEn ? 'Log feeding without friction' : 'Beslenmeyi zahmetsiz kaydet'} steps={isEn ? ['Pick breast or bottle mode.', 'Track side, duration, or amount.', 'Save one clean entry.'] : ['Meme veya biberon modunu seç.', 'Taraf, süre ya da miktarı izle.', 'Tek temiz kayıt olarak sakla.']} outcome={isEn ? 'A daily feeding rhythm emerges over time.' : 'Zamanla günlük beslenme ritmi oluşur.'} asset="ui_nursing_dual_timer" tint="#C75B7A" />
 
       {/* Metrik Göstergeleri */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -450,6 +451,7 @@ export function SleepWhiteNoiseScreen({ state, update, toast, lang = 'tr' }) {
         stat={isEn ? (isAsleep ? 'asleep' : 'awake') : (isAsleep ? 'uykuda' : 'uyanık')}
         tint="#6E5A96"
       />
+      <ToolExperienceCard lang={lang} title={isEn ? 'Create a sleep ritual' : 'Uyku ritüeli oluştur'} steps={isEn ? ['Choose a calming sound.', 'Set the timer.', 'Save what worked for next time.'] : ['Sakinleştirici sesi seç.', 'Zamanlayıcıyı ayarla.', 'İşe yarayanı sonraki uyku için sakla.']} outcome={isEn ? 'This becomes a repeatable bedtime routine.' : 'Tekrarlanabilir uyku rutini hissi verir.'} asset="screen_hero_white_noise" tint="#6E5A96" />
 
       {/* Metrik Göstergeleri */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -703,6 +705,7 @@ export function DiaperTrackerScreen({ state, update, toast, lang = 'tr' }) {
         stat={isEn ? `${wetCount}/6 wet diapers` : `${wetCount}/6 ıslak bez`}
         tint="#4896BC"
       />
+      <ToolExperienceCard lang={lang} title={isEn ? 'See the care rhythm quickly' : 'Bakım ritmini hızlı gör'} steps={isEn ? ['Choose wet, dirty, or mixed.', 'Add the moment to today.', 'Review the 24-hour pattern.'] : ['Islak, kirli veya karışık seç.', 'Bugünün akışına ekle.', '24 saatlik düzeni gözden geçir.']} outcome={isEn ? 'The tool becomes a clear daily care log.' : 'Araç net bir günlük bakım günlüğüne dönüşür.'} asset="ui_diaper_wet_drop" tint="#3E7B54" />
 
       {/* 24 Saatlik Hidrasyon & Bez Hedef Kartı */}
       <Card style={{ padding: 16 }}>
@@ -869,6 +872,7 @@ export function PostpartumSelfCareScreen({ state, update, toast, lang = 'tr' }) 
         stat={isEn ? 'gentle care' : 'şefkatli bakım'}
         tint="#86518A"
       />
+      <ToolExperienceCard lang={lang} title={isEn ? 'Make recovery visible' : 'Toparlanmayı görünür yap'} steps={isEn ? ['Check mood and body signals.', 'Pick one gentle action.', 'Keep a note for your support circle.'] : ['Ruh hali ve beden sinyalini kontrol et.', 'Tek nazik aksiyon seç.', 'Destek çevren için not sakla.']} outcome={isEn ? 'The screen gives a reason to return each day.' : 'Ekran her gün geri dönmek için anlamlı sebep verir.'} asset="ui_postpartum_lotus" tint="#86518A" />
 
       {/* Lohusalık Gün Sayacı & Sevgi Notu */}
       <Card style={pbs.recoveryCard}>

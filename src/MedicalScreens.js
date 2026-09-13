@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, Image, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon, FruitArt, ComparisonArt } from './Icons';
-import { T, Tap, Card, Section, ScreenHero } from './ui';
+import { T, Tap, Card, Section, ScreenHero, ToolExperienceCard } from './ui';
 import { getWeekInfo, formatLength, formatWeight, trimesterLabel } from './weekData';
 import { generatedAssets } from './generatedAssets';
 import { usePulse } from './anim';
@@ -25,6 +25,7 @@ export function SizeComparisonHub({ state, toast, lang = 'tr' }) {
         asset="sweet_macaron"
         tint="#7B4C80"
       />
+      <ToolExperienceCard lang={lang} title={isEn ? 'Make growth tangible' : 'Boyutu üç farklı dille anlat'} steps={isEn ? ['Switch between fruit, animal, and sweet comparisons.', 'Move week by week.', 'Open the weekly detail when curious.'] : ['Meyve, hayvan ve tatlı kıyasını değiştir.', 'Hafta hafta ilerle.', 'Merak ettiğinde hafta detayını aç.']} outcome={isEn ? 'Growth feels visual and memorable.' : 'Gelişim görsel ve akılda kalıcı hale gelir.'} asset="fruit_apple" tint="#7B4C80" />
 
       {/* 4'lü Segment Seçici */}
       <View style={ms.segRow}>
@@ -164,6 +165,17 @@ export function UltrasoundAtlas({ state, lang = 'tr' }) {
         tint="#5D4F88"
       />
 
+      <ToolExperienceCard
+        title={isEn ? 'Read the scan calmly' : 'Görüntüyü sakince oku'}
+        steps={isEn
+          ? ['Switch between 2D and 3D views.', 'Tap markers to learn what the scan area means.', 'Keep notes for your next clinical visit.']
+          : ['2D ve 3D görünüm arasında geç.', 'İşaretlere dokunup o alanın ne anlattığını öğren.', 'Bir sonraki kontrol için notunu yanında tut.']}
+        outcome={isEn ? 'Less confusion, better questions at the visit.' : 'Daha az kafa karışıklığı, kontrolde daha iyi soru.'}
+        asset="ui_ultrasound_hdlive_20w"
+        tint="#5D4F88"
+        lang={lang}
+      />
+
       {/* 2D vs 3D/HDLive Sekme */}
       <View style={ms.segRow}>
         <Tap
@@ -287,6 +299,17 @@ export function MedicalTimeline({ lang = 'tr' }) {
         icon="milestone"
         asset="ui_timeline_sun_moon"
         tint="#915B38"
+      />
+
+      <ToolExperienceCard
+        title={isEn ? 'Know what comes next' : 'Sıradaki kontrolü bil'}
+        steps={isEn
+          ? ['See completed, current, and upcoming visits.', 'Open each milestone as a preparation checklist.', 'Save questions before the appointment.']
+          : ['Tamamlanan, mevcut ve yaklaşan kontrolleri ayır.', 'Her başlığı hazırlık listesi gibi oku.', 'Randevu öncesi sorularını kaybetme.']}
+        outcome={isEn ? 'A calmer medical calendar.' : 'Daha sakin ve planlı bir kontrol takvimi.'}
+        asset="ui_timeline_sun_moon"
+        tint="#915B38"
+        lang={lang}
       />
 
       {/* Dikey Metro Haritası */}
@@ -422,6 +445,17 @@ export function OrganDevelopment({ state, lang = 'tr' }) {
         icon="heart"
         asset="ui_fetal_heart_3d"
         tint="#A84D67"
+      />
+
+      <ToolExperienceCard
+        title={isEn ? 'Follow one system at a time' : 'Her sistemi tek tek izle'}
+        steps={isEn
+          ? ['Choose heart, brain, senses, or bones.', 'Read the current development note.', 'Return weekly to see what changed.']
+          : ['Kalp, beyin, duyular veya kemikleri seç.', 'O haftanın gelişim notunu oku.', 'Haftalık değişimi görmek için geri dön.']}
+        outcome={isEn ? 'Development feels visible, not abstract.' : 'Gelişim soyut değil, görünür hissedilir.'}
+        asset="ui_fetal_heart_3d"
+        tint="#A84D67"
+        lang={lang}
       />
 
       {/* Kalp Atış Simülatörü Kartı */}

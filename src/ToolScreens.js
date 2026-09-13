@@ -10,7 +10,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
-import { T, Tap, Card, Section, Progress, ScreenHero, InfoNote, ProgressRing, MetricCard, StatusCard } from './ui';
+import { T, Tap, Card, Section, Progress, ScreenHero, InfoNote, ProgressRing, MetricCard, StatusCard, ToolExperienceCard } from './ui';
 import { generatedAssets } from './generatedAssets';
 import { usePulse } from './anim';
 import { secondsLabel, uid, localDay } from './domain.mjs';
@@ -128,6 +128,15 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
         body={isEn ? 'Build a calm daily movement routine and compare sessions over time when your baby is active.' : 'Bebeğinin aktif olduğu saatlerde sakin bir hareket rutini oluştur; seansları zaman içinde karşılaştır.'}
         stat={pastSessions[0] ? (isEn ? `Latest: ${pastSessions[0].kicks} kicks (${secondsLabel(pastSessions[0].durationSecs || 0)})` : `Son: ${pastSessions[0].kicks} hareket (${secondsLabel(pastSessions[0].durationSecs || 0)})`) : (isEn ? 'First session ready' : 'İlk seans hazır')}
         tint="#9D5C80"
+      />
+
+      <ToolExperienceCard
+        lang={lang}
+        title={isEn ? 'Count, finish, compare' : 'Say, bitir, karşılaştır'}
+        steps={isEn ? ['Start when baby is active.', 'Tap each movement without leaving the screen.', 'Save the session and compare recent rhythm.'] : ['Bebeğin aktifken seansı başlat.', 'Ekrandan çıkmadan her hareketi işle.', 'Seansı kaydet ve son ritimle karşılaştır.']}
+        outcome={isEn ? 'The output is a clean session history, not a loose note.' : 'Çıktı dağınık bir not değil, okunur seans geçmişi olur.'}
+        asset="screen_hero_kick_counter"
+        tint="#B84570"
       />
 
       {/* Seans Tamamlanma Başarı Kartı */}
@@ -417,6 +426,7 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
         stat={contractions.length ? `${contractions.length} ${isEn ? 'records' : 'kayıt'}` : (isEn ? 'First record ready' : 'İlk kayıt hazır')}
         tint="#4F79A1"
       />
+      <ToolExperienceCard lang={lang} title={isEn ? 'Time every wave clearly' : 'Her dalgayı net zamanla'} steps={isEn ? ['Start with one tap.', 'Record duration, interval, and intensity.', 'Use the list as a calm timeline.'] : ['Tek dokunuşla başlat.', 'Süre, aralık ve şiddeti birlikte kaydet.', 'Listeyi sakin bir zaman çizelgesi gibi kullan.']} outcome={isEn ? 'The screen becomes a labor timeline, not a stopwatch.' : 'Ekran kronometre değil, doğum süreci zaman çizelgesi gibi çalışır.'} asset="screen_hero_contraction_timer" tint="#D4634B" />
 
       {/* 5-1-1 Tıbbi Durum Bildirim Kartı */}
       <StatusCard
@@ -669,6 +679,7 @@ export function HospitalBag({ state, update, toast, lang = 'tr' }) {
         stat={isEn ? `%${totalPercent} Ready (${packedCount}/${totalCount})` : `%${totalPercent} Hazır (${packedCount}/${totalCount})`}
         tint="#744E8A"
       />
+      <ToolExperienceCard lang={lang} title={isEn ? 'Pack by role' : 'Role göre çanta hazırla'} steps={isEn ? ['Separate mother, baby, partner, and document items.', 'Tick what is ready.', 'Add custom items for your hospital.'] : ['Anne, bebek, refakatçi ve evrakları ayır.', 'Hazır olanları işaretle.', 'Kendi hastanen için özel eşya ekle.']} outcome={isEn ? 'The result feels like a real hospital checklist.' : 'Sonuç gerçek hastane hazırlık listesi gibi görünür.'} asset="screen_hero_hospital_bag" tint="#7C5292" />
 
       {/* Genel İlerleme Dairesel Göstergesi */}
       <Card style={{ padding: 16 }}>

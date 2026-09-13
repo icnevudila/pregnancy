@@ -3,7 +3,7 @@ import { View, StyleSheet, TextInput, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
-import { T, Tap, Card, Section, ScreenHero } from './ui';
+import { T, Tap, Card, Section, ScreenHero, ToolExperienceCard } from './ui';
 import { generatedAssets, getAsset } from './generatedAssets';
 import { articles, pregnancyFaqs, faqCategories, searchFaqs, getFaqsByCategory, searchArticles } from './content';
 import { playSound, stopSound } from './soundEngine';
@@ -192,6 +192,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
   const [hubTab, setHubTab] = useState(initialTab); // 'articles' | 'food' | 'infographics' | 'topics'
   const [articleQuery, setArticleQuery] = useState('');
   const [articleFilter, setArticleFilter] = useState('all');
+  const [coverLayout, setCoverLayout] = useState('magazine'); // 'magazine' | 'compact'
 
   const topicFilters = isEn ? [
     { id: 'all', label: 'All' },
@@ -347,7 +348,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
             ))}
           </ScrollView>
 
-          {/* Öne Çıkan Başyazı (Featured Lead Story) */}
+          {/* Öne Çıkan Başyazı (Featured Lead Story Hero) */}
           {!articleQuery && articleFilter === 'all' && featuredArticle && (
             <Tap
               onPress={() => openArticle && openArticle(featuredArticle)}
@@ -360,48 +361,120 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                   <Image source={featImg} style={StyleSheet.absoluteFill} resizeMode="cover" />
                 ) : null;
               })()}
+              {/* Sadece alt %45'lik alanda degrade — Üstteki fotoğraf pırıl pırıl ve aydınlık kalır */}
               <LinearGradient
-                colors={['rgba(20,10,25,0.05)', 'rgba(20,10,25,0.78)']}
-                style={StyleSheet.absoluteFill}
+                colors={['transparent', 'rgba(20, 10, 24, 0.45)', 'rgba(18, 9, 22, 0.92)']}
+                style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 165 }}
               />
               <View style={es.featuredHeroBadge}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                  <Icon name="sparkle" size={11} color="white" />
-                  <T bold style={{ fontSize: 10, color: 'white', letterSpacing: 0.8 }}>
-                    {isEn ? "TODAY'S LEAD STORY" : "GÜNÜN BAŞYAZISI"}
-                  </T>
-                </View>
+                <Icon name="sparkle" size={12} color={colors.purple} />
+                <T bold style={{ fontSize: 10.5, color: colors.purple, letterSpacing: 0.8 }}>
+                  {isEn ? "TODAY'S LEAD STORY" : "GÜNÜN BAŞYAZISI"}
+                </T>
               </View>
               <View style={es.featuredHeroContent}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <View style={es.featuredCatPill}>
+                    <T bold style={{ fontSize: 9.5, color: 'white', letterSpacing: 0.5 }}>
+                      {featuredArticle.categoryName ? featuredArticle.categoryName.toLocaleUpperCase('tr') : (isEn ? 'GUIDE' : 'REHBER')}
+                    </T>
+                  </View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <Icon name="clock" size={11} color="#F0E5F2" />
+                    <T style={{ fontSize: 11, color: '#F0E5F2' }}>{featuredArticle.minutes} {isEn ? 'min read' : 'dk okuma'}</T>
+                  </View>
+                </View>
                 <T bold style={es.featuredHeroTitle}>{featuredArticle.title}</T>
                 <T numberOfLines={2} style={es.featuredHeroSub}>{featuredArticle.subtitle}</T>
-                <View style={es.featuredHeroMeta}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                    <Icon name="clock" size={12} color="#E4D6E6" />
-                    <T style={{ fontSize: 11, color: '#E4D6E6' }}>{featuredArticle.minutes} {isEn ? 'min read' : 'dk okuma'}</T>
+                <View style={es.featuredHeroFooter}>
+                  <T numberOfLines={1} style={es.featuredHeroAuthor}>
+                    {featuredArticle.doctor ? `🩺 ${featuredArticle.doctor.split('·')[0].trim()}` : (isEn ? '🩺 Momora Editorial Archive' : '🩺 Momora Editoryal Arşivi')}
+                  </T>
+                  <View style={es.featuredHeroReadBtn}>
+                    <T bold style={{ fontSize: 11, color: colors.purple }}>{isEn ? 'Read →' : 'İncele →'}</T>
                   </View>
-                  <T style={{ fontSize: 11, color: '#E4D6E6' }}>• {featuredArticle.doctor ? featuredArticle.doctor.split('·')[0].replace('Uzm. Dr.', 'Kaynak').replace('Prof. Dr.', 'Kaynak').replace('Dr.', 'Kaynak') : (isEn ? 'Editorial Team' : 'Editoryal Ekip')}</T>
                 </View>
               </View>
             </Tap>
           )}
 
-          {/* Makale Sayacı */}
+          {/* Makale Sayacı & Kapak Görünüm Ayarı */}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 2 }}>
-            <T bold style={{ fontSize: 13, color: colors.muted }}>
-              {filteredArticles.length} {isEn ? 'Editorial Guides' : 'Editoryal Rehber'}
-            </T>
-            {articleFilter !== 'all' && (
-              <Tap onPress={() => setArticleFilter('all')} label={isEn ? "Clear Filter" : "Filtreyi Temizle"}>
-                <T style={{ fontSize: 12, color: colors.purple }}>{isEn ? "Show All ↺" : "Tümünü Göster ↺"}</T>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <T bold style={{ fontSize: 13, color: colors.muted }}>
+                {filteredArticles.length} {isEn ? 'Editorial Guides' : 'Editoryal Rehber'}
+              </T>
+              {articleFilter !== 'all' && (
+                <Tap onPress={() => setArticleFilter('all')} label={isEn ? "Clear Filter" : "Filtreyi Temizle"}>
+                  <T style={{ fontSize: 11.5, color: colors.purple }}>{isEn ? "(Show All ↺)" : "(Tümünü Göster ↺)"}</T>
+                </Tap>
+              )}
+            </View>
+
+            {/* Kapak Görünüm Ayarı (Geniş Kapak vs Kompakt Liste) */}
+            <View style={es.layoutToggleBox}>
+              <Tap
+                onPress={() => setCoverLayout('magazine')}
+                label={isEn ? "Magazine View" : "Geniş Kapak"}
+                style={[es.layoutToggleBtn, coverLayout === 'magazine' && es.layoutToggleBtnActive]}
+              >
+                <T bold={coverLayout === 'magazine'} style={[es.layoutToggleText, coverLayout === 'magazine' && es.layoutToggleTextActive]}>
+                  {isEn ? "🖼️ Magazine" : "🖼️ Geniş Kapak"}
+                </T>
               </Tap>
-            )}
+              <Tap
+                onPress={() => setCoverLayout('compact')}
+                label={isEn ? "Compact View" : "Kompakt Liste"}
+                style={[es.layoutToggleBtn, coverLayout === 'compact' && es.layoutToggleBtnActive]}
+              >
+                <T bold={coverLayout === 'compact'} style={[es.layoutToggleText, coverLayout === 'compact' && es.layoutToggleTextActive]}>
+                  {isEn ? "📑 Compact" : "📑 Kompakt"}
+                </T>
+              </Tap>
+            </View>
           </View>
 
           {/* Makale Kartları Listesi (Vogue / Flo Kalitesinde Görsel Kartlar) */}
           <View style={{ gap: 14 }}>
             {listArticles.map(a => {
               const imgAsset = generatedAssets[a.image] || getAsset(a.image) || generatedAssets['blog_pregnant_morning'];
+              
+              if (coverLayout === 'compact') {
+                return (
+                  <Tap
+                    key={a.id}
+                    onPress={() => openArticle && openArticle(a)}
+                    label={a.title}
+                    style={es.compactArticleCard}
+                  >
+                    <View style={{ flex: 1, paddingVertical: 2 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+                        <View style={es.compactCategoryBadge}>
+                          <T bold style={{ fontSize: 9.5, color: colors.purple }}>
+                            {a.categoryName || (isEn ? 'Guide' : 'Rehber')}
+                          </T>
+                        </View>
+                        <T style={{ fontSize: 11, color: colors.muted }}>• {a.minutes} {isEn ? 'min read' : 'dk okuma'}</T>
+                      </View>
+                      <T bold numberOfLines={2} style={es.compactArticleTitle}>{a.title}</T>
+                      <T numberOfLines={1} style={es.compactArticleSub}>{a.subtitle}</T>
+                      {a.doctor && (
+                        <T numberOfLines={1} style={{ fontSize: 11, color: '#7E6B82', marginTop: 6 }}>
+                          🩺 {a.doctor.split('·')[0]}
+                        </T>
+                      )}
+                    </View>
+                    <View style={es.compactImgBox}>
+                      <Image
+                        source={imgAsset}
+                        style={StyleSheet.absoluteFill}
+                        resizeMode="cover"
+                      />
+                    </View>
+                  </Tap>
+                );
+              }
+
               return (
                 <Tap
                   key={a.id}
@@ -415,35 +488,36 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                       style={StyleSheet.absoluteFill}
                       resizeMode="cover"
                     />
+                    <LinearGradient
+                      colors={['transparent', 'rgba(25, 12, 30, 0.35)']}
+                      style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 45 }}
+                    />
+                    <View style={es.blogPostCategoryBadge}>
+                      <T bold style={{ fontSize: 10, color: colors.purple }}>
+                        {a.categoryName || (isEn ? 'Guide' : 'Rehber')}
+                      </T>
+                    </View>
                     <View style={es.blogPostTimeTag}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                        <Icon name="clock" size={11} color="white" />
-                        <T style={{ fontSize: 10, color: 'white', fontWeight: 'bold' }}>{a.minutes} {isEn ? 'min' : 'dk'}</T>
-                      </View>
+                      <Icon name="clock" size={11} color="white" />
+                      <T bold style={{ fontSize: 10.5, color: 'white' }}>{a.minutes} {isEn ? 'min' : 'dk'}</T>
                     </View>
                   </View>
                   <View style={{ padding: 16 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                      <View style={es.blogPostCategoryTag}>
-                        <T bold style={{ fontSize: 10, color: colors.purple }}>{a.categoryName || (isEn ? 'Guide' : 'Rehber')}</T>
-                      </View>
-                      {a.weeks && (
-                        <T style={{ fontSize: 11, color: colors.muted }}>• {isEn ? `Week ${a.weeks[0]}-${a.weeks[1]}` : `Hafta ${a.weeks[0]}-${a.weeks[1]}`}</T>
-                      )}
-                    </View>
-
                     <T bold style={es.blogPostTitle}>{a.title}</T>
                     <T numberOfLines={2} style={es.blogPostSub}>{a.subtitle}</T>
 
-                    {a.doctor && (
-                      <View style={es.blogPostDocRow}>
+                    <View style={es.blogPostDocRow}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, flex: 1 }}>
                         <Icon name="check" size={13} color={colors.purple} />
-                        <T numberOfLines={1} style={{ fontSize: 11, color: colors.purple, flex: 1, fontWeight: '600' }}>
-                          {isEn ? `Source: ${a.doctor}` : `Kaynak: ${a.doctor}`}
+                        <T numberOfLines={1} style={{ fontSize: 11.5, color: colors.muted, flex: 1, fontWeight: '500' }}>
+                          {a.doctor ? (isEn ? `Source: ${a.doctor.split('·')[0]}` : `Kaynak: ${a.doctor.split('·')[0]}`) : (isEn ? 'Momora Editorial Archive' : 'Momora Editoryal')}
                         </T>
-                        <Icon name="chevron" size={16} color={colors.purple} />
                       </View>
-                    )}
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                        <T bold style={{ fontSize: 11.5, color: colors.purple }}>{isEn ? 'Read' : 'Oku'}</T>
+                        <Icon name="chevron" size={14} color={colors.purple} />
+                      </View>
+                    </View>
                   </View>
                 </Tap>
               );
@@ -657,13 +731,13 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
           <LinearGradient colors={['#9A779A', '#664566']} style={StyleSheet.absoluteFill} />
         )}
         <LinearGradient
-          colors={['rgba(35,22,40,0.05)', 'rgba(25,16,30,0.78)']}
-          style={StyleSheet.absoluteFill}
+          colors={['transparent', 'rgba(22, 10, 26, 0.45)', 'rgba(18, 9, 22, 0.92)']}
+          style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 180 }}
         />
         <View style={es.coverMeta}>
           <View style={es.coverBadgeRow}>
             <View style={es.categoryPill}>
-              <T bold style={{ fontSize: 10, color: 'white', letterSpacing: 0.8 }}>
+              <T bold style={{ fontSize: 10, color: colors.purple, letterSpacing: 0.8 }}>
                 {isEn ? (a.categoryNameEn || a.categoryName || 'EDITORIAL GUIDE') : (a.categoryName ? a.categoryName.toLocaleUpperCase('tr') : 'EDİTORYAL REHBER')}
               </T>
             </View>
@@ -876,21 +950,36 @@ const es = StyleSheet.create({
   hubTabBtn: { flex: 1, paddingVertical: 8, alignItems: 'center', justifyContent: 'center', borderRadius: 13 },
   hubTabBtnActive: { backgroundColor: colors.purple },
   hubTabText: { fontSize: 11, color: '#795B82' },
-  // Featured Lead Story Hero
-  featuredHeroCard: { height: 230, borderRadius: 22, overflow: 'hidden', justifyContent: 'flex-end', padding: 16, position: 'relative', ...shadow },
-  featuredHeroBadge: { position: 'absolute', top: 14, left: 14, backgroundColor: '#7E4E8AEE', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-  featuredHeroContent: { gap: 6 },
-  featuredHeroTitle: { fontSize: 18, color: 'white', lineHeight: 24 },
-  featuredHeroSub: { fontSize: 12, color: '#F0E5F2', lineHeight: 17 },
-  featuredHeroMeta: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 },
-  // Blog Post Card styles
-  blogPostCard: { backgroundColor: '#FFFFFF', borderRadius: 20, overflow: 'hidden', borderWidth: 1, borderColor: '#ECE2EC', ...shadow },
-  blogPostImgBox: { height: 180, width: '100%', backgroundColor: '#F0EAF1', position: 'relative', overflow: 'hidden' },
-  blogPostTimeTag: { position: 'absolute', top: 12, right: 12, backgroundColor: '#00000077', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 10 },
-  blogPostCategoryTag: { backgroundColor: '#F4EDF6', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
-  blogPostTitle: { fontSize: 16, color: colors.ink, lineHeight: 22 },
-  blogPostSub: { fontSize: 12.5, color: '#5C5463', marginTop: 4, lineHeight: 18 },
-  blogPostDocRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#F5EDF6' },
+  // Layout Switcher styles
+  layoutToggleBox: { flexDirection: 'row', backgroundColor: '#EDE3EE', borderRadius: 12, padding: 2, gap: 2 },
+  layoutToggleBtn: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 10 },
+  layoutToggleBtnActive: { backgroundColor: '#FFFFFF', ...shadow },
+  layoutToggleText: { fontSize: 11, color: '#7A6780' },
+  layoutToggleTextActive: { color: colors.purple },
+  // Featured Lead Story Hero (Apple News / Vogue Quality)
+  featuredHeroCard: { height: 260, borderRadius: 24, overflow: 'hidden', justifyContent: 'flex-end', padding: 18, position: 'relative', borderWidth: 1, borderColor: '#EBDDE8', ...shadow },
+  featuredHeroBadge: { position: 'absolute', top: 14, left: 14, backgroundColor: 'rgba(255, 255, 255, 0.94)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.6)', ...shadow },
+  featuredCatPill: { backgroundColor: 'rgba(255, 255, 255, 0.22)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.35)' },
+  featuredHeroContent: { gap: 4 },
+  featuredHeroTitle: { fontSize: 18, color: '#FFFFFF', lineHeight: 24, textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 3 },
+  featuredHeroSub: { fontSize: 12.5, color: '#F5EEF8', lineHeight: 18, textShadowColor: 'rgba(0,0,0,0.4)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 },
+  featuredHeroFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 6, paddingTop: 6, borderTopWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' },
+  featuredHeroAuthor: { fontSize: 11.5, color: '#F0E5F2', flex: 1, marginRight: 8 },
+  featuredHeroReadBtn: { backgroundColor: '#FFFFFF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  // Blog Post Card styles (Magazine layout)
+  blogPostCard: { backgroundColor: '#FFFFFF', borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: '#ECE2EC', ...shadow },
+  blogPostImgBox: { height: 165, width: '100%', backgroundColor: '#F0EAF1', position: 'relative', overflow: 'hidden' },
+  blogPostCategoryBadge: { position: 'absolute', top: 12, left: 12, backgroundColor: 'rgba(255, 255, 255, 0.94)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.6)', ...shadow },
+  blogPostTimeTag: { position: 'absolute', top: 12, right: 12, backgroundColor: 'rgba(0, 0, 0, 0.58)', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 10, flexDirection: 'row', alignItems: 'center', gap: 4 },
+  blogPostTitle: { fontSize: 16, color: '#241828', lineHeight: 22 },
+  blogPostSub: { fontSize: 12.5, color: '#5E5466', marginTop: 4, lineHeight: 18 },
+  blogPostDocRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6, marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#F5EDF6' },
+  // Compact Article Card styles (Digest layout)
+  compactArticleCard: { flexDirection: 'row', alignItems: 'center', padding: 14, backgroundColor: '#FFFFFF', borderRadius: 18, borderWidth: 1, borderColor: '#ECE2EC', gap: 14, ...shadow },
+  compactImgBox: { width: 84, height: 84, borderRadius: 14, overflow: 'hidden', backgroundColor: '#F0EAF1', position: 'relative', borderWidth: 1, borderColor: '#EAE0EB' },
+  compactCategoryBadge: { backgroundColor: '#F4EDF6', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6 },
+  compactArticleTitle: { fontSize: 14, color: '#241828', lineHeight: 19 },
+  compactArticleSub: { fontSize: 11.5, color: '#665D6E', marginTop: 3 },
   // FAQ styles
   faqIcon: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#F0E5F3', alignItems: 'center', justifyContent: 'center' },
   faqAnswerBox: { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderColor: '#EDE2EE' },
@@ -898,11 +987,11 @@ const es = StyleSheet.create({
   faqTagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
   faqTag: { backgroundColor: '#F5EDF7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
   // Editorial Article Reader styles
-  articleCoverBox: { height: 260, borderRadius: 24, overflow: 'hidden', justifyContent: 'flex-end', padding: 18, position: 'relative', ...shadow },
+  articleCoverBox: { height: 270, borderRadius: 24, overflow: 'hidden', justifyContent: 'flex-end', padding: 18, position: 'relative', ...shadow },
   coverMeta: { gap: 6 },
   coverBadgeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
-  categoryPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: '#784882CC' },
-  readingTimePill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: '#00000066' },
+  categoryPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: 'rgba(255, 255, 255, 0.94)' },
+  readingTimePill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: 'rgba(0, 0, 0, 0.58)' },
   articleTitle: { fontSize: 21, color: 'white', lineHeight: 27 },
   articleCoverSub: { fontSize: 13, color: '#E8DBEA', lineHeight: 18 },
   doctorCard: { flexDirection: 'row', alignItems: 'center', padding: 14 },

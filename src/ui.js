@@ -51,6 +51,34 @@ export function InfoNote({ icon = 'heart', title, body, tint = colors.purple, st
     </View>
   );
 }
+
+export function ToolExperienceCard({ title, steps = [], outcome, asset, tint = colors.purple, lang = 'tr', style }) {
+  const art = typeof asset === 'string' ? (generatedAssets[asset] || getAsset(asset)) : asset;
+  const isEn = lang === 'en';
+  return (
+    <Card style={[s.toolExperience, { borderColor: tint + '2A' }, style]}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+        <View style={[s.toolExperienceArt, { backgroundColor: tint + '12' }]}>
+          {art ? <Image source={art} style={{ width: 42, height: 42 }} resizeMode="contain" /> : <Icon name="sparkle" size={22} color={tint} />}
+        </View>
+        <View style={{ flex: 1 }}>
+          <T style={{ fontSize: 10, color: tint, letterSpacing: 1.1, fontFamily: fonts.bold }}>{isEn ? 'MOMORA RITUAL' : 'MOMORA RİTÜELİ'}</T>
+          <T bold style={{ fontSize: 16, color: colors.ink, marginTop: 2 }}>{title}</T>
+        </View>
+      </View>
+      <View style={{ gap: 8 }}>
+        {steps.map((step, i) => (
+          <View key={step} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 9 }}>
+            <View style={[s.toolStepDot, { backgroundColor: tint + '18' }]}><T bold style={{ fontSize: 10, color: tint }}>{i + 1}</T></View>
+            <T style={{ flex: 1, fontSize: 12.5, color: '#514858', lineHeight: 18 }}>{step}</T>
+          </View>
+        ))}
+      </View>
+      {outcome ? <View style={[s.toolOutcome, { backgroundColor: tint + '10' }]}><T style={{ fontSize: 12, color: '#554B5A', lineHeight: 18 }}>{outcome}</T></View> : null}
+    </Card>
+  );
+}
+
 export function RoundButton({ icon = 'chevron', onPress, label, style }) {
   return <Tap label={label} onPress={onPress} style={[s.round, style]}><Icon name={icon} size={17}/></Tap>;
 }
@@ -195,6 +223,10 @@ const s = StyleSheet.create({
   heroArt: { width: 88, height: 88, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
   infoNote: { flexDirection: 'row', gap: 11, padding: 13, borderRadius: 18, borderWidth: 1 },
   infoIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#FFFDFA', alignItems: 'center', justifyContent: 'center' },
+  toolExperience: { padding: 15, backgroundColor: '#FFFDFA', borderWidth: 1, borderRadius: 22 },
+  toolExperienceArt: { width: 54, height: 54, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+  toolStepDot: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', marginTop: -1 },
+  toolOutcome: { marginTop: 12, padding: 11, borderRadius: 15 },
   round: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#FFFCFA', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.line, ...shadow },
   section: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 11, marginTop: 18 },
   inline: { flexDirection: 'row', alignItems: 'center', gap: 3, minHeight: 30 },

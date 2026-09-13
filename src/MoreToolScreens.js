@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, TextInput, ScrollView } from 'react-native';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
-import { T, Tap, Card, Section, Progress, ScreenHero, InfoNote, MetricCard, StatusCard, ProgressRing } from './ui';
+import { T, Tap, Card, Section, Progress, ScreenHero, InfoNote, MetricCard, StatusCard, ProgressRing, ToolExperienceCard } from './ui';
 import { uid, localDay } from './domain.mjs';
 import { babyNamesList, nameThemes, nameOrigins } from './babyNamesData';
 
@@ -58,6 +58,7 @@ export function WeightTracker({ state, update, toast, lang = 'tr' }) {
         stat={`${weights.length} ${isEn ? 'entries' : 'ölçüm'}`}
         tint="#4F8464"
       />
+      <ToolExperienceCard lang={lang} title={isEn ? 'Watch the trend, not one number' : 'Tek sayıya değil eğilime bak'} steps={isEn ? ['Enter a weekly measurement.', 'Compare it with your personal curve.', 'Keep notes for your visit.'] : ['Haftalık ölçümü gir.', 'Kişisel eğrinle karşılaştır.', 'Kontrol için notunu sakla.']} outcome={isEn ? 'The tool becomes a pregnancy weight diary.' : 'Araç hamilelik kilo günlüğü gibi çalışır.'} asset="screen_hero_weight_bmi" tint="#3E7B54" />
 
       {/* İkili Metrik Kartları */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -216,6 +217,7 @@ export function BirthPlanBuilder({ state, update, toast, lang = 'tr' }) {
         stat={isEn ? `${selectedCount}/${totalOptions} choices` : `${selectedCount}/${totalOptions} tercih`}
         tint="#946635"
       />
+      <ToolExperienceCard lang={lang} title={isEn ? 'Turn preferences into a shareable summary' : 'Tercihleri paylaşılabilir özete çevir'} steps={isEn ? ['Choose comfort and support preferences.', 'Review the ready percentage.', 'Open the summary before your birth conversation.'] : ['Konfor ve destek tercihlerini seç.', 'Hazırlık yüzdesini gör.', 'Doğum görüşmesi öncesi özeti aç.']} outcome={isEn ? 'It feels like a finished birth preference form.' : 'Bitmiş bir doğum tercih formu hissi verir.'} asset="screen_hero_birth_plan" tint="#8A5A2B" />
 
       {/* İlerleme & İstatistik Kartı */}
       <Card style={{ padding: 16 }}>
@@ -418,6 +420,7 @@ export function DoctorQuestions({ state, update, toast, lang = 'tr' }) {
         stat={isEn ? `${openCount} open questions` : `${openCount} açık soru`}
         tint="#7C5C96"
       />
+      <ToolExperienceCard lang={lang} title={isEn ? 'Never lose the important question' : 'Önemli soruyu kaybetme'} steps={isEn ? ['Add questions as they come to mind.', 'Group them before the visit.', 'Mark answered items afterwards.'] : ['Aklına geldikçe soruları ekle.', 'Kontrol öncesi gruplandır.', 'Sonra yanıtlananları işaretle.']} outcome={isEn ? 'The screen becomes a visit prep notebook.' : 'Ekran randevu hazırlık defteri gibi çalışır.'} asset="screen_hero_doctor_prep" tint="#6A4482" />
 
       {/* Metrik Göstergeleri */}
       <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -625,6 +628,7 @@ export function BabyNameMatcher({ state, update, toast, lang = 'tr' }) {
         stat={`${favNames.length} ${isEn ? 'favorites' : 'favori'}`}
         tint="#9B4E76"
       />
+      <ToolExperienceCard lang={lang} title={isEn ? 'Shortlist names together' : 'İsimleri birlikte kısa listeye al'} steps={isEn ? ['Search by meaning or origin.', 'Save favorites.', 'Compare the emotional fit later.'] : ['Anlam veya kökene göre ara.', 'Favorileri sakla.', 'Duygusal uyumu sonra karşılaştır.']} outcome={isEn ? 'The result is a family shortlist, not a random list.' : 'Sonuç rastgele liste değil, aile kısa listesi olur.'} asset="screen_hero_baby_names" tint="#8A6AA8" />
 
       {/* Metrik Göstergeleri */}
       <View style={{ flexDirection: 'row', gap: 10 }}>

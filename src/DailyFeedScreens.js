@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
-import { T, Tap, Card, Section, Progress, ScreenHero } from './ui';
+import { T, Tap, Card, Section, Progress, ScreenHero, ToolExperienceCard } from './ui';
 import { generatedAssets } from './generatedAssets';
 import { babyLettersData, getBabyLetterForWeek, getPastBabyLetters } from './babyLettersData';
 
@@ -26,6 +26,7 @@ export function DailyBabyLetterScreen({ state, toast, lang = 'tr' }) {
         stat={isEn ? `${archiveLetters.length} archived` : `${archiveLetters.length} arşiv`}
         tint={colors.purple}
       />
+      <ToolExperienceCard lang={lang} title={isEn ? 'Open one emotional reason daily' : 'Günün duygusal bağı'} steps={isEn ? ['Read today’s letter.', 'Save the week in the archive.', 'Share the moment with your partner.'] : ['Bugünün mektubunu oku.', 'Haftayı arşivde sakla.', 'Anı eşinle paylaş.']} outcome={isEn ? 'This is the daily return habit.' : 'Bu ekran günlük geri dönüş alışkanlığı yaratır.'} asset="ui_baby_letter_envelope" tint="#9B4E76" />
 
       {/* Sekmeler: Bugünün Mektubu / Mektup Arşivi */}
       <View style={ds.segRow}>
@@ -198,6 +199,7 @@ export function DailyTimelineFeed({ lang = 'tr' }) {
         stat={selectedDay === 'bugun' ? (isEn ? 'today' : 'bugün') : selectedDay === 'dun' ? (isEn ? 'yesterday' : 'dün') : (isEn ? 'tomorrow' : 'yarın')}
         tint={colors.purple}
       />
+      <ToolExperienceCard lang={lang} title={isEn ? 'Read the day in three layers' : 'Günü üç katmanda oku'} steps={isEn ? ['Baby note.', 'Body note.', 'One small care action.'] : ['Bebek notu.', 'Beden notu.', 'Tek küçük bakım aksiyonu.']} outcome={isEn ? 'The feed avoids random content and feels guided.' : 'Akış rastgele içerik değil, rehberli gün planı gibi durur.'} asset="ui_timeline_sun_moon" tint="#6A4482" />
 
       {/* Gün Seçici */}
       <View style={ds.segRow}>
@@ -300,6 +302,7 @@ export function WaterVitaminQuickModal({ state, update, toast, lang = 'tr' }) {
         stat={isEn ? `${waterGlasses}/8 glasses` : `${waterGlasses}/8 bardak`}
         tint="#589FB8"
       />
+      <ToolExperienceCard lang={lang} title={isEn ? 'Track tiny habits' : 'Mikro alışkanlık takibi'} steps={isEn ? ['Tap water quickly.', 'Mark vitamin.', 'See what is left today.'] : ['Suyu hızlıca işle.', 'Vitamini işaretle.', 'Bugünden kalanları gör.']} outcome={isEn ? 'The screen gives a quick reason to return.' : 'Ekran gün içinde tekrar açmak için hızlı sebep verir.'} asset="card_water" tint="#589FB8" />
 
       {/* Su Takip Kartı */}
       <Card style={ds.waterCard}>

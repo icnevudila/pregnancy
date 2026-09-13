@@ -30,6 +30,13 @@ try {
   console.warn('[MOMORA] comparisonHarmonizer modulu yuklenemedi:', e.message);
 }
 
+let assetOptimizer = null;
+try {
+  assetOptimizer = require('./optimize_assets');
+} catch (e) {
+  console.warn('[MOMORA] assetOptimizer modulu yuklenemedi:', e.message);
+}
+
 // --- GLOBAL MUTEX LOCK (Çakışma Önleyici Tekil Kilit) ---
 // ChatGPT ve Gemini'nin aynı anda üretmesini kesin olarak engeller
 let activeLock = null; // { platform, filename, jobId, startedAt }
@@ -237,6 +244,9 @@ async function harvestDownloadsFolder() {
         const shouldBeTrans = f.startsWith('ui_') || f.startsWith('fruit_') || f.startsWith('animal_') || f.startsWith('sweet_');
         if (shouldBeTrans) {
           await makeTransparentPNG(destPath);
+        }
+        if (assetOptimizer) {
+          await assetOptimizer.optimizeSingleAsset(destPath);
         }
 
         updateGeneratedAssetsFile();
@@ -468,6 +478,23 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // I. Varlık Optimizasyonu (Uygulama Hızlandırma & Boyut Düşürme)
+  if (req.method === 'POST' && (req.url === '/project/optimize-assets' || req.url === '/project/optimize')) {
+    if (!assetOptimizer) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'assetOptimizer not loaded' }));
+    }
+    try {
+      const result = await assetOptimizer.optimizeAllAssets();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, ...result }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
   // 1. Mevcut Dosya Listesi Endpointi
   if (req.method === 'GET' && (req.url === '/list' || req.url.startsWith('/list?'))) {
     try {
@@ -519,6 +546,9 @@ const server = http.createServer(async (req, res) => {
       console.log('[ASSET-RECEIVER] 📥 Alindi: ' + filename + ' (Seffaf: ' + (shouldMakeTransparent ? 'EVET' : 'HAYIR') + ')');
       if (shouldMakeTransparent && !filename.endsWith('.glb')) {
         await makeTransparentPNG(dest);
+      }
+      if (assetOptimizer) {
+        await assetOptimizer.optimizeSingleAsset(dest);
       }
       updateGeneratedAssetsFile();
       updateJobStatus(filename, 'done', { thumb: '/assets/' + filename });
