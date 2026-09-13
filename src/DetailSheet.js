@@ -241,11 +241,11 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
       );
     })()}
     {kind==='auth'&&<AuthModal close={close} toast={toast} lang={lang} onAuthSuccess={u=>{update({user:u});if(u?.user_metadata?.full_name)update({name:u.user_metadata.full_name});}}/>}
-    {kind==='kickCounter'&&<KickCounter state={state} update={update} toast={toast} close={close} lang={lang}/>}
-    {kind==='contractionTimer'&&<ContractionTimer state={state} update={update} toast={toast} close={close} lang={lang}/>}
-    {kind==='hospitalBag'&&<HospitalBag state={state} update={update} toast={toast} close={close} lang={lang}/>}
-    {kind==='breathingGuide'&&<LaborBreathingGuide state={state} update={update} toast={toast} close={close} lang={lang}/>}
-    {kind==='weight'&&<WeightTracker state={state} update={update} toast={toast} close={close} lang={lang}/>}
+    {kind==='kickCounter'&&<KickCounter state={state} update={update} toast={toast} close={close} open={open} lang={lang}/>}
+    {kind==='contractionTimer'&&<ContractionTimer state={state} update={update} toast={toast} close={close} open={open} lang={lang}/>}
+    {kind==='hospitalBag'&&<HospitalBag state={state} update={update} toast={toast} close={close} open={open} lang={lang}/>}
+    {kind==='breathingGuide'&&<LaborBreathingGuide state={state} update={update} toast={toast} close={close} open={open} lang={lang}/>}
+    {kind==='weight'&&<WeightTracker state={state} update={update} toast={toast} close={close} open={open} lang={lang}/>}
     {kind==='birthPlan'&&<BirthPlanBuilder state={state} update={update} toast={toast} close={close} lang={lang}/>}
     {kind==='doctorQuestions'&&<DoctorQuestions state={state} update={update} toast={toast} close={close} lang={lang}/>}
     {kind==='babyNames'&&<BabyNameMatcher state={state} update={update} toast={toast} close={close} lang={lang}/>}

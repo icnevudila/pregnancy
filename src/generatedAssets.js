@@ -271,6 +271,8 @@ export const generatedAssets = {
   'topic_partner_guide': require('../assets/topic_partner_guide.png'),
   'topic_prenatal_nutrition': require('../assets/topic_prenatal_nutrition.png'),
   'topic_prenatal_yoga': require('../assets/topic_prenatal_yoga.png'),
+  'ui_avatar_father_3d': require('../assets/ui_avatar_father_3d.png'),
+  'ui_avatar_mother_3d': require('../assets/ui_avatar_mother_3d.png'),
   'ui_baby_crib': require('../assets/ui_baby_crib.png'),
   'ui_baby_letter_envelope': require('../assets/ui_baby_letter_envelope.png'),
   'ui_baby_name_blocks': require('../assets/ui_baby_name_blocks.png'),
@@ -304,8 +306,17 @@ export const generatedAssets = {
   'ui_ultrasound_hdlive_20w': require('../assets/ui_ultrasound_hdlive_20w.png'),
   'ui_weight_bmi_gauge': require('../assets/ui_weight_bmi_gauge.png'),
   'ui_white_noise_headphones': require('../assets/ui_white_noise_headphones.png'),
+  'usg_2d_w04_decidual_reaction': require('../assets/usg_2d_w04_decidual_reaction.png'),
+  'usg_2d_w05_gestational_ring': require('../assets/usg_2d_w05_gestational_ring.png'),
+  'usg_2d_w06_yolk_sac_cardiac': require('../assets/usg_2d_w06_yolk_sac_cardiac.png'),
   'usg_2d_w08_gestational_sac': require('../assets/usg_2d_w08_gestational_sac.png'),
   'usg_2d_w12_nt_crl': require('../assets/usg_2d_w12_nt_crl.png'),
+  'usg_2d_w20_fetal_profile': require('../assets/usg_2d_w20_fetal_profile.png'),
+  'usg_2d_w20_four_chamber_heart': require('../assets/usg_2d_w20_four_chamber_heart.png'),
+  'usg_2d_w28_growth_bpd': require('../assets/usg_2d_w28_growth_bpd.png'),
+  'usg_2d_w36_cephalic_presentation': require('../assets/usg_2d_w36_cephalic_presentation.png'),
+  'usg_doppler_cardiac_flow': require('../assets/usg_doppler_cardiac_flow.png'),
+  'usg_doppler_umbilical_flow': require('../assets/usg_doppler_umbilical_flow.png'),
 };
 
 export function getAsset(name) {

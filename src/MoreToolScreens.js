@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { View, StyleSheet, TextInput, ScrollView, Animated, PanResponder, Dimensions, Platform, Modal } from 'react-native';
+import Svg, { Path, Circle, Line, Rect, Defs, LinearGradient as SvgGradient, Stop, G, Text as SvgText } from 'react-native-svg';
 import { colors, fonts, shadow } from './theme';
 import { Icon } from './Icons';
 import { T, Tap, Card, Section, Progress, ScreenHero, InfoNote, MetricCard, StatusCard, ProgressRing, ToolExperienceCard } from './ui';
@@ -26,6 +27,36 @@ export function WeightTracker({ state, update, toast, lang = 'tr' }) {
   // 4-week trend calculation
   const fourWeeksAgoEntry = weights.find(w => (w.week || 0) <= week - 4) || weights[weights.length - 1];
   const fourWeekChange = fourWeeksAgoEntry ? (currentWeight - Number(fourWeeksAgoEntry.value)).toFixed(1) : null;
+
+  const [scrubbedWeek, setScrubbedWeek] = useState(week);
+
+  // Sorted list of weight points across weeks
+  const points = useMemo(() => {
+    const map = new Map();
+    // Anchor baseline at week 4
+    map.set(4, { week: 4, value: startWeight, date: isEn ? 'Pre-pregnancy' : 'Gebelik öncesi' });
+
+    // Populate user weights
+    (weights || []).forEach(w => {
+      const wk = w.week || 24;
+      if (!map.has(wk) || new Date(w.occurredAt || 0) > new Date(map.get(wk).occurredAt || 0)) {
+        map.set(wk, { id: w.id, week: wk, value: Number(w.value), date: w.date, note: w.note });
+      }
+    });
+
+    return Array.from(map.values()).sort((a, b) => a.week - b.week);
+  }, [weights, startWeight, isEn]);
+
+  // Current scrubbed point (or closest available point)
+  const currentScrubPoint = useMemo(() => {
+    const exact = points.find(p => p.week === scrubbedWeek);
+    if (exact) return exact;
+    const closest = points.reduce((prev, curr) => Math.abs(curr.week - scrubbedWeek) < Math.abs(prev.week - scrubbedWeek) ? curr : prev, points[0]);
+    return closest || { week: scrubbedWeek, value: currentWeight };
+  }, [points, scrubbedWeek, currentWeight]);
+
+  const minKg = Math.floor(Math.min(startWeight - 2, ...points.map(p => p.value)));
+  const maxKg = Math.ceil(Math.max(startWeight + 16, ...points.map(p => p.value) + 2));
 
   function logWeight() {
     const val = parseFloat(weightInput.replace(',', '.'));
@@ -137,32 +168,184 @@ export function WeightTracker({ state, update, toast, lang = 'tr' }) {
         </View>
       </Modal>
 
-      {/* 2. TREND ÇİZELGESİ (X = HAFTA, Y = KİLO) */}
+      {/* 2. CONTINUOUS TREND LINE & SCRUB CHART (SPEC 04_WEIGHT_TRACKER) */}
       <Card style={{ padding: 16 }}>
-        <T bold style={{ fontSize: 14, color: colors.ink }}>{isEn ? 'Weekly Weight Trend' : 'Haftalık Kilo Eğilimi'}</T>
-        <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2, marginBottom: 12 }}>
-          {isEn ? 'Neutral observational graph across pregnancy weeks' : 'Haftalara göre kilo ölçümlerinin seyri'}
-        </T>
-
-        {weights.length === 0 ? (
-          <View style={{ alignItems: 'center', paddingVertical: 24 }}>
-            <T style={{ fontSize: 12.5, color: colors.muted }}>{isEn ? 'No weight records yet. Add your first log below.' : 'Henüz kilo kaydı yok. İlk ölçümünüzü aşağıdan ekleyin.'}</T>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <View>
+            <T bold style={{ fontSize: 14, color: colors.ink }}>{isEn ? 'Gestational Weight Curve' : 'Gebelik Boyunca Kilo Eğrisi'}</T>
+            <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2 }}>
+              {isEn ? 'Continuous line with reference corridor and scrub inspection' : 'Referans koridoru ve dokunmatik haftalık inceleme'}
+            </T>
           </View>
-        ) : (
-          <View style={{ height: 130, flexDirection: 'row', alignItems: 'flex-end', gap: 8, paddingVertical: 10 }}>
-            {weights.slice(0, 8).reverse().map((w, idx) => {
-              const diffFromBase = Math.max(0, w.value - (startWeight - 2));
-              const barHeight = Math.min(100, Math.max(20, diffFromBase * 8));
+          <View style={{ paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, backgroundColor: '#EBF4EE' }}>
+            <T bold style={{ fontSize: 10.5, color: '#317349' }}>
+              {isEn ? 'LINE TREND' : 'ÇİZGİ GRAFİĞİ'}
+            </T>
+          </View>
+        </View>
+
+        {/* Scrub Tooltip Banner */}
+        <View style={{ marginTop: 12, marginBottom: 8, padding: 10, borderRadius: 12, backgroundColor: '#F3F8F5', borderWidth: 1, borderColor: '#DCECE2', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View>
+            <T bold style={{ fontSize: 13, color: '#275B3A' }}>
+              {isEn ? `Week ${scrubbedWeek}` : `${scrubbedWeek}. Hafta`}
+              {scrubbedWeek === week ? (isEn ? ' (Current)' : ' (Şu an)') : ''}
+            </T>
+            <T style={{ fontSize: 11, color: colors.muted }}>
+              {currentScrubPoint ? (isEn ? `Baseline delta: ${currentScrubPoint.value >= startWeight ? '+' : ''}${(currentScrubPoint.value - startWeight).toFixed(1)} kg` : `Başlangıca göre: ${currentScrubPoint.value >= startWeight ? '+' : ''}${(currentScrubPoint.value - startWeight).toFixed(1)} kg`) : (isEn ? 'No entry' : 'Kayıt yok')}
+            </T>
+          </View>
+          <View style={{ alignItems: 'flex-end' }}>
+            <T bold style={{ fontSize: 17, color: '#275B3A' }}>
+              {currentScrubPoint ? `${currentScrubPoint.value} kg` : '--'}
+            </T>
+            <T style={{ fontSize: 10, color: '#4E8060' }}>
+              {currentScrubPoint?.date || (isEn ? 'Projected' : 'Tahmini')}
+            </T>
+          </View>
+        </View>
+
+        {/* SVG Continuous Curve */}
+        <View style={{ alignItems: 'center', marginVertical: 6 }}>
+          <Svg width={320} height={160}>
+            <Defs>
+              <SvgGradient id="weightAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                <Stop offset="0%" stopColor="#4F8464" stopOpacity="0.28" />
+                <Stop offset="100%" stopColor="#4F8464" stopOpacity="0.02" />
+              </SvgGradient>
+            </Defs>
+
+            {/* Grid Lines */}
+            <Line x1={36} y1={24} x2={300} y2={24} stroke="#EBE4E0" strokeWidth="1" strokeDasharray="3,3" />
+            <Line x1={36} y1={77} x2={300} y2={77} stroke="#EBE4E0" strokeWidth="1" strokeDasharray="3,3" />
+            <Line x1={36} y1={130} x2={300} y2={130} stroke="#E0D7D2" strokeWidth="1" />
+
+            {/* Y-Axis Labels */}
+            <SvgText x={10} y={28} fill="#9E8D88" fontSize={9}>{`${maxKg}kg`}</SvgText>
+            <SvgText x={10} y={81} fill="#9E8D88" fontSize={9}>{`${Math.round((maxKg + minKg) / 2)}kg`}</SvgText>
+            <SvgText x={10} y={133} fill="#9E8D88" fontSize={9}>{`${minKg}kg`}</SvgText>
+
+            {/* Soft Reference Corridor Band (Spec: optional reference corridor) */}
+            <Path
+              d={`M ${36 + ((4 - 4) / 36) * 264} ${24 + (1 - (startWeight - minKg) / Math.max(1, maxKg - minKg)) * 106} ` +
+                `L ${36 + ((12 - 4) / 36) * 264} ${24 + (1 - (startWeight + 2 - minKg) / Math.max(1, maxKg - minKg)) * 106} ` +
+                `L ${36 + ((24 - 4) / 36) * 264} ${24 + (1 - (startWeight + 7 - minKg) / Math.max(1, maxKg - minKg)) * 106} ` +
+                `L ${36 + ((40 - 4) / 36) * 264} ${24 + (1 - (startWeight + 15 - minKg) / Math.max(1, maxKg - minKg)) * 106} ` +
+                `L ${36 + ((40 - 4) / 36) * 264} ${24 + (1 - (startWeight + 11 - minKg) / Math.max(1, maxKg - minKg)) * 106} ` +
+                `L ${36 + ((24 - 4) / 36) * 264} ${24 + (1 - (startWeight + 5 - minKg) / Math.max(1, maxKg - minKg)) * 106} ` +
+                `L ${36 + ((12 - 4) / 36) * 264} ${24 + (1 - (startWeight + 1 - minKg) / Math.max(1, maxKg - minKg)) * 106} ` +
+                `L ${36 + ((4 - 4) / 36) * 264} ${24 + (1 - (startWeight - minKg) / Math.max(1, maxKg - minKg)) * 106} Z`}
+              fill="#E8F4EC"
+              opacity={0.65}
+            />
+
+            {/* Area Fill */}
+            {points.length > 0 && (
+              <Path
+                d={points.reduce((acc, p, idx) => `${acc} ${idx === 0 ? 'M' : 'L'} ${(36 + ((Math.max(4, Math.min(40, p.week)) - 4) / 36) * 264).toFixed(1)} ${(24 + (1 - (p.value - minKg) / Math.max(1, maxKg - minKg)) * 106).toFixed(1)}`, '') +
+                  ` L ${(36 + ((Math.max(4, Math.min(40, points[points.length - 1].week)) - 4) / 36) * 264).toFixed(1)} 130 L ${(36 + ((Math.max(4, Math.min(40, points[0].week)) - 4) / 36) * 264).toFixed(1)} 130 Z`}
+                fill="url(#weightAreaGrad)"
+              />
+            )}
+
+            {/* Continuous Line Curve */}
+            {points.length > 0 && (
+              <Path
+                d={points.reduce((acc, p, idx) => `${acc} ${idx === 0 ? 'M' : 'L'} ${(36 + ((Math.max(4, Math.min(40, p.week)) - 4) / 36) * 264).toFixed(1)} ${(24 + (1 - (p.value - minKg) / Math.max(1, maxKg - minKg)) * 106).toFixed(1)}`, '')}
+                fill="none"
+                stroke="#317349"
+                strokeWidth={3}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            )}
+
+            {/* Interactive Vertical Scrub Line */}
+            <Line
+              x1={36 + ((Math.max(4, Math.min(40, scrubbedWeek)) - 4) / 36) * 264}
+              y1={20}
+              x2={36 + ((Math.max(4, Math.min(40, scrubbedWeek)) - 4) / 36) * 264}
+              y2={130}
+              stroke="#B27494"
+              strokeWidth={1.5}
+              strokeDasharray="4,4"
+            />
+
+            {/* Data Point Nodes */}
+            {points.map((p, idx) => {
+              const cx = 36 + ((Math.max(4, Math.min(40, p.week)) - 4) / 36) * 264;
+              const cy = 24 + (1 - (p.value - minKg) / Math.max(1, maxKg - minKg)) * 106;
+              const isSelected = p.week === scrubbedWeek;
               return (
-                <View key={w.id || idx} style={{ flex: 1, alignItems: 'center', gap: 4 }}>
-                  <T style={{ fontSize: 10, color: '#317349', fontWeight: '700' }}>{w.value}</T>
-                  <View style={{ width: '80%', height: barHeight, backgroundColor: '#8DB89B', borderRadius: 6 }} />
-                  <T style={{ fontSize: 9, color: colors.muted }}>{w.week ? `H.${w.week}` : ''}</T>
-                </View>
+                <G key={p.id || idx}>
+                  <Circle
+                    cx={cx}
+                    cy={cy}
+                    r={isSelected ? 6 : 4}
+                    fill={isSelected ? "#275B3A" : "#4F8464"}
+                    stroke="white"
+                    strokeWidth={isSelected ? 2.5 : 1.5}
+                  />
+                </G>
               );
             })}
+
+            {/* X-Axis Week Labels */}
+            <SvgText x={36} y={148} fill="#9E8D88" fontSize={9} textAnchor="middle">W4</SvgText>
+            <SvgText x={36 + (8 / 36) * 264} y={148} fill="#9E8D88" fontSize={9} textAnchor="middle">W12</SvgText>
+            <SvgText x={36 + (16 / 36) * 264} y={148} fill="#9E8D88" fontSize={9} textAnchor="middle">W20</SvgText>
+            <SvgText x={36 + (24 / 36) * 264} y={148} fill="#9E8D88" fontSize={9} textAnchor="middle">W28</SvgText>
+            <SvgText x={36 + (32 / 36) * 264} y={148} fill="#9E8D88" fontSize={9} textAnchor="middle">W36</SvgText>
+            <SvgText x={300} y={148} fill="#9E8D88" fontSize={9} textAnchor="middle">W40</SvgText>
+          </Svg>
+        </View>
+
+        {/* Hafta İnceleme / Scrub Butonları */}
+        <View style={{ marginTop: 8 }}>
+          <T style={{ fontSize: 11, color: colors.muted, marginBottom: 6 }}>
+            {isEn ? 'Touch week to scrub trend:' : 'Grafik üzerinde incelemek için haftaya dokunun:'}
+          </T>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
+            {[4, 8, 12, 16, 20, 24, 28, 32, 36, 40].map(wk => {
+              const isSelected = scrubbedWeek === wk;
+              const hasData = points.some(p => p.week === wk);
+              return (
+                <Tap
+                  key={wk}
+                  onPress={() => setScrubbedWeek(wk)}
+                  style={{
+                    paddingHorizontal: 10,
+                    paddingVertical: 6,
+                    borderRadius: 10,
+                    backgroundColor: isSelected ? '#317349' : hasData ? '#E8F2EC' : '#F6F2F0',
+                    borderWidth: 1,
+                    borderColor: isSelected ? '#245636' : hasData ? '#BFDFC9' : '#E8DFDB',
+                  }}
+                >
+                  <T bold={isSelected} style={{ fontSize: 11, color: isSelected ? 'white' : hasData ? '#275B3A' : colors.muted }}>
+                    {`H.${wk}`}
+                  </T>
+                </Tap>
+              );
+            })}
+          </ScrollView>
+        </View>
+
+        {/* 4-Haftalık Trend ve Ortalama Artış (Spec: neutral language) */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 14, paddingTop: 10, borderTopWidth: 1, borderColor: '#F0EBE7' }}>
+          <View>
+            <T style={{ fontSize: 11, color: colors.muted }}>{isEn ? 'Last 4 Weeks Change:' : 'Son 4 Haftalık Değişim:'}</T>
+            <T bold style={{ fontSize: 13, color: '#317349', marginTop: 2 }}>
+              {fourWeekChange !== null ? (Number(fourWeekChange) >= 0 ? `+${fourWeekChange} kg` : `${fourWeekChange} kg`) : '--'}
+            </T>
           </View>
-        )}
+          <View style={{ alignItems: 'flex-end' }}>
+            <T style={{ fontSize: 11, color: colors.muted }}>{isEn ? 'Weekly Average Gain:' : 'Haftalık Ortalama Artış:'}</T>
+            <T bold style={{ fontSize: 13, color: '#317349', marginTop: 2 }}>
+              {week > 4 ? `+${(Number(totalGained) / Math.max(1, week - 4)).toFixed(2)} kg/${isEn ? 'wk' : 'hf'}` : '--'}
+            </T>
+          </View>
+        </View>
       </Card>
 
       {/* 3. QUICK ADD (SPEC 04_WEIGHT_TRACKER) */}

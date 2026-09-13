@@ -23,7 +23,7 @@ export const getJourneys = (lang = 'tr') => [
 ];
 export const journeys = getJourneys('tr');
 
-export function Onboarding({ choose, update, toast, lang = 'tr' }) {
+export function Onboarding({ choose, update, toast, lang = 'tr', setPage, state }) {
   const isEn = lang === 'en';
   const [role, setRole] = useState('mother'); // 'mother' | 'father'
   const [showSyncInput, setShowSyncInput] = useState(false);
@@ -44,15 +44,56 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
   const currentJourneys = role === 'father' ? fatherJourneys : motherJourneys;
 
   function selectJourney(key) {
+    const defaultDueDate = calculateDueDateFromWeek(24, 5);
+    const guestUser = {
+      id: role === 'father' ? 'usr_local_father' : 'usr_local_mother',
+      displayName: role === 'father' ? (isEn ? 'Alex' : 'Mehmet') : (isEn ? 'Emma' : 'Zeynep'),
+      locale: lang,
+      activeRole: role,
+      isGuest: true,
+    };
+    const household = {
+      id: 'hh_local_1',
+      name: role === 'father' ? (isEn ? 'Alex & Emma' : 'Mehmet & Zeynep') : (isEn ? 'Emma & Alex' : 'Zeynep & Mehmet'),
+      members: [
+        { id: guestUser.id, role, name: guestUser.displayName },
+        { id: 'usr_partner_1', role: role === 'father' ? 'mother' : 'father', name: role === 'father' ? (isEn ? 'Emma' : 'Zeynep') : (isEn ? 'Alex' : 'Mehmet') },
+      ],
+      inviteCode: 'MOM-7829-TR',
+    };
+    const pregnancy = {
+      id: 'prg_local_1',
+      dueDate: defaultDueDate,
+      status: key === 'pregnancy' ? 'active' : 'completed',
+    };
+    const baby = {
+      id: 'bby_local_1',
+      name: isEn ? 'Maya' : 'Ada',
+      birthDate: key === 'baby' ? new Date(Date.now() - 14 * 86400000).toISOString().slice(0, 10) : '',
+      sex: 'female',
+    };
+    const postpartumProfile = {
+      id: 'post_local_1',
+      birthDate: key === 'postpartum' ? new Date(Date.now() - 10 * 86400000).toISOString().slice(0, 10) : '',
+      deliveryType: 'vaginal',
+    };
+
     if (update) {
       update({
         role,
         mode: key,
         hasCompletedOnboarding: true,
-        name: role === 'father' ? (isEn ? 'Alex' : 'Mehmet') : (isEn ? 'Emma' : 'Zeynep'),
-        partnerName: role === 'father' ? (isEn ? 'Emma' : 'Zeynep') : (isEn ? 'Alex' : 'Mehmet'),
-        partnerRole: role === 'father' ? 'mother' : 'father',
+        user: guestUser,
+        household,
+        pregnancy,
+        baby,
+        postpartumProfile,
+        name: guestUser.displayName,
+        partnerName: household.members[1].name,
+        partnerRole: household.members[1].role,
         partnerConnected: true,
+        week: key === 'pregnancy' ? 24 : 40,
+        day: 5,
       });
     }
     toast && toast(role === 'father'
@@ -69,6 +110,31 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
 
   return (
     <Page contentStyle={s.onboarding}>
+      {/* ─── ÜST NAVİGASYON VE ATLA BAR (KİLİTLENMEYİ ÖNLER) ─── */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, width: '100%' }}>
+        {setPage && state?.mode ? (
+          <Tap
+            onPress={() => setPage(state.mode)}
+            label={isEn ? 'Back' : 'Geri'}
+            style={{ paddingVertical: 6, paddingHorizontal: 10, borderRadius: 12, backgroundColor: '#F0EAF2' }}
+          >
+            <T bold style={{ fontSize: 12, color: colors.purple }}>
+              {isEn ? '← Back' : '← Geri'}
+            </T>
+          </Tap>
+        ) : <View style={{ width: 10 }} />}
+
+        <Tap
+          onPress={() => selectJourney('pregnancy')}
+          label={isEn ? 'Skip & Continue as Guest' : 'Atla & Misafir Başla'}
+          style={{ paddingVertical: 6, paddingHorizontal: 12, borderRadius: 14, backgroundColor: '#FAF6F4', borderWidth: 1, borderColor: '#EAE1DF' }}
+        >
+          <T bold style={{ fontSize: 11, color: colors.muted }}>
+            {isEn ? 'Skip · Guest Mode →' : 'Atla · Misafir Olarak Başla →'}
+          </T>
+        </Tap>
+      </View>
+
       <View style={s.brand}>
         <BrandMark size={38} />
         <T style={s.wordmark}>MOMORA</T>

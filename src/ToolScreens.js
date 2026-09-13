@@ -6,6 +6,8 @@ import {
   ScrollView,
   Animated,
   Image,
+  Modal,
+  Vibration,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fonts, shadow } from './theme';
@@ -1203,7 +1205,7 @@ export function HospitalBag({ state, update, toast, lang = 'tr' }) {
 }
 
 // ─── 4. NEFES & GEVŞEME KOÇU (SPEC 02_BREATHING_COACH) ────────────────────────
-export function LaborBreathingGuide({ state, update, toast, lang = 'tr' }) {
+export function LaborBreathingGuide({ state, update, toast, lang = 'tr', close, open }) {
   const isEn = lang === 'en';
 
   // 4 Modes strictly per spec 02_BREATHING_COACH.md (No medical claims)
@@ -1213,7 +1215,7 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr' }) {
       title: isEn ? 'Calm Breath' : 'Sakin Nefes',
       shortTitle: isEn ? 'Calm' : 'Sakin',
       subtitle: isEn ? 'Slow natural grounding rhythm' : 'Doğal topraklanma ve sakinlik',
-      inhale: 4, hold: 0, exhale: 5, hold2: 0,
+      inhale: 4, hold: 0, exhale: 5,
       color: '#4A7C9D', bg: '#F0F5FA', ring: '#C5DBEC',
       desc: isEn ? 'Breathe in for 4s, breathe out gently for 5s.' : '4 saniye sakince al, 5 saniye yumuşakça ver.',
     },
@@ -1222,7 +1224,7 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr' }) {
       title: isEn ? 'During Contraction' : 'Kasılma Sırasında',
       shortTitle: isEn ? 'Contraction' : 'Kasılma',
       subtitle: isEn ? 'Steady wave breath during tension' : 'Dalga anında kesintisiz yumuşak nefes',
-      inhale: 4, hold: 0, exhale: 6, hold2: 0,
+      inhale: 4, hold: 0, exhale: 6,
       color: '#B25068', bg: '#FDF1F4', ring: '#F0CAD4',
       desc: isEn ? 'Inhale through nose for 4s, slow soft mouth release for 6s.' : 'Burundan 4 saniye al, dudakları aralayarak 6 saniye yavaşça ver.',
     },
@@ -1231,7 +1233,7 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr' }) {
       title: isEn ? 'Deep Relaxation' : 'Gevşeme',
       shortTitle: isEn ? 'Relax' : 'Gevşeme',
       subtitle: isEn ? 'Full body softening and release' : 'Tüm bedeni ve pelvik tabanı bırakış',
-      inhale: 4, hold: 2, exhale: 6, hold2: 0,
+      inhale: 4, hold: 2, exhale: 6,
       color: '#7E4E8A', bg: '#F9F1FB', ring: '#E3C9E8',
       desc: isEn ? 'Inhale 4s, hold gently for 2s, exhale completely for 6s.' : '4 saniye al, 2 saniye sakin kal, 6 saniye boyunca tamamen bırak.',
     },
@@ -1240,13 +1242,28 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr' }) {
       title: isEn ? 'Pre-Sleep & Rest' : 'Uyku Öncesi',
       shortTitle: isEn ? 'Pre-Sleep' : 'Uyku Öncesi',
       subtitle: isEn ? 'Quiet mind and peaceful transition' : 'Zihni yatıştırma ve dinlendirici uyku',
-      inhale: 4, hold: 0, exhale: 7, hold2: 0,
+      inhale: 4, hold: 0, exhale: 7,
       color: '#3B7E58', bg: '#EEF6F1', ring: '#BDE2CB',
       desc: isEn ? 'Inhale 4s, elongated calm exhale for 7s.' : '4 saniye hafifçe al, 7 saniye uzun ve dingin nefes ver.',
     },
   ];
 
   const [selectedModeId, setSelectedModeId] = useState('calm');
+  const activeMode = modes.find(m => m.id === selectedModeId) || modes[0];
+
+  // Configurable rhythm per spec
+  const [customInhale, setCustomInhale] = useState(activeMode.inhale);
+  const [customHold, setCustomHold] = useState(activeMode.hold);
+  const [customExhale, setCustomExhale] = useState(activeMode.exhale);
+  const [showRhythmSettings, setShowRhythmSettings] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    setCustomInhale(activeMode.inhale);
+    setCustomHold(activeMode.hold);
+    setCustomExhale(activeMode.exhale);
+  }, [selectedModeId]);
+
   const [phase, setPhase] = useState('idle'); // 'idle' | 'inhale' | 'hold' | 'exhale'
   const [countdown, setCountdown] = useState(0);
   const [cycles, setCycles] = useState(0);
@@ -1260,7 +1277,19 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr' }) {
   const timerRef = useRef(null);
   const isRunning = useRef(false);
 
-  const activeMode = modes.find(m => m.id === selectedModeId) || modes[0];
+  // Parallel Contraction Integration (Spec 02: contraction continues, banner shows elapsed time)
+  const activeContractionStart = state?.activeContraction?.startedAt;
+  const [contractionElapsed, setContractionElapsed] = useState(0);
+
+  useEffect(() => {
+    if (!activeContractionStart) return;
+    function tick() {
+      setContractionElapsed(Math.max(0, Math.floor((Date.now() - activeContractionStart) / 1000)));
+    }
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [activeContractionStart]);
 
   useEffect(() => {
     if (running) {
@@ -1284,7 +1313,7 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr' }) {
     isRunning.current = true;
     setCycles(0);
     setTotalSecs(0);
-    runPhase('inhale', activeMode.inhale);
+    runPhase('inhale', customInhale);
   }
 
   function stopBreathing() {
@@ -1295,12 +1324,25 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr' }) {
     if (cycleRef.current) clearInterval(cycleRef.current);
     stopSpeech();
     Animated.parallel([
-      Animated.timing(circleScale, { toValue: 1, duration: 500, useNativeDriver: false }),
-      Animated.timing(circleOpacity, { toValue: 0.5, duration: 500, useNativeDriver: false }),
+      Animated.timing(circleScale, { toValue: 1, duration: 400, useNativeDriver: false }),
+      Animated.timing(circleOpacity, { toValue: 0.5, duration: 400, useNativeDriver: false }),
     ]).start();
 
     if (cycles > 0) {
-      toast && toast(isEn ? `Completed ${cycles} breathing cycles (${secondsLabel(totalSecs)})` : `${cycles} nefes döngüsü tamamlandı (${secondsLabel(totalSecs)})`);
+      const sessionEntry = {
+        id: uid ? uid() : Date.now().toString(),
+        mode: selectedModeId,
+        startedAt: new Date(Date.now() - totalSecs * 1000).toISOString(),
+        endedAt: new Date().toISOString(),
+        durationSeconds: totalSecs,
+        cycleCount: cycles,
+      };
+      if (update) {
+        update(old => ({
+          relaxationSessions: [sessionEntry, ...(old.relaxationSessions || [])],
+        }));
+      }
+      toast && toast(isEn ? `Session ended · ${cycles} cycles (${secondsLabel(totalSecs)})` : `Seans tamamlandı · ${cycles} döngü (${secondsLabel(totalSecs)})`);
     }
   }
 
@@ -1316,17 +1358,38 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr' }) {
       else if (targetPhase === 'exhale') speakText(isEn ? 'Breathe out' : 'Yavaşça ver');
     }
 
-    // Organic scale animation: grows on inhale, softens on exhale
-    if (targetPhase === 'inhale') {
-      Animated.parallel([
-        Animated.timing(circleScale, { toValue: 1.45, duration: secondsRemaining * 1000, useNativeDriver: false }),
-        Animated.timing(circleOpacity, { toValue: 0.85, duration: secondsRemaining * 1000, useNativeDriver: false }),
-      ]).start();
-    } else if (targetPhase === 'exhale') {
-      Animated.parallel([
-        Animated.timing(circleScale, { toValue: 1.0, duration: secondsRemaining * 1000, useNativeDriver: false }),
-        Animated.timing(circleOpacity, { toValue: 0.45, duration: secondsRemaining * 1000, useNativeDriver: false }),
-      ]).start();
+    // Haptic cue (Spec: haptic guidance)
+    if (guidanceType === 'haptic') {
+      try {
+        if (targetPhase === 'hold') Vibration.vibrate(50);
+        else Vibration.vibrate([0, 80, 40, 80]);
+      } catch (e) {}
+    }
+
+    // Organic scale animation: grows on inhale, softens on exhale (reduceMotion fallback supported)
+    if (reduceMotion) {
+      Animated.timing(circleOpacity, {
+        toValue: targetPhase === 'inhale' ? 0.9 : targetPhase === 'hold' ? 0.7 : 0.4,
+        duration: secondsRemaining * 1000,
+        useNativeDriver: false,
+      }).start();
+    } else {
+      if (targetPhase === 'inhale') {
+        Animated.parallel([
+          Animated.timing(circleScale, { toValue: 1.45, duration: secondsRemaining * 1000, useNativeDriver: false }),
+          Animated.timing(circleOpacity, { toValue: 0.85, duration: secondsRemaining * 1000, useNativeDriver: false }),
+        ]).start();
+      } else if (targetPhase === 'hold') {
+        Animated.parallel([
+          Animated.timing(circleScale, { toValue: 1.42, duration: secondsRemaining * 1000, useNativeDriver: false }),
+          Animated.timing(circleOpacity, { toValue: 0.75, duration: secondsRemaining * 1000, useNativeDriver: false }),
+        ]).start();
+      } else if (targetPhase === 'exhale') {
+        Animated.parallel([
+          Animated.timing(circleScale, { toValue: 1.0, duration: secondsRemaining * 1000, useNativeDriver: false }),
+          Animated.timing(circleOpacity, { toValue: 0.45, duration: secondsRemaining * 1000, useNativeDriver: false }),
+        ]).start();
+      }
     }
 
     let left = secondsRemaining;
@@ -1344,33 +1407,44 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr' }) {
   function goToNextPhase(currentPhase) {
     if (!isRunning.current) return;
     if (currentPhase === 'inhale') {
-      if (activeMode.hold > 0) runPhase('hold', activeMode.hold);
-      else runPhase('exhale', activeMode.exhale);
+      if (customHold > 0) runPhase('hold', customHold);
+      else runPhase('exhale', customExhale);
     } else if (currentPhase === 'hold') {
-      runPhase('exhale', activeMode.exhale);
+      runPhase('exhale', customExhale);
     } else if (currentPhase === 'exhale') {
       setCycles(c => c + 1);
-      runPhase('inhale', activeMode.inhale);
+      runPhase('inhale', customInhale);
     }
   }
 
-  // Check if contraction is running in parallel (spec 02_BREATHING_COACH)
-  const isContractionRunning = !!state?.activeContraction;
-
   return (
     <View style={ts.container}>
-      {/* Kasılma Entegrasyon Bandı (Nefes koçu contraction session'ı durdurmaz) */}
-      {isContractionRunning && (
-        <Card style={{ backgroundColor: '#FCEDF0', borderColor: '#B54964', borderWidth: 1.5, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#B54964' }} />
-            <T bold style={{ fontSize: 13, color: '#B54964' }}>
-              {isEn ? 'Contraction in progress' : 'Kasılma sürüyor'}
-            </T>
+      {/* ─── KASILMA ENTEGRASYON BANDI (PARALEL ZAMAN SAYIMI & TEK DOKUNUŞLA DÖNÜŞ) ─── */}
+      {Boolean(activeContractionStart) && (
+        <Card style={bs.liveContractionBanner}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
+            <View style={bs.livePulseDot} />
+            <View>
+              <T bold style={{ fontSize: 13, color: '#B54964' }}>
+                {isEn ? `Contraction · ${secondsLabel(contractionElapsed)}` : `Kasılma · ${secondsLabel(contractionElapsed)}`}
+              </T>
+              <T style={{ fontSize: 11, color: '#8A3B50' }}>
+                {isEn ? 'Wave active · Breathe through the peak' : 'Dalga aktif · Zirve geçene kadar nefese odaklan'}
+              </T>
+            </View>
           </View>
-          <T style={{ fontSize: 12, color: '#912B44' }}>
-            {isEn ? 'Breathe with each wave' : 'Dalga bitene kadar nefese odaklan'}
-          </T>
+          <Tap
+            onPress={() => {
+              if (open) open('contractionTimer');
+              else if (close) close();
+            }}
+            label={isEn ? 'Return to Timer' : 'Kasılma Sayacına Dön'}
+            style={bs.returnBtn}
+          >
+            <T bold style={{ color: 'white', fontSize: 11.5 }}>
+              {isEn ? '← Timer' : '← Sayaca Dön'}
+            </T>
+          </Tap>
         </Card>
       )}
 
@@ -1378,8 +1452,8 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr' }) {
       <ScreenHero
         title={isEn ? "Breathing & Relaxation Coach" : "Nefes & Gevşeme Koçu"}
         subtitle={isEn
-          ? "Organic, calm visual guide for labor waves and daily ease. No pressure, no scores."
-          : "Doğum dalgaları ve günlük rahatlama için sakin görsel rehber. Skor veya başarı yüzdesi yok; sadece anın ritmi."}
+          ? "Organic, calm visual guide for labor waves and daily ease. Zero scoring, zero pressure."
+          : "Doğum dalgaları ve sakinleşme için rehber. Skor veya başarı yüzdesi yok; sadece anın dinginliği."}
         badge={isEn ? "BREATH COACH" : "NEFES KOÇU"}
         badgeColor={activeMode.color}
         icon="leaf"
@@ -1406,29 +1480,93 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr' }) {
         ))}
       </View>
 
-      {/* Rehberlik Tercihi (Sesli, Titreşim, Sessiz) */}
-      <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center', marginVertical: 6 }}>
-        {[
-          { id: 'visual', label: isEn ? '👁️ Silent Visual' : '👁️ Sessiz Görsel' },
-          { id: 'voice', label: isEn ? '🗣️ Voice Guidance' : '🗣️ Sesli Rehber' },
-          { id: 'haptic', label: isEn ? '📳 Haptic' : '📳 Titreşim' },
-        ].map(opt => (
-          <Tap
-            key={opt.id}
-            onPress={() => setGuidanceType(opt.id)}
-            style={[
-              bs.guidanceChip,
-              guidanceType === opt.id && { backgroundColor: '#ECE4F0', borderColor: colors.purple },
-            ]}
-          >
-            <T bold={guidanceType === opt.id} style={{ fontSize: 11, color: guidanceType === opt.id ? colors.purple : colors.muted }}>
-              {opt.label}
-            </T>
-          </Tap>
-        ))}
+      {/* 3. Rehberlik Seçimi & Ayar Çubuğu */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginVertical: 6 }}>
+        <View style={{ flexDirection: 'row', gap: 6 }}>
+          {[
+            { id: 'visual', label: isEn ? '👁️ Silent' : '👁️ Sessiz' },
+            { id: 'voice', label: isEn ? '🗣️ Voice' : '🗣️ Sesli' },
+            { id: 'haptic', label: isEn ? '📳 Haptic' : '📳 Titreşim' },
+          ].map(opt => (
+            <Tap
+              key={opt.id}
+              onPress={() => setGuidanceType(opt.id)}
+              style={[
+                bs.guidanceChip,
+                guidanceType === opt.id && { backgroundColor: '#ECE4F0', borderColor: colors.purple },
+              ]}
+            >
+              <T bold={guidanceType === opt.id} style={{ fontSize: 11, color: guidanceType === opt.id ? colors.purple : colors.muted }}>
+                {opt.label}
+              </T>
+            </Tap>
+          ))}
+        </View>
+
+        <Tap
+          onPress={() => setShowRhythmSettings(!showRhythmSettings)}
+          label={isEn ? 'Rhythm Settings' : 'Ritim Ayarları'}
+          style={{ paddingVertical: 6, paddingHorizontal: 10, borderRadius: 10, backgroundColor: '#F2EDF4' }}
+        >
+          <T bold style={{ fontSize: 11, color: colors.purple }}>
+            {showRhythmSettings ? (isEn ? '✕ Close' : '✕ Kapat') : (isEn ? '⚙️ Rhythm' : '⚙️ Ritim')}
+          </T>
+        </Tap>
       </View>
 
-      {/* 3. BÜYÜK ORGANİK MOMORA FORMU (SPEC 02_BREATHING_COACH) */}
+      {/* RİTİM AYARLARI KARTI (SPEC 02 CONFIGURABLE RHYTHM & REDUCE MOTION) */}
+      {showRhythmSettings && (
+        <Card style={{ padding: 14, backgroundColor: '#FAF6FB', borderWidth: 1, borderColor: '#E7DCED', gap: 10 }}>
+          <T bold style={{ fontSize: 12.5, color: colors.purple }}>
+            {isEn ? 'RHYTHM CUSTOMIZATION' : 'KİŞİSEL RİTİM AYARLARI'}
+          </T>
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <T style={{ fontSize: 12 }}>{isEn ? 'Inhale Duration' : 'Nefes Alma Süresi'}</T>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Tap onPress={() => setCustomInhale(v => Math.max(2, v - 1))} style={bs.stepBtn}><T bold style={{ fontSize: 14 }}>-</T></Tap>
+              <T bold style={{ fontSize: 13, width: 28, textAlign: 'center' }}>{customInhale}s</T>
+              <Tap onPress={() => setCustomInhale(v => Math.min(10, v + 1))} style={bs.stepBtn}><T bold style={{ fontSize: 14 }}>+</T></Tap>
+            </View>
+          </View>
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <T style={{ fontSize: 12 }}>{isEn ? 'Hold Pause' : 'Nefesi Tutma / Duraklama'}</T>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Tap onPress={() => setCustomHold(v => Math.max(0, v - 1))} style={bs.stepBtn}><T bold style={{ fontSize: 14 }}>-</T></Tap>
+              <T bold style={{ fontSize: 13, width: 28, textAlign: 'center' }}>{customHold}s</T>
+              <Tap onPress={() => setCustomHold(v => Math.min(8, v + 1))} style={bs.stepBtn}><T bold style={{ fontSize: 14 }}>+</T></Tap>
+            </View>
+          </View>
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <T style={{ fontSize: 12 }}>{isEn ? 'Exhale Duration' : 'Nefes Verme Süresi'}</T>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Tap onPress={() => setCustomExhale(v => Math.max(3, v - 1))} style={bs.stepBtn}><T bold style={{ fontSize: 14 }}>-</T></Tap>
+              <T bold style={{ fontSize: 13, width: 28, textAlign: 'center' }}>{customExhale}s</T>
+              <Tap onPress={() => setCustomExhale(v => Math.min(12, v + 1))} style={bs.stepBtn}><T bold style={{ fontSize: 14 }}>+</T></Tap>
+            </View>
+          </View>
+
+          <View style={{ height: 1, backgroundColor: '#ECE3F0', marginVertical: 2 }} />
+
+          {/* Reduce Motion Toggle */}
+          <Tap
+            onPress={() => setReduceMotion(!reduceMotion)}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+          >
+            <View>
+              <T bold style={{ fontSize: 12, color: colors.ink }}>{isEn ? 'Reduce Motion' : 'Hareketi Azalt (Sakin Animasyon)'}</T>
+              <T style={{ fontSize: 10.5, color: colors.muted }}>{isEn ? 'Gentle tone transition instead of expansion' : 'Büyüme yerine hafif renk geçişi'}</T>
+            </View>
+            <T bold style={{ fontSize: 12, color: reduceMotion ? colors.purple : colors.muted }}>
+              {reduceMotion ? '✓ ON' : 'OFF'}
+            </T>
+          </Tap>
+        </Card>
+      )}
+
+      {/* 4. BÜYÜK ORGANİK MOMORA FORMU (SPEC 02_BREATHING_COACH) */}
       <Card style={bs.circleCard}>
         <View style={{ alignItems: 'center', justifyContent: 'center', height: 260 }}>
           <Animated.View
@@ -1447,7 +1585,11 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr' }) {
             {running ? (
               <>
                 <T bold style={[bs.phaseName, { color: activeMode.color }]}>
-                  {phase === 'inhale' ? (isEn ? 'Breathe In' : 'Nefes Al') : phase === 'hold' ? (isEn ? 'Soft Hold' : 'Sakin Kal') : (isEn ? 'Breathe Out' : 'Yavaşça Ver')}
+                  {phase === 'inhale'
+                    ? (isEn ? 'Breathe In' : 'Nefes Al')
+                    : phase === 'hold'
+                    ? (isEn ? 'Soft Hold' : 'Sakin Kal')
+                    : (isEn ? 'Breathe Out' : 'Yavaşça Ver')}
                 </T>
                 <T bold style={[bs.countdownBig, { color: activeMode.color }]}>
                   {countdown}
@@ -1480,7 +1622,7 @@ export function LaborBreathingGuide({ state, update, toast, lang = 'tr' }) {
             ]}
           >
             <T bold style={{ color: 'white', fontSize: 16 }}>
-              {running ? (isEn ? 'Bitir & Dinlen' : 'Bitir & Dinlen') : (isEn ? 'Nefese Başla' : 'Nefese Başla')}
+              {running ? (isEn ? 'End & Rest' : 'Bitir & Dinlen') : (isEn ? 'Start Breathing' : 'Nefese Başla')}
             </T>
           </Tap>
         </View>
@@ -1635,6 +1777,36 @@ const bs = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 16,
     alignItems: 'center',
+  },
+  liveContractionBanner: {
+    backgroundColor: '#FCEDF0',
+    borderColor: '#B54964',
+    borderWidth: 1.5,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 16,
+  },
+  livePulseDot: {
+    width: 9,
+    height: 9,
+    borderRadius: 4.5,
+    backgroundColor: '#B54964',
+  },
+  returnBtn: {
+    backgroundColor: '#912B44',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+  },
+  stepBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#E8DDEB',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
