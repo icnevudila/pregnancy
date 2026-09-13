@@ -26,22 +26,80 @@ export const foodDatabase = [
   { id: 'f14', name: 'Ihlamur & Zencefil Çayı', cat: 'Bitki Çayları', status: 'safe', badge: '🟢 Güvenli & Faydalı', reason: 'Mide bulantısını hafifletir ve boğazı rahatlatır; gebelikte en güvenli bitki çaylarıdır.', alt: 'Günde 1-2 fincan ılık tüketilebilir.' },
 ];
 
-export function FoodSafetyChecker({ toast }) {
+export function FoodSafetyChecker({ toast, lang = 'tr' }) {
+  const isEn = lang === 'en';
   const [query, setQuery] = useState('');
-  const [cat, setCat] = useState('Tümü');
+  const [cat, setCat] = useState('all');
 
-  const filtered = foodDatabase.filter(f => {
-    const matchesQuery = f.name.toLocaleLowerCase('tr').includes(query.toLocaleLowerCase('tr')) ||
-                         f.cat.toLocaleLowerCase('tr').includes(query.toLocaleLowerCase('tr'));
-    const matchesCat = cat === 'Tümü' || f.cat === cat;
+  const trCategories = [
+    { id: 'all', label: 'Tümü' },
+    { id: 'seafood', label: 'Deniz Ürünleri' },
+    { id: 'meat', label: 'Et Ürünleri' },
+    { id: 'dairy', label: 'Süt Ürünleri' },
+    { id: 'beverage', label: 'İçecekler' },
+    { id: 'tea', label: 'Bitki Çayları' },
+    { id: 'staple', label: 'Temel Gıdalar' },
+  ];
+
+  const enCategories = [
+    { id: 'all', label: 'All' },
+    { id: 'seafood', label: 'Seafood' },
+    { id: 'meat', label: 'Meat' },
+    { id: 'dairy', label: 'Dairy' },
+    { id: 'beverage', label: 'Beverages' },
+    { id: 'tea', label: 'Herbal Teas' },
+    { id: 'staple', label: 'Staples' },
+  ];
+
+  const categories = isEn ? enCategories : trCategories;
+
+  const enFoodDatabase = [
+    { id: 'f1', catId: 'seafood', name: 'Sushi & Raw Fish', cat: 'Seafood', status: 'avoid', badge: '🔴 Avoid', reason: 'High risk of bacterial and parasitic infection from raw seafood.', alt: 'Cooked Salmon or Steamed White Fish' },
+    { id: 'f2', catId: 'seafood', name: 'Canned Tuna', cat: 'Seafood', status: 'limit', badge: '🟡 Moderate Intake', reason: 'Due to mercury content, limit to 1-2 servings per week maximum.', alt: 'Sardines, Anchovies (Low mercury)' },
+    { id: 'f3', catId: 'seafood', name: 'Cooked Salmon', cat: 'Seafood', status: 'safe', badge: '🟢 Safe & Beneficial', reason: 'Rich in Omega-3 and DHA; supports fetal brain and eye development.', alt: '1-2 servings per week is recommended.' },
+    { id: 'f4', catId: 'dairy', name: 'Unpasteurized Cheeses · Roquefort, Brie', cat: 'Dairy', status: 'avoid', badge: '🔴 Avoid', reason: 'Carries risk of Listeria bacteria; can cause preterm birth or infection.', alt: 'Pasteurized white feta or cheddar' },
+    { id: 'f5', catId: 'dairy', name: 'Pasteurized Yogurt & Kefir', cat: 'Dairy', status: 'safe', badge: '🟢 Safe & Beneficial', reason: 'Abundant calcium and probiotics; strengthens digestion and immunity.', alt: '1-2 bowls daily can be enjoyed.' },
+    { id: 'f6', catId: 'beverage', name: 'Coffee & Filter Coffee', cat: 'Beverages', status: 'limit', badge: '🟡 Moderate Intake', reason: 'Daily caffeine intake should be limited to 200 mg (~1 cup).', alt: 'Decaf coffee or warm milk' },
+    { id: 'f7', catId: 'tea', name: 'Sage & Rosemary Tea', cat: 'Herbal Teas', status: 'avoid', badge: '🔴 Avoid', reason: 'May contain compounds that trigger uterine contractions.', alt: 'Linden or Ginger tea' },
+    { id: 'f8', catId: 'staple', name: 'Hard-Boiled Egg', cat: 'Staples', status: 'safe', badge: '🟢 Safe & Beneficial', reason: 'Great source of choline and high quality protein. Yolk must be fully firm.', alt: '1 hard-boiled egg every morning' },
+    { id: 'f9', catId: 'seafood', name: 'Mussels & Shrimp Cocktail', cat: 'Seafood', status: 'avoid', badge: '🔴 Avoid', reason: 'Shellfish can accumulate heavy metals and environmental toxins.', alt: 'Well-cooked grilled sea bass' },
+    { id: 'f10', catId: 'meat', name: 'Organ Meats & Offal', cat: 'Meat', status: 'avoid', badge: '🔴 Avoid', reason: 'Excessive vitamin A (retinol) and toxin risks; avoid during pregnancy.', alt: 'Well-cooked grilled chicken or meatballs' },
+    { id: 'f11', catId: 'meat', name: 'Raw Cured Meats & Pastrami', cat: 'Meat', status: 'avoid', badge: '🔴 Avoid', reason: 'Raw cured meats carry toxoplasmosis risk. Must be thoroughly cooked.', alt: 'Pan-fried well-done meats' },
+    { id: 'f12', catId: 'staple', name: 'Excess Raw Parsley', cat: 'Staples', status: 'limit', badge: '🟡 Moderate Intake', reason: 'High apiole content can stimulate contractions. Small amounts in salads are safe.', alt: 'Arugula, romaine lettuce, fresh spinach' },
+    { id: 'f13', catId: 'staple', name: 'Bulgur Veggie Meatballs (Meatless)', cat: 'Staples', status: 'safe', badge: '🟢 Safe & Beneficial', reason: 'Hygienically prepared walnut or bulgur balls without meat are safe.', alt: 'With fresh lemon and lettuce' },
+    { id: 'f14', catId: 'tea', name: 'Linden & Ginger Tea', cat: 'Herbal Teas', status: 'safe', badge: '🟢 Safe & Beneficial', reason: 'Relieves morning nausea and soothes the throat; safest herbal teas.', alt: '1-2 warm cups daily' },
+  ];
+
+  const db = isEn ? enFoodDatabase : foodDatabase.map(f => {
+    const catMap = {
+      'Deniz Ürünleri': 'seafood',
+      'Et Ürünleri': 'meat',
+      'Süt Ürünleri': 'dairy',
+      'İçecekler': 'beverage',
+      'Bitki Çayları': 'tea',
+      'Temel Gıdalar': 'staple'
+    };
+    return { ...f, catId: catMap[f.cat] || 'all' };
+  });
+
+  const filtered = db.filter(f => {
+    const q = query.toLowerCase();
+    const matchesQuery = !q || f.name.toLowerCase().includes(q) || f.cat.toLowerCase().includes(q);
+    const matchesCat = cat === 'all' || f.catId === cat;
     return matchesQuery && matchesCat;
   });
 
-  const categories = ['Tümü', 'Deniz Ürünleri', 'Et Ürünleri', 'Süt Ürünleri', 'İçecekler', 'Bitki Çayları', 'Temel Gıdalar'];
-
   return (
     <View style={es.container}>
-      <ScreenHero kicker="BESİN GÜVENLİĞİ" title="Yenebilir mi?" body="Merak ettiğin gıdaları sade risk notları ve daha güvenli alternatiflerle incele." icon="bowl" asset="ui_food_safe_shield" stat={`${filtered.length} sonuç`} tint="#4F8464" />
+      <ScreenHero
+        kicker={isEn ? 'FOOD SAFETY' : 'BESİN GÜVENLİĞİ'}
+        title={isEn ? 'Can I Eat This?' : 'Yenebilir mi?'}
+        body={isEn ? 'Review foods you wonder about with clear risk notes and safer alternatives.' : 'Merak ettiğin gıdaları sade risk notları ve daha güvenli alternatiflerle incele.'}
+        icon="bowl"
+        asset="ui_food_safe_shield"
+        stat={isEn ? `${filtered.length} results` : `${filtered.length} sonuç`}
+        tint="#4F8464"
+      />
 
       {/* Arama Kutusu */}
       <View style={es.searchBox}>
@@ -49,12 +107,12 @@ export function FoodSafetyChecker({ toast }) {
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="Gıda veya içecek ara: Suşi, Kahve, Peynir..."
+          placeholder={isEn ? 'Search food or beverage: Sushi, Coffee, Cheese...' : 'Gıda veya içecek ara: Suşi, Kahve, Peynir...'}
           placeholderTextColor={colors.muted}
           style={es.searchInput}
         />
         {query ? (
-          <Tap onPress={() => setQuery('')} label="Temizle">
+          <Tap onPress={() => setQuery('')} label={isEn ? 'Clear' : 'Temizle'}>
             <Icon name="close" size={16} color={colors.muted} />
           </Tap>
         ) : null}
@@ -64,13 +122,13 @@ export function FoodSafetyChecker({ toast }) {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
         {categories.map(c => (
           <Tap
-            key={c}
-            onPress={() => setCat(c)}
-            label={c}
-            style={[es.catPill, cat === c && es.catPillActive]}
+            key={c.id}
+            onPress={() => setCat(c.id)}
+            label={c.label}
+            style={[es.catPill, cat === c.id && es.catPillActive]}
           >
-            <T bold={cat === c} style={{ fontSize: 12, color: cat === c ? 'white' : colors.ink }}>
-              {c}
+            <T bold={cat === c.id} style={{ fontSize: 12, color: cat === c.id ? 'white' : colors.ink }}>
+              {c.label}
             </T>
           </Tap>
         ))}
@@ -105,7 +163,9 @@ export function FoodSafetyChecker({ toast }) {
               </T>
 
               <View style={es.altBox}>
-                <T bold style={{ fontSize: 11, color: colors.purple, letterSpacing: 0.5 }}>DAHA GÜVENLİ ALTERNATİF:</T>
+                <T bold style={{ fontSize: 11, color: colors.purple, letterSpacing: 0.5 }}>
+                  {isEn ? 'SAFER ALTERNATIVE:' : 'DAHA GÜVENLİ ALTERNATİF:'}
+                </T>
                 <T style={{ fontSize: 13, color: colors.ink, marginTop: 3 }}>{food.alt}</T>
               </View>
             </Card>
@@ -118,62 +178,75 @@ export function FoodSafetyChecker({ toast }) {
 
 // ─── EKRAN 14: KONU KOLEKSİYONLARI, BLOG MAGAZİN & SSS KÜTÜPHANESİ ─────────
 export const topicCollections = [
-  { id: 'pregnancy', title: 'Gebelikte Hafta Hafta Gelişim & Testler', count: 4, art: 'blog_ultrasound_memory', image: 'blog_ultrasound_memory', color: '#F4EEF6' },
-  { id: 'nutrition', title: 'Gebelikte Beslenme & Güvenli Gıdalar', count: 3, art: 'blog_healthy_breakfast', image: 'blog_healthy_breakfast', color: '#F4F7F2' },
-  { id: 'wellbeing', title: 'Trimester Egzersizleri & Doğum Yogası', count: 2, art: 'blog_yoga_stretch', image: 'blog_yoga_stretch', color: '#FAF1F5' },
-  { id: 'birth', title: 'Doğum Planı, Çanta & Hastane Rehberi', count: 3, art: 'blog_hospital_bag_pack', image: 'blog_hospital_bag_pack', color: '#FAF4EF' },
-  { id: 'baby', title: 'Yenidoğan Bakımı, Masaj & İlk Günler', count: 8, art: 'blog_newborn_hand', image: 'blog_newborn_hand', color: '#EEF4F7' },
-  { id: 'postpartum', title: 'Lohusalık, İyileşme & Kendine Şefkat', count: 2, art: 'blog_postpartum_selfcare', image: 'blog_postpartum_selfcare', color: '#F7EFF7' },
-  { id: 'partner', title: 'Eş & Baba Olmak: İlk Günlerde Destek', count: 2, art: 'blog_father_baby_bond', image: 'blog_father_baby_bond', color: '#F0F5FA' },
+  { id: 'pregnancy', title: 'Gebelikte Hafta Hafta Gelişim & Testler', titleEn: 'Week by Week Pregnancy & Tests', count: 4, art: 'blog_ultrasound_memory', image: 'blog_ultrasound_memory', color: '#F4EEF6' },
+  { id: 'nutrition', title: 'Gebelikte Beslenme & Güvenli Gıdalar', titleEn: 'Nutrition & Safe Foods in Pregnancy', count: 3, art: 'blog_healthy_breakfast', image: 'blog_healthy_breakfast', color: '#F4F7F2' },
+  { id: 'wellbeing', title: 'Trimester Egzersizleri & Doğum Yogası', titleEn: 'Trimester Exercises & Prenatal Yoga', count: 2, art: 'blog_yoga_stretch', image: 'blog_yoga_stretch', color: '#FAF1F5' },
+  { id: 'birth', title: 'Doğum Planı, Çanta & Hastane Rehberi', titleEn: 'Birth Plan, Hospital Bag & Guide', count: 3, art: 'blog_hospital_bag_pack', image: 'blog_hospital_bag_pack', color: '#FAF4EF' },
+  { id: 'baby', title: 'Yenidoğan Bakımı, Masaj & İlk Günler', titleEn: 'Newborn Care, Massage & First Days', count: 8, art: 'blog_newborn_hand', image: 'blog_newborn_hand', color: '#EEF4F7' },
+  { id: 'postpartum', title: 'Lohusalık, İyileşme & Kendine Şefkat', titleEn: 'Postpartum Healing & Self-Care', count: 2, art: 'blog_postpartum_selfcare', image: 'blog_postpartum_selfcare', color: '#F7EFF7' },
+  { id: 'partner', title: 'Eş & Baba Olmak: İlk Günlerde Destek', titleEn: 'Partner & Father: Early Day Support', count: 2, art: 'blog_father_baby_bond', image: 'blog_father_baby_bond', color: '#F0F5FA' },
 ];
 
-export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'articles' }) {
-  const [hubTab, setHubTab] = useState(initialTab); // 'articles' | 'food' | 'topics'
+export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'articles', lang = 'tr' }) {
+  const isEn = lang === 'en';
+  const [hubTab, setHubTab] = useState(initialTab); // 'articles' | 'food' | 'infographics' | 'topics'
   const [articleQuery, setArticleQuery] = useState('');
-  const [articleFilter, setArticleFilter] = useState('Tümü');
+  const [articleFilter, setArticleFilter] = useState('all');
 
-  const topicFilters = [
-    'Tümü',
-    '1. Trimester',
-    '2. Trimester',
-    '3. Trimester',
-    'Beslenme',
-    'Gelişim & Kontrol',
-    'Doğuma Hazırlık',
-    'Bebek & Yenidoğan',
-    'Lohusalık & İyileşme',
-    'İyi Hisset & Ruh',
-    'Eş & Baba'
+  const topicFilters = isEn ? [
+    { id: 'all', label: 'All' },
+    { id: 't1', label: '1st Trimester' },
+    { id: 't2', label: '2nd Trimester' },
+    { id: 't3', label: '3rd Trimester' },
+    { id: 'nutrition', label: 'Nutrition' },
+    { id: 'growth', label: 'Growth & Visits' },
+    { id: 'birth', label: 'Birth Prep' },
+    { id: 'baby', label: 'Baby & Newborn' },
+    { id: 'postpartum', label: 'Postpartum' },
+    { id: 'wellbeing', label: 'Wellbeing' },
+    { id: 'partner', label: 'Partner & Dad' }
+  ] : [
+    { id: 'all', label: 'Tümü' },
+    { id: 't1', label: '1. Trimester' },
+    { id: 't2', label: '2. Trimester' },
+    { id: 't3', label: '3. Trimester' },
+    { id: 'nutrition', label: 'Beslenme' },
+    { id: 'growth', label: 'Gelişim & Kontrol' },
+    { id: 'birth', label: 'Doğuma Hazırlık' },
+    { id: 'baby', label: 'Bebek & Yenidoğan' },
+    { id: 'postpartum', label: 'Lohusalık & İyileşme' },
+    { id: 'wellbeing', label: 'İyi Hisset & Ruh' },
+    { id: 'partner', label: 'Eş & Baba' }
   ];
 
   const filteredArticles = articles.filter(a => {
-    const q = articleQuery.toLocaleLowerCase('tr');
+    const q = articleQuery.toLowerCase();
     const matchesSearch = !q || 
-      a.title.toLocaleLowerCase('tr').includes(q) ||
-      a.subtitle.toLocaleLowerCase('tr').includes(q) ||
-      (a.categoryName && a.categoryName.toLocaleLowerCase('tr').includes(q)) ||
-      (a.doctor && a.doctor.toLocaleLowerCase('tr').includes(q));
+      a.title.toLowerCase().includes(q) ||
+      a.subtitle.toLowerCase().includes(q) ||
+      (a.categoryName && a.categoryName.toLowerCase().includes(q)) ||
+      (a.doctor && a.doctor.toLowerCase().includes(q));
 
     let matchesFilter = true;
-    if (articleFilter === '1. Trimester') {
+    if (articleFilter === 't1') {
       matchesFilter = a.categoryName === '1. Trimester' || (a.weeks && a.weeks[0] <= 12);
-    } else if (articleFilter === '2. Trimester') {
+    } else if (articleFilter === 't2') {
       matchesFilter = a.categoryName === '2. Trimester' || (a.weeks && a.weeks[0] >= 13 && a.weeks[0] <= 27);
-    } else if (articleFilter === '3. Trimester') {
+    } else if (articleFilter === 't3') {
       matchesFilter = a.categoryName === '3. Trimester' || (a.weeks && a.weeks[0] >= 28);
-    } else if (articleFilter === 'Beslenme') {
+    } else if (articleFilter === 'nutrition') {
       matchesFilter = a.topic === 'nutrition' || (a.categoryName && a.categoryName.includes('Beslenme'));
-    } else if (articleFilter === 'Gelişim & Kontrol') {
+    } else if (articleFilter === 'growth') {
       matchesFilter = a.topic === 'pregnancy' || (a.categoryName && (a.categoryName.includes('Gelişim') || a.categoryName.includes('Ultrason') || a.categoryName.includes('Kontrol')));
-    } else if (articleFilter === 'Doğuma Hazırlık') {
+    } else if (articleFilter === 'birth') {
       matchesFilter = a.topic === 'birth' || (a.categoryName && (a.categoryName.includes('Doğum') || a.categoryName.includes('Hastane')));
-    } else if (articleFilter === 'Bebek & Yenidoğan') {
+    } else if (articleFilter === 'baby') {
       matchesFilter = a.topic === 'baby' || (a.categoryName && (a.categoryName.includes('Bebek') || a.categoryName.includes('Yenidoğan') || a.categoryName.includes('Emzirme')));
-    } else if (articleFilter === 'Lohusalık & İyileşme') {
+    } else if (articleFilter === 'postpartum') {
       matchesFilter = a.topic === 'postpartum' || (a.categoryName && a.categoryName.includes('Lohusa'));
-    } else if (articleFilter === 'İyi Hisset & Ruh') {
+    } else if (articleFilter === 'wellbeing') {
       matchesFilter = a.topic === 'wellbeing' || (a.categoryName && a.categoryName.includes('Hisset'));
-    } else if (articleFilter === 'Eş & Baba') {
+    } else if (articleFilter === 'partner') {
       matchesFilter = a.topic === 'partner' || (a.categoryName && a.categoryName.includes('Baba'));
     }
 
@@ -181,59 +254,58 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
   });
 
   const featuredArticle = articles[0];
-  const isShowingLeadHero = !articleQuery && articleFilter === 'Tümü' && featuredArticle;
+  const isShowingLeadHero = !articleQuery && articleFilter === 'all' && featuredArticle;
   const listArticles = isShowingLeadHero ? filteredArticles.filter(a => a.id !== featuredArticle.id) : filteredArticles;
 
   return (
     <View style={es.container}>
-      
       {/* Hub Üst Sekmeleri (Luxury Editorial Navigation - 3 Ana Alan) */}
       <View style={es.hubTabRow}>
         <Tap
           onPress={() => setHubTab('articles')}
-          label="Yazılar ve Magazin"
+          label={isEn ? 'Articles & Magazine' : 'Yazılar ve Magazin'}
           style={[es.hubTabBtn, hubTab === 'articles' && es.hubTabBtnActive]}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Icon name="book" size={14} color={hubTab === 'articles' ? 'white' : colors.purple} />
             <T bold={hubTab === 'articles'} style={[es.hubTabText, hubTab === 'articles' && { color: 'white' }]}>
-              Magazin
+              {isEn ? 'Magazine' : 'Magazin'}
             </T>
           </View>
         </Tap>
         <Tap
           onPress={() => setHubTab('food')}
-          label="Besin Güvenliği"
+          label={isEn ? 'Food Safety' : 'Besin Güvenliği'}
           style={[es.hubTabBtn, hubTab === 'food' && es.hubTabBtnActive]}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Icon name="leaf" size={14} color={hubTab === 'food' ? 'white' : colors.purple} />
             <T bold={hubTab === 'food'} style={[es.hubTabText, hubTab === 'food' && { color: 'white' }]}>
-              Besin Güvenliği
+              {isEn ? 'Food Safety' : 'Besin Güvenliği'}
             </T>
           </View>
         </Tap>
         <Tap
           onPress={() => setHubTab('infographics')}
-          label="İnfografikler"
+          label={isEn ? 'Infographics' : 'İnfografikler'}
           style={[es.hubTabBtn, hubTab === 'infographics' && es.hubTabBtnActive]}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Icon name="sparkle" size={14} color={hubTab === 'infographics' ? 'white' : colors.purple} />
             <T bold={hubTab === 'infographics'} style={[es.hubTabText, hubTab === 'infographics' && { color: 'white' }]}>
-              İnfografikler
+              {isEn ? 'Infographics' : 'İnfografikler'}
             </T>
           </View>
         </Tap>
         <Tap
           onPress={() => setHubTab('topics')}
-          label="Koleksiyonlar"
+          label={isEn ? 'Collections' : 'Koleksiyonlar'}
           style={[es.hubTabBtn, hubTab === 'topics' && es.hubTabBtnActive]}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Icon name="folder" size={14} color={hubTab === 'topics' ? 'white' : colors.purple} />
             <T bold={hubTab === 'topics'} style={[es.hubTabText, hubTab === 'topics' && { color: 'white' }]}>
-              Koleksiyonlar
+              {isEn ? 'Collections' : 'Koleksiyonlar'}
             </T>
           </View>
         </Tap>
