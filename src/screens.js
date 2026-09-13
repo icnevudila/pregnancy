@@ -684,7 +684,7 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
 }
 
 // ─── 3'lü Kıyaslama & Ultrason Hero (Pregnancy+ Stili) ─────────────────────────
-function ComparisonHero({ week, info, onPress, lang = 'tr' }) {
+function ComparisonHero({ week, info, onPress, open, lang = 'tr' }) {
   const isEn = lang === 'en';
   const [mode, setMode] = useState('fruit'); // 'fruit' | 'animal' | 'sweet' | 'ultrasound'
   const scale = usePulse(0.94, 1.06, 1800);
@@ -738,7 +738,17 @@ function ComparisonHero({ week, info, onPress, lang = 'tr' }) {
         ))}
       </View>
 
-      <Tap onPress={onPress} label={isEn ? 'See week development' : 'Bu haftaki gelişimi gör'} style={s.fruitHero}>
+      <Tap
+        onPress={() => {
+          if (mode === 'ultrasound' && open) {
+            open('ultrasoundAtlas', { week });
+          } else if (onPress) {
+            onPress();
+          }
+        }}
+        label={mode === 'ultrasound' ? (isEn ? 'Open Ultrasound Atlas' : 'Ultrason Atlasını Aç') : (isEn ? 'See week development' : 'Bu haftaki gelişimi gör')}
+        style={s.fruitHero}
+      >
         <LinearGradient colors={['#6A4F7A22', 'transparent']} start={{x:0,y:0}} end={{x:1,y:0}} style={StyleSheet.absoluteFill} />
         {/* Sol — sayısal bilgi */}
         <View style={s.fruitHeroLeft}>
@@ -989,7 +999,7 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
     </ScrollView>
 
     {/* ─── 3. 3'LÜ KIYASLAMA & ULTRASON HERO ─── */}
-    <ComparisonHero week={week} info={info} onPress={() => open('week', {week})} lang={lang} />
+    <ComparisonHero week={week} info={info} onPress={() => open('week', {week})} open={open} lang={lang} />
 
     {/* ─── 4. BEBEĞİN GÜNLÜK MEKTUBU ─── */}
     <Card style={{ padding: 16, backgroundColor: '#FFFDF9', borderColor: '#EFE0D8' }}>

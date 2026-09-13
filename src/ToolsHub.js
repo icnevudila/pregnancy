@@ -49,6 +49,18 @@ export function getAllTools(lang = 'tr') {
 
     // ─── 2. GELİŞİM & TAKİP ───
     {
+      id: 'ultrasoundAtlas',
+      cat: 'medical',
+      catTitle: isEn ? 'Growth & Tests' : 'Gelişim & Takip',
+      title: isEn ? 'Ultrasound Atlas & Biometry' : 'Ultrason Atlası & Biyometri',
+      subtitle: isEn ? '3D HDLive, 2D scans & report decoder' : '3D HDLive, 2D sonogram & rapor okuma',
+      icon: 'ultrasound',
+      art: 'fetus_w20',
+      color: '#F4EEF7',
+      tint: '#583D7A',
+      available: true,
+    },
+    {
       id: 'sizeGuide',
       cat: 'medical',
       catTitle: isEn ? 'Growth & Tests' : 'Gelişim & Takip',

@@ -2070,20 +2070,24 @@
       "filename": "usg_2d_w12_nt_crl.png",
       "prompt": "Clinical obstetric 2D B-mode ultrasound sonogram of a 12-week fetus in mid-sagittal profile, showing the full crown-rump length (CRL), fetal profile with visible nasal bone, distinct nuchal translucency (NT) fluid pocket behind the fetal neck with dual caliper crosshairs measuring translucency, authentic ultrasound speckle and acoustic shading, hospital clinical monitor sonogram, monochrome medical sonography, high resolution, no text.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 0,
+      "status": "processing",
+      "attempts": 1,
       "createdAt": 1789302625543,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "chatgpt",
+      "startedAt": 1789302844876,
+      "platform": "chatgpt"
     },
     {
       "id": "job_usg_1789302625543_w20_lvl2",
       "filename": "usg_2d_w20_level2_anatomy.png",
       "prompt": "Clinical Level II detailed anatomy 2D B-mode ultrasound sonogram of a 20-week human fetus, showing a clear transverse view of the fetal spine vertebrae, ribs, and abdominal contour with amniotic fluid pocket, authentic hospital sonography monitor texture, genuine ultrasound grayscale contrast and acoustic grain, professional medical sonogram, monochrome, no text, no watermark.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 0,
+      "status": "processing",
+      "attempts": 1,
       "createdAt": 1789302625543,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "chatgpt",
+      "startedAt": 1789302928918,
+      "platform": "chatgpt"
     },
     {
       "id": "job_usg_1789302625543_w20_heart",
@@ -2164,10 +2168,14 @@
       "filename": "ui_ultrasound_console_badge.png",
       "prompt": "Premium 3D claymorphic icon of a modern sleek medical sonography probe with gentle glowing ultrasound soundwaves, soft lavender and warm cream porcelain finish, studio lighting, isolated on solid white background, luxury app design, 8k render, no text.",
       "transparent": true,
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789302625543,
-      "preferredPlatform": "gemini"
+      "preferredPlatform": "gemini",
+      "startedAt": 1789302805336,
+      "platform": "gemini",
+      "updatedAt": 1789302843702,
+      "thumb": "blob:https://gemini.google.com/3a148d0e-e6c2-4dbf-8d70-e991cfa3763c"
     }
   ]
 }

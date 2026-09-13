@@ -295,6 +295,7 @@ export const generatedAssets = {
   'ui_postpartum_lotus': require('../assets/ui_postpartum_lotus.png'),
   'ui_timeline_sun_moon': require('../assets/ui_timeline_sun_moon.png'),
   'ui_ultrasound_biometry_caliper': require('../assets/ui_ultrasound_biometry_caliper.png'),
+  'ui_ultrasound_console_badge': require('../assets/ui_ultrasound_console_badge.png'),
   'ui_ultrasound_hdlive_20w': require('../assets/ui_ultrasound_hdlive_20w.png'),
   'ui_weight_bmi_gauge': require('../assets/ui_weight_bmi_gauge.png'),
   'ui_white_noise_headphones': require('../assets/ui_white_noise_headphones.png'),

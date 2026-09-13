@@ -135,9 +135,13 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
             <T style={{fontSize:9,color:'#8C709A'}}>{isEn ? 'Sweet / Object' : 'Tatlı / Nesne'}</T>
           </View>
         </View>
-        {/* Ultrason Bilgisi */}
+        {/* Ultrason Bilgisi (Tıklanabilir Atlas Köprüsü) */}
         {!!wi.ultrasound && (
-          <View style={{marginTop:10,backgroundColor:'#FAF5FD',padding:12,borderRadius:14,borderWidth:1,borderColor:'#EBE0F2',flexDirection:'row',gap:12,alignItems:'center'}}>
+          <Tap
+            label={isEn ? 'Open Ultrasound Atlas' : 'Ultrason Atlasını Aç'}
+            onPress={() => open('ultrasoundAtlas', { week: data.week || 24 })}
+            style={{marginTop:10,backgroundColor:'#FAF5FD',padding:12,borderRadius:16,borderWidth:1,borderColor:'#E2D2EB',flexDirection:'row',gap:12,alignItems:'center'}}
+          >
             <ComparisonArt mode="ultrasound" size={56} week={data.week||24} />
             <View style={{flex:1}}>
               <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
@@ -147,8 +151,9 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
                 </View>
               </View>
               <T style={{fontSize:11,color:'#6A4878',marginTop:4,lineHeight:16}}>{wi.ultrasound.milestone}</T>
+              <T bold style={{fontSize:10.5,color:colors.purple,marginTop:4}}>{isEn ? 'Open 2D & 3D Atlas →' : '2D & 3D Atlası Aç →'}</T>
             </View>
-          </View>
+          </Tap>
         )}
         {/* Bebek bu hafta */}
         <T bold style={{fontSize:16,marginTop:18,marginBottom:8}}>{isEn ? 'Your baby this week' : 'Bebeğinde bu hafta'}</T>
@@ -245,7 +250,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, ch
     {kind==='toolsHub'&&<ToolsHub open={open} state={state} update={update} toast={toast} inSheet close={close} lang={lang}/>}
     {/* Modül 2: Gelişim & Medikal */}
     {kind==='sizeGuide'&&<SizeComparisonHub state={state} toast={toast} lang={lang}/>}
-    {kind==='ultrasoundAtlas'&&<UltrasoundAtlas state={state} lang={lang}/>}
+    {kind==='ultrasoundAtlas'&&<UltrasoundAtlas state={state} lang={lang} initialWeek={data?.week}/>}
     {kind==='medicalTimeline'&&<MedicalTimeline lang={lang}/>}
     {kind==='organDevelopment'&&<OrganDevelopment state={state} lang={lang}/>}
     {/* Modül 3: Keşfet & Makale */}

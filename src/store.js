@@ -6,7 +6,38 @@ import { loadCloudState, saveCloudState, saveTrackingEvent, cloudStatusLabel } f
 const KEY = 'momora.local.v1';
 export const initialState = {
   lang: 'tr',
-  mode: 'pregnancy', name: 'Zeynep', partnerName: 'Mehmet', role: 'mother', partnerRole: 'father',
+  mode: 'pregnancy',
+
+  // Domain Entities (Sprint 0 Architecture)
+  user: {
+    id: 'usr_local_mother',
+    displayName: 'Zeynep',
+    locale: 'tr',
+    activeRole: 'mother',
+  },
+  household: {
+    id: 'hh_local_1',
+    name: 'Zeynep & Mehmet',
+  },
+  pregnancy: {
+    id: 'prg_local_1',
+    dueDate: '2026-07-24',
+    status: 'active',
+  },
+  baby: {
+    id: 'bby_local_1',
+    name: 'Ada',
+    birthDate: '',
+    sex: 'female',
+  },
+  postpartumProfile: {
+    id: 'post_local_1',
+    birthDate: '',
+    deliveryType: 'vaginal',
+  },
+
+  // Flat fields for seamless backward compatibility
+  name: 'Zeynep', partnerName: 'Mehmet', role: 'mother', partnerRole: 'father',
   babyName: 'Ada', babyGender: 'Kız', week: 24, day: 5, water: 4, vitamin: true,
   mood: 0, postpartumMood: null, lastMoodDate: new Date().toISOString().slice(0,10), tasks: [true, true, false, false, false],
   appointment: { title: 'Detaylı Ultrason Kontrolü', date: '16 Mayıs Cuma', time: '10:00' },

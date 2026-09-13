@@ -140,133 +140,394 @@ export function SizeComparisonHub({ state, toast, lang = 'tr' }) {
   );
 }
 
-// ─── EKRAN 11: 2D & 3D ULTRASON GALERİSİ (ULTRASOUND ATLAS) ─────────────────
-export function UltrasoundAtlas({ state, lang = 'tr' }) {
+// ─── EKRAN 11: 2D & 3D ULTRASON ATLASI & KLİNİK KONSOL (ULTRASOUND ATLAS) ──
+export function UltrasoundAtlas({ state, lang = 'tr', initialWeek }) {
   const isEn = lang === 'en';
-  const [tab, setTab] = useState('3d');
+  const [week, setWeek] = useState(initialWeek || state?.week || 20);
+  const [tab, setTab] = useState('3d'); // '3d' | '2d' | 'doppler' | 'biometry'
   const [activeMarker, setActiveMarker] = useState(null);
-  const week = state.week || 20;
-  const info = getWeekInfo(week, lang);
-  const pulse = usePulse(0.95, 1.05, 1600);
+  const [isPlayingHeartbeat, setIsPlayingHeartbeat] = useState(false);
+  const [biometryInputs, setBiometryInputs] = useState({ bpd: '', hc: '', ac: '', fl: '' });
+  const pulse = usePulse(0.92, 1.08, 1500);
 
-  const markers = isEn ? [
-    { id: 'spine', label: 'Spine Line', x: '46%', y: '38%', desc: 'Spinal bones and neural line are continuously closed.' },
-    { id: 'heart', label: '4-Chamber Heart', x: '52%', y: '52%', desc: 'Heart chambers and valves pump blood rhythmically.' },
-    { id: 'profile', label: 'Facial Profile & Nose', x: '35%', y: '28%', desc: 'Nasal bone, lips, and eye sockets are clearly visible.' },
-  ] : [
-    { id: 'spine', label: 'Omurga Hattı', x: '46%', y: '38%', desc: 'Omurga kemikleri ve nöral hat kesintisiz kapanmıştır.' },
-    { id: 'heart', label: '4 Odacıklı Kalp', x: '52%', y: '52%', desc: 'Kalp odacıkları ve kapakçıklar ritmik kan pompalar.' },
-    { id: 'profile', label: 'Yüz Profili & Burun', x: '35%', y: '28%', desc: 'Burun kemiği, dudaklar ve göz çukurları seçilir.' },
-  ];
+  const details = getUltrasoundDetails(week, lang);
+  const info = getWeekInfo(week, lang);
+
+  useEffect(() => {
+    // Reset or set initial marker when week or tab changes
+    setActiveMarker(details.markers?.[0]?.id || null);
+  }, [week, tab]);
+
+  useEffect(() => {
+    return () => {
+      stopSound();
+    };
+  }, []);
+
+  function toggleHeartbeat() {
+    if (isPlayingHeartbeat) {
+      stopSound();
+      setIsPlayingHeartbeat(false);
+    } else {
+      playSound('fetalHeartbeat', { volume: 0.85 });
+      setIsPlayingHeartbeat(true);
+    }
+  }
+
+  const biometryReport = decodeBiometryReport(biometryInputs, week, lang);
+
+  // Active visual asset resolution
+  let activeAsset = null;
+  if (tab === '3d') {
+    activeAsset = generatedAssets[details.fetusKey] || generatedAssets.ui_ultrasound_hdlive_20w;
+  } else if (tab === '2d') {
+    activeAsset = generatedAssets[details.asset2d] || generatedAssets[details.fetusKey];
+  } else if (tab === 'doppler') {
+    activeAsset = generatedAssets[details.assetDoppler] || generatedAssets[details.asset2d] || generatedAssets[details.fetusKey];
+  }
+
+  const currentMarkerObj = details.markers?.find(m => m.id === activeMarker) || details.markers?.[0];
 
   return (
     <View style={ms.container}>
       <ScreenHero
-        kicker={isEn ? 'ULTRASOUND GUIDE' : 'ULTRASON REHBERİ'}
-        title={isEn ? `Week ${week} image reading` : `${week}. hafta görüntü okuma`}
-        body={isEn ? 'A simple annotated view to help you understand what you are seeing in your scan.' : 'Görüntüde neye baktığını anlamana yardım eden sade, işaretli bir keşif ekranı.'}
-        icon="calendar"
-        asset="ui_ultrasound_hdlive_20w"
-        tint="#5D4F88"
+        kicker={isEn ? 'CLINICAL ULTRASOUND ATLAS' : 'KLİNİK ULTRASON ATLASI'}
+        title={isEn ? `Week ${week} Fetal Anatomy & Scans` : `${week}. Hafta Fetal Anatomi & Taramalar`}
+        body={isEn
+          ? 'Explore high-resolution 3D HDLive renders, authentic 2D sonograms, Doppler blood flow, and decode your doctor reports.'
+          : 'Yüksek çözünürlüklü 3D HDLive renderları, 2D sonogramları, Doppler kan akımını keşfedin ve doktor raporunuzu sakince okuyun.'}
+        icon="ultrasound"
+        asset={details.fetusKey || "ui_ultrasound_hdlive_20w"}
+        tint="#4F3B78"
       />
 
-      <ToolExperienceCard
-        title={isEn ? 'Read the scan calmly' : 'Görüntüyü sakince oku'}
-        steps={isEn
-          ? ['Switch between 2D and 3D views.', 'Tap markers to learn what the scan area means.', 'Keep notes for your next clinical visit.']
-          : ['2D ve 3D görünüm arasında geç.', 'İşaretlere dokunup o alanın ne anlattığını öğren.', 'Bir sonraki kontrol için notunu yanında tut.']}
-        outcome={isEn ? 'Less confusion, better questions at the visit.' : 'Daha az kafa karışıklığı, kontrolde daha iyi soru.'}
-        asset="ui_ultrasound_hdlive_20w"
-        tint="#5D4F88"
-        lang={lang}
-      />
-
-      {/* 2D vs 3D/HDLive Sekme */}
-      <View style={ms.segRow}>
-        <Tap
-          onPress={() => setTab('2d')}
-          label={isEn ? '2D Ultrasound Guide' : '2D Ultrason Rehberi'}
-          style={[ms.segBtn, tab === '2d' && ms.segBtnActive]}
-        >
-          <T bold={tab === '2d'} style={[ms.segText, tab === '2d' && { color: 'white' }]}>
-            {isEn ? '2D Ultrasound Guide' : '2D Ultrason Rehberi'}
-          </T>
-        </Tap>
-        <Tap
-          onPress={() => setTab('3d')}
-          label={isEn ? '3D / 4D Color HDLive' : '3D / 4D Renkli HDLive'}
-          style={[ms.segBtn, tab === '3d' && ms.segBtnActive]}
-        >
-          <T bold={tab === '3d'} style={[ms.segText, tab === '3d' && { color: 'white' }]}>
-            {isEn ? '3D / 4D Color HDLive' : '3D / 4D Renkli HDLive'}
-          </T>
-        </Tap>
+      {/* 4 Kilit Ultrason Taraması Hızlı Geçiş Rozetleri */}
+      <View style={{ gap: 6 }}>
+        <T bold style={{ fontSize: 12, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.8 }}>
+          {isEn ? 'Clinical Milestones' : 'Kilit Muayene Taramaları'}
+        </T>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+          {ULTRASOUND_MILESTONES.map(m => {
+            const isSelected = details.milestone.id === m.id;
+            return (
+              <Tap
+                key={m.id}
+                label={isEn ? m.titleEn : m.titleTr}
+                onPress={() => setWeek(m.targetWeek)}
+                style={[
+                  ms.milestoneChip,
+                  isSelected && ms.milestoneChipActive
+                ]}
+              >
+                <T bold={isSelected} style={{ fontSize: 11, color: isSelected ? 'white' : colors.ink }}>
+                  {m.weekRange}. {isEn ? 'Wk' : 'Hf'}
+                </T>
+                <T numberOfLines={1} style={{ fontSize: 10, color: isSelected ? '#EBD8F5' : colors.muted, marginTop: 1 }}>
+                  {isEn ? m.badgeEn : m.badgeTr}
+                </T>
+              </Tap>
+            );
+          })}
+        </ScrollView>
       </View>
 
-      {/* Ultrason Ekranı Çerçevesi */}
-      <Card style={ms.usgFrame}>
-        <View style={ms.usgHeader}>
-          <T bold style={{ color: '#E8D298', fontSize: 13 }}>
-            {isEn ? `WEEK ${week} ULTRASOUND` : `${week}. HAFTA ULTRASONU`}
-          </T>
-          <View style={ms.usgBadge}>
-            <T style={{ fontSize: 10, color: 'white' }}>{info.ultrasound?.badge || (isEn ? 'Detailed USG' : 'Detaylı USG')}</T>
+      {/* 40 Hafta Kaydırıcı Şerit */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, paddingVertical: 4 }}>
+        {Array.from({ length: 37 }, (_, i) => i + 4).map(w => (
+          <Tap
+            key={w}
+            label={isEn ? `Week ${w}` : `${w}. Hafta`}
+            onPress={() => setWeek(w)}
+            style={[ms.weekPill, week === w && ms.weekPillActive]}
+          >
+            <T bold={week === w} style={{ fontSize: 12, color: week === w ? 'white' : colors.ink }}>
+              {w}
+            </T>
+            <T style={{ fontSize: 9, color: week === w ? '#EDE0EF' : colors.muted }}>{isEn ? 'wk' : 'hf'}</T>
+          </Tap>
+        ))}
+      </ScrollView>
+
+      {/* 4'lü Görünüm Sekmesi (3D HDLive | 2D B-Mod | Doppler | Rapor Tercümanı) */}
+      <View style={ms.segRow}>
+        {[
+          { id: '3d', label: isEn ? '3D HDLive' : '3D HDLive', icon: 'heart' },
+          { id: '2d', label: isEn ? '2D B-Mode' : '2D B-Mod', icon: 'ultrasound' },
+          { id: 'doppler', label: isEn ? 'Doppler Flow' : 'Doppler', icon: 'doppler' },
+          { id: 'biometry', label: isEn ? 'Report Decoder' : 'Rapor Oku', icon: 'caliper' },
+        ].map(s => (
+          <Tap
+            key={s.id}
+            label={s.label}
+            onPress={() => setTab(s.id)}
+            style={[ms.segBtn, tab === s.id && ms.segBtnActive]}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+              <Icon name={s.icon} size={13} color={tab === s.id ? 'white' : colors.purple} />
+              <T bold={tab === s.id} style={[ms.segText, tab === s.id && { color: 'white' }]}>
+                {s.label}
+              </T>
+            </View>
+          </Tap>
+        ))}
+      </View>
+
+      {/* ─── MOD 1-3: TIBBİ SONOGRAFİ KONSOLU (3D / 2D / DOPPLER) ─── */}
+      {tab !== 'biometry' ? (
+        <Card style={ms.consoleChassis}>
+          {/* Konsol Tepe Telemetri Şeridi */}
+          <View style={ms.consoleTelemetry}>
+            <View>
+              <T style={ms.telemetryText}>
+                {details.telemetry.probe} · {details.telemetry.freq}
+              </T>
+              <T style={[ms.telemetryText, { color: '#C8B0D6' }]}>
+                D: {details.telemetry.depth} · {details.telemetry.fps}
+              </T>
+            </View>
+            <View style={ms.consoleGaBadge}>
+              <T bold style={{ color: '#F7D488', fontSize: 11, letterSpacing: 0.5 }}>
+                {details.telemetry.ga}
+              </T>
+              <T style={{ color: '#E8DCF0', fontSize: 9, textAlign: 'center' }}>
+                {tab === '3d' ? (isEn ? '3D / 4D HDLive' : '3D HDLive Kehribar') : tab === '2d' ? (isEn ? '2D B-Mode Gray' : '2D Klinik B-Mod') : (isEn ? 'Color Doppler Map' : 'Renkli Doppler')}
+              </T>
+            </View>
+            <View style={{ alignItems: 'flex-end' }}>
+              <T style={ms.telemetryText}>MI: {details.telemetry.mi}</T>
+              <T style={ms.telemetryText}>TIB: {details.telemetry.tib}</T>
+            </View>
           </View>
-        </View>
 
-        {/* Ultrason Görsel Alanı */}
-        <View style={ms.usgVisual}>
-          <LinearGradient
-            colors={tab === '2d' ? ['#1A181C', '#0E0D10'] : ['#29181B', '#170E10']}
-            style={StyleSheet.absoluteFill}
-          />
-
-          {(tab === '3d' ? generatedAssets['ui_ultrasound_hdlive_20w'] : generatedAssets['card_ultrasound_frame']) ? (
-            <Image
-              source={tab === '3d' ? (generatedAssets['ui_ultrasound_hdlive_20w'] || generatedAssets['card_ultrasound_frame']) : generatedAssets['card_ultrasound_frame']}
-              style={ms.usgImage}
-              resizeMode="contain"
+          {/* Konsol Ekran Sahnesi */}
+          <View style={ms.consoleScreen}>
+            <LinearGradient
+              colors={tab === '3d' ? ['#21151F', '#0E0911'] : tab === '2d' ? ['#131417', '#0A0B0E'] : ['#1C1021', '#0E0915']}
+              style={StyleSheet.absoluteFill}
             />
-          ) : (
-            <Icon name="milestone" size={80} color="#665063" />
-          )}
 
-          {/* İnteraktif Anatomik Sıcak Noktalar (Hotspots) */}
-          {markers.map(m => (
-            <Tap
-              key={m.id}
-              label={m.label}
-              onPress={() => setActiveMarker(activeMarker === m.id ? null : m.id)}
-              style={[ms.hotspot, { left: m.x, top: m.y }]}
-            >
-              <View style={[ms.hotspotDot, activeMarker === m.id && ms.hotspotDotActive]}>
-                <View style={ms.hotspotInner} />
+            {activeAsset ? (
+              <Image source={activeAsset} style={ms.consoleImage} resizeMode="contain" />
+            ) : (
+              <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="ultrasound" size={64} color="#5C4569" />
+                <T style={{ color: '#887596', fontSize: 12, marginTop: 8 }}>
+                  {isEn ? `Loading Week ${week} scan...` : `${week}. Hafta taraması yükleniyor...`}
+                </T>
               </View>
-            </Tap>
-          ))}
-        </View>
+            )}
 
-        {/* Seçilen Noktanın Açıklaması */}
-        {activeMarker && (
-          <View style={ms.markerCard}>
-            <T bold style={{ color: '#E8D298', fontSize: 13 }}>
-              📍 {markers.find(m => m.id === activeMarker)?.label}
-            </T>
-            <T style={{ color: '#E3DDE0', fontSize: 12, marginTop: 3 }}>
-              {markers.find(m => m.id === activeMarker)?.desc}
-            </T>
+            {/* İnteraktif Anatomik Sıcak Noktalar (Hotspots) */}
+            {details.markers?.map(m => {
+              const isSelected = activeMarker === m.id;
+              return (
+                <Tap
+                  key={m.id}
+                  label={m.label}
+                  onPress={() => setActiveMarker(isSelected ? null : m.id)}
+                  style={[ms.hotspot, { left: m.x, top: m.y }]}
+                >
+                  <Animated.View style={[
+                    ms.hotspotRing,
+                    isSelected && { borderColor: '#FFFFFF', transform: [{ scale: pulse }] }
+                  ]} />
+                  <View style={[ms.hotspotDot, isSelected && ms.hotspotDotActive]}>
+                    <View style={ms.hotspotInner} />
+                  </View>
+                </Tap>
+              );
+            })}
+
+            {/* Doppler Modunda Canlı Kalp Atışı Çalma Butonu */}
+            {tab === 'doppler' && (
+              <Tap
+                onPress={toggleHeartbeat}
+                label={isPlayingHeartbeat ? (isEn ? 'Stop Heartbeat' : 'Kalp Sesini Durdur') : (isEn ? 'Listen to Fetal Heartbeat' : 'Fetal Kalp Sesini Dinle')}
+                style={ms.dopplerAudioBtn}
+              >
+                <Icon name={isPlayingHeartbeat ? "volume" : "soundwave"} size={16} color="#FCE79D" />
+                <T bold style={{ fontSize: 11, color: '#FCE79D' }}>
+                  {isPlayingHeartbeat
+                    ? (isEn ? '145 BPM Playing 🎵' : '145 BPM Çalıyor 🎵')
+                    : (isEn ? 'Listen to Fetal Heartbeat (145 BPM)' : 'Fetal Kalp Atımını Dinle (145 BPM)')}
+                </T>
+              </Tap>
+            )}
           </View>
-        )}
-      </Card>
 
-      {/* Bu Hafta Neye Bakılır? */}
-      <Card style={{ padding: 14 }}>
-        <T bold style={{ fontSize: 15 }}>
-          {isEn ? "What is discussed in this week's checkup?" : "Bu haftaki kontrolde neler konuşulur?"}
+          {/* Konsol Altı: Hızlı Nokta Seçim Şeridi */}
+          <View style={{ marginTop: 8 }}>
+            <T style={{ fontSize: 10, color: '#A092A6', marginBottom: 6 }}>
+              {isEn ? 'SELECT ANATOMICAL LANDMARK:' : 'ANATOMİK BÖLGEYİ İNCELE:'}
+            </T>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
+              {details.markers?.map(m => {
+                const isSelected = activeMarker === m.id;
+                return (
+                  <Tap
+                    key={m.id}
+                    label={m.label}
+                    onPress={() => setActiveMarker(m.id)}
+                    style={[ms.landmarkChip, isSelected && ms.landmarkChipActive]}
+                  >
+                    <T bold={isSelected} style={{ fontSize: 11, color: isSelected ? 'white' : '#C7B9CE' }}>
+                      📍 {m.label}
+                    </T>
+                  </Tap>
+                );
+              })}
+            </ScrollView>
+          </View>
+
+          {/* Seçilen Noktanın Klinik Detay Kartı */}
+          {currentMarkerObj && (
+            <View style={ms.markerCard}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <T bold style={{ color: '#F7D488', fontSize: 13.5 }}>
+                  📍 {currentMarkerObj.label}
+                </T>
+                <View style={ms.markerBadge}>
+                  <T style={{ fontSize: 9, color: 'white', fontWeight: '700' }}>
+                    {details.milestone.badgeTr}
+                  </T>
+                </View>
+              </View>
+              <T style={{ color: '#EDE3F2', fontSize: 12.5, marginTop: 4, lineHeight: 18 }}>
+                {currentMarkerObj.desc}
+              </T>
+              <View style={ms.reassuranceBox}>
+                <T style={{ fontSize: 11, color: '#F2DDF7', lineHeight: 16 }}>
+                  🌿 <T bold style={{ color: 'white' }}>{isEn ? 'Clinical Reassurance: ' : 'Klinik Güven Notu: '}</T>
+                  {isEn
+                    ? 'Individual measurements vary normally; scans provide reassurance through overall proportional growth.'
+                    : 'Milimetrik oynamalar tamamen doğaldır; hekiminiz tekil sayılara değil orantılı bütünsel gelişime bakar.'}
+                </T>
+              </View>
+            </View>
+          )}
+        </Card>
+      ) : (
+        /* ─── MOD 4: ULTRASON RAPORU TERCÜMANI (HADLOCK BİYOMETRİ HESAPLAYICI) ─── */
+        <View style={{ gap: 12 }}>
+          <Card style={{ padding: 16, backgroundColor: '#FAF5FB', borderColor: '#EBE0EE' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <Icon name="caliper" size={24} color={colors.purple} />
+              <View style={{ flex: 1 }}>
+                <T bold style={{ fontSize: 16, color: colors.ink }}>
+                  {isEn ? 'Sonogram Biometry Decoder' : 'Ultrason Raporu Tercümanı'}
+                </T>
+                <T style={{ fontSize: 11.5, color: colors.muted }}>
+                  {isEn ? `Week ${week} Hadlock Reference Standards` : `${week}. Hafta Hadlock Referans Değerleri`}
+                </T>
+              </View>
+            </View>
+            <T style={{ fontSize: 13, color: '#4D4352', lineHeight: 19 }}>
+              {isEn
+                ? 'Your doctor’s ultrasound slip contains abbreviations like BPD, HC, AC, and FL. Enter your numbers below to understand what they mean calmly.'
+                : 'Doktorunuzun muayene çıktısındaki BPD, HC, AC ve FL kısaltmalarını aşağıya girerek persentil eğrisindeki yerini sakince görün.'}
+            </T>
+          </Card>
+
+          {/* Biyometri Parametre Giriş Kartları */}
+          {biometryReport.results.map(item => {
+            return (
+              <Card key={item.key} style={{ padding: 14 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <View style={{ flex: 1 }}>
+                    <T bold style={{ fontSize: 14, color: colors.ink }}>{item.label}</T>
+                    <T style={{ fontSize: 11, color: colors.muted, marginTop: 1 }}>{item.desc}</T>
+                  </View>
+                  <View style={ms.normBadge}>
+                    <T bold style={{ fontSize: 10, color: colors.purple }}>
+                      {item.p10} - {item.p90} {item.unit}
+                    </T>
+                  </View>
+                </View>
+
+                {/* Giriş Kutusu */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 6 }}>
+                  <TextInput
+                    style={ms.biometryInput}
+                    placeholder={`${item.p50}`}
+                    placeholderTextColor="#BFA9C4"
+                    keyboardType="numeric"
+                    value={biometryInputs[item.key]}
+                    onChangeText={txt => setBiometryInputs(prev => ({ ...prev, [item.key]: txt }))}
+                  />
+                  <T style={{ fontSize: 13, color: colors.muted }}>{item.unit}</T>
+                  <View style={{ flex: 1 }} />
+                  {item.entered ? (
+                    <View style={[
+                      ms.percentilePill,
+                      item.status === 'normal' && { backgroundColor: '#EBF7EE', borderColor: '#A3D9AE' }
+                    ]}>
+                      <T bold style={{ fontSize: 11, color: item.status === 'normal' ? '#276E3A' : '#7D4C8A' }}>
+                        ~%{item.percentile} Persentil ({item.statusText})
+                      </T>
+                    </View>
+                  ) : (
+                    <T style={{ fontSize: 11, color: colors.muted, fontStyle: 'italic' }}>
+                      {isEn ? 'Normal: ~' + item.p50 + item.unit : 'Ortalama: ~' + item.p50 + item.unit}
+                    </T>
+                  )}
+                </View>
+
+                {/* Görsel Persentil Çubuğu */}
+                {item.entered && (
+                  <View style={{ marginTop: 10 }}>
+                    <View style={ms.percentileTrack}>
+                      <View style={[ms.percentileFill, { width: `${item.percentile}%` }]} />
+                      <View style={[ms.percentileMarker, { left: `${item.percentile}%` }]} />
+                    </View>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
+                      <T style={{ fontSize: 9, color: colors.muted }}>10p ({item.p10}{item.unit})</T>
+                      <T style={{ fontSize: 9, color: colors.purple, fontWeight: '700' }}>50p ({item.p50}{item.unit})</T>
+                      <T style={{ fontSize: 9, color: colors.muted }}>90p ({item.p90}{item.unit})</T>
+                    </View>
+                  </View>
+                )}
+              </Card>
+            );
+          })}
+
+          {/* Klinik Özet ve Güven Mesajı */}
+          <Card style={{ padding: 16, backgroundColor: '#FAF6EE', borderColor: '#EADBBD' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <T style={{ fontSize: 18 }}>🩺</T>
+              <T bold style={{ fontSize: 14, color: '#664F22' }}>
+                {isEn ? 'Clinical Interpretation Note' : 'Klinik Değerlendirme Notu'}
+              </T>
+            </View>
+            <T style={{ fontSize: 13, color: '#54421E', lineHeight: 20 }}>
+              {biometryReport.summaryMessage}
+            </T>
+          </Card>
+        </View>
+      )}
+
+      {/* Bu Hafta Neye Bakılır & Doktor Randevusu Tavsiyeleri */}
+      <Card style={{ padding: 16 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <Icon name="calendar" size={18} color={colors.purple} />
+          <T bold style={{ fontSize: 15, color: colors.ink }}>
+            {isEn ? `What to discuss at Week ${week}?` : `${week}. Hafta Kontrolünde Neler Konuşulur?`}
+          </T>
+        </View>
+        <T style={{ fontSize: 13, color: '#4E4654', lineHeight: 21 }}>
+          {details.summary}
         </T>
-        <T style={{ fontSize: 13, color: '#554D5A', marginTop: 6, lineHeight: 20 }}>
-          {info.ultrasound?.milestone || (isEn ? 'Growth measurements, amniotic fluid, placental position, and baby position can be added to visit notes.' : 'Gelişim ölçümleri, amniyon sıvısı, plasenta konumu ve bebeğin pozisyonu kontrol notlarına eklenebilir.')}
-        </T>
+        <View style={{ marginTop: 12, backgroundColor: '#FAF4FA', padding: 10, borderRadius: 12 }}>
+          <T bold style={{ fontSize: 11, color: colors.purple, marginBottom: 4 }}>
+            {isEn ? 'Suggested Questions for Your Doctor:' : 'Hekiminize Yöneltebileceğiniz Güzel Sorular:'}
+          </T>
+          <T style={{ fontSize: 12, color: '#56445B', lineHeight: 18 }}>
+            {week <= 14
+              ? (isEn ? '• How do the NT and nasal bone measurements compare to normal screening standards?\n• When should we schedule the second trimester anatomy scan?' : '• Ense kalınlığı ve burun kemiği tarama standartlarıyla tam uyumlu mu?\n• 2. Düzey detaylı ultrason randevumuzu hangi haftaya planlayalım?')
+              : week <= 24
+              ? (isEn ? '• Did we clearly visualize all four chambers of the heart and kidneys?\n• Where is the placenta located (anterior or posterior)?' : '• Kalbin 4 odacığı ve böbrekler net olarak görüntülendi mi?\n• Plasentanın yerleşimi doğum yolu açısından güvenli mesafede mi?')
+              : (isEn ? '• What is the baby’s current presentation (head-down or breech)?\n• How is the amniotic fluid index and umbilical Doppler resistance?' : '• Bebeğin duruş pozisyonu baş gelişi mi, makat mı?\n• Amniyon sıvısı miktarı ve kordon Doppler kan akımı nasıl?')}
+          </T>
+        </View>
       </Card>
     </View>
   );
@@ -550,17 +811,32 @@ const ms = StyleSheet.create({
   metricDivider: { width: 1, height: 28, backgroundColor: colors.line },
   weekPill: { minWidth: 44, paddingVertical: 8, borderRadius: 16, alignItems: 'center', backgroundColor: '#EDE4ED' },
   weekPillActive: { backgroundColor: colors.purple },
-  // USG styles
-  usgFrame: { backgroundColor: '#131114', borderRadius: 22, padding: 14, overflow: 'hidden' },
-  usgHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  usgBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, backgroundColor: '#473444' },
-  usgVisual: { height: 200, borderRadius: 16, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
-  usgImage: { width: '90%', height: '90%' },
-  hotspot: { position: 'absolute', width: 34, height: 34, marginLeft: -17, marginTop: -17, alignItems: 'center', justifyContent: 'center' },
-  hotspotDot: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#E8D29888', alignItems: 'center', justifyContent: 'center' },
-  hotspotDotActive: { backgroundColor: '#E8D298', transform: [{ scale: 1.3 }] },
-  hotspotInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: 'white' },
-  markerCard: { marginTop: 12, padding: 12, borderRadius: 14, backgroundColor: '#2C252B' },
+  // USG Clinical Console & Biometry styles
+  milestoneChip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14, backgroundColor: '#EFE6F0', alignItems: 'center', minWidth: 90 },
+  milestoneChipActive: { backgroundColor: colors.purple },
+  consoleChassis: { backgroundColor: '#0F0D15', borderRadius: 24, padding: 12, borderWidth: 1.5, borderColor: '#3E2F47', overflow: 'hidden' },
+  consoleTelemetry: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 8, borderBottomWidth: 1, borderColor: '#261F2E' },
+  consoleGaBadge: { alignItems: 'center', backgroundColor: '#261B2E', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#4F355E' },
+  telemetryText: { fontSize: 10, color: '#A89CAD', letterSpacing: 0.4 },
+  consoleScreen: { height: 230, borderRadius: 16, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: '#09080C', marginVertical: 8 },
+  consoleImage: { width: '100%', height: '100%' },
+  hotspot: { position: 'absolute', width: 36, height: 36, marginLeft: -18, marginTop: -18, alignItems: 'center', justifyContent: 'center' },
+  hotspotRing: { position: 'absolute', width: 26, height: 26, borderRadius: 13, borderWidth: 1.5, borderColor: '#F5D38288' },
+  hotspotDot: { width: 14, height: 14, borderRadius: 7, backgroundColor: '#F5D382', alignItems: 'center', justifyContent: 'center' },
+  hotspotDotActive: { backgroundColor: '#FFFFFF', transform: [{ scale: 1.25 }] },
+  hotspotInner: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#1A1121' },
+  dopplerAudioBtn: { position: 'absolute', bottom: 12, flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#3A1E4AEE', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#A86BB0' },
+  landmarkChip: { backgroundColor: '#282030', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10, borderWidth: 1, borderColor: '#42334F' },
+  landmarkChipActive: { backgroundColor: colors.purple, borderColor: '#B575CE' },
+  markerBadge: { backgroundColor: '#573866', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
+  reassuranceBox: { marginTop: 8, backgroundColor: '#3D2547', padding: 8, borderRadius: 10 },
+  markerCard: { marginTop: 10, padding: 12, borderRadius: 14, backgroundColor: '#251C2C', borderWidth: 1, borderColor: '#473554' },
+  normBadge: { backgroundColor: '#F0E5F5', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
+  biometryInput: { width: 84, backgroundColor: 'white', borderRadius: 10, borderWidth: 1, borderColor: '#D9C7DC', paddingHorizontal: 10, paddingVertical: 6, fontSize: 15, color: colors.ink },
+  percentilePill: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, borderWidth: 1, borderColor: '#E3D2E8', backgroundColor: '#FAF4FA' },
+  percentileTrack: { height: 6, backgroundColor: '#EDE3F0', borderRadius: 3, overflow: 'visible', position: 'relative' },
+  percentileFill: { height: '100%', backgroundColor: colors.purple, borderRadius: 3 },
+  percentileMarker: { position: 'absolute', top: -3, width: 12, height: 12, borderRadius: 6, backgroundColor: '#3A8253', borderWidth: 2, borderColor: 'white', marginLeft: -6 },
   // Timeline styles
   timeline: { gap: 0, paddingLeft: 6 },
   timelineItem: { flexDirection: 'row', gap: 14 },
