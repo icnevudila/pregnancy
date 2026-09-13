@@ -2,6 +2,8 @@
 // Her giriş: meyve anahtarı, Türkçe adı, boy (cm), ağırlık (gr),
 //            ay, trimester, bebeğin gelişimi (3 madde), annede değişimler (2 madde)
 
+import { weekDataEn } from './weekDataEn.js';
+
 export const TOTAL_WEEKS = 40;
 export const FIRST_WEEK = 4;
 
@@ -637,10 +639,21 @@ export const weekData = {
   },
 };
 
-/** Haftaya ait veriyi döner; sınır dışı haftalarda en yakın veriyi verir */
-export function getWeekInfo(week) {
+/** Haftaya ait veriyi döner; sınır dışı haftalarda en yakın veriyi verir. lang='en' ise İngilizce alanları harmanlar. */
+export function getWeekInfo(week, lang = 'tr') {
   const w = Math.max(FIRST_WEEK, Math.min(TOTAL_WEEKS, Math.round(week)));
-  return weekData[w] || weekData[24];
+  const base = weekData[w] || weekData[24];
+  if (lang === 'en' && weekDataEn && weekDataEn[w]) {
+    const en = weekDataEn[w];
+    return {
+      ...base,
+      ...en,
+      ultrasound: en.ultrasound ? { ...base.ultrasound, ...en.ultrasound } : base.ultrasound,
+      baby: en.baby || base.baby,
+      mom: en.mom || base.mom,
+    };
+  }
+  return base;
 }
 
 /** Ağırlığı okunabilir formata çevirir */

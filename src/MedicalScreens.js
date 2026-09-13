@@ -13,7 +13,7 @@ export function SizeComparisonHub({ state, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
   const [week, setWeek] = useState(state.week || 24);
   const [mode, setMode] = useState('fruit'); // 'fruit' | 'animal' | 'sweet'
-  const info = getWeekInfo(week);
+  const info = getWeekInfo(week, lang);
 
   return (
     <View style={ms.container}>
@@ -141,7 +141,7 @@ export function UltrasoundAtlas({ state, lang = 'tr' }) {
   const [tab, setTab] = useState('3d');
   const [activeMarker, setActiveMarker] = useState(null);
   const week = state.week || 20;
-  const info = getWeekInfo(week);
+  const info = getWeekInfo(week, lang);
   const pulse = usePulse(0.95, 1.05, 1600);
 
   const markers = isEn ? [

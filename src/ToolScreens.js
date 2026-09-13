@@ -121,7 +121,7 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
   return (
     <View style={ts.container}>
       <ScreenHero
-        asset="ui_kick_foot_button"
+        asset="card_kick_counter"
         icon="footprint"
         kicker={isEn ? 'FETAL MOVEMENT PATTERN' : 'FETAL HAREKET DÜZENİ'}
         title={isEn ? "Count Baby's Rhythm" : "Bebeğinin Ritmini Say"}
@@ -135,7 +135,7 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
         title={isEn ? 'Count, finish, compare' : 'Say, bitir, karşılaştır'}
         steps={isEn ? ['Start when baby is active.', 'Tap each movement without leaving the screen.', 'Save the session and compare recent rhythm.'] : ['Bebeğin aktifken seansı başlat.', 'Ekrandan çıkmadan her hareketi işle.', 'Seansı kaydet ve son ritimle karşılaştır.']}
         outcome={isEn ? 'The output is a clean session history, not a loose note.' : 'Çıktı dağınık bir not değil, okunur seans geçmişi olur.'}
-        asset="ui_kick_foot_button"
+        asset="card_kick_counter"
         tint="#B84570"
       />
 
@@ -228,10 +228,10 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
                   colors={sessionActive ? ['#FAF0F6', '#F3DFEE', '#E9CDE3'] : ['#FAF6F9', '#F0E6F0', '#E5D6E6']}
                   style={ts.kickCenterGradient}
                 >
-                  {generatedAssets['ui_kick_foot_button'] ? (
+                  {generatedAssets['card_kick_counter'] ? (
                     <Image
-                      source={generatedAssets['ui_kick_foot_button']}
-                      style={{ width: 88, height: 88 }}
+                      source={generatedAssets['card_kick_counter']}
+                      style={{ width: 76, height: 76 }}
                       resizeMode="contain"
                     />
                   ) : (
@@ -302,7 +302,7 @@ export function KickCounter({ state, update, toast, lang = 'tr' }) {
           <Card key={s.id} style={ts.historyItem}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <CleanIcon asset="ui_kick_foot_button" size={34} imgSize={30} />
+                <CleanIcon asset="card_kick_counter" size={34} imgSize={30} />
                 <View>
                   <T bold style={{ fontSize: 14 }}>{s.kicks || 10} {isEn ? "Movements Completed" : "Hareket Tamamlandı"}</T>
                   <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
@@ -416,7 +416,7 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
   return (
     <View style={ts.container}>
       <ScreenHero
-        asset="ui_contraction_pulse_button"
+        asset="card_contractions"
         icon="contraction"
         kicker={isEn ? 'CONTRACTION TRACKER' : 'DOĞUM SANCISI TAKİBİ'}
         title={isEn ? 'Contraction & Labor Timer' : 'Kasılma & Doğum Sayacı'}
@@ -424,7 +424,7 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
         stat={contractions.length ? `${contractions.length} ${isEn ? 'records' : 'kayıt'}` : (isEn ? 'First record ready' : 'İlk kayıt hazır')}
         tint="#4F79A1"
       />
-      <ToolExperienceCard lang={lang} title={isEn ? 'Time every wave clearly' : 'Her dalgayı net zamanla'} steps={isEn ? ['Start with one tap.', 'Record duration, interval, and intensity.', 'Use the list as a calm timeline.'] : ['Tek dokunuşla başlat.', 'Süre, aralık ve şiddeti birlikte kaydet.', 'Listeyi sakin bir zaman çizelgesi gibi kullan.']} outcome={isEn ? 'The screen becomes a labor timeline, not a stopwatch.' : 'Ekran kronometre değil, doğum süreci zaman çizelgesi gibi çalışır.'} asset="ui_contraction_pulse_button" tint="#D4634B" />
+      <ToolExperienceCard lang={lang} title={isEn ? 'Time every wave clearly' : 'Her dalgayı net zamanla'} steps={isEn ? ['Start with one tap.', 'Record duration, interval, and intensity.', 'Use the list as a calm timeline.'] : ['Tek dokunuşla başlat.', 'Süre, aralık ve şiddeti birlikte kaydet.', 'Listeyi sakin bir zaman çizelgesi gibi kullan.']} outcome={isEn ? 'The screen becomes a labor timeline, not a stopwatch.' : 'Ekran kronometre değil, doğum süreci zaman çizelgesi gibi çalışır.'} asset="card_contractions" tint="#D4634B" />
 
       {/* 5-1-1 Tıbbi Durum Bildirim Kartı */}
       <StatusCard
@@ -536,11 +536,14 @@ export function ContractionTimer({ state, update, toast, lang = 'tr' }) {
         contractions.slice(0, 5).map(c => (
           <Card key={c.id} style={ts.historyItem}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <View>
-                <T bold style={{ fontSize: 14 }}>{isEn ? 'Duration: ' : 'Süre: '}{secondsLabel(c.durationSecs || 0)}</T>
-                <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                  {c.date} · {c.time} · {isEn ? 'Intensity: ' : 'Şiddet: '}<T bold>{c.intensity || (isEn ? 'Moderate' : 'Orta')}</T>
-                </T>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <CleanIcon asset="card_contractions" size={34} imgSize={30} />
+                <View>
+                  <T bold style={{ fontSize: 14 }}>{isEn ? 'Duration: ' : 'Süre: '}{secondsLabel(c.durationSecs || 0)}</T>
+                  <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                    {c.date} · {c.time} · {isEn ? 'Intensity: ' : 'Şiddet: '}<T bold>{c.intensity || (isEn ? 'Moderate' : 'Orta')}</T>
+                  </T>
+                </View>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <T bold style={{ fontSize: 13, color: '#3A688F' }}>
@@ -815,30 +818,38 @@ const ts = StyleSheet.create({
     fontSize: 11,
     color: colors.purple,
   },
-  touchButtonContainer: {
-    alignItems: 'center',
-    marginVertical: 8,
-  },
-  bigKickButton: {
-    width: 170,
-    height: 170,
-    borderRadius: 85,
-    overflow: 'hidden',
-    ...shadow.soft,
-  },
-  bigKickGrad: {
-    flex: 1,
+  kickInteractiveCard: {
+    padding: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    backgroundColor: '#FFFDFA',
   },
-  bigKickCount: {
+  kickCenterTap: {
+    width: 154,
+    height: 154,
+    borderRadius: 77,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  kickCenterGradient: {
+    width: 154,
+    height: 154,
+    borderRadius: 77,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+  },
+  kickBigCount: {
     fontSize: 22,
-    color: 'white',
+    color: colors.ink,
+    marginTop: 4,
   },
-  bigKickSub: {
-    fontSize: 11,
-    color: '#FFECF4',
+  kickSubPrompt: {
+    fontSize: 10.5,
+    color: colors.purple,
+    fontWeight: '600',
+    marginTop: 2,
   },
   segmentCard: {
     backgroundColor: 'white',

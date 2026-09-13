@@ -337,13 +337,17 @@ export const babyLettersData = [
   }
 ];
 
-export function getBabyLetterForWeek(week = 16) {
+import { babyLettersDataEn } from './babyLettersDataEn.js';
+
+export function getBabyLetterForWeek(week = 16, lang = 'tr') {
   const clampedWeek = Math.max(4, Math.min(40, Number(week) || 16));
-  const found = babyLettersData.find(l => l.week === clampedWeek);
-  return found || babyLettersData[12];
+  const data = lang === 'en' ? babyLettersDataEn : babyLettersData;
+  const found = data.find(l => l.week === clampedWeek);
+  return found || data[12];
 }
 
-export function getPastBabyLetters(currentWeek = 16) {
+export function getPastBabyLetters(currentWeek = 16, lang = 'tr') {
   const clampedWeek = Math.max(4, Math.min(40, Number(currentWeek) || 16));
-  return babyLettersData.filter(l => l.week <= clampedWeek).reverse();
+  const data = lang === 'en' ? babyLettersDataEn : babyLettersData;
+  return data.filter(l => l.week <= clampedWeek).reverse();
 }

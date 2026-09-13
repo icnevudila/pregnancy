@@ -65,29 +65,39 @@ export function CleanIcon({ asset, icon = 'sparkle', size = 36, imgSize = 32, ti
   );
 }
 
-export function ToolExperienceCard({ title, steps = [], outcome, asset, tint = colors.purple, lang = 'tr', style }) {
+export function ToolExperienceCard({ title, steps = [], outcome, asset, tint = colors.purple, lang = 'tr', defaultExpanded = false, style }) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const art = typeof asset === 'string' ? (generatedAssets[asset] || getAsset(asset)) : asset;
   const isEn = lang === 'en';
   return (
-    <Card style={[s.toolExperience, { borderColor: tint + '2A' }, style]}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-        <View style={s.toolExperienceArt}>
-          {art ? <Image source={art} style={{ width: 44, height: 44 }} resizeMode="contain" /> : <Icon name="sparkle" size={26} color={tint} />}
+    <Card style={[s.toolExperience, { borderColor: tint + '2A', paddingVertical: expanded ? 15 : 10, paddingHorizontal: 14 }, style]}>
+      <Tap
+        onPress={() => setExpanded(e => !e)}
+        label={expanded ? (isEn ? 'Collapse guide' : 'Rehberi daralt') : (isEn ? 'Expand guide' : 'Rehberi göster')}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 11 }}
+      >
+        <View style={[s.toolExperienceArtCompact, { backgroundColor: 'transparent' }]}>
+          {art ? <Image source={art} style={{ width: 26, height: 26 }} resizeMode="contain" /> : <Icon name="sparkle" size={17} color={tint} />}
         </View>
         <View style={{ flex: 1 }}>
-          <T style={{ fontSize: 10, color: tint, letterSpacing: 1.1, fontFamily: fonts.bold }}>{isEn ? 'MOMORA RITUAL' : 'MOMORA RİTÜELİ'}</T>
-          <T bold style={{ fontSize: 16, color: colors.ink, marginTop: 2 }}>{title}</T>
+          <T style={{ fontSize: 9.5, color: tint, letterSpacing: 0.8, fontFamily: fonts.bold }}>{isEn ? 'CLINICAL RITUAL' : 'KLİNİK RİTÜEL & REHBER'}</T>
+          <T bold numberOfLines={expanded ? undefined : 1} style={{ fontSize: 13.5, color: colors.ink, marginTop: 1 }}>{title}</T>
         </View>
-      </View>
-      <View style={{ gap: 8 }}>
-        {steps.map((step, i) => (
-          <View key={step} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 9 }}>
-            <View style={[s.toolStepDot, { backgroundColor: tint + '18' }]}><T bold style={{ fontSize: 10, color: tint }}>{i + 1}</T></View>
-            <T style={{ flex: 1, fontSize: 12.5, color: '#514858', lineHeight: 18 }}>{step}</T>
-          </View>
-        ))}
-      </View>
-      {outcome ? <View style={[s.toolOutcome, { backgroundColor: tint + '10' }]}><T style={{ fontSize: 12, color: '#554B5A', lineHeight: 18 }}>{outcome}</T></View> : null}
+        <View style={[s.expandPill, { backgroundColor: tint + '14' }]}>
+          <T bold style={{ fontSize: 11, color: tint }}>{expanded ? (isEn ? 'Close ▴' : 'Kapat ▴') : (isEn ? 'Rehber ▾' : 'Rehber ▾')}</T>
+        </View>
+      </Tap>
+      {expanded && (
+        <View style={{ marginTop: 12, paddingTop: 11, borderTopWidth: 1, borderColor: tint + '16', gap: 8 }}>
+          {steps.map((step, i) => (
+            <View key={step} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 9 }}>
+              <View style={[s.toolStepDot, { backgroundColor: tint + '18' }]}><T bold style={{ fontSize: 10, color: tint }}>{i + 1}</T></View>
+              <T style={{ flex: 1, fontSize: 12.5, color: '#514858', lineHeight: 18 }}>{step}</T>
+            </View>
+          ))}
+          {outcome ? <View style={[s.toolOutcome, { backgroundColor: tint + '10' }]}><T style={{ fontSize: 12, color: '#554B5A', lineHeight: 18 }}>{outcome}</T></View> : null}
+        </View>
+      )}
     </Card>
   );
 }
@@ -236,8 +246,10 @@ const s = StyleSheet.create({
   heroArt: { width: 88, height: 88, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
   infoNote: { flexDirection: 'row', gap: 11, padding: 13, borderRadius: 18, borderWidth: 1 },
   infoIcon: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
-  toolExperience: { padding: 15, backgroundColor: '#FFFDFA', borderWidth: 1, borderRadius: 22 },
+  toolExperience: { padding: 12, backgroundColor: '#FFFDFA', borderWidth: 1, borderRadius: 20 },
   toolExperienceArt: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
+  toolExperienceArtCompact: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+  expandPill: { paddingHorizontal: 9, paddingVertical: 4.5, borderRadius: 12 },
   toolStepDot: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', marginTop: -1 },
   toolOutcome: { marginTop: 12, padding: 11, borderRadius: 15 },
   round: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#FFFCFA', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.line, ...shadow },

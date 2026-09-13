@@ -250,29 +250,15 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
         {/* Header */}
         <View style={s.header}>
           <View style={s.brandRow}>
-            <BrandMark size={48} />
+            <BrandMark size={40} />
             <T style={s.brandTitle}>MOMORA</T>
           </View>
           <T style={s.subtitle}>
-            {tab === 'signin' && (isEn ? 'Sign in to your account and continue your journey right where you left off.' : 'Hesabına giriş yap, hamilelik ve bebek takibine kaldığın yerden devam et.')}
-            {tab === 'signup' && (isEn ? 'Create a shared family account to track baby development together.' : 'Anne & baba ortak hesabı oluştur, bebeğin gelişimini birlikte takip edin.')}
-            {tab === 'forgot' && (isEn ? 'Enter your registered email and we will send a password reset link.' : 'Kayıtlı e-postanı gir, şifre sıfırlama bağlantısını hemen gönderelim.')}
+            {tab === 'signin' && (isEn ? 'Sign in to your account to sync baby logs.' : 'Hamilelik ve bebek takibine kaldığın yerden devam et.')}
+            {tab === 'signup' && (isEn ? 'Create an account to track development together.' : 'Anne & baba ortak hesabı oluştur, birlikte takip edin.')}
+            {tab === 'forgot' && (isEn ? 'Enter your email to receive a password reset link.' : 'Kayıtlı e-postanı gir, şifre sıfırlama bağlantısı gönderelim.')}
             {tab === 'key' && (isEn ? 'Supabase Anon / Publishable Key setup' : 'Supabase Anon / Publishable Key yapılandırması')}
           </T>
-        </View>
-
-
-        <View style={s.valueCard}>
-          {[
-            isEn ? ['Shared family timeline', 'Partner, baby and daily logs stay together.'] : ['Ortak aile zaman çizgisi', 'Partner, bebek ve günlük kayıtlar aynı yerde kalır.'],
-            isEn ? ['Daily return habit', 'Letters, trackers and guides continue from the right week.'] : ['Günlük geri dönüş sebebi', 'Mektuplar, takipler ve rehberler doğru haftadan devam eder.'],
-            isEn ? ['Private by design', 'Guest mode stays available; cloud sync starts after sign-in.'] : ['Mahremiyet odaklı', 'Misafir kullanım kalır; bulut eşitleme girişten sonra başlar.'],
-          ].map(([title, body]) => (
-            <View key={title} style={s.valueRow}>
-              <View style={s.valueDot}><Icon name="check" size={13} color={colors.purple} /></View>
-              <View style={{ flex: 1 }}><T bold style={s.valueTitle}>{title}</T><T style={s.valueText}>{body}</T></View>
-            </View>
-          ))}
         </View>
 
         {/* Proje Durumu / Key Uyarısı */}
@@ -571,6 +557,14 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
             </View>
           </View>
         )}
+
+        {/* Güvenlik & Aile Senkronizasyon Rozeti */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 14, opacity: 0.8 }}>
+          <Icon name="check" size={12} color={colors.purple} />
+          <T style={{ fontSize: 11.5, color: colors.muted }}>
+            {isEn ? 'Private & encrypted · Shared family cloud sync' : 'Gizlilik odaklı & şifreli · Ortak aile eşitlemesi'}
+          </T>
+        </View>
 
         {/* Yasal Şartlar & Gizlilik Linkleri */}
         <View style={s.legalSection}>

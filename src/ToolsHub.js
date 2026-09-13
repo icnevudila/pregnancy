@@ -17,7 +17,7 @@ export function getAllTools(lang = 'tr') {
       title: isEn ? 'Kick Counter' : 'Tekme Sayacı',
       subtitle: isEn ? 'Gently record baby movement patterns' : 'Hareket düzenini sakince kaydet',
       icon: 'footprint',
-      art: 'ui_kick_foot_button',
+      art: 'card_kick_counter',
       color: '#FAF2F5',
       tint: '#C45778',
       available: true,
@@ -29,7 +29,7 @@ export function getAllTools(lang = 'tr') {
       title: isEn ? 'Contraction Timer' : 'Kasılma Sayacı',
       subtitle: isEn ? 'Log duration, interval & intensity' : 'Süre, aralık ve şiddet günlüğü',
       icon: 'contraction',
-      art: 'ui_contraction_pulse_button',
+      art: 'card_contractions',
       color: '#FBF3F0',
       tint: '#D4634B',
       available: true,
@@ -295,7 +295,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
               label={isEn ? 'Open kick counter' : 'Tekme sayacını aç'}
               style={[th.quickHero, { backgroundColor: '#FDF5F8', borderColor: '#F5DEE7' }]}
             >
-              <CleanIcon asset="ui_kick_foot_button" size={48} imgSize={44} icon="footprint" tint="#C45778" style={{ marginBottom: 10 }} />
+              <CleanIcon asset="card_kick_counter" size={48} imgSize={44} icon="footprint" tint="#C45778" style={{ marginBottom: 10 }} />
               <T bold style={{ fontSize: 14.5, color: '#4A1D2E' }}>{isEn ? 'Kick Counter' : 'Tekme Sayacı'}</T>
               <T style={{ fontSize: 11, color: '#8F5E73', marginTop: 2 }}>
                 {latestKick
@@ -327,7 +327,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <CleanIcon asset="ui_kick_foot_button" size={32} imgSize={28} />
+                <CleanIcon asset="card_kick_counter" size={32} imgSize={28} />
                 <T bold style={{ fontSize: 15, color: colors.ink }}>{isEn ? 'Kick Sessions History' : 'Tekme Seansları Geçmişi'}</T>
               </View>
               <Tap onPress={() => open('kickCounter')} style={{ padding: 4 }}>
@@ -366,7 +366,7 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <CleanIcon asset="ui_contraction_pulse_button" size={32} imgSize={28} />
+                <CleanIcon asset="card_contractions" size={32} imgSize={28} />
                 <T bold style={{ fontSize: 15, color: colors.ink }}>{isEn ? 'Contraction Logs' : 'Kasılma Kayıtları'}</T>
               </View>
               <Tap onPress={() => open('contractionTimer')} style={{ padding: 4 }}>
@@ -512,17 +512,6 @@ export function ToolsHub({ open, state, update, toast, inSheet = false, close, l
               </Tap>
             ))}
           </ScrollView>
-
-          <ToolExperienceCard
-                  title={isEn ? 'Follow the suite, not a random list' : 'Liste değil, profesyonel set gibi kullan'}
-                  steps={isEn
-                    ? ['Start with daily logs.', 'Move to medical or preparation tools only when needed.', 'Keep newborn and postpartum tools ready for the next phase.']
-                    : ['Önce günlük kayıtlarla başla.', 'İhtiyaç olduğunda medikal veya hazırlık araçlarına geç.', 'Yenidoğan ve lohusalık araçlarını sonraki faz için hazır tut.']}
-                  outcome={isEn ? 'The hub feels like an organized maternity operating system.' : 'Araç merkezi düzenli bir annelik işletim sistemi gibi hissettirir.'}
-                  asset="settings_premium_crown"
-                  tint="#8A5BA4"
-                  lang={lang}
-                />
 
           {groupedTools.map(group => (
             <View key={group.id} style={{ gap: 12 }}>

@@ -26,13 +26,7 @@ export function Library({state,navigate,back,data={}}) {
       stat="65+ rehber"
       tint={colors.purple}
     />
-    <ToolExperienceCard
-      title="Okuma planını küçük tut"
-      steps={['Bir konu seç veya arama yap.', 'Öne çıkan noktaları önce tara.', 'İşine yarayan yazıyı kaydet ve sonra devam et.']}
-      outcome="Kütüphane blog listesi gibi değil, günlük karar destek alanı gibi çalışır."
-      asset="ui_doctor_verified_badge"
-      tint="#7C5B8B"
-    /><Field label="İçerik ara" value={query} onChangeText={setQuery} placeholder="Örn. hareket, doğum, günlük"/>
+    <Field label="İçerik ara" value={query} onChangeText={setQuery} placeholder="Örn. hareket, doğum, günlük"/>
     <Chips items={[{id:'all',title:'Sana özel'},{id:'saved',title:`Kaydedilenler · ${state.savedArticles.length}`}]} value={tab} onChange={setTab}/>
     {!query&&topic==='all'&&tab==='all'&&<><Tap label="Doğuma hazırlık konusunu keşfet" onPress={()=>setTopic('birth')} style={r.cover}><Image source={generatedAssets.blog_hospital_bag_pack || getAsset('blog_hospital_bag_pack')} style={StyleSheet.absoluteFill} resizeMode="contain"/><LinearGradient colors={['transparent','#30212AE6']} style={StyleSheet.absoluteFill}/><View style={r.coverCopy}><T style={{color:'#F0DEE6',fontSize:11,letterSpacing:2}}>BİRLİKTE HAZIRLANALIM</T><T bold style={{color:'white',fontSize:25,lineHeight:30}}>Büyük güne,{ '\n' }küçük adımlarla.</T><T style={{color:'white',fontSize:13}}>Doğuma hazırlık rehberleri  →</T></View></Tap>
     <Section title="Neyi merak ediyorsun?"/><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:12}}>{topics.map(t=><Tap key={t.id} label={`${t.title} konusunu aç`} onPress={()=>setTopic(t.id)} style={r.topic}><Image source={generatedAssets[t.image] || getAsset(t.image)} style={r.topicImage} resizeMode="contain"/><T bold style={{fontSize:14,marginTop:9}}>{t.title}</T><T style={f.meta}>{articles.filter(a=>a.topic===t.id).length} rehber</T></Tap>)}</ScrollView></>}
@@ -48,14 +42,7 @@ export function ArticleDetail({data,state,update,navigate,back,toast}) {
   return <Page onScroll={event=>{const {contentOffset,contentSize,layoutMeasurement}=event.nativeEvent;setProgress(Math.min(100,contentOffset.y/Math.max(1,contentSize.height-layoutMeasurement.height)*100));}} scrollEventThrottle={80}>
     <Header title="Okuma köşesi" back={back} action={<Tap label={saved?'Yazıyı kaydedilenlerden çıkar':'Yazıyı kaydet'} onPress={()=>update(old=>({savedArticles:saved?old.savedArticles.filter(id=>id!==a.id):[...old.savedArticles,a.id]}))} style={f.iconButton}><Icon name={saved?'check':'book'} color={colors.purple}/></Tap>}/>
     <Progress value={progress} color={colors.purple} style={{height:3}}/>
-
-    <ToolExperienceCard
-      title="Yazıyı bitirmeden de değer al"
-      steps={['Kapak ve alt başlıkla bağlamı yakala.', 'Öne çıkan noktaları tara.', 'Kaynak notunu ve ilgili rehberleri kontrol et.']}
-      outcome="Makale ekranı sade blog sayfası değil, güven veren editoryal okuma deneyimi sunar."
-      asset="ui_badge_certified_obgyn"
-      tint="#8A5BA4"
-    /><Image source={generatedAssets[a.image] || getAsset(a.image)} style={r.articleCover} resizeMode="contain"/>
+    <Image source={generatedAssets[a.image] || getAsset(a.image)} style={r.articleCover} resizeMode="contain"/>
     <View style={{gap:10}}>
       <T style={f.label}>{topics.find(t=>t.id===a.topic)?.title.toLocaleUpperCase('tr')}</T>
       <T bold style={{fontSize:27,lineHeight:34}}>{a.title}</T>
@@ -113,20 +100,11 @@ export function WeekStrip({week,onChange}) {
   const ref=useRef(null);useEffect(()=>{ref.current?.scrollTo({x:Math.max(0,(week-6)*52),animated:false});},[week]);
   return <ScrollView ref={ref} horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:6,paddingVertical:8}} style={{flexGrow:0}}>{Array.from({length:37},(_,i)=>i+4).map(w=><Tap key={w} label={`${w}. haftayı incele`} accessibilityState={{selected:week===w}} onPress={()=>onChange(w)} style={[r.week,week===w&&{backgroundColor:colors.purple}]}><T bold={week===w} style={{color:week===w?'white':colors.ink}}>{w}</T><T style={{fontSize:9,color:week===w?'white':colors.muted}}>HAFTA</T></Tap>)}</ScrollView>;
 }
-export function WeekDetail({data={},state,update,navigate,back,toast,measure=false}) {
-  const actual=pregnancyAt(state).week;const [week,setWeek]=useState(data.week||actual);const [section,setSection]=useState('baby');const [note,setNote]=useState('');const info=getWeekInfo(week);
+export function WeekDetail({data={},state,update,navigate,back,toast,measure=false,lang:propLang}) {
+  const lang = propLang || state?.lang || 'tr';
+  const actual=pregnancyAt(state).week;const [week,setWeek]=useState(data.week||actual);const [section,setSection]=useState('baby');const [note,setNote]=useState('');const info=getWeekInfo(week, lang);
   const notes=state.journal.filter(n=>n.week===week);
   return <Page><Header title={measure?'Ölçü rehberi':'Bu hafta ikiniz'} subtitle={`${week}. hafta · ${trimesterLabel(info.trimester)}`} back={back}/><WeekStrip week={week} onChange={setWeek}/>
-
-    <ToolExperienceCard
-      title={measure ? 'Boyutu hissederek karşılaştır' : 'Haftayı tek bakışta sahiplen'}
-      steps={measure
-        ? ['Haftanı seç.', 'Meyve, boy ve ağırlık bilgisini birlikte oku.', 'Gelişim yazısına dönüp bağlamı tamamla.']
-        : ['Bebeğinde ve sende neler değişiyor gör.', 'Merak edersen ölçü rehberini aç.', 'Bu haftadan kalacak bir not sakla.']}
-      outcome="Hafta ekranı ansiklopedi değil, kişisel yolculuk sayfası gibi hissettirir."
-      asset="fruit_apple"
-      tint="#8A5BA4"
-    />
     {week!==actual&&<View style={[f.row,{justifyContent:'space-between'}]}><T style={f.meta}>Şu an {week}. haftayı inceliyorsun.</T><Tap onPress={()=>setWeek(actual)} label="Kendi haftama dön" style={{padding:8,minHeight:44,justifyContent:'center'}}><T bold style={{fontSize:12,color:colors.purple}}>Benim haftam</T></Tap></View>}
     <View style={r.fruitStage}><LinearGradient colors={['#EEE5F1','#FAF1EA']} style={StyleSheet.absoluteFill}/><T style={f.label}>MİNİK BİR KARŞILAŞTIRMA</T><FruitArt type={info.fruit} size={measure?176:140}/><T bold style={{fontSize:23}}>{info.fruitName} büyüklüğünde</T><T style={f.meta}>Her bebek kendi hızında büyür.</T><View style={r.stats}><View style={r.stat}><T style={f.meta}>Yaklaşık boy</T><T bold style={{fontSize:24}}>{formatLength(info.lengthCm)}</T></View><View style={r.stat}><T style={f.meta}>Yaklaşık ağırlık</T><T bold style={{fontSize:24}}>{formatWeight(info.weightG)}</T></View></View></View>
     {measure?<><Hint>Meyve karşılaştırmaları boyutu hayal etmene yardımcı olur. Ekrandaki görsel gerçek fiziksel boyutu göstermez; ölçüler kişisel ultrason sonucunun yerine geçmez.</Hint><Button onPress={()=>navigate('week',{week})}>Bu haftanın gelişimini oku</Button><View style={[f.row,{justifyContent:'space-between'}]}><Button secondary disabled={week===4} onPress={()=>setWeek(week-1)}>← Önceki</Button><Button secondary disabled={week===40} onPress={()=>setWeek(week+1)}>Sonraki →</Button></View></>:<>

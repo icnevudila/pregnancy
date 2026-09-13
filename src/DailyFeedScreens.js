@@ -12,8 +12,8 @@ export function DailyBabyLetterScreen({ state, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
   const [tab, setTab] = useState('current');
   const currentWeek = state?.week || 16;
-  const currentLetter = getBabyLetterForWeek(currentWeek);
-  const archiveLetters = getPastBabyLetters(currentWeek);
+  const currentLetter = getBabyLetterForWeek(currentWeek, lang);
+  const archiveLetters = getPastBabyLetters(currentWeek, lang);
 
   return (
     <View style={ds.container}>

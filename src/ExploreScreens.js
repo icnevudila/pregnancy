@@ -8,6 +8,7 @@ import { generatedAssets, getAsset } from './generatedAssets';
 import { articles, pregnancyFaqs, faqCategories, searchFaqs, getFaqsByCategory, searchArticles } from './content';
 import { playSound, stopSound } from './soundEngine';
 import { speakText, stopSpeech, isSpeaking, compileArticleSpeechText } from './speechService';
+import { getLocalizedArticle } from './articleTranslationsEn';
 
 // ─── EKRAN 16: "YENEBİLİR Mİ / GÜVENLİ Mİ?" GIDA REHBERİ ────────────────────
 export const foodDatabase = [
@@ -362,54 +363,57 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
           </ScrollView>
 
           {/* Öne Çıkan Başyazı (Featured Lead Story Hero - TAM RESİM) */}
-          {!articleQuery && articleFilter === 'all' && featuredArticle && (
-            <Tap
-              onPress={() => openArticle && openArticle(featuredArticle)}
-              label={isEn ? "Featured Lead Story" : "Öne Çıkan Başyazı"}
-              style={es.featuredHeroCard}
-            >
-              {/* Üst Kısım: Tam 16:9 Kesilmemiş Orijinal Fotoğraf */}
-              <View style={es.featuredHeroImgBox}>
-                {(() => {
-                  const featImg = generatedAssets[featuredArticle?.image] || getAsset(featuredArticle?.image) || generatedAssets['blog_pregnant_morning'];
-                  return featImg ? (
-                    <Image source={featImg} style={es.fitImage} resizeMode="contain" />
-                  ) : null;
-                })()}
-                <View style={es.featuredHeroBadge}>
-                  <Icon name="sparkle" size={12} color={colors.purple} />
-                  <T bold style={{ fontSize: 10.5, color: colors.purple, letterSpacing: 0.8 }}>
-                    {isEn ? "TODAY'S LEAD STORY" : "GÜNÜN BAŞYAZISI"}
-                  </T>
-                </View>
-              </View>
-
-              {/* Alt Kısım: Beyaz Editoryal Gövde */}
-              <View style={es.featuredHeroBody}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                  <View style={es.featuredCatPill}>
-                    <T bold style={{ fontSize: 9.5, color: colors.purple, letterSpacing: 0.5 }}>
-                      {featuredArticle.categoryName ? featuredArticle.categoryName.toLocaleUpperCase('tr') : (isEn ? 'GUIDE' : 'REHBER')}
+          {!articleQuery && articleFilter === 'all' && featuredArticle && (() => {
+            const feat = getLocalizedArticle(featuredArticle, lang);
+            return (
+              <Tap
+                onPress={() => openArticle && openArticle(feat)}
+                label={isEn ? "Featured Lead Story" : "Öne Çıkan Başyazı"}
+                style={es.featuredHeroCard}
+              >
+                {/* Üst Kısım: Tam 16:9 Kesilmemiş Orijinal Fotoğraf */}
+                <View style={es.featuredHeroImgBox}>
+                  {(() => {
+                    const featImg = generatedAssets[feat?.image] || getAsset(feat?.image) || generatedAssets['blog_pregnant_morning'];
+                    return featImg ? (
+                      <Image source={featImg} style={es.fitImage} resizeMode="contain" />
+                    ) : null;
+                  })()}
+                  <View style={es.featuredHeroBadge}>
+                    <Icon name="sparkle" size={12} color={colors.purple} />
+                    <T bold style={{ fontSize: 10.5, color: colors.purple, letterSpacing: 0.8 }}>
+                      {isEn ? "TODAY'S LEAD STORY" : "GÜNÜN BAŞYAZISI"}
                     </T>
                   </View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                    <Icon name="clock" size={11} color={colors.muted} />
-                    <T style={{ fontSize: 11, color: colors.muted }}>{featuredArticle.minutes} {isEn ? 'min read' : 'dk okuma'}</T>
+                </View>
+
+                {/* Alt Kısım: Beyaz Editoryal Gövde */}
+                <View style={es.featuredHeroBody}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                    <View style={es.featuredCatPill}>
+                      <T bold style={{ fontSize: 9.5, color: colors.purple, letterSpacing: 0.5 }}>
+                        {feat.categoryName ? feat.categoryName.toLocaleUpperCase(isEn ? 'en' : 'tr') : (isEn ? 'GUIDE' : 'REHBER')}
+                      </T>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                      <Icon name="clock" size={11} color={colors.muted} />
+                      <T style={{ fontSize: 11, color: colors.muted }}>{feat.minutes} {isEn ? 'min read' : 'dk okuma'}</T>
+                    </View>
+                  </View>
+                  <T bold style={es.featuredHeroTitle}>{feat.title}</T>
+                  <T numberOfLines={2} style={es.featuredHeroSub}>{feat.subtitle}</T>
+                  <View style={es.featuredHeroFooter}>
+                    <T numberOfLines={1} style={es.featuredHeroAuthor}>
+                      {feat.doctor ? `🩺 ${feat.doctor.split('·')[0].trim()}` : (isEn ? '🩺 Momora Editorial Archive' : '🩺 Momora Editoryal Arşivi')}
+                    </T>
+                    <View style={es.featuredHeroReadBtn}>
+                      <T bold style={{ fontSize: 11.5, color: colors.purple }}>{isEn ? 'Read Guide →' : 'Rehberi Oku →'}</T>
+                    </View>
                   </View>
                 </View>
-                <T bold style={es.featuredHeroTitle}>{featuredArticle.title}</T>
-                <T numberOfLines={2} style={es.featuredHeroSub}>{featuredArticle.subtitle}</T>
-                <View style={es.featuredHeroFooter}>
-                  <T numberOfLines={1} style={es.featuredHeroAuthor}>
-                    {featuredArticle.doctor ? `🩺 ${featuredArticle.doctor.split('·')[0].trim()}` : (isEn ? '🩺 Momora Editorial Archive' : '🩺 Momora Editoryal Arşivi')}
-                  </T>
-                  <View style={es.featuredHeroReadBtn}>
-                    <T bold style={{ fontSize: 11.5, color: colors.purple }}>{isEn ? 'Read Guide →' : 'Rehberi Oku →'}</T>
-                  </View>
-                </View>
-              </View>
-            </Tap>
-          )}
+              </Tap>
+            );
+          })()}
 
           {/* Makale Sayacı & Kapak Görünüm Ayarı */}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 2 }}>
@@ -428,7 +432,8 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
 
           {/* Makale Kartları Listesi (Vogue / Flo Kalitesinde Görsel Kartlar) */}
           <View style={{ gap: 14 }}>
-            {listArticles.map(a => {
+            {listArticles.map(rawArticle => {
+              const a = getLocalizedArticle(rawArticle, lang);
               const imgAsset = generatedAssets[a.image] || getAsset(a.image) || generatedAssets['blog_pregnant_morning'];
               
               return (
@@ -695,7 +700,7 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
     ]
   };
 
-  const a = article || defaultArticle;
+  const a = getLocalizedArticle(article || defaultArticle, lang);
   const coverAsset = (a.image && (generatedAssets[a.image] || getAsset(a.image))) || generatedAssets['blog_sleeping_crib'];
   const readingTime = isEn ? `${a.minutes || 4} min read` : (a.time || (a.minutes ? `${a.minutes} dk okuma` : '4 dk okuma'));
   const rawDoctor = isEn ? (a.doctorEn || a.doctor) : a.doctor;

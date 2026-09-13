@@ -1634,10 +1634,12 @@
       "prompt": "High-end 3D claymorphic oversized celebration party donut with vibrant purple galaxy glaze and edible stars, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "processing",
+      "attempts": 1,
       "createdAt": 1789250674104,
-      "updatedAt": 1789290274150
+      "updatedAt": 1789290274150,
+      "startedAt": 1789290625478,
+      "platform": "chatgpt"
     },
     {
       "id": "job_1789250674104_mpvo3",
