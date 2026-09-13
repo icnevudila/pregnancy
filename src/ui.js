@@ -235,7 +235,23 @@ export function LanguageToggle({ lang = 'tr', onChange, style, compact = false }
 }
 export function Progress({ value, color = colors.sage, style }) { return <View style={[s.track, style]}><View style={{ height: '100%', width: `${Math.min(100, Math.max(0, value))}%`, borderRadius: 10, backgroundColor: color }}/></View>; }
 export function SmallStat({ title, value, icon, tint, onPress }) {
-  return <Tap onPress={onPress} label={title+' kaydı'} style={{ flex: 1 }}><LinearGradient colors={[tint, '#F8F7F3']} start={{x:0,y:0}} end={{x:1,y:1}} style={s.stat}><View style={{ flex: 1 }}><T style={{ fontSize: 13 }}>{title}</T><T bold style={{ fontSize: 14, marginTop: 5 }}>{value}</T></View><Icon name={icon} size={30} color={icon === 'moon' ? '#8C92D4' : '#7DBED8'}/></LinearGradient></Tap>;
+  const iconColor = icon === 'moon' ? '#7A6AB0' : icon === 'heart' ? '#A64878' : '#3E7FA8';
+  return (
+    <Tap onPress={onPress} label={title + ' kaydı'} style={{ flex: 1 }}>
+      <LinearGradient
+        colors={[tint, '#FAF8F5']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={s.stat}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <T style={{ fontSize: 11, color: '#6A6270', fontWeight: '600' }} numberOfLines={1}>{title}</T>
+          <Icon name={icon} size={16} color={iconColor} />
+        </View>
+        <T bold style={{ fontSize: 13, color: colors.ink, marginTop: 4 }} numberOfLines={1}>{value}</T>
+      </LinearGradient>
+    </Tap>
+  );
 }
 export function Page({ children, style, contentStyle, ...props }) {
   return <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} style={[{ flex: 1 }, style]} contentContainerStyle={[s.page, contentStyle]} {...props}>{children}</ScrollView>;
@@ -467,8 +483,8 @@ const s = StyleSheet.create({
   moodSelected: { borderColor: '#BAA2BB', backgroundColor: '#F7EEF6' },
   moodLabel: { fontSize: 11, marginTop: 2 },
   track: { height: 11, backgroundColor: '#EDE9E6', borderRadius: 10, overflow: 'hidden' },
-  stat: { padding: 12, minHeight: 66, borderRadius: 15, flexDirection: 'row', alignItems: 'center', gap: 6 },
-  page: { paddingHorizontal: 17, paddingTop: 15, paddingBottom: 20, gap: 12 },
+  stat: { paddingVertical: 10, paddingHorizontal: 10, minHeight: 64, borderRadius: 16, flexDirection: 'column', justifyContent: 'center', borderWidth: 1, borderColor: '#EDE2E6' },
+  page: { paddingHorizontal: 17, paddingTop: 15, paddingBottom: 90, gap: 12 },
   metricCard: { flex: 1, padding: 12, borderRadius: 16, borderWidth: 1 },
   metricTitle: { fontSize: 10.5, fontFamily: fonts.bold, letterSpacing: 0.6 },
   metricValue: { fontSize: 20, color: colors.ink },

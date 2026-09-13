@@ -8,11 +8,13 @@
       "description": "Baba ve kahkaha atan 8 aylık bebek neşeli an",
       "preferredPlatform": "gemini",
       "prompt": "Delightful candid editorial photograph of a cheerful father playing airplane with his giggling 8-month-old baby, gently lifting the baby above him while sitting on a soft cream carpet, baby laughing with joy, father smiling brightly, bright daylight, comfortable modest casual clothing, heartwarming fatherhood moment, photorealistic 8k, no text, no watermarks.",
-      "status": "processing",
+      "status": "done",
       "attempts": 1,
       "createdAt": 1789308803599,
       "startedAt": 1789308804345,
-      "platform": "gemini"
+      "platform": "gemini",
+      "updatedAt": 1789309040960,
+      "thumb": "blob:https://gemini.google.com/cd5e361e-3f6c-44ce-9893-0c97a58e558b"
     },
     {
       "id": "job_onb_1789308803599_6",
@@ -22,9 +24,13 @@
       "description": "Baba omzunda uyuyan yenidoğan bebek ve baba desteği",
       "preferredPlatform": "gemini",
       "prompt": "Touching, authentic editorial photograph of a gentle, caring father cradling and soothing a sleeping newborn baby against his shoulder and chest, supporting the baby's tiny head with his hand, baby wrapped in a neutral soft knit blanket, father wearing a comfortable charcoal grey henley long-sleeve shirt, warm quiet nursery lighting, deep paternal bond, completely non-erotic, photorealistic 8k, no text, no watermarks.",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789308803599
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789308803599,
+      "startedAt": 1789309042343,
+      "platform": "gemini",
+      "updatedAt": 1789309125831,
+      "thumb": "blob:https://gemini.google.com/d07fda72-750d-47d5-b451-9d91ee4c739d"
     },
     {
       "id": "job_onb_1789308803599_5",
@@ -34,9 +40,13 @@
       "description": "Baba perspektifinden anne karnını şefkatle destekleme anı",
       "preferredPlatform": "gemini",
       "prompt": "Heartwarming editorial photograph of an expectant father standing tenderly beside his pregnant wife, smiling warmly as he gently rests his hand over her baby bump, both dressed in comfortable casual modest knitwear, soft natural morning window light, warm cozy modern living room, genuine loving partnership, completely non-erotic, high-end family lifestyle, photorealistic 8k, no text, no watermarks.",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789308803599
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789308803599,
+      "startedAt": 1789309126332,
+      "platform": "gemini",
+      "updatedAt": 1789309163260,
+      "thumb": "blob:https://gemini.google.com/2fff3fb7-d2de-40fb-9b10-4461bfd838ab"
     },
     {
       "id": "job_onb_1789308803599_4",
@@ -46,9 +56,13 @@
       "description": "Anne ve gülen 7 aylık bebek oyun anı",
       "preferredPlatform": "gemini",
       "prompt": "Joyful, candid editorial photograph of a happy mother sitting on a soft nursery rug playing with her smiling 7-month-old baby, holding baby up under the arms while baby laughs, baby wearing a soft sage-green cotton romper, mother wearing a cozy casual knit top, bright airy Scandinavian living room with natural daylight, authentic parent-child bond, completely non-erotic, photorealistic 8k, no text, no watermarks.",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789308803599
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789308803599,
+      "startedAt": 1789309164842,
+      "platform": "gemini",
+      "updatedAt": 1789309205256,
+      "thumb": "blob:https://gemini.google.com/54b8be67-1aad-49b2-b99b-6f638b083c76"
     },
     {
       "id": "job_onb_1789308803599_3",
@@ -58,9 +72,13 @@
       "description": "Lohusa anne ve kucağında uyuyan yenidoğan bebek",
       "preferredPlatform": "gemini",
       "prompt": "Tender, peaceful editorial photograph of a loving mother sitting in a cozy nursery armchair, gently cradling her sleeping newborn baby against her chest, baby is wrapped securely in a soft cream organic cotton swaddle, mother wearing a cozy oatmeal buttoned cardigan, gentle maternal smile, soft morning light, serene postpartum recovery moment, completely non-erotic, authentic, photorealistic 8k, no text, no watermarks.",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789308803599
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789308803599,
+      "startedAt": 1789309206839,
+      "platform": "gemini",
+      "updatedAt": 1789309236511,
+      "thumb": "blob:https://gemini.google.com/4d87e6e3-a610-4024-a7c7-a7370d234ba0"
     },
     {
       "id": "job_onb_1789308803599_2",
@@ -70,9 +88,13 @@
       "description": "Hamileyim kartı için anne gebelik anı",
       "preferredPlatform": "gemini",
       "prompt": "Authentic lifestyle editorial photograph of a serene pregnant woman in her second trimester standing gracefully and cradling her baby bump with both hands, wearing a modest, cozy blush pink long-sleeve knit maternity dress, soft morning natural sunlight from a sheer curtain window, clean bright warm home setting, tranquil loving expression, completely non-erotic, modest and wholesome, photorealistic 8k, no text, no watermarks.",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789308803599
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789308803599,
+      "startedAt": 1789309238356,
+      "platform": "gemini",
+      "updatedAt": 1789309265411,
+      "thumb": "blob:https://gemini.google.com/4acbde2d-224b-4063-ad0d-436eba442b56"
     },
     {
       "id": "job_onb_1789308803598_1",
@@ -82,9 +104,13 @@
       "description": "Ben Babayım seçimi için gerçekçi, samimi ve destekleyici baba portresi",
       "preferredPlatform": "gemini",
       "prompt": "Warm, candid editorial photography portrait of a kind, friendly smiling young father-to-be in his late 20s, wearing a comfortable slate navy knit crewneck sweater, soft warm natural window daylight, softly blurred bright modern Scandinavian home interior, warm reassuring smile, natural skin texture, completely non-erotic, modest and wholesome, high-end parenting magazine style, photorealistic, 8k resolution, no text, no watermarks.",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789308803598
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789308803598,
+      "startedAt": 1789309266335,
+      "platform": "gemini",
+      "updatedAt": 1789309295979,
+      "thumb": "blob:https://gemini.google.com/ca61defe-54f4-4999-80c9-ee91a187f4a8"
     },
     {
       "id": "job_onb_1789308803590_0",
@@ -94,9 +120,11 @@
       "description": "Ben Anneyim seçimi için gerçekçi, sıcak ve şefkatli anne portresi",
       "preferredPlatform": "gemini",
       "prompt": "Warm, candid editorial photography portrait of a glowing, radiant smiling young expectant mother in her late 20s, wearing a modest cozy cream cable-knit sweater, soft warm natural morning sunlight streaming from a bright living room window, softly blurred indoor greenery in the background, genuine warm happy expression, natural skin texture, completely non-erotic, modest and wholesome, high-end family lifestyle magazine cover style, photorealistic, 8k resolution, no text, no watermarks.",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789308803590
+      "status": "processing",
+      "attempts": 1,
+      "createdAt": 1789308803590,
+      "startedAt": 1789309297847,
+      "platform": "gemini"
     },
     {
       "id": "job_1789249250053_h6bze",
@@ -2502,82 +2530,110 @@
       "filename": "usg_2d_w17_fetal_femur_length.png",
       "prompt": "Clinical obstetric 2D ultrasound sonogram of a 17-week fetus showing isolated femur bone with caliper markers measuring femur length (FL 25mm), clean echogenic bone texture and acoustic shadowing underneath, authentic hospital sonogram display, grayscale, no text, no watermark.",
       "transparent": false,
-      "status": "processing",
+      "status": "done",
       "attempts": 1,
       "createdAt": 1789308089198,
       "preferredPlatform": "chatgpt",
       "startedAt": 1789308931998,
-      "platform": "chatgpt"
+      "platform": "chatgpt",
+      "updatedAt": 1789309000253,
+      "thumb": "https://chatgpt.com/backend-api/estuary/content?id=file_00000000c45c82108892eeeb33840657&ts=497030&p=fs&cid=1&sig=9124a63a1f979dc64d40c40b451419b149090651ca671a3c7d9818b709301121&v=0"
     },
     {
       "id": "job_usg_1789308089198_w18",
       "filename": "usg_2d_w18_stomach_bubble_situs.png",
       "prompt": "Clinical 2D ultrasound sonogram of an 18-week fetus, transverse abdominal view displaying the round black fluid-filled stomach bubble on the left side and umbilical vein entering liver, authentic medical sonography screen, monochrome, no text, no watermark.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789308089198,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "chatgpt",
+      "startedAt": 1789309002025,
+      "platform": "chatgpt",
+      "updatedAt": 1789309060616,
+      "thumb": "https://chatgpt.com/backend-api/estuary/content?id=file_00000000d938820c8befa6c1018cd6d6&ts=497030&p=fs&cid=1&sig=ef1e4e7256a2b2f0236fb2cb12566592afcd7eb77c53456957b3e67175ede2d8&v=0"
     },
     {
       "id": "job_usg_1789308089198_w19",
       "filename": "usg_2d_w19_renal_pelvis_transverse.png",
       "prompt": "Clinical obstetric 2D B-mode ultrasound sonogram of a 19-week fetus showing bilateral transverse renal view flanking the spine, bean-shaped kidneys with non-dilated renal pelves and pelvis bladder bubble, authentic diagnostic monitor, monochrome grayscale, no text, no watermark.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789308089198,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "chatgpt",
+      "startedAt": 1789309061434,
+      "platform": "chatgpt",
+      "updatedAt": 1789309124812,
+      "thumb": "https://chatgpt.com/backend-api/estuary/content?id=file_000000007e5481f4bf07ebfc6ec76b1a&ts=497030&p=fs&cid=1&sig=7dc2750048892380e71aa505575b36b4975d260004da2f71e40a54d3a2880227&v=0"
     },
     {
       "id": "job_usg_1789308089198_w21",
       "filename": "usg_2d_w21_cardiac_outflow_tracts.png",
       "prompt": "Clinical 2D echocardiography ultrasound sonogram of a 21-week fetal heart, showing the left ventricular outflow tract (LVOT) and aortic arch crossing with pulmonary artery, hospital diagnostic sonography monitor, grayscale acoustic grain, monochrome, no text, no watermark.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789308089198,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "chatgpt",
+      "startedAt": 1789309127989,
+      "platform": "chatgpt",
+      "updatedAt": 1789309190515,
+      "thumb": "https://chatgpt.com/backend-api/estuary/content?id=file_000000009c608210ba1b85bce8f79029&ts=497030&p=fs&cid=1&sig=418b25816e2aa75bf55b663e7682a708c48d06e581a9a3c131461538bba8039c&v=0"
     },
     {
       "id": "job_usg_1789308089198_w22",
       "filename": "usg_2d_w22_cerebellum_cisterna_magna.png",
       "prompt": "Clinical 2D ultrasound sonogram of a 22-week fetal brain in suboccipitobregmatic axial view, showing dumbbell-shaped cerebellum, nuchal fold, and fluid-filled cisterna magna with caliper measurement markers, authentic hospital monitor, grayscale, no text, no watermark.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789308089198,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "chatgpt",
+      "startedAt": 1789309191100,
+      "platform": "chatgpt",
+      "updatedAt": 1789309268420,
+      "thumb": "https://chatgpt.com/backend-api/estuary/content?id=file_00000000e1b0820c9d08d209296ae7d6&ts=497030&p=fs&cid=1&sig=9e1578eae20b9136b62395b794b6333a9e38a364d95bfff80f4ba471b32d80aa&v=0"
     },
     {
       "id": "job_usg_1789308089198_w23",
       "filename": "usg_2d_w23_fetal_face_lips_nose.png",
       "prompt": "Clinical 2D ultrasound sonogram of a 23-week fetus in coronal facial plane, displaying clear symmetrical nostrils, intact continuous upper and lower lips, and eye orbits, authentic hospital ultrasound monitor texture, monochrome, no text, no watermark.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789308089198,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "chatgpt",
+      "startedAt": 1789309271492,
+      "platform": "chatgpt",
+      "updatedAt": 1789309331129,
+      "thumb": "https://chatgpt.com/backend-api/estuary/content?id=file_00000000403881f4b7c028ef170cff78&ts=497030&p=fs&cid=1&sig=af13bf5444d55245cf01e6c8a60fd9031a9253495848ded81b21702132d1dd56&v=0"
     },
     {
       "id": "job_usg_1789308089198_w24",
       "filename": "usg_2d_w24_abdominal_circumference.png",
       "prompt": "Clinical 2D ultrasound sonogram of a 24-week fetal abdomen in standard transverse plane for abdominal circumference (AC 209mm), showing round abdominal contour with ellipse calipers, stomach bubble, and portal vein branch, hospital diagnostic sonogram monitor, grayscale, no text, no watermark.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789308089198,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "chatgpt",
+      "startedAt": 1789309334418,
+      "platform": "chatgpt",
+      "updatedAt": 1789309406861,
+      "thumb": "https://chatgpt.com/backend-api/estuary/content?id=file_00000000f11881f4b4deadab7a89c5dd&ts=497030&p=fs&cid=1&sig=bc5779142672a56889835aedc8a47f59bd56768a290f9f75339abde6246affea&v=0"
     },
     {
       "id": "job_usg_1789308089198_w25",
       "filename": "usg_2d_w25_fetal_foot_plantar.png",
       "prompt": "Clinical 2D ultrasound sonogram of a 25-week fetus displaying a detailed plantar view of the fetal foot, showing the heel bone, sole of foot, and all five distinct toes aligned in amniotic fluid, authentic hospital ultrasound monitor texture, monochrome grayscale, no text, no watermark.",
       "transparent": false,
-      "status": "pending",
-      "attempts": 0,
+      "status": "processing",
+      "attempts": 1,
       "createdAt": 1789308089198,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "chatgpt",
+      "startedAt": 1789309408003,
+      "platform": "chatgpt"
     },
     {
       "id": "job_usg_1789308089198_w26",
