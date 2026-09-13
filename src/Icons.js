@@ -814,7 +814,10 @@ const fruitDefs = {
  */
 export function FruitArt({ type, size = 80, useReal = false }) {
   const assetKey = useReal ? `real_fruit_${type}` : `fruit_${type}`;
-  const img = generatedAssets[assetKey] || generatedAssets[`fruit_${type}`] || (useReal ? generatedAssets[`real_fruit_${type}`] : null);
+  const img = generatedAssets[assetKey] || 
+              generatedAssets[`fruit_${type}`] || 
+              ((type === 'poppy_seed' || type === 'sesame_seed') ? generatedAssets['fruit_seed'] : null) ||
+              (useReal ? generatedAssets[`real_fruit_${type}`] : null);
 
   if (img) {
     return (
@@ -824,7 +827,7 @@ export function FruitArt({ type, size = 80, useReal = false }) {
     );
   }
 
-  const def = fruitDefs[type] || fruitDefs.melon;
+  const def = fruitDefs[type] || fruitDefs.seed || fruitDefs.melon;
   const id = `fg_${type}_${size}`;
   return (
     <Svg width={size} height={size} viewBox="0 0 120 120">
@@ -874,7 +877,10 @@ export function ComparisonArt({ mode = 'fruit', type, size = 80, emoji, info, us
   }
 
   if (mode === 'sweet') {
-    const sweetImg = generatedAssets[`sweet_${type}`];
+    const sweetImg = generatedAssets[`sweet_${type}`] ||
+                     (type === 'pavlova' ? (generatedAssets['sweet_strawberry_cake'] || generatedAssets['sweet_cheesecake']) : null) ||
+                     (type === 'royal_cake' ? generatedAssets['sweet_tier_cake'] : null) ||
+                     (type === 'baby_shower_cake' ? generatedAssets['sweet_birthdaycake'] : null);
     if (sweetImg) {
       return (
         <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>

@@ -73,6 +73,7 @@ export function Onboarding({ choose, update, toast, lang = 'tr', open, setPage }
 
     if (update) {
       update({
+        hasCompletedOnboarding: true,
         role,
         mode: stage,
         week: stage === 'pregnancy' ? week : 24,
@@ -708,9 +709,19 @@ export function Onboarding({ choose, update, toast, lang = 'tr', open, setPage }
       {/* Üst Logo ve İlerleme Çubuğu */}
       {step < 5 && (
         <View style={s.obNavHeader}>
-          <View style={s.obBrandRow}>
+          <View style={[s.obBrandRow, { position: 'relative', width: '100%' }]}>
             <BrandMark size={32} />
             <T style={s.obWordmark}>MOMORA</T>
+            <Tap
+              onPress={() => {
+                if (update) update({ hasCompletedOnboarding: true });
+                if (choose) choose(stage || 'pregnancy');
+              }}
+              label={isEn ? "Skip" : "Geç"}
+              style={{ position: 'absolute', right: 0, paddingHorizontal: 12, paddingVertical: 5, borderRadius: 12, backgroundColor: '#F3ECF6' }}
+            >
+              <T bold style={{ fontSize: 12, color: colors.purple }}>{isEn ? 'Skip' : 'Geç'}</T>
+            </Tap>
           </View>
 
           {/* İlerleme Çubuğu */}

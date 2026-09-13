@@ -133,73 +133,31 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
     close && close();
   }
 
-  const [googleSheetVisible, setGoogleSheetVisible] = useState(false);
-  const [appleSheetVisible, setAppleSheetVisible] = useState(false);
   const [legalModal, setLegalModal] = useState(null); // 'terms' | 'privacy' | null
-  const [googleEmail, setGoogleEmail] = useState('');
-  const [appleEmailRelay, setAppleEmailRelay] = useState(true);
 
-  function handleOAuth(provider) {
+  async function handleOAuth(provider) {
     setErrorMsg('');
-    if (provider === 'google') {
-      setGoogleSheetVisible(true);
-    } else if (provider === 'apple') {
-      setAppleSheetVisible(true);
+    setLoading(true);
+    const { data, error } = await signInWithOAuthProvider(provider);
+    setLoading(false);
+
+    if (error) {
+      const msg = error.message || '';
+      if (msg.includes('provider is not enabled') || error.code === 'validation_failed' || msg.includes('Unsupported provider')) {
+        setErrorMsg(
+          isEn
+            ? `${provider === 'google' ? 'Google' : 'Apple'} OAuth is not yet enabled in your Supabase project (Client ID required). Please use Email & Password below to sign in or create an account.`
+            : `${provider === 'google' ? 'Google' : 'Apple'} ile giriş Supabase panelinde henüz etkinleştirilmemiş (Google Cloud Client ID gerekiyor). Lütfen aşağıdaki E-posta ve Şifre ile kayıt olun veya giriş yapın.`
+        );
+      } else {
+        setErrorMsg(msg || (isEn ? 'OAuth sign in failed.' : 'Giriş işlemi başarısız oldu.'));
+      }
+      return;
     }
-  }
 
-  function handleGoogleLogin(emailChosen, nameChosen) {
-    const defaultEmail = isEn
-      ? (role === 'father' ? 'alex.miller@gmail.com' : 'emma.miller@gmail.com')
-      : (role === 'father' ? 'mehmet.yilmaz@gmail.com' : 'zeynep.yilmaz@gmail.com');
-    const defaultName = isEn
-      ? (role === 'father' ? 'Alex Miller' : 'Emma Miller')
-      : (role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz');
-    const finalEmail = emailChosen || (googleEmail.trim() || defaultEmail);
-    const finalName = nameChosen || defaultName;
-    
-    const googleUser = {
-      id: 'google-usr-' + Date.now().toString(36),
-      email: finalEmail,
-      user_metadata: {
-        full_name: finalName,
-        name: finalName,
-        avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&q=80',
-        provider: 'google',
-        role,
-      },
-    };
-
-    setGoogleSheetVisible(false);
-    toast && toast(isEn ? 'Signed in with Google 🌸' : 'Google ile başarıyla giriş yapıldı 🌸');
-    onAuthSuccess && onAuthSuccess(googleUser);
-    close && close();
-  }
-
-  function handleAppleConfirm() {
-    const defaultAppleEmail = isEn
-      ? (role === 'father' ? 'alex.miller@icloud.com' : 'emma.miller@icloud.com')
-      : (role === 'father' ? 'mehmet.yilmaz@icloud.com' : 'zeynep.yilmaz@icloud.com');
-    const finalEmail = appleEmailRelay ? (isEn ? 'emma.privaterelay@appleid.com' : 'zeynep.privaterelay@appleid.com') : defaultAppleEmail;
-    const finalName = isEn
-      ? (role === 'father' ? 'Alex Miller' : 'Emma Miller')
-      : (role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz');
-
-    const appleUser = {
-      id: 'apple-usr-' + Date.now().toString(36),
-      email: finalEmail,
-      user_metadata: {
-        full_name: finalName,
-        name: finalName,
-        provider: 'apple',
-        role,
-      },
-    };
-
-    setAppleSheetVisible(false);
-    toast && toast(isEn ? 'Signed in with Apple ID 🤍' : 'Apple Kimliği ile başarıyla giriş yapıldı 🤍');
-    onAuthSuccess && onAuthSuccess(appleUser);
-    close && close();
+    if (data?.url) {
+      toast && toast(isEn ? 'Redirecting to sign in...' : 'Giriş sayfasına yönlendiriliyor...');
+    }
   }
 
   async function handleForgotPassword() {
@@ -278,7 +236,7 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
             <Icon name="refresh" size={16} color={colors.purple} />
             <View style={{ flex: 1 }}>
               <T bold style={{ fontSize: 13, color: colors.purple }}>
-                Supabase: fpcovwexojrauddbszab
+                Supabase: rnkrjmblgcdqlyslbhob
               </T>
               <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
                 {isEn ? 'Awaiting Publishable / Anon Key for cloud sync.' : 'Canlı bağlantı için Publishable / Anon Key bekleniyor.'}
@@ -597,165 +555,6 @@ export function AuthModal({ close, toast, onAuthSuccess, lang = 'tr' }) {
           <T style={s.guestBtnText}>{isEn ? 'Continue as guest for now' : 'Şimdilik misafir olarak devam et'}</T>
         </Tap>
       </ScrollView>
-
-      {/* ─── GOOGLE ONE-TAP / ACCOUNT CHOOSER MODAL ────────────────────────── */}
-      <Modal visible={googleSheetVisible} transparent animationType="slide" onRequestClose={() => setGoogleSheetVisible(false)}>
-        <View style={s.modalBackdrop}>
-          <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setGoogleSheetVisible(false)} />
-          <View style={s.googleSheet}>
-            <View style={s.sheetHandle} />
-            <View style={s.googleHeader}>
-              <GoogleIcon size={28} />
-              <View style={{ flex: 1 }}>
-                <T bold style={{ fontSize: 17, color: colors.ink }}>
-                  {isEn ? 'Sign in with Google' : 'Google ile Giriş Yap'}
-                </T>
-                <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
-                  {isEn ? 'to continue to momora.app' : 'momora.app uygulamasına devam etmek için'}
-                </T>
-              </View>
-              <Tap onPress={() => setGoogleSheetVisible(false)} style={s.sheetCloseBtn}>
-                <Icon name="close" size={18} color={colors.muted} />
-              </Tap>
-            </View>
-
-            <View style={s.googleDivider} />
-
-            <T bold style={{ fontSize: 13, color: colors.ink, marginBottom: 10 }}>
-              {isEn ? 'Choose an account' : 'Bir hesap seçin'}
-            </T>
-
-            {/* Ön Tanımlı Google Profili */}
-            <Tap
-              onPress={() => handleGoogleLogin(
-                isEn
-                  ? (role === 'father' ? 'alex.miller@gmail.com' : 'emma.miller@gmail.com')
-                  : (role === 'father' ? 'mehmet.yilmaz@gmail.com' : 'zeynep.yilmaz@gmail.com'),
-                isEn
-                  ? (role === 'father' ? 'Alex Miller' : 'Emma Miller')
-                  : (role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz')
-              )}
-              style={s.googleAccountCard}
-            >
-              <View style={s.googleAvatar}>
-                <T bold style={{ color: 'white', fontSize: 15 }}>
-                  {isEn ? (role === 'father' ? 'A' : 'E') : (role === 'father' ? 'M' : 'Z')}
-                </T>
-              </View>
-              <View style={{ flex: 1 }}>
-                <T bold style={{ fontSize: 14, color: colors.ink }}>
-                  {isEn
-                    ? (role === 'father' ? 'Alex Miller' : 'Emma Miller')
-                    : (role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz')}
-                </T>
-                <T style={{ fontSize: 12, color: colors.muted, marginTop: 1 }}>
-                  {isEn
-                    ? (role === 'father' ? 'alex.miller@gmail.com' : 'emma.miller@gmail.com')
-                    : (role === 'father' ? 'mehmet.yilmaz@gmail.com' : 'zeynep.yilmaz@gmail.com')}
-                </T>
-              </View>
-              <View style={s.googleSelectBadge}>
-                <Icon name="check" size={14} color={colors.purple} />
-              </View>
-            </Tap>
-
-            {/* Veya Kendi Google E-postasını Girme Seçeneği */}
-            <View style={{ marginTop: 14, gap: 8 }}>
-              <T style={{ fontSize: 12, color: colors.muted }}>
-                {isEn ? 'Or sign in with another Google email:' : 'Veya başka bir Google e-postası ile bağlan:'}
-              </T>
-              <TextInput
-                style={s.googleInput}
-                placeholder={isEn ? 'yourname@gmail.com' : 'adiniz@gmail.com'}
-                placeholderTextColor="#A499A6"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={googleEmail}
-                onChangeText={setGoogleEmail}
-              />
-            </View>
-
-            <View style={{ flexDirection: 'row', gap: 10, marginTop: 18 }}>
-              <Tap onPress={() => setGoogleSheetVisible(false)} style={s.cancelModalBtn}>
-                <T bold style={{ color: colors.muted, fontSize: 13 }}>{isEn ? 'Cancel' : 'Vazgeç'}</T>
-              </Tap>
-              <Tap
-                onPress={() => handleGoogleLogin()}
-                style={s.confirmGoogleBtn}
-              >
-                <GoogleIcon size={18} />
-                <T bold style={{ color: '#3C4043', fontSize: 13.5 }}>
-                  {isEn ? 'Continue with Google' : 'Google ile Devam Et'}
-                </T>
-              </Tap>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* ─── APPLE ID CHOOSER MODAL ────────────────────────────────────────── */}
-      <Modal visible={appleSheetVisible} transparent animationType="slide" onRequestClose={() => setAppleSheetVisible(false)}>
-        <View style={s.modalBackdrop}>
-          <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setAppleSheetVisible(false)} />
-          <View style={s.appleSheet}>
-            <View style={s.sheetHandle} />
-            <View style={s.appleHeader}>
-              <AppleIcon size={30} color="#000000" />
-              <View style={{ flex: 1 }}>
-                <T bold style={{ fontSize: 17, color: colors.ink }}>
-                  {isEn ? 'Sign in with Apple' : 'Apple Kimliği ile Giriş'}
-                </T>
-                <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
-                  {isEn ? 'Momora pregnancy & family sync' : 'Momora gebelik & aile eşitlemesi'}
-                </T>
-              </View>
-              <Tap onPress={() => setAppleSheetVisible(false)} style={s.sheetCloseBtn}>
-                <Icon name="close" size={18} color={colors.muted} />
-              </Tap>
-            </View>
-
-            <View style={s.googleDivider} />
-
-            <View style={s.appleCard}>
-              <T bold style={{ fontSize: 14, color: colors.ink }}>
-                {isEn
-                  ? (role === 'father' ? 'Alex Miller' : 'Emma Miller')
-                  : (role === 'father' ? 'Mehmet Yılmaz' : 'Zeynep Yılmaz')}
-              </T>
-              <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>
-                {appleEmailRelay
-                  ? (isEn ? 'e•••••••@privaterelay.appleid.com' : 'z•••••••@privaterelay.appleid.com')
-                  : (isEn ? (role === 'father' ? 'alex.miller@icloud.com' : 'emma.miller@icloud.com') : (role === 'father' ? 'mehmet.yilmaz@icloud.com' : 'zeynep.yilmaz@icloud.com'))}
-              </T>
-            </View>
-
-            <Tap
-              onPress={() => setAppleEmailRelay(!appleEmailRelay)}
-              style={s.relayToggleRow}
-            >
-              <Icon name={appleEmailRelay ? 'check' : 'circle'} size={16} color={colors.purple} />
-              <T style={{ fontSize: 12.5, color: colors.ink, flex: 1 }}>
-                {isEn ? 'Hide My Email (Apple Private Relay)' : 'E-postamı Gizle (Apple Özel İletim)'}
-              </T>
-            </Tap>
-
-            <View style={{ flexDirection: 'row', gap: 10, marginTop: 18 }}>
-              <Tap onPress={() => setAppleSheetVisible(false)} style={s.cancelModalBtn}>
-                <T bold style={{ color: colors.muted, fontSize: 13 }}>{isEn ? 'Cancel' : 'Vazgeç'}</T>
-              </Tap>
-              <Tap
-                onPress={handleAppleConfirm}
-                style={s.confirmAppleBtn}
-              >
-                <AppleIcon size={18} color="#FFFFFF" />
-                <T bold style={{ color: '#FFFFFF', fontSize: 13.5 }}>
-                  {isEn ? 'Continue with Apple ID' : 'Apple ID ile Devam Et'}
-                </T>
-              </Tap>
-            </View>
-          </View>
-        </View>
-      </Modal>
 
       {/* ─── LEGAL MODAL (TERMS & PRIVACY) ─────────────────────────────────── */}
       <Modal visible={!!legalModal} transparent animationType="fade" onRequestClose={() => setLegalModal(null)}>

@@ -16,6 +16,7 @@ const KEY = 'momora.local.v1';
 export const initialState = {
   lang: 'tr',
   mode: 'pregnancy',
+  hasCompletedOnboarding: false,
 
   // Domain Entities (Sprint 0 Architecture)
   user: {

@@ -39,7 +39,7 @@ function Momora() {
   const [page,setPage]=useState(null);const [sheet,setSheet]=useState(null);const [notice,setNotice]=useState('');
   const insets=useSafeAreaInsets();const {width,height}=useWindowDimensions();
   const desktop=Platform.OS==='web'&&width>=850;
-  const active=page||state.mode||'onboarding';
+  const active = page || (!state.hasCompletedOnboarding ? 'onboarding' : (state.mode || 'pregnancy'));
   const lang=state.lang||'tr';
 
   const previewScreens=[
@@ -54,7 +54,7 @@ function Momora() {
     ['baby', t('preview.baby', lang)],
   ];
 
-  function choose(mode){update({mode});setPage(mode)}
+  function choose(mode){update({mode, hasCompletedOnboarding: true});setPage(mode)}
   function open(kind,data){setSheet({kind,data,key:Date.now()})}
   useEffect(()=>{if(notice){const timer=setTimeout(()=>setNotice(''),2700);return()=>clearTimeout(timer)}},[notice]);
   useEffect(()=>{if(storageError)setNotice(storageError)},[storageError]);

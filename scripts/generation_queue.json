@@ -1636,50 +1636,12 @@
       "prompt": "High-end 3D claymorphic oversized celebration party donut with vibrant purple galaxy glaze and edible stars, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "processing",
+      "status": "done",
       "attempts": 2,
       "createdAt": 1789250674104,
-      "updatedAt": 1789290274150,
+      "updatedAt": 1789306018522,
       "startedAt": 1789291833749,
       "platform": "chatgpt"
-    },
-    {
-      "id": "job_1789250674104_mpvo3",
-      "filename": "sweet_picnic_hamper.png",
-      "prompt": "High-end 3D claymorphic opened picnic hamper with folded red gingham napkin and fresh baked pastries, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
-      "transparent": true,
-      "preferredPlatform": "any",
-      "status": "processing",
-      "attempts": 1,
-      "createdAt": 1789250674104,
-      "updatedAt": 1789290274151,
-      "startedAt": 1789291925248,
-      "platform": "chatgpt"
-    },
-    {
-      "id": "job_1789250674104_7er1i",
-      "filename": "sweet_balloon_bouquet.png",
-      "prompt": "High-end 3D claymorphic bunch of pastel chrome balloons tied with a golden string, floating gently, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
-      "transparent": true,
-      "preferredPlatform": "any",
-      "status": "done",
-      "attempts": 1,
-      "createdAt": 1789250674104,
-      "updatedAt": 1789302661126,
-      "startedAt": 1789302603046,
-      "platform": "gemini",
-      "thumb": "blob:https://gemini.google.com/c2a58a0f-083b-4e09-83a6-a31d61961d93"
-    },
-    {
-      "id": "job_1789250674104_faslp",
-      "filename": "sweet_gift_box.png",
-      "prompt": "High-end 3D claymorphic large luxury celebration gift box wrapped in dusty rose paper with grand golden bow, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
-      "transparent": true,
-      "preferredPlatform": "any",
-      "status": "done",
-      "attempts": 0,
-      "createdAt": 1789250674104,
-      "updatedAt": 1789290274151
     },
     {
       "id": "job_1789285005282_lrwxy",
@@ -1929,10 +1891,13 @@
       "prompt": "High-end 3D claymorphic cute head of Savoy cabbage with ruffled overlapping mint and sage green clay leaves, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out sticker style, 8k render, hyper-detailed, clean modern aesthetics, no face, no eyes, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "gemini",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789285005316,
-      "updatedAt": 1789304811314
+      "updatedAt": 1789306227649,
+      "startedAt": 1789304899941,
+      "platform": "gemini",
+      "thumb": "blob:https://gemini.google.com/783b6f1c-6ede-4571-bff0-84d26cb39d9c"
     },
     {
       "id": "job_1789285005316_grp9f",
@@ -1940,10 +1905,13 @@
       "prompt": "High-end 3D claymorphic glossy deep violet purple eggplant with elegant curved silhouette and bright green clay calyx, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out sticker style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "gemini",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789285005316,
-      "updatedAt": 1789304811314
+      "updatedAt": 1789304980878,
+      "startedAt": 1789304940337,
+      "platform": "gemini",
+      "thumb": "blob:https://gemini.google.com/8e6ff717-d2bc-4f6d-a50d-30091ce7b40a"
     },
     {
       "id": "job_1789285005317_s4qrn",
@@ -2137,10 +2105,10 @@
       "prompt": "Clinical obstetric 2D B-mode ultrasound sonogram of a late third trimester 36-week fetus in cephalic presentation, showing the fetal skull engaged toward the cervix, anterior placental tissue with mature grade texture, and amniotic fluid pocket, authentic hospital sonogram monitor capture, monochrome acoustic grayscale, no watermark, no text.",
       "transparent": false,
       "status": "processing",
-      "attempts": 3,
+      "attempts": 16,
       "createdAt": 1789302625543,
       "preferredPlatform": "chatgpt",
-      "startedAt": 1789304889459,
+      "startedAt": 1789306108872,
       "platform": "chatgpt"
     },
     {
@@ -2201,9 +2169,13 @@
       "prompt": "High-end 3D claymorphic single tiny slate-blue and black poppy seed resting on a miniature soft cream clay leaf, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out sticker style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "gemini",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789304811314
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789304811314,
+      "startedAt": 1789304982333,
+      "platform": "gemini",
+      "updatedAt": 1789305018841,
+      "thumb": "blob:https://gemini.google.com/367a51d1-b9b0-49c6-992b-3388e3ea15c8"
     },
     {
       "id": "job_gemini_1789304811314_22c9c",
@@ -2211,9 +2183,13 @@
       "prompt": "High-end 3D claymorphic single golden-ivory toasted sesame seed with teardrop shape, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out sticker style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "gemini",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789304811314
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789304811314,
+      "startedAt": 1789305018947,
+      "platform": "gemini",
+      "updatedAt": 1789305054563,
+      "thumb": "blob:https://gemini.google.com/46807d63-cc56-4d59-936b-8c9ebfaa5053"
     },
     {
       "id": "job_gemini_1789304811315_gy7mw",
@@ -2221,9 +2197,13 @@
       "prompt": "High-end 3D claymorphic royal pavlova cake with crisp white meringue nest, whipped vanilla cream, fresh raspberries, blueberries, and mint leaf, no plate, floating cutout, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out sticker style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "gemini",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789304811315
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789304811315,
+      "startedAt": 1789305055834,
+      "platform": "gemini",
+      "updatedAt": 1789305110092,
+      "thumb": "blob:https://gemini.google.com/f671ac71-0f32-4c9f-87e2-8b3e62feebd5"
     },
     {
       "id": "job_gemini_1789304811315_y6ltw",
@@ -2231,9 +2211,13 @@
       "prompt": "High-end 3D claymorphic grand 3-tier celebration birthday cake with delicate pastel frosting, golden candle, and sugar flowers, no pedestal, floating cutout, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out sticker style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "gemini",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789304811315
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789304811315,
+      "startedAt": 1789305110448,
+      "platform": "gemini",
+      "updatedAt": 1789305186844,
+      "thumb": "blob:https://gemini.google.com/ddeb2276-2452-49fd-9ad7-52ee717e3690"
     },
     {
       "id": "job_gemini_1789304811315_imnq4",
@@ -2241,9 +2225,13 @@
       "prompt": "High-end 3D claymorphic welcome baby shower celebration cake decorated with pastel golden stars, tiny cute clay baby booties, and soft cream swirls, no pedestal, floating cutout, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out sticker style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "gemini",
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789304811315
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789304811315,
+      "startedAt": 1789305186937,
+      "platform": "gemini",
+      "updatedAt": 1789305296125,
+      "thumb": "blob:https://gemini.google.com/8b905e72-927f-407c-8caf-11977b2a2a46"
     }
   ]
 }

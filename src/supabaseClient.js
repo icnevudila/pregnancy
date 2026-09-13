@@ -3,10 +3,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import { Platform } from 'react-native';
 
-// Momora Supabase Project Ref: fpcovwexojrauddbszab
-export const DEFAULT_SUPABASE_URL = 'https://fpcovwexojrauddbszab.supabase.co';
+// Momora Supabase Project Ref: rnkrjmblgcdqlyslbhob
+export const DEFAULT_SUPABASE_URL = 'https://rnkrjmblgcdqlyslbhob.supabase.co';
 
-let currentAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZwY292d2V4b2pyYXVkZGJzemFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxNDk3NDAsImV4cCI6MjEwNDcyNTc0MH0.NvZyNWsHPTygwPzqAIkxTd5WHv5SppIvEezQdyuk4qA';
+let currentAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJua3JqbWJsZ2NkcWx5c2xiaG9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NTE2OTQsImV4cCI6MjEwNDAyNzY5NH0.PXOKu-TTcxKaJQKFcA-QSN7ukwK3NuPJvVpzYRpMDXg';
 
 // Create or re-create client
 export let supabase = null;
@@ -130,14 +130,22 @@ export async function signInWithOAuthProvider(provider = 'google') {
       provider,
       options: {
         redirectTo,
-        skipBrowserRedirect: true,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
         },
       },
     });
-    return { data, error };
+
+    if (error) {
+      return { data, error };
+    }
+
+    if (data?.url && Platform.OS === 'web' && typeof window !== 'undefined') {
+      window.location.href = data.url;
+    }
+
+    return { data, error: null };
   } catch (err) {
     return { error: err };
   }

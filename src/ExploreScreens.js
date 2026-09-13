@@ -605,6 +605,170 @@ export function TopicHubScreen({ state, update, toast, openArticle, openFoodChec
           </View>
         </View>
       ) : hubTab === 'infographics' ? (
+        /* 4. GÖRSEL İNFOGRAFİKLER & KLİNİK ŞABLONLAR */
+        <View style={{ gap: 16 }}>
+          <View style={{ gap: 4 }}>
+            <T bold style={{ fontSize: 18, color: colors.ink, letterSpacing: -0.4 }}>
+              {isEn ? 'Visual Health & Wellness Infographics' : 'Görsel Sağlık & Yaşam İnfografikleri'}
+            </T>
+            <T style={{ fontSize: 13, color: colors.muted }}>
+              {isEn ? 'Explore complex clinical and care guidance through clean visual cards.' : 'Karmaşık klinik ve bakım bilgilerini sade, görsel şablonlarla keşfedin.'}
+            </T>
+          </View>
+
+          {[
+            {
+              id: 'info-1',
+              title: isEn ? 'Champion Mom Plate & Superfoods in Pregnancy' : 'Gebelikte Şampiyon Anne Tabağı & Süper Besinler',
+              sub: isEn ? 'Optimal micronutrient balance accelerating baby brain, bone, and organ development across trimesters.' : 'Trimesterlar boyunca bebeğin beyin, kemik ve organ gelişimini hızlandıran optimal mikro besin dengesi.',
+              tag: isEn ? 'NUTRITION & MICRONUTRIENTS' : 'BESLENME & MİKRO BESİN',
+              asset: 'infographic_trimester_nutrition',
+              fallback: 'blog_healthy_breakfast',
+              tint: '#4A7C59',
+              bullets: isEn
+                ? ['Choline & DHA: Egg yolks and wild salmon', 'Folate & Iron: Dark leafy greens & lentils', 'Calcium: Probiotic yogurt and kefir']
+                : ['Kolin & DHA: Yumurta sarısı ve somon', 'Folat & Demir: Koyu yeşil yapraklılar', 'Kalsiyum: Probiyotik yoğurt ve kefir']
+            },
+            {
+              id: 'info-2',
+              title: isEn ? 'Safe Baby Sleep Guide: ABC Rule' : 'Güvenli Bebek Uykusu Kılavuzu: ABC Kuralı',
+              sub: isEn ? 'WHO-approved safe sleep guidelines reducing SIDS risk by up to 80%.' : 'Ani Bebek Ölümü Sendromu (SIDS) riskini %80 azaltan Dünya Sağlık Örgütü onaylı güvenli uyku rehberi.',
+              tag: isEn ? 'NEWBORN SAFETY' : 'YENİDOĞAN GÜVENLİĞİ',
+              asset: 'infographic_safe_sleep_abc',
+              fallback: 'blog_sleeping_crib',
+              tint: '#58638A',
+              bullets: isEn
+                ? ['A - Alone: Alone, no pillow, no toys', 'B - Back: Always on their back', 'C - Crib: In their own separate crib']
+                : ['A - Alone: Yalnız, yastıksız ve oyuncaksız', 'B - Back: Her zaman sırtüstü yatış', 'C - Crib: Kendi bağımsız beşiğinde']
+            },
+            {
+              id: 'info-3',
+              title: isEn ? '3 Stages of Labor & The Body\'s Natural Transformation' : 'Doğumun 3 Aşaması ve Bedenin Doğal Dönüşümü',
+              sub: isEn ? 'Anatomical stages from first contraction through delivery of placenta and skin-to-skin golden hour.' : 'İlk sancıdan plasentanın doğumuna ve ten tene temas saatine kadar doğum yolculuğunun anatomik evreleri.',
+              tag: isEn ? 'BIRTH GUIDE' : 'DOĞUM REHBERİ',
+              asset: 'infographic_labor_stages',
+              fallback: 'blog_epidural_birth',
+              tint: '#8C4A60',
+              bullets: isEn
+                ? ['Stage 1: Cervix effacement and 10 cm dilation', 'Stage 2: Descent of baby and pushing stage', 'Stage 3: Baby embrace & Golden Hour']
+                : ['1. Evre: Rahim ağzının incelmesi ve 10 cm açılma', '2. Evre: Bebeğin inişi ve ıkınma aşaması', '3. Evre: Bebeğin kucaklaşması & Altın Saat']
+            },
+            {
+              id: 'info-4',
+              title: isEn ? 'Fetal Kick & Movement Tracking: Rule of 10' : 'Fetal Tekme ve Hareket Takibi: 10 Sayım Kuralı',
+              sub: isEn ? 'Learn your baby\'s active rhythm, wake windows, and signals that warrant doctor notification.' : 'Bebeğinizin anne karnındaki ritmini, uyanıklık pencerelerini ve doktora bildirilmesi gereken sinyalleri öğrenin.',
+              tag: isEn ? 'FETAL DEVELOPMENT' : 'FETAL GELİŞİM',
+              asset: 'infographic_kick_counter_guide',
+              fallback: 'blog_couple_bump',
+              tint: '#9C6238',
+              bullets: isEn
+                ? ['10 clear movements within 2 hours after a meal', 'Blood flow peaks when lying on left side', 'Significant drops in movement require clinical consultation']
+                : ['Yemekten sonra 2 saat içinde 10 net hareket', 'Sol yan yatışta kan akışı maksimuma çıkar', 'Harekette belirgin azalma hekime iletilmelidir']
+            },
+            {
+              id: 'info-5',
+              title: isEn ? 'Newborn Hunger & Crying Body Language' : 'Yenidoğan Açlık ve Ağlama Beden Dili',
+              sub: isEn ? 'Decode subtle body signals before crying begins; keep feeding calm and peaceful.' : 'Bebek ağlamadan önceki ince beden dili işaretlerini çözün; beslenmeyi sakin ve stressiz tamamlayın.',
+              tag: isEn ? 'BABY PSYCHOLOGY' : 'BEBEK PSİKOLOJİSİ',
+              asset: 'infographic_baby_crying_cues',
+              fallback: 'blog_baby_first_food',
+              tint: '#6A5688',
+              bullets: isEn
+                ? ['Early Cue: Rooting, sucking fingers, turning head', 'Active Cue: Stretching, faster breathing, waving arms', 'Late Cue: Crying with red face (Soothe first)']
+                : ['Erken Sinyal: Ağzı arama, parmak emme, başı çevirme', 'Aktif Sinyal: Gerinme, hızlı nefes, kollarını sallama', 'Geç Sinyal: Kırmızı yüzle ağlama (Önce sakinleştirin)']
+            },
+            {
+              id: 'info-6',
+              title: isEn ? 'Complete Birth & Hospital Bag Visual Checklist' : 'Eksiksiz Doğum ve Hastane Çantası Görsel Şablonu',
+              sub: isEn ? 'Visual layout of essentials for mom, baby, and birth partner ready by week 32.' : '32. haftada hazır bulunması gereken anne, bebek ve refakatçi temel gereksinimlerinin görsel yerleşimi.',
+              tag: isEn ? 'PREPARATION GUIDE' : 'HAZIRLIK REHBERİ',
+              asset: 'infographic_hospital_checklist',
+              fallback: 'blog_hospital_bag_pack',
+              tint: '#785A48',
+              bullets: isEn
+                ? ['Mom: Front-opening gown, maternity pads, slippers', 'Baby: 3 sets of onesies, swaddles, diaper cream', 'Documents: ID, insurance, birth preferences plan']
+                : ['Anne: Önden açılan gecelik, lohusa pedi, terlik', 'Bebek: 3 takım tulum, zıbın, müslin bez, pişik kremi', 'Evraklar: Kimlik, sigorta, doğum tercih planı']
+            }
+          ].map(info => {
+            const imgSource = generatedAssets[info.asset] || generatedAssets[info.fallback] || generatedAssets['blog_pregnant_morning'];
+            return (
+              <Card key={info.id} style={{ padding: 0, overflow: 'hidden', borderRadius: 24, borderWidth: 1, borderColor: '#E8DCE4' }}>
+                <View style={{ height: 210, width: '100%', backgroundColor: '#201525', overflow: 'hidden' }}>
+                  {imgSource && (
+                    <Image source={imgSource} style={es.fitImage} resizeMode="contain" />
+                  )}
+                  <LinearGradient
+                    colors={['rgba(25,12,30,0.1)', 'rgba(25,12,30,0.82)']}
+                    style={StyleSheet.absoluteFill}
+                  />
+                  <View style={{ position: 'absolute', top: 14, left: 14, backgroundColor: 'rgba(255,255,255,0.92)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 }}>
+                    <T bold style={{ fontSize: 10, color: info.tint, letterSpacing: 0.8 }}>{info.tag}</T>
+                  </View>
+                  <View style={{ position: 'absolute', bottom: 14, left: 16, right: 16 }}>
+                    <T bold style={{ fontSize: 18, color: 'white', lineHeight: 23, textShadowColor: 'rgba(0,0,0,0.5)', textShadowRadius: 3 }}>
+                      {info.title}
+                    </T>
+                  </View>
+                </View>
+
+                <View style={{ padding: 18, gap: 10, backgroundColor: '#FFFAF8' }}>
+                  <T style={{ fontSize: 13, color: colors.ink, lineHeight: 19 }}>
+                    {info.sub}
+                  </T>
+                  <View style={{ height: 1, backgroundColor: '#EFE7EE', marginVertical: 2 }} />
+                  <View style={{ gap: 6 }}>
+                    {info.bullets.map((b, bIdx) => (
+                      <View key={bIdx} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: info.tint }} />
+                        <T style={{ fontSize: 12, color: '#55485E', fontWeight: '500' }}>{b}</T>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              </Card>
+            );
+          })}
+        </View>
+      ) : hubTab === 'food' ? (
+        /* 2. BESİN GÜVENLİĞİ KILAVUZU */
+        <FoodSafetyChecker lang={lang} />
+      ) : (
+        /* 3. TEMATİK DOSYALAR & KOLEKSİYONLAR */
+        <View style={{ gap: 12 }}>
+          <Section title={isEn ? "Thematic Collection Dossiers" : "Tematik Koleksiyon Dosyaları"} />
+          {topicCollections.map(col => {
+            const colImg = (col.art && (generatedAssets[col.art] || getAsset(col.art))) ||
+                           (col.image && (generatedAssets[col.image] || getAsset(col.image))) ||
+                           generatedAssets['blog_pregnant_morning'];
+            const colTitle = isEn && col.titleEn ? col.titleEn : col.title;
+            return (
+              <Tap
+                key={col.id}
+                onPress={() => {
+                  const match = articles.find(a => a.topic === col.id) || articles[0];
+                  openArticle && openArticle(match);
+                }}
+                label={colTitle}
+                style={[es.collectionCard, { backgroundColor: col.color }]}
+              >
+                {colImg && (
+                  <Image source={colImg} style={es.colImg} resizeMode="contain" />
+                )}
+                <View style={es.colInfo}>
+                  <T bold style={{ fontSize: 15, color: colors.ink, lineHeight: 21 }}>{colTitle}</T>
+                  <T style={{ fontSize: 12, color: colors.muted, marginTop: 5 }}>{col.count} {isEn ? 'curated guides' : 'derlenmiş rehber'}</T>
+                </View>
+                <Icon name="chevron" size={18} color={colors.purple} />
+              </Tap>
+            );
+          })}
+        </View>
+      )}
+    </View>
+  );
+}
+
+// ─── EKRAN 15: MAKALE DETAY EKRANI (LUXURY MAGAZINE EDITORIAL FULLSCREEN READER) ────────
 export function EditorialArticleScreen({ article, close, openArticle, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
   const [playingAudio, setPlayingAudio] = useState(false);
