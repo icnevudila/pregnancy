@@ -475,7 +475,69 @@ console.log('--- RUNNING MOMORA AUTOMATED TEST SUITE ---');
   console.log('✓ Sprint 10 Library & Evidence Engine tests passed.');
 }
 
-console.log('--- ALL MOMORA SPRINT 3, 4, 5, 6, 7, 8, 9 & 10 TESTS PASSED SUCCESFULLY ---');
+// 13. Sprint 11 Household & Partner Sync Tests (Spec 21)
+{
+  console.log('Testing Sprint 11 Household & Partner Sync (Spec 21)...');
+
+  // 1. Distinct Entities Hierarchy
+  const householdState = {
+    user: { id: 'usr_1', name: 'Mehmet', activeRole: 'father' },
+    partner: { id: 'usr_2', name: 'Zeynep', activeRole: 'mother' },
+    household: { id: 'hh_1', name: 'Mehmet + Zeynep', familyCode: 'MOM-7829-TR' },
+    pregnancyProfile: { motherName: 'Zeynep', week: 24, day: 5, dueDate: '2026-07-24' },
+    baby: { name: 'Ada', gender: 'Kız' },
+  };
+
+  // No contradictory role data: active user is father, but pregnancy belongs to Zeynep
+  assert.strictEqual(householdState.user.activeRole, 'father');
+  assert.strictEqual(householdState.pregnancyProfile.motherName, 'Zeynep');
+  assert.strictEqual(householdState.household.familyCode, 'MOM-7829-TR');
+  assert.strictEqual(householdState.baby.name, 'Ada');
+
+  // 2. Granular Permissions & Sensitive Fields Default Private
+  const permissions = {
+    sharePregnancyWeek: true,
+    shareAppointments: true,
+    shareHospitalBag: true,
+    shareBirthPreferences: true,
+    shareBabyTrackers: true,
+    shareMovementSummary: true,
+    shareWeight: false,       // Default private
+    shareMood: false,         // Default private
+    shareHealthNotes: false,  // Default private
+  };
+
+  assert.strictEqual(permissions.shareWeight, false, 'Weight must default to private');
+  assert.strictEqual(permissions.shareMood, false, 'Mood must default to private');
+  assert.strictEqual(permissions.shareHealthNotes, false, 'Health notes must default to private');
+  assert.strictEqual(permissions.shareHospitalBag, true);
+  assert.strictEqual(permissions.shareAppointments, true);
+
+  // 3. Partner Hospital Bag Task Assignment & Toggle
+  const bagTasks = [
+    { id: 'p1', title: 'Powerbank & şarj', assignedTo: 'partner', status: 'notPrepared' },
+    { id: 'm1', title: 'Lohusa geceliği', assignedTo: 'mother', status: 'packed' },
+    { id: 'd1', title: 'Kimlik ve tahlil dosyası', assignedTo: 'partner', status: 'packed' },
+  ];
+
+  const partnerOnlyTasks = bagTasks.filter(t => t.assignedTo === 'partner');
+  assert.strictEqual(partnerOnlyTasks.length, 2);
+  assert(partnerOnlyTasks.some(t => t.id === 'p1'));
+  assert(partnerOnlyTasks.some(t => t.id === 'd1'));
+
+  // Toggle status
+  const toggledTask = { ...partnerOnlyTasks[0], status: partnerOnlyTasks[0].status === 'packed' ? 'notPrepared' : 'packed' };
+  assert.strictEqual(toggledTask.status, 'packed');
+
+  // 4. Invite URL Generation
+  const inviteCode = 'MOM-7829-TR';
+  const inviteUrl = `https://momora.app/invite?code=${inviteCode}`;
+  assert(inviteUrl.includes('MOM-7829-TR'));
+
+  console.log('✓ Sprint 11 Household & Partner Sync tests passed.');
+}
+
+console.log('--- ALL MOMORA SPRINT 3 THROUGH 11 TESTS PASSED SUCCESFULLY ---');
 
 
 

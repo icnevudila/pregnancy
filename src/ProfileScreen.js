@@ -31,12 +31,13 @@ const avatarPresets = [
   { id: 'bottle', emoji: '🍼', labelTr: 'Biberon & Sevgi', labelEn: 'Baby Bottle', role: 'both' },
 ];
 
-export function ProfileScreen({ state, update, open, toast, choose, cloudStatus, refreshFromCloud }) {
+export function ProfileScreen({ state, update, open, toast, choose, setPage, cloudStatus, refreshFromCloud }) {
   const lang = state?.lang || 'tr';
   const isEn = lang === 'en';
 
   const [activeTab, setActiveTab] = useState('settings'); // 'settings' | 'family' | 'personal' | 'favorites'
   const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
 
   // Kişisel Form State'leri
   const [userName, setUserName] = useState(state.name || (isEn ? 'Emma' : 'Zeynep'));
@@ -107,6 +108,49 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
     { id: 'bl-1', author: 'Anne & Baba', text: 'Canımız bebeğimiz, 24. haftana girdik. Dünyamıza neşe ve ışık getireceğin günü sabırsızlıkla bekliyoruz... 🤍', date: 'Bugün' },
     { id: 'bl-2', author: 'Baba', text: 'Baban olarak ilk ninnini şimdiden ezberliyorum, seninle tanışmak için sabırsızlanıyorum küçük meleğim. 👶', date: '3 gün önce' },
   ];
+
+  
+  // Partner Hospital Bag Tasks (Sprint 11 Shared Tasks)
+  const defaultPartnerTasks = isEn ? [
+    { id: 'p1', title: 'Long-cord phone charger & powerbank', priority: 'essential', status: 'packed', catKey: 'partner' },
+    { id: 'p2', title: 'Change of comfortable t-shirt & sweatpants', priority: 'recommended', status: 'prepared', catKey: 'partner' },
+    { id: 'd1', title: 'Parent ID cards & insurance documents', priority: 'essential', status: 'packed', catKey: 'docs' },
+    { id: 'd2', title: 'All pregnancy prenatal & ultrasound files', priority: 'essential', status: 'packed', catKey: 'docs' },
+    { id: 'h1', title: 'ECE-approved infant car seat (installed in car)', priority: 'essential', status: 'prepared', catKey: 'home' },
+  ] : [
+    { id: 'p1', title: 'Uzun kablolu şarj aleti & powerbank', priority: 'essential', status: 'packed', catKey: 'partner' },
+    { id: 'p2', title: 'Yedek rahat tişört & eşofman', priority: 'recommended', status: 'prepared', catKey: 'partner' },
+    { id: 'd1', title: 'Anne ve baba kimlik kartları & sigorta belgeleri', priority: 'essential', status: 'packed', catKey: 'docs' },
+    { id: 'd2', title: 'Tüm gebelik tahlil & ultrason takip dosyası', priority: 'essential', status: 'packed', catKey: 'docs' },
+    { id: 'h1', title: 'Oto güvenlik koltuğu / anakucağı (arabada hazır)', priority: 'essential', status: 'prepared', catKey: 'home' },
+  ];
+
+  const bagData = state.hospitalBag || {};
+  const actualPartnerTasks = Object.entries(bagData).flatMap(([catKey, list]) =>
+    (Array.isArray(list) ? list : []).filter(item => item.assignedTo === 'partner').map(item => ({ ...item, catKey }))
+  );
+  const partnerTasks = actualPartnerTasks.length > 0 ? actualPartnerTasks : (state.partnerBagTasks || defaultPartnerTasks);
+
+  function togglePartnerTask(task) {
+    const nextStatus = task.status === 'packed' ? 'notPrepared' : 'packed';
+    if (state.hospitalBag && state.hospitalBag[task.catKey]) {
+      const updatedCat = (state.hospitalBag[task.catKey] || []).map(item =>
+        item.id === task.id ? { ...item, status: nextStatus } : item
+      );
+      update({
+        hospitalBag: {
+          ...state.hospitalBag,
+          [task.catKey]: updatedCat,
+        },
+      });
+    } else {
+      const updatedList = partnerTasks.map(t =>
+        t.id === task.id ? { ...t, status: nextStatus } : t
+      );
+      update({ partnerBagTasks: updatedList });
+    }
+    toast && toast(isEn ? 'Partner task status updated 🎒' : 'Eş hazırlık görevi güncellendi 🎒');
+  }
 
   const partnerMessages = state.partnerMessages || defaultPartnerMessages;
   const babyLetters = state.babyLetters || defaultBabyLetters;
@@ -542,6 +586,41 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
             </View>
           </Card>
 
+          {/* YOLCULUK SEÇİMLERİ VE ONBOARDING YENİDEN YAPILANDIRMA KARTI */}
+          <Card style={{ padding: 16, backgroundColor: '#FAF6FA', borderColor: '#E5D6E7', marginBottom: 14 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: '#EFE2F2', alignItems: 'center', justifyContent: 'center' }}>
+                <T style={{ fontSize: 22 }}>🧭</T>
+              </View>
+              <View style={{ flex: 1 }}>
+                <T bold style={{ fontSize: 14.5, color: colors.ink }}>
+                  {isEn ? 'Journey Setup & Onboarding' : 'Yolculuk Tercihleri & Onboarding'}
+                </T>
+                <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2, lineHeight: 16 }}>
+                  {isEn
+                    ? 'Re-configure your journey stage (Pregnancy, Postpartum, Baby), due date, roles, and focus areas.'
+                    : 'Dönemini (Hamilelik, Lohusalık, Bebek), doğum tarihini, rolünü ve ilgi alanlarını baştan yapılandır.'}
+                </T>
+              </View>
+            </View>
+
+            <View style={{ marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#EDE0EE' }}>
+              <Tap
+                onPress={() => {
+                  if (setPage) setPage('onboarding');
+                  else if (choose) choose('onboarding');
+                  toast && toast(isEn ? 'Opening onboarding setup 🧭' : 'Yolculuk seçimleri açılıyor 🧭');
+                }}
+                label={isEn ? "Re-run Onboarding Setup" : "Seçimleri Yeniden Yap (Onboarding)"}
+                style={[ps.saveFullBtn, { backgroundColor: colors.purple, marginTop: 4 }]}
+              >
+                <T bold style={{ color: 'white', fontSize: 13.5 }}>
+                  {isEn ? '🧭 Re-run Onboarding Choices →' : '🧭 Yolculuk Seçimlerini Yeniden Yap (Onboarding) →'}
+                </T>
+              </Tap>
+            </View>
+          </Card>
+
           {/* BULUT VE HESAP YÖNETİMİ (ACCOUNT & GUEST MODE) */}
           <Card style={{ padding: 16, backgroundColor: '#FAF6FA', borderColor: '#EDE0EE', marginBottom: 14 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -760,26 +839,54 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
       {/* ─── 5. TAB 3: EŞ & AİLE ALANI ─── */}
       {activeTab === 'family' && (
         <View style={{ gap: 14 }}>
-          {/* HANE ÇERÇEVESİ (HOUSEHOLD SHELL CONTAINER) */}
+          {/* ─── SPEC 21: CRITICAL DATA FIX & DISTINCT ENTITIES ─── */}
           <Card style={{ padding: 16, backgroundColor: '#FAF6FA', borderColor: '#EBE0ED' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
               <View>
                 <T bold style={{ fontSize: 15, color: colors.ink }}>
-                  {isEn ? 'Household Container' : 'Hane ve Aile Çerçevesi'}
+                  {isEn ? 'Distinct Entities & Household' : 'Hane ve Bağımsız Varlık Çerçevesi'}
                 </T>
                 <T style={{ fontSize: 11, color: colors.muted, marginTop: 1 }}>
-                  {state.household?.name || (isEn ? 'Our Family' : 'Bizim Ailemiz')} · {state.familyCode || 'MOM-7829-TR'}
+                  {isEn ? 'Spec 21 Data Model · Zero Contradiction' : '21_PROFILE_FAMILY · Çelişkisiz Varlık Modeli'}
                 </T>
               </View>
               <View style={{ backgroundColor: '#F0E3F3', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 10 }}>
                 <T bold style={{ fontSize: 11, color: colors.purple }}>
-                  {currentRole === 'mother' ? (isEn ? '👑 Owner (Mom)' : '👑 Kurucu (Anne)') : (isEn ? '👨‍🍼 Partner (Dad)' : '👨‍🍼 Partner (Baba)')}
+                  {currentRole === 'mother' ? (isEn ? '👑 Mother Mode' : '👑 Anne Modu') : (isEn ? '👨‍🍼 Father Mode' : '👨‍🍼 Baba Modu')}
                 </T>
               </View>
             </View>
 
+            {/* Spec 21 Entity Definition Table */}
+            <View style={{ backgroundColor: '#FFFFFF', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: '#EDE2EE', gap: 6 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 }}>
+                <T bold style={{ fontSize: 11.5, color: colors.muted }}>USER:</T>
+                <T bold style={{ fontSize: 12, color: colors.ink }}>{currentRole === 'mother' ? userName : partnerName}</T>
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 }}>
+                <T bold style={{ fontSize: 11.5, color: colors.muted }}>ROLE:</T>
+                <T bold style={{ fontSize: 12, color: currentRole === 'mother' ? '#B84570' : '#2C6496' }}>
+                  {currentRole === 'mother' ? (isEn ? 'Mother' : 'Anne') : (isEn ? 'Father' : 'Baba')}
+                </T>
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 }}>
+                <T bold style={{ fontSize: 11.5, color: colors.muted }}>HOUSEHOLD:</T>
+                <T bold style={{ fontSize: 12, color: colors.purple }}>{userName} + {partnerName}</T>
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 }}>
+                <T bold style={{ fontSize: 11.5, color: colors.muted }}>PREGNANCY:</T>
+                <T bold style={{ fontSize: 12, color: colors.ink }}>
+                  {userName} · {journey.week}+{journey.day} ({journey.daysRemaining} {isEn ? 'days left' : 'gün kaldı'})
+                </T>
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 }}>
+                <T bold style={{ fontSize: 11.5, color: colors.muted }}>BABY:</T>
+                <T bold style={{ fontSize: 12, color: '#3E7D52' }}>{babyName} ({babyGender})</T>
+              </View>
+            </View>
+
             {/* Üyeler ve Roller Listesi */}
-            <View style={{ gap: 8, marginTop: 4 }}>
+            <View style={{ gap: 8, marginTop: 10 }}>
               {[
                 { name: userName, roleLabel: isEn ? 'Mother (Primary Account)' : 'Anne (Birincil Hesap)', emoji: '🤰', status: isEn ? 'Active' : 'Aktif' },
                 { name: partnerName, roleLabel: isEn ? 'Father / Partner' : 'Baba / Eş', emoji: '👨‍🍼', status: isEn ? 'Connected' : 'Bağlı' },
@@ -799,27 +906,52 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
             </View>
           </Card>
 
-          {/* Eş Eşleşme Durumu & Aile Kodu */}
+          {/* ─── SPEC 21: FAMILY SYNC (INVITE LINK / CODE / QR) ─── */}
           <Card style={{ padding: 16 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <View>
-                <T bold style={{ fontSize: 15 }}>{isEn ? 'Family Pairing Code' : 'Aile Eşleşme Kodu'}</T>
+                <T bold style={{ fontSize: 15 }}>{isEn ? 'Family Pairing & Invites' : 'Aile Eşleşme & Davetler'}</T>
                 <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-                  {isEn ? 'Share with your partner to sync logs' : 'Eşinizle paylaşarak cihazları eşitleyin'}
+                  {isEn ? 'Link accounts to synchronize timers, hospital bag & feeds' : 'Cihazları eşitlemek için davet kodu veya linki paylaşın'}
                 </T>
               </View>
+              <View style={{ backgroundColor: '#EDF6F0', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
+                <T bold style={{ fontSize: 10.5, color: '#2E7D32' }}>{isEn ? '⚡ Real-time Sync' : '⚡ Canlı Eşitleme'}</T>
+              </View>
+            </View>
+
+            {/* Davet Butonları 3 lü Satır (KOD, LİNK, QR) */}
+            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
               <Tap
                 onPress={() => toast && toast(isEn ? 'Family code copied! 📋' : 'Aile kodu kopyalandı! 📋')}
                 label={isEn ? 'Copy code' : 'Kodu kopyala'}
-                style={ps.copyBtn}
+                style={[ps.copyBtn, { flex: 1, justifyContent: 'center' }]}
               >
                 <Icon name="check" size={13} color="white" />
-                <T bold style={{ color: 'white', fontSize: 11 }}>{state.familyCode || 'MOM-7829-TR'}</T>
+                <T bold style={{ color: 'white', fontSize: 11.5 }}>{state.familyCode || 'MOM-7829-TR'}</T>
+              </Tap>
+
+              <Tap
+                onPress={() => toast && toast(isEn ? 'Invite link copied to clipboard! 🔗' : 'Davet linki panoya kopyalandı! 🔗')}
+                label={isEn ? 'Copy link' : 'Linki kopyala'}
+                style={[ps.secondaryBtn, { flex: 1, paddingVertical: 8 }]}
+              >
+                <T bold style={{ fontSize: 11.5, color: colors.purple }}>
+                  {isEn ? '🔗 Share Link' : '🔗 Link Paylaş'}
+                </T>
+              </Tap>
+
+              <Tap
+                onPress={() => setShowQrModal(true)}
+                label={isEn ? 'Show QR' : 'QR Göster'}
+                style={[ps.secondaryBtn, { width: 50, paddingVertical: 8, alignItems: 'center', justifyContent: 'center' }]}
+              >
+                <T style={{ fontSize: 16 }}>📱</T>
               </Tap>
             </View>
 
             {/* Eş Kodu Girerek Bağlan */}
-            <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderColor: '#F0E6EF' }}>
+            <View style={{ paddingTop: 10, borderTopWidth: 1, borderColor: '#F0E6EF' }}>
               <T style={{ fontSize: 12, color: colors.ink, marginBottom: 6 }}>
                 {isEn ? "Link with your partner's code:" : 'Eşinin aile kodunu girerek bağlan:'}
               </T>
@@ -837,6 +969,82 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
                   </T>
                 </Tap>
               </View>
+            </View>
+          </Card>
+
+          {/* ─── SPEC 21: PARTNER MODE & SHARED TASK BOARD ─── */}
+          <Card style={{ padding: 16, backgroundColor: '#FAF8FC', borderColor: '#EBE0ED' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <T style={{ fontSize: 20 }}>🎒</T>
+                <View>
+                  <T bold style={{ fontSize: 14.5, color: colors.ink }}>
+                    {isEn ? 'Partner Task Board & Hospital Bag' : 'Eş Görev Panosu & Doğum Çantası'}
+                  </T>
+                  <T style={{ fontSize: 11, color: colors.muted, marginTop: 1 }}>
+                    {isEn ? 'Items and duties assigned specifically to partner' : 'Eşe özel atanan hastane ve refakatçi görevleri'}
+                  </T>
+                </View>
+              </View>
+              <Tap onPress={() => open && open('hospitalBag')}>
+                <T bold style={{ fontSize: 11.5, color: colors.purple }}>{isEn ? 'All Bag →' : 'Çanta →'}</T>
+              </Tap>
+            </View>
+
+            <View style={{ gap: 7, marginTop: 4 }}>
+              {partnerTasks.map(task => {
+                const isPacked = task.status === 'packed';
+                return (
+                  <Tap
+                    key={task.id}
+                    onPress={() => togglePartnerTask(task)}
+                    label={task.title}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: 10,
+                      borderRadius: 12,
+                      backgroundColor: isPacked ? '#F3FAF5' : '#FFFFFF',
+                      borderWidth: 1,
+                      borderColor: isPacked ? '#C9E5D2' : '#EDE4EE',
+                    }}
+                  >
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
+                      <View style={{
+                        width: 22,
+                        height: 22,
+                        borderRadius: 6,
+                        borderWidth: 1.5,
+                        borderColor: isPacked ? '#2E7D32' : colors.line,
+                        backgroundColor: isPacked ? '#2E7D32' : 'transparent',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>
+                        {isPacked && <Icon name="check" size={12} color="white" />}
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <T bold style={{ fontSize: 12.5, color: isPacked ? '#2E7D32' : colors.ink, textDecorationLine: isPacked ? 'line-through' : 'none' }}>
+                          {task.title}
+                        </T>
+                        <T style={{ fontSize: 10, color: colors.muted }}>
+                          {isEn ? `Category: ${task.catKey || 'partner'}` : `Bölüm: ${task.catKey || 'refakatçi'}`}
+                        </T>
+                      </View>
+                    </View>
+                    <View style={{
+                      paddingHorizontal: 7,
+                      paddingVertical: 3,
+                      borderRadius: 6,
+                      backgroundColor: isPacked ? '#E4F4E8' : '#F5EDF6',
+                    }}>
+                      <T bold style={{ fontSize: 10, color: isPacked ? '#2E7D32' : colors.purple }}>
+                        {isPacked ? (isEn ? 'Packed ✓' : 'Hazırlandı ✓') : (isEn ? 'To pack' : 'Hazırlanacak')}
+                      </T>
+                    </View>
+                  </Tap>
+                );
+              })}
             </View>
           </Card>
 
@@ -1049,6 +1257,65 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
           </View>
         </View>
       </Modal>
+    
+      {/* ─── AİLE EŞLEŞME QR MODALI (SPEC 21) ─── */}
+      <Modal
+        visible={showQrModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowQrModal(false)}
+      >
+        <View style={ps.modalBackdrop}>
+          <Tap label="Kapat" style={StyleSheet.absoluteFill} onPress={() => setShowQrModal(false)} />
+          <View style={[ps.avatarModalBox, { alignItems: 'center', padding: 24 }]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center', marginBottom: 12 }}>
+              <T bold style={{ fontSize: 16, color: colors.ink }}>
+                {isEn ? 'Pair with Partner via QR' : 'QR ile Eşleş'}
+              </T>
+              <Tap onPress={() => setShowQrModal(false)} label="Kapat" style={ps.closeBtn}>
+                <Icon name="close" size={18} />
+              </Tap>
+            </View>
+
+            {/* QR Görsel Simülasyonu */}
+            <View style={{ width: 180, height: 180, backgroundColor: '#FAF6FA', borderRadius: 16, borderWidth: 2, borderColor: colors.purple, alignItems: 'center', justifyContent: 'center', marginVertical: 14 }}>
+              <View style={{ width: 140, height: 140, backgroundColor: '#FFFFFF', borderRadius: 8, padding: 8, justifyContent: 'space-between' }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <View style={{ width: 34, height: 34, backgroundColor: colors.purple, borderRadius: 4 }} />
+                  <View style={{ width: 34, height: 34, backgroundColor: colors.purple, borderRadius: 4 }} />
+                </View>
+                <View style={{ alignItems: 'center' }}>
+                  <BrandMark size={28} />
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <View style={{ width: 34, height: 34, backgroundColor: colors.purple, borderRadius: 4 }} />
+                  <View style={{ width: 14, height: 14, backgroundColor: '#B84570', borderRadius: 2 }} />
+                </View>
+              </View>
+            </View>
+
+            <T bold style={{ fontSize: 16, color: colors.ink, letterSpacing: 2 }}>
+              {state.familyCode || 'MOM-7829-TR'}
+            </T>
+            <T style={{ fontSize: 11.5, color: colors.muted, textAlign: 'center', marginTop: 6, lineHeight: 16 }}>
+              {isEn
+                ? 'Ask your partner to scan this code from Momora on their phone to connect immediately.'
+                : 'Eşiniz telefonundaki Momora uygulamasından bu kodu taratarak veya girerek anında bağlanabilir.'}
+            </T>
+
+            <Tap
+              onPress={() => {
+                setShowQrModal(false);
+                toast && toast(isEn ? 'Invite link shared! 🌸' : 'Davet bağlantısı paylaşıldı! 🌸');
+              }}
+              style={[ps.saveFullBtn, { width: '100%', marginTop: 16 }]}
+            >
+              <T bold style={{ color: 'white', fontSize: 13.5 }}>{isEn ? 'Done' : 'Tamam'}</T>
+            </Tap>
+          </View>
+        </View>
+      </Modal>
+
     </ScrollView>
   );
 }
