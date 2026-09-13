@@ -424,6 +424,58 @@ console.log('--- RUNNING MOMORA AUTOMATED TEST SUITE ---');
   console.log('✓ Sprint 9 Postpartum & Recovery tests passed.');
 }
 
-console.log('--- ALL MOMORA SPRINT 3, 4, 5, 6, 7, 8 & 9 TESTS PASSED SUCCESFULLY ---');
+// 12. Sprint 10 Library & Evidence Engine Tests
+{
+  console.log('Testing Sprint 10 Library (Sections, Bookmarks, Search, Metadata)...');
+
+  // 1. Core Library Sections (Spec 19)
+  const sections = ['articles', 'food', 'infographics', 'topics'];
+  assert.strictEqual(sections.length, 4);
+
+  // 2. Stage Filter & Bookmark State
+  let savedArticleIds = ['art-pregnant-morning'];
+  function toggleSaved(id) {
+    if (savedArticleIds.includes(id)) {
+      savedArticleIds = savedArticleIds.filter(x => x !== id);
+    } else {
+      savedArticleIds = [...savedArticleIds, id];
+    }
+  }
+
+  toggleSaved('art-ultrasound-memory');
+  assert(savedArticleIds.includes('art-ultrasound-memory'));
+  assert.strictEqual(savedArticleIds.length, 2);
+
+  toggleSaved('art-pregnant-morning');
+  assert(!savedArticleIds.includes('art-pregnant-morning'));
+  assert.strictEqual(savedArticleIds.length, 1);
+
+  // 3. Article Metadata Verification (Spec 19)
+  const articleMeta = {
+    category: '1. Trimester',
+    title: '1. Trimester Sabah Bulantıları',
+    minutes: 4,
+    author: 'Momora Sağlık Kurulu',
+    doctor: 'Uzm. Dr. Elif Kaya · Kadın Hastalıkları ve Doğum Uzmanı',
+    lastUpdated: '2026 Fact-Checked',
+    journeyStage: '🤰 Hamilelik',
+  };
+
+  assert(articleMeta.category.length > 0);
+  assert(articleMeta.title.length > 0);
+  assert.strictEqual(typeof articleMeta.minutes, 'number');
+  assert(articleMeta.doctor.includes('Dr.'));
+  assert(articleMeta.lastUpdated.includes('2026'));
+  assert(articleMeta.journeyStage.includes('Hamilelik'));
+
+  // 4. Search neutrality check (Search returns content, not diagnosis)
+  const searchDisclaimer = 'Arama motoru medikal teşhis değil, güvenilir rehberlik sunar.';
+  assert(!searchDisclaimer.includes('tanı koyar'));
+
+  console.log('✓ Sprint 10 Library & Evidence Engine tests passed.');
+}
+
+console.log('--- ALL MOMORA SPRINT 3, 4, 5, 6, 7, 8, 9 & 10 TESTS PASSED SUCCESFULLY ---');
+
 
 

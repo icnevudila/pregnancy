@@ -1,3 +1,10 @@
+
+function getArticleStage(topic, lang = 'tr') {
+  const isEn = lang === 'en';
+  if (topic === 'baby') return isEn ? '👶 Baby Care' : '👶 Bebek Bakımı';
+  if (topic === 'postpartum') return isEn ? '🌸 Postpartum' : '🌸 Lohusalık';
+  return isEn ? '🤰 Pregnancy' : '🤰 Hamilelik';
+}
 import React, { useState } from 'react';
 import { View, StyleSheet, TextInput, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -201,31 +208,53 @@ export const topicCollections = [
   { id: 'partner', title: 'Eş & Baba Olmak: İlk Günlerde Destek', titleEn: 'Partner & Father: Early Day Support', count: 2, art: 'blog_father_baby_bond', image: 'blog_father_baby_bond', color: '#F0F5FA' },
 ];
 
-export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'articles', lang = 'tr' }) {
+export function TopicHubScreen({ state, update, toast, openArticle, openFoodChecker, initialTab = 'articles', lang = 'tr' }) {
   const isEn = lang === 'en';
+  const savedArticleIds = state?.savedArticleIds || [];
   const [hubTab, setHubTab] = useState(initialTab); // 'articles' | 'food' | 'infographics' | 'topics'
   const [articleQuery, setArticleQuery] = useState('');
+  const [stageFilter, setStageFilter] = useState('all'); // 'all' | 'pregnancy' | 'postpartum' | 'baby' | 'saved'
   const [articleFilter, setArticleFilter] = useState('all');
 
+  function toggleBookmark(articleId) {
+    const current = savedArticleIds;
+    const exists = current.includes(articleId);
+    const next = exists ? current.filter(id => id !== articleId) : [...current, articleId];
+    update && update({ savedArticleIds: next });
+    toast && toast(exists
+      ? (isEn ? 'Removed from saved' : 'Kaydedilenlerden çıkarıldı')
+      : (isEn ? 'Saved to your bookmarks 🔖' : 'Kayıtlarına eklendi 🔖'));
+  }
+
+  // 1. Aşama Filtreleri (Spec 19: stage filters)
+  const stageFilters = [
+    { id: 'all', label: isEn ? '✨ All Stages' : '✨ Tüm Aşamalar' },
+    { id: 'pregnancy', label: isEn ? '🤰 Pregnancy' : '🤰 Hamilelik' },
+    { id: 'postpartum', label: isEn ? '🌸 Postpartum' : '🌸 Lohusalık' },
+    { id: 'baby', label: isEn ? '👶 Baby Care' : '👶 Bebek Bakımı' },
+    { id: 'saved', label: isEn ? `🔖 Saved (${savedArticleIds.length})` : `🔖 Kaydedilenler (${savedArticleIds.length})` },
+  ];
+
+  // 2. Kategori Konu Filtreleri
   const topicFilters = isEn ? [
-    { id: 'all', label: 'All' },
+    { id: 'all', label: 'All Topics' },
     { id: 't1', label: '1st Trimester' },
     { id: 't2', label: '2nd Trimester' },
     { id: 't3', label: '3rd Trimester' },
     { id: 'nutrition', label: 'Nutrition' },
-    { id: 'growth', label: 'Growth & Visits' },
+    { id: 'growth', label: 'Growth & Scans' },
     { id: 'birth', label: 'Birth Prep' },
     { id: 'baby', label: 'Baby & Newborn' },
     { id: 'postpartum', label: 'Postpartum' },
     { id: 'wellbeing', label: 'Wellbeing' },
     { id: 'partner', label: 'Partner & Dad' }
   ] : [
-    { id: 'all', label: 'Tümü' },
+    { id: 'all', label: 'Tüm Konular' },
     { id: 't1', label: '1. Trimester' },
     { id: 't2', label: '2. Trimester' },
     { id: 't3', label: '3. Trimester' },
     { id: 'nutrition', label: 'Beslenme' },
-    { id: 'growth', label: 'Gelişim & Kontrol' },
+    { id: 'growth', label: 'Gelişim & Ultrason' },
     { id: 'birth', label: 'Doğuma Hazırlık' },
     { id: 'baby', label: 'Bebek & Yenidoğan' },
     { id: 'postpartum', label: 'Lohusalık & İyileşme' },
@@ -234,50 +263,59 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
   ];
 
   const filteredArticles = articles.filter(a => {
-    const q = articleQuery.toLowerCase();
-    const matchesSearch = !q || 
-      a.title.toLowerCase().includes(q) ||
-      a.subtitle.toLowerCase().includes(q) ||
-      (a.categoryName && a.categoryName.toLowerCase().includes(q)) ||
-      (a.doctor && a.doctor.toLowerCase().includes(q));
+    // Stage Filter
+    if (stageFilter === 'saved' && !savedArticleIds.includes(a.id)) return false;
+    if (stageFilter === 'pregnancy' && (a.topic === 'baby' || a.topic === 'postpartum')) return false;
+    if (stageFilter === 'postpartum' && a.topic !== 'postpartum') return false;
+    if (stageFilter === 'baby' && a.topic !== 'baby') return false;
 
-    let matchesFilter = true;
-    if (articleFilter === 't1') {
-      matchesFilter = a.categoryName === '1. Trimester' || (a.weeks && a.weeks[0] <= 12);
-    } else if (articleFilter === 't2') {
-      matchesFilter = a.categoryName === '2. Trimester' || (a.weeks && a.weeks[0] >= 13 && a.weeks[0] <= 27);
-    } else if (articleFilter === 't3') {
-      matchesFilter = a.categoryName === '3. Trimester' || (a.weeks && a.weeks[0] >= 28);
-    } else if (articleFilter === 'nutrition') {
-      matchesFilter = a.topic === 'nutrition' || (a.categoryName && a.categoryName.includes('Beslenme'));
-    } else if (articleFilter === 'growth') {
-      matchesFilter = a.topic === 'pregnancy' || (a.categoryName && (a.categoryName.includes('Gelişim') || a.categoryName.includes('Ultrason') || a.categoryName.includes('Kontrol')));
-    } else if (articleFilter === 'birth') {
-      matchesFilter = a.topic === 'birth' || (a.categoryName && (a.categoryName.includes('Doğum') || a.categoryName.includes('Hastane')));
-    } else if (articleFilter === 'baby') {
-      matchesFilter = a.topic === 'baby' || (a.categoryName && (a.categoryName.includes('Bebek') || a.categoryName.includes('Yenidoğan') || a.categoryName.includes('Emzirme')));
-    } else if (articleFilter === 'postpartum') {
-      matchesFilter = a.topic === 'postpartum' || (a.categoryName && a.categoryName.includes('Lohusa'));
-    } else if (articleFilter === 'wellbeing') {
-      matchesFilter = a.topic === 'wellbeing' || (a.categoryName && a.categoryName.includes('Hisset'));
-    } else if (articleFilter === 'partner') {
-      matchesFilter = a.topic === 'partner' || (a.categoryName && a.categoryName.includes('Baba'));
+    // Search Query (Spec 19: returns content, not diagnosis)
+    const q = articleQuery.toLowerCase().trim();
+    if (q) {
+      const matchTitle = (a.title && a.title.toLowerCase().includes(q)) || (a.titleEn && a.titleEn.toLowerCase().includes(q));
+      const matchSub = (a.subtitle && a.subtitle.toLowerCase().includes(q)) || (a.subtitleEn && a.subtitleEn.toLowerCase().includes(q));
+      const matchCat = a.categoryName && a.categoryName.toLowerCase().includes(q);
+      const matchDoc = a.doctor && a.doctor.toLowerCase().includes(q);
+      if (!matchTitle && !matchSub && !matchCat && !matchDoc) return false;
     }
 
-    return matchesSearch && matchesFilter;
+    // Category / Topic Filter
+    if (articleFilter === 't1') {
+      if (a.categoryName !== '1. Trimester' && !(a.weeks && a.weeks[0] <= 12)) return false;
+    } else if (articleFilter === 't2') {
+      if (a.categoryName !== '2. Trimester' && !(a.weeks && a.weeks[0] >= 13 && a.weeks[0] <= 27)) return false;
+    } else if (articleFilter === 't3') {
+      if (a.categoryName !== '3. Trimester' && !(a.weeks && a.weeks[0] >= 28)) return false;
+    } else if (articleFilter === 'nutrition') {
+      if (a.topic !== 'nutrition' && !(a.categoryName && a.categoryName.includes('Beslenme'))) return false;
+    } else if (articleFilter === 'growth') {
+      if (a.topic !== 'pregnancy' && !(a.categoryName && (a.categoryName.includes('Gelişim') || a.categoryName.includes('Ultrason') || a.categoryName.includes('Kontrol')))) return false;
+    } else if (articleFilter === 'birth') {
+      if (a.topic !== 'birth' && !(a.categoryName && (a.categoryName.includes('Doğum') || a.categoryName.includes('Hastane')))) return false;
+    } else if (articleFilter === 'baby') {
+      if (a.topic !== 'baby' && !(a.categoryName && (a.categoryName.includes('Bebek') || a.categoryName.includes('Yenidoğan') || a.categoryName.includes('Emzirme')))) return false;
+    } else if (articleFilter === 'postpartum') {
+      if (a.topic !== 'postpartum' && !(a.categoryName && a.categoryName.includes('Lohusa'))) return false;
+    } else if (articleFilter === 'wellbeing') {
+      if (a.topic !== 'wellbeing' && !(a.categoryName && a.categoryName.includes('Hisset'))) return false;
+    } else if (articleFilter === 'partner') {
+      if (a.topic !== 'partner' && !(a.categoryName && a.categoryName.includes('Baba'))) return false;
+    }
+
+    return true;
   });
 
   const featuredArticle = articles[0];
-  const isShowingLeadHero = !articleQuery && articleFilter === 'all' && featuredArticle;
+  const isShowingLeadHero = !articleQuery && articleFilter === 'all' && stageFilter === 'all' && featuredArticle;
   const listArticles = isShowingLeadHero ? filteredArticles.filter(a => a.id !== featuredArticle.id) : filteredArticles;
 
   return (
     <View style={es.container}>
-      {/* Hub Üst Sekmeleri (Luxury Editorial Navigation - 3 Ana Alan) */}
+      {/* 4 Ana Bölüm Sekmeleri (Spec 19: Magazin, Besin Güvenliği, İnfografikler, Koleksiyonlar) */}
       <View style={es.hubTabRow}>
         <Tap
           onPress={() => setHubTab('articles')}
-          label={isEn ? 'Articles & Magazine' : 'Yazılar ve Magazin'}
+          label={isEn ? 'Magazine' : 'Magazin'}
           style={[es.hubTabBtn, hubTab === 'articles' && es.hubTabBtnActive]}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -325,18 +363,16 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
         </Tap>
       </View>
 
-
-      
       {hubTab === 'articles' ? (
-        /* 1. TÜM EDİTORYAL YAZILAR & MAGAZİN FEED'İ (65 MAKALE) */
+        /* 1. TÜM EDİTORYAL YAZILAR & MAGAZİN FEED'İ */
         <View style={{ gap: 14 }}>
-          {/* Arama Barı */}
+          {/* Canlı Arama Kutusu (Spec 19: Content search, not diagnosis) */}
           <View style={es.searchBox}>
             <Icon name="search" size={20} color={colors.muted} />
             <TextInput
               value={articleQuery}
               onChangeText={setArticleQuery}
-              placeholder={isEn ? "Search topic, question, symptom or article..." : "Konu, soru, belirti veya makale ara..."}
+              placeholder={isEn ? "Search verified guides, nutrition, symptoms..." : "Güvenilir rehber, besin veya konu ara..."}
               placeholderTextColor={colors.muted}
               style={es.searchInput}
             />
@@ -347,8 +383,28 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
             ) : null}
           </View>
 
-          {/* Kategori Filtre Hapları */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
+          {/* Aşama Filtreleri (Spec 19: Stage filters & Saved) */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, paddingVertical: 2 }}>
+            {stageFilters.map(sf => (
+              <Tap
+                key={sf.id}
+                onPress={() => setStageFilter(sf.id)}
+                style={{
+                  paddingHorizontal: 12,
+                  paddingVertical: 7,
+                  borderRadius: 12,
+                  backgroundColor: stageFilter === sf.id ? colors.purple : '#EFE8F2',
+                }}
+              >
+                <T bold={stageFilter === sf.id} style={{ fontSize: 11.5, color: stageFilter === sf.id ? 'white' : colors.ink }}>
+                  {sf.label}
+                </T>
+              </Tap>
+            ))}
+          </ScrollView>
+
+          {/* Konu / Kategori Filtre Hapları */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, paddingVertical: 2 }}>
             {topicFilters.map(t => (
               <Tap
                 key={t.id}
@@ -356,23 +412,23 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                 label={t.label}
                 style={[es.catPill, articleFilter === t.id && es.catPillActive]}
               >
-                <T bold={articleFilter === t.id} style={{ fontSize: 12, color: articleFilter === t.id ? 'white' : colors.ink }}>
+                <T bold={articleFilter === t.id} style={{ fontSize: 11.5, color: articleFilter === t.id ? 'white' : colors.ink }}>
                   {t.label}
                 </T>
               </Tap>
             ))}
           </ScrollView>
 
-          {/* Editörün Seçimi (Featured Editorial Story Hero - TAM RESİM) */}
-          {!articleQuery && articleFilter === 'all' && featuredArticle && (() => {
+          {/* Editörün Seçimi (Featured Editorial Story Hero) */}
+          {isShowingLeadHero && (() => {
             const feat = getLocalizedArticle(featuredArticle, lang);
+            const isSaved = savedArticleIds.includes(feat.id);
             return (
               <Tap
                 onPress={() => openArticle && openArticle(feat)}
                 label={isEn ? "Editor's Choice" : "Editörün Seçimi"}
                 style={es.featuredHeroCard}
               >
-                {/* Üst Kısım: Tam 16:9 Kesilmemiş Orijinal Fotoğraf */}
                 <View style={es.featuredHeroImgBox}>
                   {(() => {
                     const featImg = generatedAssets[feat?.image] || getAsset(feat?.image) || generatedAssets['blog_pregnant_morning'];
@@ -386,14 +442,24 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                       {isEn ? "EDITOR'S CHOICE" : "EDİTÖRÜN SEÇİMİ"}
                     </T>
                   </View>
+                  <Tap
+                    onPress={() => toggleBookmark(feat.id)}
+                    style={{ position: 'absolute', top: 10, right: 12, backgroundColor: 'rgba(0,0,0,0.5)', width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <T style={{ fontSize: 16 }}>{isSaved ? '❤️' : '🤍'}</T>
+                  </Tap>
                 </View>
 
-                {/* Alt Kısım: Beyaz Editoryal Gövde */}
                 <View style={es.featuredHeroBody}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6, flexWrap: 'wrap' }}>
                     <View style={es.featuredCatPill}>
                       <T bold style={{ fontSize: 9.5, color: colors.purple, letterSpacing: 0.5 }}>
                         {feat.categoryName ? feat.categoryName.toLocaleUpperCase(isEn ? 'en' : 'tr') : (isEn ? 'GUIDE' : 'REHBER')}
+                      </T>
+                    </View>
+                    <View style={{ backgroundColor: '#F0EAF4', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
+                      <T style={{ fontSize: 9.5, color: colors.purple, fontWeight: '600' }}>
+                        {getArticleStage(feat.topic, lang)}
                       </T>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
@@ -405,7 +471,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                   <T numberOfLines={2} style={es.featuredHeroSub}>{feat.subtitle}</T>
                   <View style={es.featuredHeroFooter}>
                     <T numberOfLines={1} style={es.featuredHeroAuthor}>
-                      {feat.doctor ? `🩺 ${feat.doctor.split('·')[0].trim()}` : (isEn ? '🩺 Momora Editorial Archive' : '🩺 Momora Editoryal Arşivi')}
+                      {feat.doctor ? `🩺 ${feat.doctor.split('·')[0].trim()}` : (isEn ? '🩺 Momora Medical Board' : '🩺 Momora Sağlık Kurulu')}
                     </T>
                     <View style={es.featuredHeroReadBtn}>
                       <T bold style={{ fontSize: 11.5, color: colors.purple }}>{isEn ? 'Read Guide →' : 'Rehberi Oku →'}</T>
@@ -416,249 +482,129 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
             );
           })()}
 
-          {/* Makale Sayacı & Kapak Görünüm Ayarı */}
+          {/* Makale Sayacı & Filtre Sıfırlama */}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 2 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <T bold style={{ fontSize: 13, color: colors.muted }}>
-                {filteredArticles.length} {isEn ? 'Editorial Guides' : 'Editoryal Rehber'}
-              </T>
-              {articleFilter !== 'all' && (
-                <Tap onPress={() => setArticleFilter('all')} label={isEn ? "Clear Filter" : "Filtreyi Temizle"}>
-                  <T style={{ fontSize: 11.5, color: colors.purple }}>{isEn ? "(Show All ↺)" : "(Tümünü Göster ↺)"}</T>
-                </Tap>
-              )}
-            </View>
-
+            <T bold style={{ fontSize: 12.5, color: colors.muted }}>
+              {filteredArticles.length} {isEn ? 'Evidence-Based Guides' : 'Doğrulanmış Rehber'}
+            </T>
+            {(stageFilter !== 'all' || articleFilter !== 'all' || articleQuery) && (
+              <Tap
+                onPress={() => {
+                  setStageFilter('all');
+                  setArticleFilter('all');
+                  setArticleQuery('');
+                }}
+                label={isEn ? "Reset Filters" : "Filtreleri Sıfırla"}
+              >
+                <T style={{ fontSize: 11.5, color: colors.purple }}>{isEn ? "Reset ↺" : "Sıfırla ↺"}</T>
+              </Tap>
+            )}
           </View>
 
-          {/* Makale Kartları Listesi (Vogue / Flo Kalitesinde Görsel Kartlar) */}
+          {/* Makale Kartları Listesi (Full Spec 19 Metadata ile) */}
           <View style={{ gap: 14 }}>
-            {listArticles.map(rawArticle => {
-              const a = getLocalizedArticle(rawArticle, lang);
-              const imgAsset = generatedAssets[a.image] || getAsset(a.image) || generatedAssets['blog_pregnant_morning'];
-              
-              return (
-                <Tap
-                  key={a.id}
-                  onPress={() => openArticle && openArticle(a)}
-                  label={a.title}
-                  style={es.blogPostCard}
-                >
-                  <View style={es.blogPostImgBox}>
-                    <Image
-                      source={imgAsset}
-                      style={es.coverImage}
-                      resizeMode="cover"
-                    />
-                    <View style={es.blogPostCategoryBadge}>
-                      <T bold style={{ fontSize: 10, color: colors.purple }}>
-                        {a.categoryName || (isEn ? 'Guide' : 'Rehber')}
-                      </T>
-                    </View>
-                    <View style={es.blogPostTimeTag}>
-                      <Icon name="clock" size={11} color="white" />
-                      <T bold style={{ fontSize: 10.5, color: 'white' }}>{a.minutes} {isEn ? 'min' : 'dk'}</T>
-                    </View>
-                  </View>
-                  <View style={{ padding: 16 }}>
-                    <T bold style={es.blogPostTitle}>{a.title}</T>
-                    <T numberOfLines={2} style={es.blogPostSub}>{a.subtitle}</T>
+            {listArticles.length === 0 ? (
+              <Card style={{ padding: 28, alignItems: 'center' }}>
+                <T style={{ fontSize: 32 }}>🔍</T>
+                <T bold style={{ fontSize: 14, color: colors.ink, marginTop: 8 }}>
+                  {stageFilter === 'saved'
+                    ? (isEn ? 'No saved guides yet' : 'Henüz kaydedilmiş bir rehber yok')
+                    : (isEn ? 'No guides found for this search' : 'Aramanızla eşleşen rehber bulunamadı')}
+                </T>
+                <T style={{ fontSize: 12, color: colors.muted, textAlign: 'center', marginTop: 4 }}>
+                  {stageFilter === 'saved'
+                    ? (isEn ? 'Tap the bookmark icon on any guide to read it later offline.' : 'Yazılardaki yer imi ikonuna dokunarak favorilerinize ekleyebilirsiniz.')
+                    : (isEn ? 'Try another keyword or reset the category filter.' : 'Farklı bir kelime arayabilir veya filtreleri sıfırlayabilirsiniz.')}
+                </T>
+              </Card>
+            ) : (
+              listArticles.map(rawArticle => {
+                const a = getLocalizedArticle(rawArticle, lang);
+                const imgAsset = generatedAssets[a.image] || getAsset(a.image) || generatedAssets['blog_pregnant_morning'];
+                const isSaved = savedArticleIds.includes(a.id);
 
-                    <View style={es.blogPostDocRow}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, flex: 1 }}>
-                        <Icon name="check" size={13} color={colors.purple} />
-                        <T numberOfLines={1} style={{ fontSize: 11.5, color: colors.muted, flex: 1, fontWeight: '500' }}>
-                          {a.doctor ? (isEn ? `Source: ${a.doctor.split('·')[0]}` : `Kaynak: ${a.doctor.split('·')[0]}`) : (isEn ? 'Momora Editorial Archive' : 'Momora Editoryal')}
+                return (
+                  <Tap
+                    key={a.id}
+                    onPress={() => openArticle && openArticle(a)}
+                    label={a.title}
+                    style={es.blogPostCard}
+                  >
+                    <View style={es.blogPostImgBox}>
+                      <Image
+                        source={imgAsset}
+                        style={es.coverImage}
+                        resizeMode="cover"
+                      />
+                      <View style={es.blogPostCategoryBadge}>
+                        <T bold style={{ fontSize: 10, color: colors.purple }}>
+                          {a.categoryName || (isEn ? 'Guide' : 'Rehber')}
                         </T>
                       </View>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-                        <T bold style={{ fontSize: 11.5, color: colors.purple }}>{isEn ? 'Read' : 'Oku'}</T>
-                        <Icon name="chevron" size={14} color={colors.purple} />
+                      <View style={es.blogPostTimeTag}>
+                        <Icon name="clock" size={11} color="white" />
+                        <T bold style={{ fontSize: 10.5, color: 'white' }}>{a.minutes} {isEn ? 'min' : 'dk'}</T>
+                      </View>
+                      {/* Yer İmi / Kaydet Butonu */}
+                      <Tap
+                        onPress={() => toggleBookmark(a.id)}
+                        style={{ position: 'absolute', top: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.55)', width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        <T style={{ fontSize: 14 }}>{isSaved ? '❤️' : '🤍'}</T>
+                      </Tap>
+                    </View>
+
+                    <View style={{ padding: 16 }}>
+                      {/* Aşama & Güncelleme Rozetleri (Spec 19) */}
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                        <View style={{ backgroundColor: '#F4EEF6', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6 }}>
+                          <T style={{ fontSize: 9.5, color: colors.purple, fontWeight: '700' }}>
+                            {getArticleStage(a.topic, lang)}
+                          </T>
+                        </View>
+                        <T style={{ fontSize: 10, color: colors.muted }}>• 2026 Fact-Checked</T>
+                      </View>
+
+                      <T bold style={es.blogPostTitle}>{a.title}</T>
+                      <T numberOfLines={2} style={es.blogPostSub}>{a.subtitle}</T>
+
+                      <View style={es.blogPostDocRow}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, flex: 1 }}>
+                          <Icon name="check" size={13} color={colors.purple} />
+                          <T numberOfLines={1} style={{ fontSize: 11.5, color: colors.muted, flex: 1, fontWeight: '500' }}>
+                            {a.doctor ? (isEn ? `Review: ${a.doctor.split('·')[0]}` : `Hakem: ${a.doctor.split('·')[0]}`) : (isEn ? 'Momora Medical Board' : 'Momora Sağlık Kurulu')}
+                          </T>
+                        </View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                          <T bold style={{ fontSize: 11.5, color: colors.purple }}>{isEn ? 'Read' : 'Oku'}</T>
+                          <Icon name="chevron" size={14} color={colors.purple} />
+                        </View>
                       </View>
                     </View>
-                  </View>
-                </Tap>
-              );
-            })}
+                  </Tap>
+                );
+              })
+            )}
           </View>
 
+          {/* Bilgilendirme Çubuğu */}
           <View style={es.libraryRitualStrip}>
             <View style={es.libraryRitualIcon}>
               <Icon name="book" size={15} color="#7C5B3F" />
             </View>
             <View style={{ flex: 1 }}>
-              <T bold style={{ fontSize: 12.5, color: colors.ink }}>{isEn ? 'Open with one purpose' : 'Tek amaçla aç'}</T>
+              <T bold style={{ fontSize: 12.5, color: colors.ink }}>
+                {isEn ? 'Evidence-Based & Compassionate' : 'Kanıta Dayalı & Şefkatli'}
+              </T>
               <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2, lineHeight: 16 }}>
-                {isEn ? 'Read one guide, save one answer, return when a symptom or plan changes.' : 'Bir rehber oku, bir cevabı kaydet, belirti veya plan değişince geri dön.'}
+                {isEn
+                  ? 'All guides are reviewed against clinical standards. Search returns knowledge, not medical diagnoses.'
+                  : 'Tüm rehberler güncel klinik standartlarla incelenir. Arama motoru medikal teşhis değil, güvenilir rehberlik sunar.'}
               </T>
             </View>
           </View>
         </View>
       ) : hubTab === 'infographics' ? (
-        /* 4. GÖRSEL İNFOGRAFİKLER & KLİNİK ŞABLONLAR */
-        <View style={{ gap: 16 }}>
-          <View style={{ gap: 4 }}>
-            <T bold style={{ fontSize: 18, color: colors.ink, letterSpacing: -0.4 }}>
-              {isEn ? 'Visual Health & Wellness Infographics' : 'Görsel Sağlık & Yaşam İnfografikleri'}
-            </T>
-            <T style={{ fontSize: 13, color: colors.muted }}>
-              {isEn ? 'Explore complex clinical and care guidance through clean visual cards.' : 'Karmaşık klinik ve bakım bilgilerini sade, görsel şablonlarla keşfedin.'}
-            </T>
-          </View>
-
-          {[
-            {
-              id: 'info-1',
-              title: isEn ? 'Champion Mom Plate & Superfoods in Pregnancy' : 'Gebelikte Şampiyon Anne Tabağı & Süper Besinler',
-              sub: isEn ? 'Optimal micronutrient balance accelerating baby brain, bone, and organ development across trimesters.' : 'Trimesterlar boyunca bebeğin beyin, kemik ve organ gelişimini hızlandıran optimal mikro besin dengesi.',
-              tag: isEn ? 'NUTRITION & MICRONUTRIENTS' : 'BESLENME & MİKRO BESİN',
-              asset: 'infographic_trimester_nutrition',
-              fallback: 'blog_healthy_breakfast',
-              tint: '#4A7C59',
-              bullets: isEn
-                ? ['Choline & DHA: Egg yolks and wild salmon', 'Folate & Iron: Dark leafy greens & lentils', 'Calcium: Probiotic yogurt and kefir']
-                : ['Kolin & DHA: Yumurta sarısı ve somon', 'Folat & Demir: Koyu yeşil yapraklılar', 'Kalsiyum: Probiyotik yoğurt ve kefir']
-            },
-            {
-              id: 'info-2',
-              title: isEn ? 'Safe Baby Sleep Guide: ABC Rule' : 'Güvenli Bebek Uykusu Kılavuzu: ABC Kuralı',
-              sub: isEn ? 'WHO-approved safe sleep guidelines reducing SIDS risk by up to 80%.' : 'Ani Bebek Ölümü Sendromu (SIDS) riskini %80 azaltan Dünya Sağlık Örgütü onaylı güvenli uyku rehberi.',
-              tag: isEn ? 'NEWBORN SAFETY' : 'YENİDOĞAN GÜVENLİĞİ',
-              asset: 'infographic_safe_sleep_abc',
-              fallback: 'blog_sleeping_crib',
-              tint: '#58638A',
-              bullets: isEn
-                ? ['A - Alone: Alone, no pillow, no toys', 'B - Back: Always on their back', 'C - Crib: In their own separate crib']
-                : ['A - Alone: Yalnız, yastıksız ve oyuncaksız', 'B - Back: Her zaman sırtüstü yatış', 'C - Crib: Kendi bağımsız beşiğinde']
-            },
-            {
-              id: 'info-3',
-              title: isEn ? '3 Stages of Labor & The Body\'s Natural Transformation' : 'Doğumun 3 Aşaması ve Bedenin Doğal Dönüşümü',
-              sub: isEn ? 'Anatomical stages from first contraction through delivery of placenta and skin-to-skin golden hour.' : 'İlk sancıdan plasentanın doğumuna ve ten tene temas saatine kadar doğum yolculuğunun anatomik evreleri.',
-              tag: isEn ? 'BIRTH GUIDE' : 'DOĞUM REHBERİ',
-              asset: 'infographic_labor_stages',
-              fallback: 'blog_epidural_birth',
-              tint: '#8C4A60',
-              bullets: isEn
-                ? ['Stage 1: Cervix effacement and 10 cm dilation', 'Stage 2: Descent of baby and pushing stage', 'Stage 3: Baby embrace & Golden Hour']
-                : ['1. Evre: Rahim ağzının incelmesi ve 10 cm açılma', '2. Evre: Bebeğin inişi ve ıkınma aşaması', '3. Evre: Bebeğin kucaklaşması & Altın Saat']
-            },
-            {
-              id: 'info-4',
-              title: isEn ? 'Fetal Kick & Movement Tracking: Rule of 10' : 'Fetal Tekme ve Hareket Takibi: 10 Sayım Kuralı',
-              sub: isEn ? 'Learn your baby\'s active rhythm, wake windows, and signals that warrant doctor notification.' : 'Bebeğinizin anne karnındaki ritmini, uyanıklık pencerelerini ve doktora bildirilmesi gereken sinyalleri öğrenin.',
-              tag: isEn ? 'FETAL DEVELOPMENT' : 'FETAL GELİŞİM',
-              asset: 'infographic_kick_counter_guide',
-              fallback: 'blog_couple_bump',
-              tint: '#9C6238',
-              bullets: isEn
-                ? ['10 clear movements within 2 hours after a meal', 'Blood flow peaks when lying on left side', 'Significant drops in movement require clinical consultation']
-                : ['Yemekten sonra 2 saat içinde 10 net hareket', 'Sol yan yatışta kan akışı maksimuma çıkar', 'Harekette belirgin azalma hekime iletilmelidir']
-            },
-            {
-              id: 'info-5',
-              title: isEn ? 'Newborn Hunger & Crying Body Language' : 'Yenidoğan Açlık ve Ağlama Beden Dili',
-              sub: isEn ? 'Decode subtle body signals before crying begins; keep feeding calm and peaceful.' : 'Bebek ağlamadan önceki ince beden dili işaretlerini çözün; beslenmeyi sakin ve stressiz tamamlayın.',
-              tag: isEn ? 'BABY PSYCHOLOGY' : 'BEBEK PSİKOLOJİSİ',
-              asset: 'infographic_baby_crying_cues',
-              fallback: 'blog_baby_first_food',
-              tint: '#6A5688',
-              bullets: isEn
-                ? ['Early Cue: Rooting, sucking fingers, turning head', 'Active Cue: Stretching, faster breathing, waving arms', 'Late Cue: Crying with red face (Soothe first)']
-                : ['Erken Sinyal: Ağzı arama, parmak emme, başı çevirme', 'Aktif Sinyal: Gerinme, hızlı nefes, kollarını sallama', 'Geç Sinyal: Kırmızı yüzle ağlama (Önce sakinleştirin)']
-            },
-            {
-              id: 'info-6',
-              title: isEn ? 'Complete Birth & Hospital Bag Visual Checklist' : 'Eksiksiz Doğum ve Hastane Çantası Görsel Şablonu',
-              sub: isEn ? 'Visual layout of essentials for mom, baby, and birth partner ready by week 32.' : '32. haftada hazır bulunması gereken anne, bebek ve refakatçi temel gereksinimlerinin görsel yerleşimi.',
-              tag: isEn ? 'PREPARATION GUIDE' : 'HAZIRLIK REHBERİ',
-              asset: 'infographic_hospital_checklist',
-              fallback: 'blog_hospital_bag_pack',
-              tint: '#785A48',
-              bullets: isEn
-                ? ['Mom: Front-opening gown, maternity pads, slippers', 'Baby: 3 sets of onesies, swaddles, diaper cream', 'Documents: ID, insurance, birth preferences plan']
-                : ['Anne: Önden açılan gecelik, lohusa pedi, terlik', 'Bebek: 3 takım tulum, zıbın, müslin bez, pişik kremi', 'Evraklar: Kimlik, sigorta, doğum tercih planı']
-            }
-          ].map(info => {
-            const imgSource = generatedAssets[info.asset] || generatedAssets[info.fallback] || generatedAssets['blog_pregnant_morning'];
-            return (
-              <Card key={info.id} style={{ padding: 0, overflow: 'hidden', borderRadius: 24, borderWidth: 1, borderColor: '#E8DCE4' }}>
-                <View style={{ height: 210, width: '100%', backgroundColor: '#201525', overflow: 'hidden' }}>
-                  {imgSource && (
-                    <Image source={imgSource} style={es.fitImage} resizeMode="contain" />
-                  )}
-                  <LinearGradient
-                    colors={['rgba(25,12,30,0.1)', 'rgba(25,12,30,0.82)']}
-                    style={StyleSheet.absoluteFill}
-                  />
-                  <View style={{ position: 'absolute', top: 14, left: 14, backgroundColor: 'rgba(255,255,255,0.92)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 }}>
-                    <T bold style={{ fontSize: 10, color: info.tint, letterSpacing: 0.8 }}>{info.tag}</T>
-                  </View>
-                  <View style={{ position: 'absolute', bottom: 14, left: 16, right: 16 }}>
-                    <T bold style={{ fontSize: 18, color: 'white', lineHeight: 23, textShadowColor: 'rgba(0,0,0,0.5)', textShadowRadius: 3 }}>
-                      {info.title}
-                    </T>
-                  </View>
-                </View>
-
-                <View style={{ padding: 18, gap: 10, backgroundColor: '#FFFAF8' }}>
-                  <T style={{ fontSize: 13, color: colors.ink, lineHeight: 19 }}>
-                    {info.sub}
-                  </T>
-                  <View style={{ height: 1, backgroundColor: '#EFE7EE', marginVertical: 2 }} />
-                  <View style={{ gap: 6 }}>
-                    {info.bullets.map((b, bIdx) => (
-                      <View key={bIdx} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: info.tint }} />
-                        <T style={{ fontSize: 12, color: '#55485E', fontWeight: '500' }}>{b}</T>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              </Card>
-            );
-          })}
-        </View>
-      ) : hubTab === 'food' ? (
-        /* 2. BESİN GÜVENLİĞİ KILAVUZU */
-        <FoodSafetyChecker lang={lang} />
-      ) : (
-        /* 3. TEMATİK DOSYALAR & KOLEKSİYONLAR */
-        <View style={{ gap: 12 }}>
-          <Section title={isEn ? "Thematic Collection Dossiers" : "Tematik Koleksiyon Dosyaları"} />
-          {topicCollections.map(col => {
-            const colImg = (col.art && (generatedAssets[col.art] || getAsset(col.art))) ||
-                           (col.image && (generatedAssets[col.image] || getAsset(col.image))) ||
-                           generatedAssets['blog_pregnant_morning'];
-            const colTitle = isEn && col.titleEn ? col.titleEn : col.title;
-            return (
-              <Tap
-                key={col.id}
-                onPress={() => {
-                  const match = articles.find(a => a.topic === col.id) || articles[0];
-                  openArticle && openArticle(match);
-                }}
-                label={colTitle}
-                style={[es.collectionCard, { backgroundColor: col.color }]}
-              >
-                {colImg && (
-                  <Image source={colImg} style={es.colImg} resizeMode="contain" />
-                )}
-                <View style={es.colInfo}>
-                  <T bold style={{ fontSize: 15, color: colors.ink, lineHeight: 21 }}>{colTitle}</T>
-                  <T style={{ fontSize: 12, color: colors.muted, marginTop: 5 }}>{col.count} {isEn ? 'curated guides' : 'derlenmiş rehber'}</T>
-                </View>
-                <Icon name="chevron" size={18} color={colors.purple} />
-              </Tap>
-            );
-          })}
-        </View>
-      )}
-    </View>
-  );
-}
-
-// ─── EKRAN 15: MAKALE DETAY EKRANI (LUXURY MAGAZINE EDITORIAL FULLSCREEN READER) ────────
 export function EditorialArticleScreen({ article, close, openArticle, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
   const [playingAudio, setPlayingAudio] = useState(false);

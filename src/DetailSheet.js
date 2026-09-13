@@ -74,6 +74,8 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
               close={close}
               toast={toast}
               lang={lang}
+              state={state}
+              update={update}
               openArticle={(newArt) => open('editorialArticle', { article: newArt })}
             />
           </View>
@@ -255,7 +257,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     {kind==='organDevelopment'&&<OrganDevelopment state={state} lang={lang}/>}
     {/* Modül 3: Keşfet & Makale */}
     {kind==='foodSafety'&&<FoodSafetyChecker toast={toast} lang={lang}/>}
-    {kind==='topicHub'&&<TopicHubScreen openArticle={(article)=>open('editorialArticle', {article})} openFoodChecker={()=>open('foodSafety')} lang={lang}/>}
+    {kind==='topicHub'&&<TopicHubScreen state={state} update={update} toast={toast} openArticle={(article)=>open('editorialArticle', {article})} openFoodChecker={()=>open('foodSafety')} lang={lang}/>}
     {/* Modül 4: Bugün & Günlük Akış */}
     {kind==='babyLetter'&&<DailyBabyLetterScreen state={state} toast={toast} lang={lang}/>}
     {kind==='timelineFeed'&&<DailyTimelineFeed lang={lang}/>}
