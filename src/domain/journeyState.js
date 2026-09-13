@@ -105,3 +105,44 @@ export function calculateBabyAge(birthDateStr, lang = 'tr') {
   const months = Math.floor(diffDays / 30.4375);
   return isEn ? `${months} months old` : `${months} aylık`;
 }
+
+/**
+ * Derives approximate estimated due date from pregnancy week and optional day
+ */
+export function calculateDueDateFromWeek(week = 24, day = 0) {
+  const clampedWeek = Math.max(1, Math.min(42, Number(week) || 24));
+  const clampedDay = Math.max(0, Math.min(6, Number(day) || 0));
+  const elapsedDays = (clampedWeek * 7) + clampedDay;
+  const remainingDays = GESTATION_DAYS - elapsedDays;
+  const target = new Date(Date.now() + (remainingDays * MILLIS_PER_DAY));
+  return target.toISOString().slice(0, 10);
+}
+
+/**
+ * Unified Journey State Resolver
+ * Resolves current stage, progress, milestone days and remaining time from canonical state
+ */
+export function resolveJourneyState(state) {
+  const mode = state?.mode || 'pregnancy';
+  const dueDate = state?.dueDate || state?.pregnancy?.dueDate || '2026-07-24';
+  const birthDate = state?.birthDate || state?.baby?.birthDate || '2026-03-01';
+  const preg = calculatePregnancyProgress(dueDate);
+  const post = calculatePostpartumProgress(birthDate);
+  const babyAge = calculateBabyAge(birthDate, state?.lang || 'tr');
+
+  return {
+    stage: mode,
+    pregnancy: preg,
+    postpartum: post,
+    babyAge,
+    dueDate,
+    birthDate,
+    week: preg.week,
+    day: preg.day,
+    daysRemaining: preg.daysRemaining,
+    percent: preg.percent,
+    trimester: preg.trimester,
+    isOverdue: preg.isOverdue,
+  };
+}
+

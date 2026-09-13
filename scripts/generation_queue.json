@@ -2058,12 +2058,14 @@
       "filename": "usg_2d_w08_gestational_sac.png",
       "prompt": "Clinical obstetric 2D B-mode ultrasound sonogram of an early 8-week intrauterine pregnancy, showing a clear anechoic dark fluid gestational sac implanted in the uterine endometrium, visible circular yolk sac and embryonic fetal pole with CRL measurement calipers, genuine medical ultrasound texture with acoustic grain, acoustic shadowing, dark background, hospital ultrasound monitor screen, clinical medical photography, high contrast black and white sonography, no watermark, no text overlay.",
       "transparent": false,
-      "status": "processing",
-      "attempts": 1,
+      "status": "done",
+      "attempts": 2,
       "createdAt": 1789302625543,
-      "preferredPlatform": "chatgpt",
-      "startedAt": 1789302722449,
-      "platform": "chatgpt"
+      "preferredPlatform": "any",
+      "startedAt": 1789303172482,
+      "platform": "gemini",
+      "updatedAt": 1789303213590,
+      "thumb": "blob:https://gemini.google.com/96d5f27c-681e-49e3-865e-098c205d5144"
     },
     {
       "id": "job_usg_1789302625543_w12",
@@ -2071,22 +2073,22 @@
       "prompt": "Clinical obstetric 2D B-mode ultrasound sonogram of a 12-week fetus in mid-sagittal profile, showing the full crown-rump length (CRL), fetal profile with visible nasal bone, distinct nuchal translucency (NT) fluid pocket behind the fetal neck with dual caliper crosshairs measuring translucency, authentic ultrasound speckle and acoustic shading, hospital clinical monitor sonogram, monochrome medical sonography, high resolution, no text.",
       "transparent": false,
       "status": "processing",
-      "attempts": 1,
+      "attempts": 2,
       "createdAt": 1789302625543,
-      "preferredPlatform": "chatgpt",
-      "startedAt": 1789302844876,
-      "platform": "chatgpt"
+      "preferredPlatform": "any",
+      "startedAt": 1789303214458,
+      "platform": "gemini"
     },
     {
       "id": "job_usg_1789302625543_w20_lvl2",
       "filename": "usg_2d_w20_level2_anatomy.png",
       "prompt": "Clinical Level II detailed anatomy 2D B-mode ultrasound sonogram of a 20-week human fetus, showing a clear transverse view of the fetal spine vertebrae, ribs, and abdominal contour with amniotic fluid pocket, authentic hospital sonography monitor texture, genuine ultrasound grayscale contrast and acoustic grain, professional medical sonogram, monochrome, no text, no watermark.",
       "transparent": false,
-      "status": "processing",
+      "status": "pending",
       "attempts": 1,
       "createdAt": 1789302625543,
-      "preferredPlatform": "chatgpt",
-      "startedAt": 1789302928918,
+      "preferredPlatform": "any",
+      "startedAt": null,
       "platform": "chatgpt"
     },
     {
@@ -2095,9 +2097,11 @@
       "prompt": "Clinical 2D B-mode fetal echocardiography ultrasound scan of a 20-week fetus showing the apical four-chamber view of the heart (4CV), clear left and right ventricles, atria, and interventricular septum, cardiac valves, true medical ultrasound sonogram with acoustic noise and contrast, hospital diagnostic screen, black and white grayscale, no text, no watermark.",
       "transparent": false,
       "status": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "createdAt": 1789302625543,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "any",
+      "startedAt": null,
+      "platform": "chatgpt"
     },
     {
       "id": "job_usg_1789302625543_w20_prof",
@@ -2105,9 +2109,11 @@
       "prompt": "Clinical 2D B-mode ultrasound sonogram of a 20-week fetal facial profile, displaying the forehead, distinct nasal bone, upper and lower lips, and micrognathia check chin, surrounded by dark anechoic amniotic fluid, authentic medical sonography monitor output, acoustic speckle texture, monochrome grayscale, hospital ultrasound scan, no text, no watermark.",
       "transparent": false,
       "status": "pending",
-      "attempts": 0,
+      "attempts": 1,
       "createdAt": 1789302625543,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "any",
+      "startedAt": null,
+      "platform": "chatgpt"
     },
     {
       "id": "job_usg_1789302625543_w28_bpd",
@@ -2117,7 +2123,8 @@
       "status": "pending",
       "attempts": 0,
       "createdAt": 1789302625543,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "any",
+      "startedAt": null
     },
     {
       "id": "job_usg_1789302625543_w36_ceph",
@@ -2127,7 +2134,8 @@
       "status": "pending",
       "attempts": 0,
       "createdAt": 1789302625543,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "any",
+      "startedAt": null
     },
     {
       "id": "job_usg_1789302625543_dop_cord",
@@ -2137,7 +2145,8 @@
       "status": "pending",
       "attempts": 0,
       "createdAt": 1789302625543,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "any",
+      "startedAt": null
     },
     {
       "id": "job_usg_1789302625543_dop_heart",
@@ -2147,7 +2156,8 @@
       "status": "pending",
       "attempts": 0,
       "createdAt": 1789302625543,
-      "preferredPlatform": "chatgpt"
+      "preferredPlatform": "any",
+      "startedAt": null
     },
     {
       "id": "job_usg_1789302625543_caliper_icon",

@@ -299,6 +299,8 @@ export const generatedAssets = {
   'ui_ultrasound_hdlive_20w': require('../assets/ui_ultrasound_hdlive_20w.png'),
   'ui_weight_bmi_gauge': require('../assets/ui_weight_bmi_gauge.png'),
   'ui_white_noise_headphones': require('../assets/ui_white_noise_headphones.png'),
+  'usg_2d_w08_gestational_sac': require('../assets/usg_2d_w08_gestational_sac.png'),
+  'usg_2d_w12_nt_crl': require('../assets/usg_2d_w12_nt_crl.png'),
 };
 
 export function getAsset(name) {

@@ -13,6 +13,7 @@ import { TopicHubScreen } from './ExploreScreens';
 import { CommunityHub } from './CommunityScreens';
 import { getBabyLetterForWeek } from './babyLettersData';
 import { t } from './i18n/index.js';
+import { calculateDueDateFromWeek } from './domain/journeyState';
 
 export const getJourneys = (lang = 'tr') => [
   { key: 'pregnancy', title: lang === 'en' ? "I'm Pregnant" : 'Hamileyim', sub: lang === 'en' ? 'Preparing to meet\nmy baby' : 'Bebeğimle tanışmaya\nhazırlanıyorum', image: assets.pregnancy, tint: '#F5E7E8' },
@@ -21,7 +22,7 @@ export const getJourneys = (lang = 'tr') => [
 ];
 export const journeys = getJourneys('tr');
 
-export function Onboarding({ choose, update, toast, lang = 'tr' }) {
+export function Onboarding({ choose, update, toast, lang = 'tr', open, setPage }) {
   const isEn = lang === 'en';
   // 5 Aşamalı İnteraktif Onboarding (Flo / Apple Health Stili)
   const [step, setStep] = useState(1);
@@ -63,19 +64,52 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
   }, [step]);
 
   function handleComplete() {
+    const calculatedDueDate = calculateDueDateFromWeek(stage === 'pregnancy' ? week : 24);
+    const assignedName = role === 'father' ? (isEn ? 'Alex' : 'Mehmet') : (isEn ? 'Emma' : 'Zeynep');
+    const assignedPartnerName = role === 'father' ? (isEn ? 'Emma' : 'Zeynep') : (isEn ? 'Alex' : 'Mehmet');
+    const effectiveBabyName = babyName.trim() || (isEn ? 'Maya' : 'Ada');
+    const effectiveGender = gender === 'girl' ? (isEn ? 'Girl' : 'Kız') : gender === 'boy' ? (isEn ? 'Boy' : 'Erkek') : (isEn ? 'Surprise' : 'Henüz Sürpriz');
+
     if (update) {
       update({
         role,
         mode: stage,
         week: stage === 'pregnancy' ? week : 24,
-        babyGender: gender === 'girl' ? 'Kız' : gender === 'boy' ? 'Erkek' : 'Henüz Sürpriz',
-        babyName: babyName.trim() || 'Ada',
-        name: role === 'father' ? 'Mehmet' : 'Zeynep',
-        partnerName: role === 'father' ? 'Zeynep' : 'Mehmet',
+        dueDate: calculatedDueDate,
+        babyGender: effectiveGender,
+        babyName: effectiveBabyName,
+        name: assignedName,
+        partnerName: assignedPartnerName,
         partnerRole: role === 'father' ? 'mother' : 'father',
         partnerConnected: true,
         firstBaby,
         interests: selectedInterests,
+        user: {
+          id: 'local-guest',
+          isGuest: true,
+          role,
+          name: assignedName,
+        },
+        household: {
+          id: 'hh-local-1',
+          name: isEn ? 'Our Family' : 'Bizim Ailemiz',
+          role,
+          members: [
+            { id: 'user-1', name: assignedName, role },
+            { id: 'user-2', name: assignedPartnerName, role: role === 'father' ? 'mother' : 'father' },
+          ],
+        },
+        pregnancy: {
+          dueDate: calculatedDueDate,
+          week: stage === 'pregnancy' ? week : 24,
+          babyGender: effectiveGender,
+          babyName: effectiveBabyName,
+        },
+        baby: {
+          name: effectiveBabyName,
+          gender: effectiveGender,
+          birthDate: new Date().toISOString().slice(0, 10),
+        },
       });
     }
     toast && toast(role === 'father'
@@ -223,6 +257,21 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
           <T bold style={s.obPrimaryBtnText}>{isEn ? 'Continue' : 'Devam Et'}</T>
           <Icon name="chevron" size={16} color="white" />
         </Tap>
+
+        {/* Zaten Hesabım Var Bağlantısı */}
+        <View style={{ alignItems: 'center', marginTop: 4 }}>
+          <Tap
+            onPress={() => {
+              if (setPage) setPage('auth');
+              else if (open) open('auth');
+            }}
+            label={isEn ? 'Already have an account? Sign In' : 'Zaten bir hesabın var mı? Giriş Yap'}
+          >
+            <T style={{ fontSize: 13, color: colors.purple, fontWeight: '600' }}>
+              {isEn ? 'Already have an account? Sign In →' : 'Zaten bir hesabın var mı? Giriş Yap →'}
+            </T>
+          </Tap>
+        </View>
       </View>
     );
   }

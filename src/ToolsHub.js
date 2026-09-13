@@ -55,7 +55,7 @@ export function getAllTools(lang = 'tr') {
       title: isEn ? 'Ultrasound Atlas & Biometry' : 'Ultrason Atlası & Biyometri',
       subtitle: isEn ? '3D HDLive, 2D scans & report decoder' : '3D HDLive, 2D sonogram & rapor okuma',
       icon: 'ultrasound',
-      art: 'fetus_w20',
+      art: 'ui_ultrasound_biometry_caliper',
       color: '#F4EEF7',
       tint: '#583D7A',
       available: true,

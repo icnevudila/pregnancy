@@ -129,7 +129,7 @@ function Momora() {
   }, [state.user?.id]);
 
   const props={state,update,addRecord,open,cloudStatus,refreshFromCloud,lang,choose,setPage};
-  const renderPage=()=>{switch(active){case'pregnancy':return <Pregnancy {...props}/>;case'tools':return <ToolsHub {...props} toast={setNotice}/>;case'postpartum':return <Postpartum {...props}/>;case'baby':return <Baby {...props}/>;case'discover':return <Discover {...props}/>;case'assistant':return <Assistant {...props} toast={setNotice}/>;case'profile':return <ProfileScreen {...props} toast={setNotice} choose={choose}/>;case'auth':return <AuthModal close={()=>setPage(state.mode||'pregnancy')} toast={setNotice} onAuthSuccess={u=>{update({user:u});if(u?.user_metadata?.full_name)update({name:u.user_metadata.full_name});setPage(state.mode||'pregnancy');}} lang={lang}/>;default:return <Onboarding choose={choose} update={update} toast={setNotice} lang={lang}/>}};
+  const renderPage=()=>{switch(active){case'pregnancy':return <Pregnancy {...props}/>;case'tools':return <ToolsHub {...props} toast={setNotice}/>;case'postpartum':return <Postpartum {...props}/>;case'baby':return <Baby {...props}/>;case'discover':return <Discover {...props}/>;case'assistant':return <Assistant {...props} toast={setNotice}/>;case'profile':return <ProfileScreen {...props} toast={setNotice} choose={choose}/>;case'auth':return <AuthModal close={()=>setPage(state.mode||'pregnancy')} toast={setNotice} onAuthSuccess={u=>{update({user:u});if(u?.user_metadata?.full_name)update({name:u.user_metadata.full_name});setPage(state.mode||'pregnancy');}} lang={lang}/>;default:return <Onboarding choose={choose} update={update} toast={setNotice} lang={lang} open={open} setPage={setPage}/>}};
   return <View style={[s.root,desktop&&s.desktop]}>
     {desktop&&<View style={s.sidebar}><View style={s.desktopBrand}><BrandMark size={55}/><T style={s.desktopWordmark}>MOMORA</T></View><T style={s.desktopTag}>{t('preview.desktopTag', lang)}</T><View style={{flexDirection:'row',alignItems:'center',gap:8,marginTop:12}}><T style={{fontSize:12,color:colors.muted}}>{t('common.language', lang)}:</T><LanguageToggle lang={lang} onChange={l=>update({lang:l})}/></View><View style={{gap:8,marginTop:28}}>{previewScreens.map(([id,label],index)=><Tap key={id} onPress={()=>setPage(id)} label={'Ekran: '+label} accessibilityState={{selected:active===id}} style={[s.previewTab,active===id&&s.previewTabActive]}><T style={[s.previewNumber,active===id&&{color:colors.purple}]}>{String(index+1).padStart(2,'0')}</T><T bold={active===id} style={{fontSize:15}}>{label}</T><View style={{flex:1}}/>{active===id&&<Icon name="chevron" color={colors.purple} size={18}/>}</Tap>)}</View><View style={s.localBadge}><View style={s.dot}/><T style={{fontSize:12,color:colors.muted}}>{t('preview.devPreview', lang)}</T></View></View>}
     <View style={[s.phone,desktop&&[s.phoneDesktop,{height:Math.min(944,height-44)}]]}>
@@ -147,14 +147,14 @@ function Momora() {
         <View style={{ height: Math.max(insets.top, Platform.OS === 'ios' ? 44 : 0) }} />
       )}
       <View style={{flex:1}} key={active}>{renderPage()}</View>
-      {active!=='onboarding'&&<View style={[s.nav,{paddingBottom:desktop?19:Math.max(12,insets.bottom)}]}>{[
+      {!['onboarding', 'auth'].includes(active)&&<View style={[s.nav,{paddingBottom:desktop?19:Math.max(12,insets.bottom)}]}>{[
         {label:t('nav.today', lang),icon:'home',selected:['pregnancy','postpartum','baby'].includes(active),action:()=>setPage(state.mode||'pregnancy')},
         {label:t('nav.tools', lang),icon:'track',selected:active==='tools',action:()=>setPage('tools')},
         {label:t('nav.discover', lang),icon:'book',selected:active==='discover',action:()=>setPage('discover')},
         {label:t('nav.community', lang),icon:'community',selected:active==='assistant',action:()=>setPage('assistant')},
         {label:t('nav.profile', lang),icon:'profile',selected:active==='profile',action:()=>setPage('profile')},
       ].map(tab=><Tap key={tab.label} label={tab.label} onPress={tab.action} accessibilityState={{selected:tab.selected}} style={s.navItem}><Icon name={tab.icon} size={22} color={tab.selected?'#5F4D7D':'#7C7E83'} fill={tab.selected&&(tab.icon==='home'||tab.icon==='book')?'#5F4D7D':'none'}/><T style={[s.navLabel,tab.selected&&{color:'#5F4D7D',fontFamily:fonts.bold}]}>{tab.label}</T></Tap>)}</View>}
-      {active==='onboarding'&&!desktop&&<View style={{height:insets.bottom}}/>}
+      {['onboarding', 'auth'].includes(active)&&!desktop&&<View style={{height:insets.bottom}}/>}
       {!!notice&&<View style={s.toast}><T style={{color:'white',fontSize:14,textAlign:'center'}}>{notice}</T></View>}
     </View>
     {sheet&&<DetailSheet key={sheet.key} sheet={sheet} close={()=>setSheet(null)} {...props} choose={choose} toast={setNotice} lang={lang}/>}

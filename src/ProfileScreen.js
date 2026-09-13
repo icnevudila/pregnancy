@@ -6,6 +6,7 @@ import { Icon, BrandMark } from './Icons';
 import { T, Tap, Card, ScreenHero, ToolExperienceCard, LanguageToggle } from './ui';
 import { babyNamesList } from './babyNamesData';
 import { dateLabel, pregnancyAt } from './domain.mjs';
+import { resolveJourneyState } from './domain/journeyState';
 import { isSupabaseConfigured, supabase } from './supabaseClient';
 import {
   signInWithEmail,
@@ -55,10 +56,28 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
   const [cloudUser, setCloudUser] = useState(null);
 
   const currentRole = state.role || 'mother'; // 'mother' | 'father'
-  const journey = pregnancyAt(state);
-  const remainingLabel = journey.remaining >= 0
-    ? `${journey.remaining} ${isEn ? 'Days' : 'Gün'}`
+  const journey = resolveJourneyState(state);
+  const remainingLabel = journey.daysRemaining >= 0
+    ? `${journey.daysRemaining} ${isEn ? 'Days' : 'Gün'}`
     : (isEn ? 'Past Due' : 'Tarih Geçti');
+
+  const permissions = state.sharingPermissions || {
+    sharePregnancyWeek: true,
+    shareAppointments: true,
+    shareHospitalBag: true,
+    shareBirthPreferences: true,
+    shareBabyTrackers: true,
+    shareMovementSummary: true,
+    shareWeight: false,
+    shareMood: false,
+    shareHealthNotes: false,
+  };
+
+  function togglePermission(key) {
+    const updated = { ...permissions, [key]: !permissions[key] };
+    update({ sharingPermissions: updated });
+    toast && toast(isEn ? 'Sharing privacy updated 🔒' : 'Paylaşım gizliliği güncellendi 🔒');
+  }
 
   useEffect(() => {
     if (!supabase) return undefined;
@@ -523,25 +542,27 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
             </View>
           </Card>
 
-          {/* BULUT VE EŞLEŞME BÖLÜMÜ */}
+          {/* BULUT VE HESAP YÖNETİMİ (ACCOUNT & GUEST MODE) */}
           <Card style={{ padding: 16, backgroundColor: '#FAF6FA', borderColor: '#EDE0EE', marginBottom: 14 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <BrandMark size={30} />
                 <View>
                   <T bold style={{ fontSize: 14.5, color: colors.ink }}>
-                    {isEn ? 'Momora Cloud & Family Sync' : 'Momora Bulut & Aile Eşitlemesi'}
+                    {isEn ? 'Account & Momora Cloud' : 'Hesap & Momora Bulut'}
                   </T>
                   <T style={{ fontSize: 11, color: colors.muted, marginTop: 1 }}>
-                    {cloudUser ? `${isEn ? 'Active:' : 'Aktif:'} ${cloudUser.email}` : (isEn ? 'Multi-device real-time sync' : 'Cihazlar arası anlık eşitleme')}
+                    {cloudUser
+                      ? `${isEn ? 'Connected:' : 'Bağlı:'} ${cloudUser.email}`
+                      : (isEn ? 'Guest Mode · Local storage only' : 'Misafir Modu · Sadece bu cihazda')}
                   </T>
                 </View>
               </View>
-              {cloudUser && (
-                <View style={{ backgroundColor: '#EDF7ED', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
-                  <T bold style={{ fontSize: 10.5, color: '#2E7D32' }}>{isEn ? 'Connected' : 'Bağlı'}</T>
-                </View>
-              )}
+              <View style={{ backgroundColor: cloudUser ? '#EDF7ED' : '#F3EDF7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+                <T bold style={{ fontSize: 10.5, color: cloudUser ? '#2E7D32' : colors.purple }}>
+                  {cloudUser ? (isEn ? 'Cloud Active' : 'Bulut Aktif') : (isEn ? 'Guest' : 'Misafir')}
+                </T>
+              </View>
             </View>
 
             {cloudUser ? (
@@ -558,16 +579,91 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
               <View style={{ marginTop: 10 }}>
                 <T style={{ fontSize: 11.5, color: '#5C5463', lineHeight: 17, marginBottom: 10 }}>
                   {isEn
-                    ? 'Both parents can connect to the same family account and sync all logs and notes.'
-                    : 'Anne ve baba olarak aynı hesaba bağlanabilir, tüm verilerinizi güvenle eşitleyebilirsiniz.'}
+                    ? 'You are currently in guest mode. Sign in to sync notes and data with your partner across multiple devices.'
+                    : 'Şu anda misafir modundasınız. Eşinizle tüm verilerinizi eşitlemek ve yedeklemek için giriş yapabilirsiniz.'}
                 </T>
                 <Tap onPress={() => open && open('auth')} style={ps.saveFullBtn}>
                   <T bold style={{ color: 'white', fontSize: 13.5 }}>
-                    {isEn ? 'Sign In / Create Account 🌸' : 'Giriş Yap / Hesap Oluştur 🌸'}
+                    {isEn ? 'Sign In / Create Cloud Account 🌸' : 'Giriş Yap / Bulut Hesabı Oluştur 🌸'}
                   </T>
                 </Tap>
               </View>
             )}
+          </Card>
+
+          {/* VERİ & GİZLİLİK - PAYLAŞIM İZİNLERİ (GRANULAR SHARING PERMISSIONS) */}
+          <Card style={{ padding: 16, backgroundColor: '#FAFAFD', borderColor: '#E5E4EE', marginBottom: 14 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <T style={{ fontSize: 20 }}>🔒</T>
+              <View style={{ flex: 1 }}>
+                <T bold style={{ fontSize: 14.5, color: colors.ink }}>
+                  {isEn ? 'Data & Partner Sharing Privacy' : 'Veri & Eş Paylaşım Gizliliği'}
+                </T>
+                <T style={{ fontSize: 11, color: colors.muted, marginTop: 1 }}>
+                  {isEn ? 'Choose what data is shared with your connected partner' : 'Bağlı eşinizle hangi verilerin paylaşılacağını yönetin'}
+                </T>
+              </View>
+            </View>
+
+            <View style={{ gap: 10 }}>
+              {[
+                { key: 'sharePregnancyWeek', labelTr: 'Hamilelik Haftası ve Günleri', labelEn: 'Pregnancy Week & Progress', defaultVal: true },
+                { key: 'shareAppointments', labelTr: 'Doktor Randevuları ve Soruları', labelEn: 'Doctor Appointments & Questions', defaultVal: true },
+                { key: 'shareHospitalBag', labelTr: 'Doğum Çantası & Hazırlık Listesi', labelEn: 'Hospital Bag & Birth Plan', defaultVal: true },
+                { key: 'shareBabyTrackers', labelTr: 'Bebek Sayaçları (Beslenme, Uyku)', labelEn: 'Baby Trackers (Feeding, Sleep)', defaultVal: true },
+                { key: 'shareMovementSummary', labelTr: 'Fetal Hareket Özeti', labelEn: 'Fetal Movement Summary', defaultVal: true },
+                { key: 'shareWeight', labelTr: 'Kilo Kayıtları', labelEn: 'Weight Entries', defaultVal: false, privateHint: true },
+                { key: 'shareMood', labelTr: 'Ruh Hali & Günlük Duygu Kaydı', labelEn: 'Daily Mood & Emotional Check-in', defaultVal: false, privateHint: true },
+                { key: 'shareHealthNotes', labelTr: 'Özel Sağlık ve Beden Notları', labelEn: 'Private Maternal Health Notes', defaultVal: false, privateHint: true },
+              ].map(item => {
+                const isChecked = permissions[item.key] !== undefined ? permissions[item.key] : item.defaultVal;
+                return (
+                  <View key={item.key} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 5, borderBottomWidth: 1, borderColor: '#F0EFF6' }}>
+                    <View style={{ flex: 1, paddingRight: 10 }}>
+                      <T bold style={{ fontSize: 12.5, color: colors.ink }}>{isEn ? item.labelEn : item.labelTr}</T>
+                      {item.privateHint && (
+                        <T style={{ fontSize: 10.5, color: '#A23463', marginTop: 1 }}>
+                          {isEn ? '🔒 Private by default' : '🔒 Mahremiyet gereği varsayılan kapalı'}
+                        </T>
+                      )}
+                    </View>
+                    <Switch
+                      value={isChecked}
+                      onValueChange={() => togglePermission(item.key)}
+                      trackColor={{ false: '#DFD8E3', true: colors.purple }}
+                      thumbColor={isChecked ? '#FFFFFF' : '#F4F3F7'}
+                    />
+                  </View>
+                );
+              })}
+            </View>
+
+            <View style={{ marginTop: 12, padding: 10, borderRadius: 12, backgroundColor: '#F5EFF7' }}>
+              <T style={{ fontSize: 11, color: '#5B4B63', lineHeight: 16 }}>
+                {isEn
+                  ? 'Note: Sensitive maternal health data (weight, mood, health notes) are stored locally and only shared when explicitly enabled.'
+                  : 'Not: Anne mahremiyetini korumak adına kilo, ruh hali ve sağlık notları varsayılan olarak gizlidir ve sadece izin verdiğinizde eşinizle paylaşılır.'}
+              </T>
+            </View>
+          </Card>
+
+          {/* DESTEK & TIBBİ BİLGİLENDİRME (SUPPORT & MEDICAL DISCLAIMER) */}
+          <Card style={{ padding: 16, backgroundColor: '#FFFDF9', borderColor: '#EFE2DA', marginBottom: 14 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <T style={{ fontSize: 18 }}>🩺</T>
+              <T bold style={{ fontSize: 14, color: '#7E3B1C' }}>
+                {isEn ? 'Medical Guidance Disclaimer' : 'Tıbbi Sorumluluk Reddi'}
+              </T>
+            </View>
+            <T style={{ fontSize: 11.5, color: '#664736', lineHeight: 17 }}>
+              {isEn
+                ? 'Momora is an educational wellness companion designed to support mothers and families. It does not provide medical diagnosis, treatment, or clinical triage. Always consult your obstetrician or healthcare professional for clinical decisions.'
+                : 'Momora, anne ve ailelerin yolculuğunu destekleyen eğitici bir sağlıklı yaşam arkadaşıdır. Tıbbi teşhis, tanı veya klinik yönlendirme yerine geçmez. Sağlığınızla ilgili tüm kararları kadın doğum uzmanınız veya hekiminizle birlikte alınız.'}
+            </T>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#F2E4DB' }}>
+              <T style={{ fontSize: 11, color: colors.muted }}>Momora v1.2.0-rc1 · Offline-first</T>
+              <T style={{ fontSize: 11, color: colors.purple, fontWeight: '600' }}>{isEn ? 'Terms & Privacy' : 'Kullanım & Gizlilik'}</T>
+            </View>
           </Card>
 
           {/* YOLCULUK MODU DEĞİŞTİR */}
@@ -664,6 +760,45 @@ export function ProfileScreen({ state, update, open, toast, choose, cloudStatus,
       {/* ─── 5. TAB 3: EŞ & AİLE ALANI ─── */}
       {activeTab === 'family' && (
         <View style={{ gap: 14 }}>
+          {/* HANE ÇERÇEVESİ (HOUSEHOLD SHELL CONTAINER) */}
+          <Card style={{ padding: 16, backgroundColor: '#FAF6FA', borderColor: '#EBE0ED' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+              <View>
+                <T bold style={{ fontSize: 15, color: colors.ink }}>
+                  {isEn ? 'Household Container' : 'Hane ve Aile Çerçevesi'}
+                </T>
+                <T style={{ fontSize: 11, color: colors.muted, marginTop: 1 }}>
+                  {state.household?.name || (isEn ? 'Our Family' : 'Bizim Ailemiz')} · {state.familyCode || 'MOM-7829-TR'}
+                </T>
+              </View>
+              <View style={{ backgroundColor: '#F0E3F3', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 10 }}>
+                <T bold style={{ fontSize: 11, color: colors.purple }}>
+                  {currentRole === 'mother' ? (isEn ? '👑 Owner (Mom)' : '👑 Kurucu (Anne)') : (isEn ? '👨‍🍼 Partner (Dad)' : '👨‍🍼 Partner (Baba)')}
+                </T>
+              </View>
+            </View>
+
+            {/* Üyeler ve Roller Listesi */}
+            <View style={{ gap: 8, marginTop: 4 }}>
+              {[
+                { name: userName, roleLabel: isEn ? 'Mother (Primary Account)' : 'Anne (Birincil Hesap)', emoji: '🤰', status: isEn ? 'Active' : 'Aktif' },
+                { name: partnerName, roleLabel: isEn ? 'Father / Partner' : 'Baba / Eş', emoji: '👨‍🍼', status: isEn ? 'Connected' : 'Bağlı' },
+                { name: babyName, roleLabel: isEn ? `Baby (${babyGender})` : `Bebek (${babyGender})`, emoji: '👶', status: isEn ? 'Family Member' : 'Aile Üyesi' },
+              ].map(m => (
+                <View key={m.name + m.roleLabel} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderColor: '#F2E8F3' }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <T style={{ fontSize: 20 }}>{m.emoji}</T>
+                    <View>
+                      <T bold style={{ fontSize: 13, color: colors.ink }}>{m.name}</T>
+                      <T style={{ fontSize: 10.5, color: colors.muted }}>{m.roleLabel}</T>
+                    </View>
+                  </View>
+                  <T style={{ fontSize: 11, color: colors.purple, fontWeight: '600' }}>{m.status}</T>
+                </View>
+              ))}
+            </View>
+          </Card>
+
           {/* Eş Eşleşme Durumu & Aile Kodu */}
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
