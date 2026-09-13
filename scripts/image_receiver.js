@@ -37,9 +37,12 @@ try {
   console.warn('[MOMORA] assetOptimizer modulu yuklenemedi:', e.message);
 }
 
-// --- GLOBAL MUTEX LOCK (Çakışma Önleyici Tekil Kilit) ---
-// ChatGPT ve Gemini'nin aynı anda üretmesini kesin olarak engeller
-let activeLock = null; // { platform, filename, jobId, startedAt }
+// --- DUAL PLATFORM MUTEX LOCKS (ChatGPT ve Gemini Bağımsız Üretim Motoru) ---
+// ChatGPT medikal sonogram ve fetus üretirken, Gemini aynı anda ikon, tatlı ve meyve üretebilir!
+const activeLocks = {
+  chatgpt: null, // { platform: 'chatgpt', filename, jobId, startedAt }
+  gemini: null   // { platform: 'gemini', filename, jobId, startedAt }
+};
 let reloadRequested = false;
 
 function loadQueue() {
@@ -64,34 +67,46 @@ function saveQueue(queueData) {
 function getNextJob(clientPlatform = 'unknown') {
   const queueData = loadQueue();
   const now = Date.now();
+  const normPlatform = clientPlatform.toLowerCase();
 
-  // 1. Kilit zaman aşımı kontrolü (3.5 dakika işlem olmazsa kilidi otomatik kaldır)
-  if (activeLock && (now - activeLock.startedAt > 210000)) {
-    console.log('[MUTEX] ⚠️ Zaman asimina ugrayan kilit serbest birakildi:', activeLock.filename);
-    const stuckJob = queueData.jobs.find(j => j.id === activeLock.jobId);
-    if (stuckJob && stuckJob.status === 'processing') {
-      stuckJob.status = 'pending';
-      saveQueue(queueData);
+  // 1. Platform Kilit Zaman Aşımı Kontrolü (2.5 dakika işlem olmazsa kilidi serbest bırak)
+  ['chatgpt', 'gemini'].forEach(p => {
+    const lock = activeLocks[p];
+    if (lock && (now - lock.startedAt > 150000)) {
+      console.log(`[MUTEX] ⚠️ ${p.toUpperCase()} kilit zaman aşımına uğradı, sıfırlandı:`, lock.filename);
+      const stuckJob = queueData.jobs.find(j => j.id === lock.jobId);
+      if (stuckJob && stuckJob.status === 'processing') {
+        stuckJob.status = 'pending';
+        saveQueue(queueData);
+      }
+      activeLocks[p] = null;
     }
-    activeLock = null;
-  }
+  });
 
-  // 2. KİLİT KONTROLÜ: Başka bir sekme (ChatGPT veya Gemini) şu an üretim yapıyor mu?
-  if (activeLock) {
+  // 2. Kendi platformunun aktif kilidi var mı?
+  if (normPlatform === 'gemini' && activeLocks.gemini) {
     return {
       status: 'busy',
-      activePlatform: activeLock.platform,
-      activeFilename: activeLock.filename,
-      message: 'Aktif uretim: ' + activeLock.platform.toUpperCase() + ' (' + activeLock.filename + '). Cakismayi onlemek icin bekleniyor.'
+      activePlatform: 'gemini',
+      activeFilename: activeLocks.gemini.filename,
+      message: 'Gemini şu an ' + activeLocks.gemini.filename + ' üretiyor. Bekleniyor.'
+    };
+  }
+  if (normPlatform === 'chatgpt' && activeLocks.chatgpt) {
+    return {
+      status: 'busy',
+      activePlatform: 'chatgpt',
+      activeFilename: activeLocks.chatgpt.filename,
+      message: 'ChatGPT şu an ' + activeLocks.chatgpt.filename + ' üretiyor. Bekleniyor.'
     };
   }
 
   // 3. Platform Uyumluluğuna Göre Sıradaki İşi Seç (AKILLI YÖNLENDİRME)
   let pendingJob = null;
 
-  if (clientPlatform === 'gemini') {
-    // Gemini SADECE 3D ikonlar, butonlar, hayvan, tatli, meyve ve UI objelerini uretir!
-    // Ultrason, medikal sonogram, fetus ve gebelik gorselleri KESINLIKLE ChatGPT'ye gider!
+  if (normPlatform === 'gemini') {
+    // Gemini SADECE 3D ikonlar, butonlar, hayvan, tatli, meyve ve UI objelerini üretir!
+    // Ultrason, medikal sonogram, fetus ve gebelik görselleri KESİNLİKLE ChatGPT'ye gider!
     pendingJob = queueData.jobs.find(j => {
       if (j.status !== 'pending') return false;
       if (j.preferredPlatform === 'chatgpt') return false;
@@ -100,22 +115,33 @@ function getNextJob(clientPlatform = 'unknown') {
         return false; // KESINLIKLE GEMINI'A VERME!
       }
       return (
+        j.preferredPlatform === 'gemini' ||
+        fn.startsWith('fruit_') || fn.startsWith('sweet_') || fn.startsWith('animal_') ||
         fn.startsWith('ui_') || fn.startsWith('btn_') || fn.startsWith('icon_') ||
-        fn.startsWith('animal_') || fn.startsWith('sweet_') || fn.startsWith('fruit_') ||
         fn.startsWith('card_') || fn.startsWith('mood_')
       );
     });
+
     if (!pendingJob) {
-      return { status: 'idle', reason: 'Gemini icin sadece ikon/obje tanimli. Ultrason ve medikal gorseller ChatGPT bekleniyor.' };
+      return { status: 'idle', reason: 'Gemini için sıradaki ikon/obje işi bulunamadı.' };
     }
-  } else if (clientPlatform === 'chatgpt') {
-    // ChatGPT ultrason, fetus ve tum medikal/insan gorsellerini dogrudan ustlenir
+  } else if (normPlatform === 'chatgpt') {
+    // ChatGPT ultrason, fetus ve tüm medikal/insan görsellerini doğrudan üstlenir
     pendingJob = queueData.jobs.find(j => j.status === 'pending' && (
       j.preferredPlatform === 'chatgpt' ||
       j.filename.startsWith('usg_') ||
       j.filename.startsWith('fetus_') ||
       j.filename.startsWith('doppler')
-    )) || queueData.jobs.find(j => j.status === 'pending');
+    ));
+
+    if (!pendingJob) {
+      // Medikal iş yoksa diğer genel işlere bakabilir
+      pendingJob = queueData.jobs.find(j => j.status === 'pending');
+    }
+
+    if (!pendingJob) {
+      return { status: 'idle', reason: 'ChatGPT için sıradaki medikal iş bulunamadı.' };
+    }
   } else {
     pendingJob = queueData.jobs.find(j => j.status === 'pending');
   }
@@ -123,18 +149,24 @@ function getNextJob(clientPlatform = 'unknown') {
   if (pendingJob) {
     pendingJob.status = 'processing';
     pendingJob.startedAt = now;
-    pendingJob.platform = clientPlatform;
+    pendingJob.platform = normPlatform;
     pendingJob.attempts = (pendingJob.attempts || 0) + 1;
 
-    activeLock = {
-      platform: clientPlatform,
+    const lockObj = {
+      platform: normPlatform,
       filename: pendingJob.filename,
       jobId: pendingJob.id,
       startedAt: now
     };
 
+    if (normPlatform === 'gemini') {
+      activeLocks.gemini = lockObj;
+    } else if (normPlatform === 'chatgpt') {
+      activeLocks.chatgpt = lockObj;
+    }
+
     saveQueue(queueData);
-    console.log('[MUTEX] 🔒 Kilit verildi -> [' + clientPlatform.toUpperCase() + '] Uretilecek: ' + pendingJob.filename);
+    console.log(`[MUTEX] 🔒 Kilit verildi -> [${normPlatform.toUpperCase()}] Üretilecek: ${pendingJob.filename}`);
     return { status: 'job', job: pendingJob };
   }
 
@@ -142,14 +174,25 @@ function getNextJob(clientPlatform = 'unknown') {
 }
 
 function releaseLock(jobIdOrFilename) {
-  if (activeLock) {
-    if (!jobIdOrFilename || activeLock.jobId === jobIdOrFilename || activeLock.filename === jobIdOrFilename) {
-      console.log('[MUTEX] 🔓 Kilit kaldirildi:', activeLock.filename);
-      activeLock = null;
-      return true;
+  let released = false;
+  const queueData = loadQueue();
+
+  ['chatgpt', 'gemini'].forEach(p => {
+    const lock = activeLocks[p];
+    if (lock) {
+      if (!jobIdOrFilename || lock.jobId === jobIdOrFilename || lock.filename === jobIdOrFilename) {
+        console.log(`[MUTEX] 🔓 [${p.toUpperCase()}] Kilit kaldırıldı:`, lock.filename);
+        const job = queueData.jobs.find(j => j.id === lock.jobId || j.filename === lock.filename);
+        if (job && job.status === 'processing') {
+          job.status = 'pending'; // Tekrar sıraya al, takılı kalmasın!
+          saveQueue(queueData);
+        }
+        activeLocks[p] = null;
+        released = true;
+      }
     }
-  }
-  return false;
+  });
+  return released;
 }
 
 function updateJobStatus(idOrFilename, status, extra = {}) {
@@ -179,14 +222,14 @@ async function makeTransparentPNG(filePath) {
     const bgR = img.bitmap.data[0];
     const bgG = img.bitmap.data[1];
     const bgB = img.bitmap.data[2];
-    const tolerance = 24;
+    const tolerance = 30;
 
     function isBg(r, g, b) {
       return (
         Math.abs(r - bgR) < tolerance &&
         Math.abs(g - bgG) < tolerance &&
         Math.abs(b - bgB) < tolerance
-      ) || (r > 248 && g > 248 && b > 248);
+      ) || (r > 235 && g > 235 && b > 235);
     }
 
     const visited = new Uint8Array(width * height);
@@ -198,6 +241,14 @@ async function makeTransparentPNG(filePath) {
     for (let y = 0; y < height; y++) {
       queue.push(0, y);
       queue.push(width - 1, y);
+    }
+
+    // Ayrıca iç boşlukları (donut deliği gibi) temizle
+    const cx = Math.floor(width / 2);
+    const cy = Math.floor(height / 2);
+    const cIdx = (cy * width + cx) * 4;
+    if (isBg(img.bitmap.data[cIdx], img.bitmap.data[cIdx + 1], img.bitmap.data[cIdx + 2])) {
+      queue.push(cx, cy);
     }
 
     let head = 0;
@@ -352,7 +403,7 @@ const server = http.createServer(async (req, res) => {
   // --- BOT HEALTH / LIVE RELOAD PING ---
   if (req.method === 'GET' && req.url.startsWith('/bot/ping')) {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok', reload: reloadRequested, activeLock }));
+    res.end(JSON.stringify({ status: 'ok', reload: reloadRequested, activeLocks, activeLock: activeLocks.chatgpt || activeLocks.gemini }));
     if (reloadRequested) reloadRequested = false;
     return;
   }

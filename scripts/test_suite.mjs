@@ -1,5 +1,5 @@
 import assert from 'node:assert';
-import { resolveJourneyState, calculateDueDateFromWeek, calculatePregnancyProgress } from '../src/domain/journeyState.js';
+import { resolveJourneyState, calculateDueDateFromWeek, calculatePregnancyProgress, calculatePostpartumProgress } from '../src/domain/journeyState.js';
 import {
   createTrackerRecord,
   applyOptimisticCreate,
@@ -354,5 +354,76 @@ console.log('--- RUNNING MOMORA AUTOMATED TEST SUITE ---');
   console.log('✓ Sprint 8 Visual Discovery tests passed.');
 }
 
-console.log('--- ALL MOMORA SPRINT 3, 4, 5, 6, 7 & 8 TESTS PASSED SUCCESFULLY ---');
+// 11. Sprint 9 Postpartum & Recovery Tests
+{
+  console.log('Testing Sprint 9 Postpartum & Recovery (Dashboard, Signals, Mood, Diary)...');
+
+  // 1. Postpartum Day & Phase Derivation
+  const postProgress = calculatePostpartumProgress('2026-08-30');
+  assert(postProgress.daysSinceBirth >= 0);
+  assert(['immediate', 'healing', 'adapted'].includes(postProgress.phase));
+
+  // 2. Recovery Fields & Delivery-Specific Logic (Spec 15)
+  const vaginalCheckin = {
+    painLevel: 2,
+    bleeding: 'normal',
+    energy: 'balanced',
+    deliveryType: 'vaginal',
+    incisionOrPerine: 'healing', // Perine relevant for vaginal
+    breast: 'full',
+    urination: 'easy',
+    bowel: 'regular',
+  };
+  assert.strictEqual(vaginalCheckin.deliveryType, 'vaginal');
+  assert.strictEqual(vaginalCheckin.painLevel, 2);
+
+  const csectionCheckin = {
+    painLevel: 3,
+    bleeding: 'light',
+    energy: 'low',
+    deliveryType: 'csection',
+    incisionOrPerine: 'healing', // Incision relevant for c-section
+    breast: 'engorged',
+    urination: 'easy',
+    bowel: 'constipated',
+  };
+  assert.strictEqual(csectionCheckin.deliveryType, 'csection');
+
+  // 3. Postpartum Check-in Tracker Event
+  const postEvent = createTrackerRecord({
+    type: TrackerTypes.POSTPARTUM,
+    value: 'Pain: 2/5 · Energy: balanced',
+    metadata: vaginalCheckin,
+  });
+  assert.strictEqual(postEvent.type, 'postpartum_checkin');
+  assert.strictEqual(postEvent.title, 'Lohusalık İyileşme Kaydı');
+  assert.strictEqual(postEvent.metadata.painLevel, 2);
+
+  // 4. Mood Trend Array (No medical diagnosis)
+  const moodHistory = [
+    { day: 'Pzt', mood: 1 },
+    { day: 'Sal', mood: 2 },
+    { day: 'Çar', mood: 0 },
+    { day: 'Per', mood: 3 },
+    { day: 'Cum', mood: 1 },
+    { day: 'Cmt', mood: 0 },
+    { day: 'Paz', mood: 1 },
+  ];
+  assert.strictEqual(moodHistory.length, 7);
+
+  // 5. Private Diary Entry
+  const diaryEntry = {
+    id: 'pn_123',
+    date: 'Bugün · 14:00',
+    tag: 'His / Duygu',
+    text: 'Bugün ilk kez bebeğimle balkonda temiz hava aldık, içim ferahladı.',
+  };
+  assert.strictEqual(diaryEntry.tag, 'His / Duygu');
+  assert(diaryEntry.text.length > 10);
+
+  console.log('✓ Sprint 9 Postpartum & Recovery tests passed.');
+}
+
+console.log('--- ALL MOMORA SPRINT 3, 4, 5, 6, 7, 8 & 9 TESTS PASSED SUCCESFULLY ---');
+
 

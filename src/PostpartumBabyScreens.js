@@ -1008,42 +1008,39 @@ export function DiaperTrackerScreen({ state, update, toast, lang = 'tr' }) {
 // ─── EKRAN 25: ANNE İYİLEŞME & LOHUSA RUH HALİ (POSTPARTUM SELF-CARE) ─────────
 export function PostpartumSelfCareScreen({ state, update, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
-  const motherAffirmations = isEn ? [
-    '“For your baby, you are the safest haven in the world.”',
-    '“You do not have to be perfect; your love is more than enough.”',
-    '“Your body brought a miraculous life into this world; give it kindness and time.”',
-    '“Feeling exhausted is completely human; resting is your natural right.”',
-  ] : [
-    '“Bebeğin için dünyanın en güvenli limanı sensin.”',
-    '“Mükemmel olmak zorunda değilsin; sevgin fazlasıyla yeterli.”',
-    '“Bedenin mucizevi bir can dünyaya getirdi, ona şefkat ve zaman tanı.”',
-    '“Yorulmak çok insani, dinlenmek senin en doğal hakkın.”',
-  ];
+  const postInfo = calculatePostpartumProgress(state?.postpartumProfile?.birthDate);
+  const daysSinceBirth = postInfo?.daysSinceBirth || 14;
+  const phase = postInfo?.phase || 'healing';
+  const deliveryType = state?.postpartumProfile?.deliveryType || 'vaginal';
 
-  const [day] = useState(14);
-  const [waterGlasses, setWaterGlasses] = useState(state.waterGlassesToday || 4);
-  const [kegelStep, setKegelStep] = useState('Hazır'); // 'Hazır' | 'Kas' | 'Gevşe' | 'Tamam'
+  const [tab, setTab] = useState(isEn ? 'Recovery' : 'İyileşme');
+  const tabItems = isEn ? ['Recovery', 'Pelvic Floor', 'Hydration'] : ['İyileşme', 'Pelvik Taban', 'Hidrasyon'];
+
+  // İyileşme Parametreleri
+  const todayCheckin = state?.postpartumCheckin || {};
+  const [painLevel, setPainLevel] = useState(todayCheckin.painLevel || 2);
+  const [bleeding, setBleeding] = useState(todayCheckin.bleeding || 'normal');
+  const [energy, setEnergy] = useState(todayCheckin.energy || 'balanced');
+  const [incisionOrPerine, setIncisionOrPerine] = useState(todayCheckin.incisionOrPerine || 'healing');
+  const [breast, setBreast] = useState(todayCheckin.breast || 'full');
+  const [waterGlasses, setWaterGlasses] = useState(state.water || 4);
+
+  // Kegel Egzersiz Motoru
+  const [kegelStep, setKegelStep] = useState('Hazır');
   const [kegelReps, setKegelReps] = useState(0);
   const kegelTimerRef = useRef(null);
-
-  function toggleWater(glassIdx) {
-    const nextVal = glassIdx + 1 === waterGlasses ? glassIdx : glassIdx + 1;
-    setWaterGlasses(nextVal);
-    update({ waterGlassesToday: nextVal });
-    toast && toast(isEn ? `💧 ${nextVal}/8 glasses of water logged` : `💧 ${nextVal}/8 bardak su içildi`);
-  }
 
   function startKegelSession() {
     if (kegelStep !== 'Hazır' && kegelStep !== 'Tamam') return;
     setKegelReps(1);
-    setKegelStep('Kas (5 sn)');
+    setKegelStep(isEn ? 'Contract (5s)' : 'Kas (5 sn)');
 
     let count = 1;
     let isContract = true;
 
     kegelTimerRef.current = setInterval(() => {
       if (isContract) {
-        setKegelStep('Gevşe (5 sn)');
+        setKegelStep(isEn ? 'Relax (5s)' : 'Gevşe (5 sn)');
         isContract = false;
       } else {
         count += 1;
@@ -1055,7 +1052,7 @@ export function PostpartumSelfCareScreen({ state, update, toast, lang = 'tr' }) 
           return;
         }
         setKegelReps(count);
-        setKegelStep('Kas (5 sn)');
+        setKegelStep(isEn ? 'Contract (5s)' : 'Kas (5 sn)');
         isContract = true;
       }
     }, 5000);
@@ -1067,147 +1064,218 @@ export function PostpartumSelfCareScreen({ state, update, toast, lang = 'tr' }) 
     };
   }, []);
 
-  const currentQuote = motherAffirmations[(day % motherAffirmations.length)];
+  function toggleWater(idx) {
+    const nextVal = idx + 1 === waterGlasses ? idx : idx + 1;
+    setWaterGlasses(nextVal);
+    update({ water: nextVal });
+    toast && toast(isEn ? `💧 ${nextVal}/8 glasses of water logged` : `💧 ${nextVal}/8 bardak su içildi`);
+  }
+
+  function saveCheckin() {
+    const checkinData = {
+      date: new Date().toISOString().slice(0, 10),
+      painLevel,
+      bleeding,
+      energy,
+      incisionOrPerine,
+      breast,
+      deliveryType,
+    };
+    update({
+      postpartumCheckin: checkinData,
+      postpartumCheckins: [checkinData, ...(state?.postpartumCheckins || []).slice(0, 30)],
+    });
+    toast && toast(isEn ? '✓ Recovery signals saved! 🌸' : '✓ İyileşme göstergeleri kaydedildi! 🌸');
+  }
 
   return (
     <View style={pbs.container}>
       <ScreenHero
-        kicker={isEn ? 'POSTPARTUM CARE' : 'LOHUSA BAKIMI'}
-        title={isEn ? `Day ${day} Recovery` : `${day}. Gün Toparlanma`}
-        body={isEn ? 'Follow recovery steps, pelvic floor exercises, and daily hydration gently.' : 'İyileşme adımlarını, pelvik taban egzersizini ve günlük sıvı ihtiyacını şefkatle takip et.'}
+        kicker={isEn ? 'POSTPARTUM SELF-CARE' : 'LOHUSA KENDİNE ŞEFKAT'}
+        title={isEn ? `Day ${daysSinceBirth} Recovery` : `${daysSinceBirth}. Gün İyileşme`}
+        body={isEn
+          ? 'Track healing signals, practice pelvic rhythm, and maintain hydration.'
+          : 'İyileşme göstergelerini takip et, pelvik tabanı güçlendir ve sıvı dengeni koru.'}
         icon="leaf"
         asset="ui_postpartum_lotus"
-        stat={isEn ? 'gentle care' : 'şefkatli bakım'}
+        stat={`${daysSinceBirth}. ${isEn ? 'day' : 'gün'}`}
         tint="#86518A"
       />
-      <ToolExperienceCard lang={lang} title={isEn ? 'Make recovery visible' : 'Toparlanmayı görünür yap'} steps={isEn ? ['Check mood and body signals.', 'Pick one gentle action.', 'Keep a note for your support circle.'] : ['Ruh hali ve beden sinyalini kontrol et.', 'Tek nazik aksiyon seç.', 'Destek çevren için not sakla.']} outcome={isEn ? 'The screen gives a reason to return each day.' : 'Ekran her gün geri dönmek için anlamlı sebep verir.'} asset="ui_postpartum_lotus" tint="#86518A" />
 
-      {/* Lohusalık Gün Sayacı & Sevgi Notu */}
-      <Card style={pbs.recoveryCard}>
-        <LinearGradient
-          colors={['#846284', '#664766']}
-          style={StyleSheet.absoluteFill}
-        />
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <View style={{ flex: 1, gap: 6 }}>
-            <View style={pbs.dayBadge}>
-              <T bold style={{ color: colors.purple, fontSize: 11 }}>
-                {isEn ? `POSTPARTUM · DAY ${day}` : `LOHUSALIK · ${day}. GÜN`}
-              </T>
-            </View>
-            <T bold style={{ color: 'white', fontSize: 17 }}>{currentQuote}</T>
-            <T style={{ color: '#E8D5E8', fontSize: 12, lineHeight: 18 }}>
-              {isEn
-                ? "Respect your body's healing process. Give yourself and your baby time. 💜"
-                : 'Bedeninin toparlanma sürecine saygı duy. Kendine ve bebeğine zaman tanı. 💜'}
-            </T>
-          </View>
-          {generatedAssets['mother-baby'] && (
-            <Image source={generatedAssets['mother-baby']} style={{ width: 75, height: 75, borderRadius: 20 }} resizeMode="cover" />
-          )}
-        </View>
-      </Card>
-
-      {/* Günlük Sıvı & Su Takibi (8 Bardak Hedefi) */}
-      <Card style={{ padding: 16 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-          <View>
-            <T bold style={{ fontSize: 15, color: colors.ink }}>
-              {isEn ? 'Daily Water Intake' : 'Günlük Su İhtiyacı'}
-            </T>
-            <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-              {isEn
-                ? `Target for milk production and tissue healing: ${waterGlasses}/8 glasses`
-                : `Süt üretimi ve doku rejenerasyonu için hedef: ${waterGlasses}/8 bardak`}
-            </T>
-          </View>
-          <View style={pbs.dayPill}>
-            <T bold style={{ fontSize: 12, color: '#3E7B54' }}>%{Math.round((waterGlasses / 8) * 100)}</T>
-          </View>
-        </View>
-
-        <View style={pbs.waterGlassRow}>
-          {[0, 1, 2, 3, 4, 5, 6, 7].map(idx => {
-            const isFilled = idx < waterGlasses;
-            return (
-              <Tap
-                key={idx}
-                onPress={() => toggleWater(idx)}
-                label={isEn ? `Glass ${idx + 1}` : `Bardak ${idx + 1}`}
-                style={[pbs.waterGlassBtn, isFilled && pbs.waterGlassBtnFilled]}
-              >
-                <T style={{ fontSize: 16 }}>{isFilled ? '💧' : '🥛'}</T>
-                <T style={{ fontSize: 9, color: isFilled ? colors.purple : colors.muted, marginTop: 2 }}>
-                  {idx + 1}
-                </T>
-              </Tap>
-            );
-          })}
-        </View>
-      </Card>
-
-      {/* İnteraktif Pelvik Taban & Kegel Egzersiz Rehberi */}
-      <Card style={pbs.kegelCard}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <View style={{ flex: 1, paddingRight: 10 }}>
-            <T bold style={{ fontSize: 15, color: colors.ink }}>
-              {isEn ? 'Pelvic Floor (Kegel) Rhythm' : 'Pelvik Taban (Kegel) Ritmi'}
-            </T>
-            <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
-              {isEn
-                ? 'Strengthen your pelvic floor and bladder base with 5s gentle contraction and 5s relaxation.'
-                : '5 sn nazik kasılma, 5 sn gevşeme ile rahim ve mesane tabanını güçlendir.'}
-            </T>
-          </View>
+      {/* 3'lü Sekmeler */}
+      <View style={pbs.segRow}>
+        {tabItems.map(t => (
           <Tap
-            onPress={startKegelSession}
-            label={isEn ? 'Start Exercise' : 'Egzersiz Başlat'}
-            style={[pbs.kegelStartBtn, kegelStep.startsWith('Kas') || kegelStep.startsWith('Gevşe') ? { backgroundColor: '#EADCEE' } : null]}
+            key={t}
+            label={t}
+            onPress={() => setTab(t)}
+            style={[pbs.segBtn, tab === t && pbs.segBtnActive]}
           >
-            <T bold style={{ fontSize: 11, color: colors.purple }}>
-              {kegelStep === 'Hazır'
-                ? (isEn ? 'Start ▶' : 'Başlat ▶')
-                : kegelStep === 'Tamam'
-                ? (isEn ? 'Repeat ↺' : 'Tekrarla ↺')
-                : (isEn ? 'In progress...' : 'Sürüyor...')}
+            <T bold={tab === t} style={[pbs.segText, tab === t && { color: 'white' }]}>
+              {t}
             </T>
           </Tap>
-        </View>
+        ))}
+      </View>
 
-        <View style={pbs.kegelStatusBox}>
-          <View style={pbs.kegelStepBadge}>
-            <T bold style={{ fontSize: 13, color: colors.purple }}>
-              {kegelStep === 'Hazır'
-                ? (isEn ? 'Tap to start' : 'Başlamak için dokun')
-                : kegelStep === 'Tamam'
-                ? (isEn ? '🎉 Session Completed' : '🎉 Seans Başarıyla Bitti')
-                : `${isEn ? (kegelStep.startsWith('Kas') ? 'Contract (5s)' : 'Relax (5s)') : kegelStep} · ${isEn ? 'Rep' : 'Tekrar'} ${kegelReps}/5`}
+      {/* 1. SEKME: İYİLEŞME */}
+      {(tab === 'İyileşme' || tab === 'Recovery') && (
+        <Card style={{ padding: 16, gap: 12 }}>
+          <T bold style={{ fontSize: 15, color: colors.ink }}>{isEn ? 'Recovery Checklist & Signals' : 'İyileşme Göstergeleri'}</T>
+
+          <View style={{ gap: 4 }}>
+            <T bold style={{ fontSize: 12.5, color: colors.purple }}>{isEn ? 'Pain Level (1-5)' : 'Ağrı Düzeyi (1-5)'}</T>
+            <View style={{ flexDirection: 'row', gap: 6 }}>
+              {[1, 2, 3, 4, 5].map(lvl => (
+                <Tap
+                  key={lvl}
+                  onPress={() => setPainLevel(lvl)}
+                  style={{ flex: 1, paddingVertical: 8, borderRadius: 10, backgroundColor: painLevel === lvl ? colors.purple : '#F2EAF4', alignItems: 'center' }}
+                >
+                  <T bold={painLevel === lvl} style={{ fontSize: 12, color: painLevel === lvl ? 'white' : colors.ink }}>{lvl}</T>
+                </Tap>
+              ))}
+            </View>
+          </View>
+
+          <View style={{ gap: 4 }}>
+            <T bold style={{ fontSize: 12.5, color: colors.purple }}>{isEn ? 'Bleeding / Lochia' : 'Lohusalık Kanaması'}</T>
+            <View style={{ flexDirection: 'row', gap: 6 }}>
+              {[
+                { id: 'light', label: isEn ? 'Light' : 'Az' },
+                { id: 'normal', label: isEn ? 'Normal' : 'Normal' },
+                { id: 'heavy', label: isEn ? 'Heavy' : 'Yoğun' },
+              ].map(opt => (
+                <Tap
+                  key={opt.id}
+                  onPress={() => setBleeding(opt.id)}
+                  style={{ flex: 1, paddingVertical: 8, borderRadius: 10, backgroundColor: bleeding === opt.id ? colors.purple : '#F2EAF4', alignItems: 'center' }}
+                >
+                  <T bold={bleeding === opt.id} style={{ fontSize: 11, color: bleeding === opt.id ? 'white' : colors.ink }}>{opt.label}</T>
+                </Tap>
+              ))}
+            </View>
+          </View>
+
+          <View style={{ gap: 4 }}>
+            <T bold style={{ fontSize: 12.5, color: colors.purple }}>
+              {deliveryType === 'csection' ? (isEn ? 'Incision Status' : 'Kesi Yeri Durumu') : (isEn ? 'Perineal Comfort' : 'Perine Bölgesi')}
+            </T>
+            <View style={{ flexDirection: 'row', gap: 6 }}>
+              {[
+                { id: 'comfortable', label: isEn ? 'Comfortable' : 'Rahat' },
+                { id: 'healing', label: isEn ? 'Tension' : 'Gergin' },
+                { id: 'tender', label: isEn ? 'Tender' : 'Hassas' },
+              ].map(opt => (
+                <Tap
+                  key={opt.id}
+                  onPress={() => setIncisionOrPerine(opt.id)}
+                  style={{ flex: 1, paddingVertical: 8, borderRadius: 10, backgroundColor: incisionOrPerine === opt.id ? colors.purple : '#F2EAF4', alignItems: 'center' }}
+                >
+                  <T bold={incisionOrPerine === opt.id} style={{ fontSize: 11, color: incisionOrPerine === opt.id ? 'white' : colors.ink }}>{opt.label}</T>
+                </Tap>
+              ))}
+            </View>
+          </View>
+
+          <Tap
+            onPress={saveCheckin}
+            style={{ backgroundColor: colors.purple, paddingVertical: 12, borderRadius: 14, alignItems: 'center', marginTop: 4 }}
+          >
+            <T bold style={{ color: 'white', fontSize: 13 }}>{isEn ? 'Save Recovery Signals 🌸' : 'İyileşme Durumunu Kaydet 🌸'}</T>
+          </Tap>
+        </Card>
+      )}
+
+      {/* 2. SEKME: PELVİK TABAN (KEGEL) */}
+      {(tab === 'Pelvik Taban' || tab === 'Pelvic Floor') && (
+        <Card style={pbs.kegelCard}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <View style={{ flex: 1, paddingRight: 10 }}>
+              <T bold style={{ fontSize: 15, color: colors.ink }}>
+                {isEn ? 'Pelvic Floor (Kegel) Rhythm' : 'Pelvik Taban (Kegel) Ritmi'}
+              </T>
+              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                {isEn
+                  ? 'Strengthen your pelvic floor and bladder base with 5s gentle contraction and 5s relaxation.'
+                  : '5 sn nazik kasılma, 5 sn gevşeme ile rahim ve mesane tabanını güçlendir.'}
+              </T>
+            </View>
+            <Tap
+              onPress={startKegelSession}
+              label={isEn ? 'Start Exercise' : 'Egzersiz Başlat'}
+              style={[pbs.kegelStartBtn, kegelStep.startsWith('Kas') || kegelStep.startsWith('Gevşe') ? { backgroundColor: '#EADCEE' } : null]}
+            >
+              <T bold style={{ fontSize: 11, color: colors.purple }}>
+                {kegelStep === 'Hazır'
+                  ? (isEn ? 'Start ▶' : 'Başlat ▶')
+                  : kegelStep === 'Tamam'
+                  ? (isEn ? 'Repeat ↺' : 'Tekrarla ↺')
+                  : (isEn ? 'In progress...' : 'Sürüyor...')}
+              </T>
+            </Tap>
+          </View>
+
+          <View style={pbs.kegelStatusBox}>
+            <View style={pbs.kegelStepBadge}>
+              <T bold style={{ fontSize: 13, color: colors.purple }}>
+                {kegelStep === 'Hazır'
+                  ? (isEn ? 'Tap to start' : 'Başlamak için dokun')
+                  : kegelStep === 'Tamam'
+                  ? (isEn ? '🎉 Session Completed' : '🎉 Seans Başarıyla Bitti')
+                  : `${kegelStep} · ${isEn ? 'Rep' : 'Tekrar'} ${kegelReps}/5`}
+              </T>
+            </View>
+            <T style={{ fontSize: 12, color: colors.muted, marginTop: 6, textAlign: 'center' }}>
+              {kegelStep.startsWith('Kas') || kegelStep.startsWith('Contract')
+                ? (isEn ? 'Inhale, gently draw pelvic floor inward.' : 'Nefes al, alt pelvik kaslarını nazikçe topla.')
+                : kegelStep.startsWith('Gevşe') || kegelStep.startsWith('Relax')
+                ? (isEn ? 'Slowly exhale, release all muscles.' : 'Yavaşça nefes ver, kasları tamamen serbest bırak.')
+                : (isEn ? '2-3 short sessions daily support postpartum healing.' : 'Günde 2-3 kısa seans toparlanmayı destekler.')}
             </T>
           </View>
-          <T style={{ fontSize: 12, color: colors.muted, marginTop: 6, textAlign: 'center' }}>
-            {kegelStep.startsWith('Kas')
-              ? (isEn
-                  ? 'Inhale, gently draw your lower pelvic floor muscles upward and inward.'
-                  : 'Nefes al, alt pelvik kaslarını yukarı ve içeriye doğru nazikçe topla.')
-              : kegelStep.startsWith('Gevşe')
-                ? (isEn
-                    ? 'Slowly exhale, release all muscles completely and relax.'
-                    : 'Yavaşça nefes ver, tüm kasları tamamen serbest bırak ve rahatla.')
-                : (isEn
-                    ? '2-3 short sessions daily are recommended to support postpartum healing.'
-                    : 'Doğum sonrası doku toparlanmasını desteklemek için günde 2-3 kısa seans önerilir.')}
-          </T>
-        </View>
-      </Card>
+        </Card>
+      )}
 
-      <StatusCard
-        level="safe"
-        icon="heart"
-        title={isEn ? 'Emotional Recovery (Baby Blues)' : 'Duygusal İyileşme (Baby Blues)'}
-        description={isEn
-          ? 'Sudden crying and mood swings due to hormonal shifts in the first two weeks are very natural. If it persists past two weeks, do not hesitate to consult your doctor.'
-          : 'İlk 2 haftada hormon dalgalanmalarına bağlı ani ağlama ve hüzün çok doğaldır. 2 haftadan uzun sürerse hekiminize danışmaktan çekinmeyin.'}
-      />
+      {/* 3. SEKME: HİDRASYON (SU TAKİBİ) */}
+      {(tab === 'Hidrasyon' || tab === 'Hydration') && (
+        <Card style={{ padding: 16 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <View>
+              <T bold style={{ fontSize: 15, color: colors.ink }}>
+                {isEn ? 'Daily Water Intake' : 'Günlük Su İhtiyacı'}
+              </T>
+              <T style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>
+                {isEn
+                  ? `Target for lactation and healing: ${waterGlasses}/8 glasses`
+                  : `Süt üretimi ve doku rejenerasyonu için hedef: ${waterGlasses}/8 bardak`}
+              </T>
+            </View>
+            <View style={pbs.dayPill}>
+              <T bold style={{ fontSize: 12, color: '#3E7B54' }}>%{Math.round((waterGlasses / 8) * 100)}</T>
+            </View>
+          </View>
+
+          <View style={pbs.waterGlassRow}>
+            {[0, 1, 2, 3, 4, 5, 6, 7].map(idx => {
+              const isFilled = idx < waterGlasses;
+              return (
+                <Tap
+                  key={idx}
+                  onPress={() => toggleWater(idx)}
+                  label={isEn ? `Glass ${idx + 1}` : `Bardak ${idx + 1}`}
+                  style={[pbs.waterGlassBtn, isFilled && pbs.waterGlassBtnFilled]}
+                >
+                  <T style={{ fontSize: 16 }}>{isFilled ? '💧' : '🥛'}</T>
+                  <T style={{ fontSize: 9, color: isFilled ? colors.purple : colors.muted, marginTop: 2 }}>
+                    {idx + 1}
+                  </T>
+                </Tap>
+              );
+            })}
+          </View>
+        </Card>
+      )}
     </View>
   );
 }

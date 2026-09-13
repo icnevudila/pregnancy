@@ -96,6 +96,7 @@ function formatDefaultTitle(type) {
     case TrackerTypes.WATER: return 'Su Takibi';
     case TrackerTypes.VITAMIN: return 'Prenatal Vitamin';
     case TrackerTypes.MOOD: return 'Ruh Hali';
+    case TrackerTypes.POSTPARTUM: return 'Lohusalık İyileşme Kaydı';
     default: return 'Takip Kaydı';
   }
 }

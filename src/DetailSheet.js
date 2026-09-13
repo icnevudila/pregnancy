@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, View, StyleSheet, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { colors, fonts } from './theme';
-import { T, Tap, Card, ToolExperienceCard } from './ui';
+import { T, Tap, Card, ToolExperienceCard, InAppNotificationBanner } from './ui';
 import { Icon, BrandMark, FruitArt, ComparisonArt, MoodFace } from './Icons';
 import { journeys, RecordList, sampleRecords } from './screens';
 import { getWeekInfo, formatWeight, formatLength, trimesterLabel, monthLabel } from './weekData';
@@ -272,7 +272,9 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     {kind==='partnerTasks'&&<PartnerTaskBoardScreen state={state} update={update} toast={toast} lang={lang}/>}
     {kind==='notifications'&&<NotificationSettingsScreen toast={toast} lang={lang} week={state.week||24} close={close}/>}
     {!!error&&<T accessibilityRole="alert" style={{color:'#A95769',marginTop:12}}>{error}</T>}
-    </ScrollView></View></KeyboardAvoidingView></Modal>;
+    </ScrollView></View></KeyboardAvoidingView>
+    <InAppNotificationBanner lang={lang} onOpen={d => { if (d?.tool) open(d.tool); else if (d?.screen) choose(d.screen); }} />
+    </Modal>;
 }
 const s=StyleSheet.create({fullscreenBackdrop:{flex:1,backgroundColor:'#1E142433',alignItems:'center',justifyContent:'center'},fullscreenReader:{flex:1,width:'100%',maxWidth:500,backgroundColor:colors.canvas,overflow:'hidden'},backdrop:{flex:1,backgroundColor:'#211A304D',alignItems:'center',justifyContent:'flex-end'},sheet:{width:'100%',maxWidth:440,maxHeight:'86%',backgroundColor:colors.canvas,borderTopLeftRadius:30,borderTopRightRadius:30,paddingHorizontal:24},handle:{height:4,width:40,borderRadius:3,backgroundColor:'#D9CDD7',alignSelf:'center',marginTop:10,marginBottom:23},heading:{flexDirection:'row',alignItems:'center',gap:12,paddingBottom:17,borderBottomWidth:1,borderColor:colors.line},kicker:{fontSize:10,letterSpacing:2,color:colors.purple,marginBottom:8},title:{fontSize:23},close:{height:38,width:38,borderRadius:19,alignItems:'center',justifyContent:'center',backgroundColor:'#F1EAEF'},body:{fontSize:15,color:'#787080',lineHeight:23,marginTop:12},label:{fontSize:14,marginBottom:8},input:{fontFamily:fonts.regular,fontSize:16,color:colors.ink,padding:14,borderWidth:1,borderColor:'#DED2DB',borderRadius:15,backgroundColor:'#FFFDFA',outlineStyle:'none'},button:{backgroundColor:colors.purple,borderRadius:18,minHeight:50,alignItems:'center',justifyContent:'center',marginTop:16,padding:12},secondary:{backgroundColor:'#F0E8F2'},option:{flexDirection:'row',alignItems:'center',padding:18,backgroundColor:'#F2EAEE',borderRadius:17,marginTop:13},profileHeader:{flexDirection:'row',alignItems:'center',gap:12,marginVertical:12},helper:{fontSize:12,color:colors.muted,lineHeight:19,marginTop:16},chips:{flexDirection:'row',gap:10,marginTop:18},chip:{padding:14,borderRadius:16,borderWidth:1,borderColor:colors.line},chipSelected:{backgroundColor:'#E7D8EB',borderColor:'#B89DC0'}});
 const ds=StyleSheet.create({

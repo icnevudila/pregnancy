@@ -9,7 +9,7 @@ export const FIRST_WEEK = 4;
 
 export const weekData = {
   4: {
-    fruit: 'seed', fruitName: 'Haşhaş Tohumu',
+    fruit: 'poppy_seed', fruitName: 'Haşhaş Tohumu',
     animal: 'ant', animalName: 'Minik Karınca', animalEmoji: '🐜',
     sweet: 'sprinkle', sweetName: 'Pasta Süsü', sweetEmoji: '🍬',
     ultrasound: {"scan":"Kese Taraması","milestone":"Blastokist rahim duvarına yerleşti","badge":"Erken Gebelik"},
@@ -26,7 +26,7 @@ export const weekData = {
     ],
   },
   5: {
-    fruit: 'seed', fruitName: 'Susam Tohumu',
+    fruit: 'sesame_seed', fruitName: 'Susam Tohumu',
     animal: 'ladybug', animalName: 'Uğur Böceği', animalEmoji: '🐞',
     sweet: 'candy', sweetName: 'Mini Bonbon', sweetEmoji: '🍭',
     ultrasound: {"scan":"Gestasyonel Kese","milestone":"Gebelik kesesi ultrasonda seçilebilir","badge":"2D Ultrason"},
@@ -589,7 +589,7 @@ export const weekData = {
   38: {
     fruit: 'watermelon', fruitName: 'Dev Karpuz',
     animal: 'seal', animalName: 'Yavru Fok', animalEmoji: '🦭',
-    sweet: 'pecan_pie', sweetName: 'Fındıklı Karamel Turta', sweetEmoji: '🥧',
+    sweet: 'pavlova', sweetName: 'Meyveli Pavlova Pastası', sweetEmoji: '🍰',
     ultrasound: {"scan":"Güçlü Kavrama","milestone":"Kavrama refleksi: Parmaklarını sımsıkı kenetler","badge":"4D Ultrason"},
     lengthCm: 49.8, weightG: 3080,
     month: 9, trimester: 3,
@@ -606,7 +606,7 @@ export const weekData = {
   39: {
     fruit: 'watermelon', fruitName: 'Dev Karpuz',
     animal: 'bear_cub', animalName: 'Yavru Ayıcık', animalEmoji: '🐻',
-    sweet: 'birthdaycake', sweetName: 'Doğum Günü Pastası', sweetEmoji: '🎂',
+    sweet: 'royal_cake', sweetName: 'Büyük Kutlama Pastası', sweetEmoji: '🎂',
     ultrasound: {"scan":"Tam Dönem (Full Term)","milestone":"Tüm organlar dış dünya havasına ve sütüne hazır","badge":"Full Term"},
     lengthCm: 50.7, weightG: 3290,
     month: 9, trimester: 3,
@@ -623,7 +623,7 @@ export const weekData = {
   40: {
     fruit: 'pumpkin', fruitName: 'Balkabağı',
     animal: 'lion_cub', animalName: 'Minik Aslan', animalEmoji: '🦁',
-    sweet: 'chocobox', sweetName: 'Lüks Çikolata Kutusu', sweetEmoji: '🍫',
+    sweet: 'baby_shower_cake', sweetName: 'Hoş Geldin Bebek Pastası', sweetEmoji: '🎉',
     ultrasound: {"scan":"Büyük Buluşma","milestone":"Kordon kan akımı ve amniyotik sıvı kontrolü","badge":"Doğum Anı 🌸"},
     lengthCm: 51.2, weightG: 3400,
     month: 9, trimester: 3,

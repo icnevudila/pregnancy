@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Text, View, Pressable, StyleSheet, ScrollView, Image, Platform } from 'react-native';
+import { Text, View, Pressable, StyleSheet, ScrollView, Image, Platform, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Path, Line, Rect } from 'react-native-svg';
 import { colors, fonts, shadow } from './theme';
+import { addInAppNotificationListener } from './notifications';
 import { Icon, MoodFace } from './Icons';
 import { generatedAssets, getAsset } from './generatedAssets';
 
@@ -304,6 +305,130 @@ export function StatusCard({ level = 'info', title, body, description, icon, act
     </View>
   );
 }
+
+// ─── CANLI BİLDİRİM BANNERI (IN-APP HEADS-UP NOTIFICATION BANNER) ───────────
+export function InAppNotificationBanner({ onOpen, lang = 'tr' }) {
+  const isEn = lang === 'en';
+  const [currentNotif, setCurrentNotif] = useState(null);
+  const translateY = useRef(new Animated.Value(-160)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+  const dismissTimer = useRef(null);
+
+  useEffect(() => {
+    const unsubscribe = addInAppNotificationListener(notif => {
+      if (dismissTimer.current) clearTimeout(dismissTimer.current);
+
+      setCurrentNotif(notif);
+
+      // Slide down and fade in with spring bounce
+      translateY.setValue(-160);
+      opacity.setValue(0);
+      Animated.parallel([
+        Animated.spring(translateY, {
+          toValue: 0,
+          friction: 6,
+          tension: 65,
+          useNativeDriver: false,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 220,
+          useNativeDriver: false,
+        }),
+      ]).start();
+
+      // Auto dismiss after 6 seconds
+      dismissTimer.current = setTimeout(() => {
+        hideBanner();
+      }, 6000);
+    });
+
+    return () => {
+      unsubscribe();
+      if (dismissTimer.current) clearTimeout(dismissTimer.current);
+    };
+  }, []);
+
+  function hideBanner() {
+    if (dismissTimer.current) clearTimeout(dismissTimer.current);
+    Animated.parallel([
+      Animated.timing(translateY, {
+        toValue: -160,
+        duration: 240,
+        useNativeDriver: false,
+      }),
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: false,
+      }),
+    ]).start(() => {
+      setCurrentNotif(null);
+    });
+  }
+
+  function handleBannerTap() {
+    if (!currentNotif) return;
+    const data = currentNotif.data || {};
+    hideBanner();
+    if (onOpen) {
+      onOpen(data);
+    }
+  }
+
+  if (!currentNotif) return null;
+
+  const iconEmoji = currentNotif.icon === 'water' ? '💧'
+    : currentNotif.icon === 'pill' ? '💊'
+    : currentNotif.icon === 'footprint' ? '🦶'
+    : currentNotif.icon === 'book' ? '🥑'
+    : currentNotif.icon === 'heart' ? '💕'
+    : '🔔';
+
+  return (
+    <Animated.View
+      style={[
+        s.notifWrapper,
+        {
+          transform: [{ translateY }],
+          opacity,
+        },
+      ]}
+    >
+      <Tap
+        onPress={handleBannerTap}
+        style={s.notifBannerCard}
+        label={currentNotif.title}
+      >
+        <View style={s.notifTopRow}>
+          <View style={s.notifBrandGroup}>
+            <View style={s.notifIconBubble}>
+              <T style={{ fontSize: 13 }}>{iconEmoji}</T>
+            </View>
+            <T bold style={s.notifBrandTitle}>MOMORA</T>
+            <T style={s.notifTimeBadge}>· {isEn ? 'NOW' : 'ŞİMDİ'}</T>
+          </View>
+
+          <Tap onPress={hideBanner} style={s.notifCloseBtn} label={isEn ? 'Dismiss' : 'Kapat'}>
+            <T style={{ fontSize: 13, color: '#BAACBF' }}>✕</T>
+          </Tap>
+        </View>
+
+        <View style={s.notifBodyRow}>
+          <View style={{ flex: 1, paddingRight: 10 }}>
+            <T bold style={s.notifTitleText}>{currentNotif.title}</T>
+            <T numberOfLines={2} style={s.notifMessageText}>{currentNotif.body}</T>
+          </View>
+
+          <View style={s.notifActionPill}>
+            <T bold style={s.notifActionText}>{isEn ? 'View' : 'Aç'}</T>
+          </View>
+        </View>
+      </Tap>
+    </Animated.View>
+  );
+}
+
 const s = StyleSheet.create({
   text: { fontFamily: fonts.regular, color: colors.ink, fontSize: 15 },
   card: { backgroundColor: '#FFFDFA', borderRadius: 20, padding: 15, borderWidth: 1, borderColor: '#F0EAE6', ...shadow },
@@ -347,4 +472,91 @@ const s = StyleSheet.create({
   langBtnActive: { backgroundColor: colors.purple, ...shadow },
   langText: { fontSize: 11, color: '#7E6B83' },
   langTextActive: { color: 'white' },
+
+  // Live In-App Notification Banner Styles
+  notifWrapper: {
+    position: 'absolute',
+    top: Platform.OS === 'web' ? 14 : 36,
+    left: 12,
+    right: 12,
+    alignItems: 'center',
+    zIndex: 999999,
+  },
+  notifBannerCard: {
+    width: '100%',
+    maxWidth: 440,
+    backgroundColor: '#1E1824',
+    borderRadius: 22,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 14,
+    borderWidth: 1.5,
+    borderColor: '#3D3146',
+    ...shadow.card,
+    shadowColor: '#000000',
+    shadowOpacity: 0.45,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+  },
+  notifTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  notifBrandGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+  },
+  notifIconBubble: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#35253F',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  notifBrandTitle: {
+    fontSize: 10.5,
+    letterSpacing: 1.5,
+    color: '#D8B8E8',
+    fontFamily: fonts.bold,
+  },
+  notifTimeBadge: {
+    fontSize: 10,
+    color: '#8D7F94',
+    fontWeight: '600',
+  },
+  notifCloseBtn: {
+    padding: 4,
+    borderRadius: 10,
+  },
+  notifBodyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  notifTitleText: {
+    fontSize: 13.5,
+    color: '#FFFFFF',
+    marginBottom: 2,
+    fontFamily: fonts.bold,
+  },
+  notifMessageText: {
+    fontSize: 11.5,
+    color: '#D7CCD9',
+    lineHeight: 16,
+  },
+  notifActionPill: {
+    backgroundColor: colors.purple,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  notifActionText: {
+    fontSize: 11,
+    color: '#FFFFFF',
+    fontFamily: fonts.bold,
+  },
 });

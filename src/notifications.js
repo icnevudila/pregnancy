@@ -5,6 +5,7 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from './supabaseClient';
+import { playNotificationChime } from './soundEngine';
 
 const STORAGE_KEYS = {
   PUSH_TOKEN: '@momora_push_token',
@@ -178,50 +179,171 @@ export async function syncPushTokenWithSupabase(token, userId) {
   }
 }
 
-// 5. ANLIK TEST BİLDİRİMİ TETİKLEME (Tek Dokunuşla Canlı Test)
+// 5. UYGULAMA İÇİ VE CANLI BİLDİRİM DAĞITICI (In-App Notification Dispatcher)
+const inAppNotificationListeners = new Set();
+
+export function addInAppNotificationListener(fn) {
+  inAppNotificationListeners.add(fn);
+  return () => inAppNotificationListeners.delete(fn);
+}
+
+export function emitInAppNotification({
+  title = 'Momora Bildirimi 🌸',
+  body = '',
+  data = {},
+  icon = 'bell',
+  channelId = 'clinical-alerts',
+}) {
+  // 1. Doğal akustik iki tonlu zil çanı çal
+  try {
+    playNotificationChime();
+  } catch (e) {}
+
+  // 2. Destekleyen cihazlarda dokunsal titreşim (Haptic Vibration)
+  if (typeof navigator !== 'undefined' && navigator.vibrate) {
+    try {
+      navigator.vibrate([120, 60, 120]);
+    } catch (e) {}
+  }
+
+  // 3. Ekrandaki tüm aktif canlı banner bileşenlerine dağıt
+  const notificationPayload = {
+    id: 'notif_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+    title,
+    body,
+    data,
+    icon,
+    channelId,
+    timestamp: Date.now(),
+  };
+
+  inAppNotificationListeners.forEach(fn => {
+    try {
+      fn(notificationPayload);
+    } catch (e) {}
+  });
+
+  return notificationPayload;
+}
+
+// 6. ANLIK TEST BİLDİRİMİ TETİKLEME (Tek Dokunuşla Canlı Test)
 export async function sendTestNotificationAsync({
   title = 'Momora Test Bildirimi 🌸',
   body = 'Bildirim altyapınız başarıyla çalışıyor! Su, vitamin ve tekme sayımı hatırlatıcılarınız hazır.',
   data = { screen: 'profile', tab: 'settings' },
+  icon = 'bell',
 } = {}) {
-  try {
-    await setupAndroidChannels();
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title,
-        body,
-        data,
-        channelId: 'clinical-alerts',
-        sound: 'default',
-        priority: Notifications.AndroidNotificationPriority?.MAX || 'max',
-      },
-      trigger: null, // Hemen tetikle
-    });
-    return true;
-  } catch (err) {
-    console.warn('[Notifications] sendTestNotificationAsync error:', err);
-    // Web fallback alert
-    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'Notification' in window) {
-      try {
-        if (window.Notification.permission === 'granted') {
-          new window.Notification(title, { body });
-          return true;
-        } else if (window.Notification.permission !== 'denied') {
-          const p = await window.Notification.requestPermission();
-          if (p === 'granted') {
-            new window.Notification(title, { body });
-            return true;
-          }
+  // A) Her zaman uygulama içi canlı banner'ı ve ses efektini tetikle
+  emitInAppNotification({ title, body, data, icon });
+
+  // B) Web Platformunda Tarayıcı Sistem Bildirimi
+  if (Platform.OS === 'web' && typeof window !== 'undefined' && 'Notification' in window) {
+    try {
+      if (window.Notification.permission === 'granted') {
+        const n = new window.Notification(title, {
+          body,
+          icon: '/favicon.ico',
+          badge: '/favicon.ico',
+          tag: 'momora-alert-' + Date.now(),
+        });
+        n.onclick = () => {
+          try {
+            window.focus();
+            n.close();
+          } catch (e) {}
+        };
+      } else if (window.Notification.permission !== 'denied') {
+        const perm = await window.Notification.requestPermission();
+        if (perm === 'granted') {
+          const n = new window.Notification(title, {
+            body,
+            icon: '/favicon.ico',
+            badge: '/favicon.ico',
+            tag: 'momora-alert-' + Date.now(),
+          });
+          n.onclick = () => {
+            try {
+              window.focus();
+              n.close();
+            } catch (e) {}
+          };
         }
-      } catch (e) {
-        // ignore
       }
+    } catch (err) {
+      console.warn('[Notifications] Web browser notification dispatch error:', err);
     }
-    return false;
   }
+
+  // C) Mobil Native Platform (Android / iOS)
+  if (Platform.OS !== 'web') {
+    try {
+      await setupAndroidChannels();
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title,
+          body,
+          data,
+          channelId: 'clinical-alerts',
+          sound: 'default',
+          priority: Notifications.AndroidNotificationPriority?.MAX || 'max',
+        },
+        trigger: null, // Hemen fırlat
+      });
+    } catch (err) {
+      console.warn('[Notifications] Native scheduleNotificationAsync error:', err);
+    }
+  }
+
+  return true;
 }
 
-// 6. KLİNİK ZAMANLANMIŞ HATIRLATICILAR (Local Scheduling)
+// 7. KANAL ÖZELİNDE ANLIK TEST TETİKLEYİCİ
+export async function testSpecificChannelNotification(channelKey, lang = 'tr') {
+  const isEn = lang === 'en';
+  let title = '';
+  let body = '';
+  let data = {};
+  let icon = 'bell';
+
+  if (channelKey === 'water') {
+    title = isEn ? '💧 Hydration Time for Baby & You' : '💧 Bebeğiniz ve Sizin İçin Su Vakti';
+    body = isEn
+      ? 'A glass of fresh water supports amniotic fluid balance and relieves maternal fatigue.'
+      : 'Bir bardak ılık su amniyon sıvısı dengesini korur ve gebelik yorgunluğunu hafifletir.';
+    data = { screen: 'tools', tool: 'water' };
+    icon = 'water';
+  } else if (channelKey === 'vitamin') {
+    title = isEn ? '💊 Prenatal Vitamin & Iron Reminder' : '💊 Doğum Öncesi Vitamin & Demir Takviyesi';
+    body = isEn
+      ? 'Time for your daily folic acid & iron. Best absorbed with vitamin C.'
+      : 'Günün folik asit ve demir desteği vakti. Demir emilimini artırmak için narenciye veya C vitaminiyle tüketebilirsiniz.';
+    data = { screen: 'tools', tool: 'vitamin' };
+    icon = 'pill';
+  } else if (channelKey === 'kick') {
+    title = isEn ? '🦶 Baby Kick Counting Time' : '🦶 Bebeğinizle İletişim: Tekme Sayımı Vakti';
+    body = isEn
+      ? 'Baby is active right now. Lie on your side and record 10 kicks in Momora.'
+      : 'Bebeğiniz akşam yemeğinden sonra en aktif evresindedir. Sol yanınıza uzanıp 10 tekme seansını başlatabilirsiniz.';
+    data = { screen: 'tools', tool: 'kicks' };
+    icon = 'footprint';
+  } else if (channelKey === 'dailyGuide') {
+    title = isEn ? '🥑 Daily Growth & Editor’s Pick' : '🥑 Günün Gelişimi & Editörün Seçimi';
+    body = isEn
+      ? 'Discover what miracle developed in your baby today. Physician-approved guide ready.'
+      : 'Bebeğinizin bugünkü milimetrik organ gelişimi ve uzman hekim onaylı editoryal rehber hazır.';
+    data = { screen: 'discover' };
+    icon = 'book';
+  } else if (channelKey === 'partner') {
+    title = isEn ? '👨‍👩‍👧 Love Note from Partner' : '👨‍👩‍👧 Eşinizden Yeni Bir Sevgi Notu';
+    body = isEn
+      ? 'Your partner left a sweet milestone message in your family sync journal.'
+      : 'Eşiniz ortak aile günlüğünüze yeni bir sevgi notu bıraktı: "Sizi çok seviyorum 💜"';
+    data = { screen: 'assistant' };
+    icon = 'heart';
+  }
+
+  return sendTestNotificationAsync({ title, body, data, icon });
+}
 
 // 💧 Su Hatırlatıcılarını Yenile
 export async function scheduleWaterReminders(settings = DEFAULT_NOTIFICATION_SETTINGS, lang = 'tr') {

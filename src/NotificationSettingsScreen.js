@@ -11,6 +11,7 @@ import {
   loadNotificationSettings,
   saveNotificationSettings,
   sendTestNotificationAsync,
+  testSpecificChannelNotification,
   registerForPushNotificationsAsync,
 } from './notifications';
 
@@ -72,6 +73,9 @@ export function NotificationSettingsScreen({ toast, lang = 'tr', week = 24, clos
 
   async function handleSendTest() {
     setTesting(true);
+    if (permStatus !== 'granted') {
+      await requestPermission();
+    }
     const success = await sendTestNotificationAsync({
       title: isEn ? 'Momora Test Notification 🌸' : 'Momora Canlı Bildirim Testi 🌸',
       body: isEn
@@ -83,6 +87,16 @@ export function NotificationSettingsScreen({ toast, lang = 'tr', week = 24, clos
       toast && toast(isEn ? '🔔 Test notification delivered!' : '🔔 Canlı test bildirimi başarıyla gönderildi!');
     } else {
       toast && toast(isEn ? '⚠️ Could not trigger notification. Check permissions.' : '⚠️ Bildirim gönderilemedi. İzinleri kontrol edin.');
+    }
+  }
+
+  async function handleTestChannel(channelKey) {
+    if (permStatus !== 'granted') {
+      await requestPermission();
+    }
+    const res = await testSpecificChannelNotification(channelKey, lang);
+    if (res) {
+      toast && toast(isEn ? '🔔 Channel test notification delivered!' : '🔔 Hatırlatma testi başarıyla iletildi!');
     }
   }
 
@@ -138,6 +152,16 @@ export function NotificationSettingsScreen({ toast, lang = 'tr', week = 24, clos
             </T>
           </Tap>
         </View>
+
+        {permStatus === 'denied' && (
+          <View style={ns.deniedBanner}>
+            <T style={{ fontSize: 11.5, color: '#B71C1C', lineHeight: 16 }}>
+              {isEn
+                ? '⚠️ Notifications are currently blocked in your browser/device settings. Allow them in site settings for native system popups. (In-app alerts are active).'
+                : '⚠️ Tarayıcı veya cihaz ayarlarında bildirim izni engellenmiş. Sistem açılır pencereleri için izin verebilirsiniz. (Uygulama içi dinamik bildirimler aktiftir).'}
+            </T>
+          </View>
+        )}
       </Card>
 
       {/* 3. Ana Açma / Kapama */}
@@ -219,6 +243,16 @@ export function NotificationSettingsScreen({ toast, lang = 'tr', week = 24, clos
               </T>
             </View>
           )}
+          <View style={ns.channelActionRow}>
+            <Tap
+              onPress={() => handleTestChannel('water')}
+              label={isEn ? "Test Water Reminder" : "Su Uyarısını Dene"}
+              style={ns.channelTestBtn}
+            >
+              <Icon name="bell" size={13} color={colors.purple} />
+              <T bold style={ns.channelTestBtnText}>{isEn ? '🔔 Preview Alert' : '🔔 Uyarısını Dene'}</T>
+            </Tap>
+          </View>
         </Card>
 
         {/* 💊 Doğum Öncesi Vitamin & Demir */}
@@ -272,6 +306,16 @@ export function NotificationSettingsScreen({ toast, lang = 'tr', week = 24, clos
               </View>
             </View>
           )}
+          <View style={ns.channelActionRow}>
+            <Tap
+              onPress={() => handleTestChannel('vitamin')}
+              label={isEn ? "Test Vitamin Reminder" : "Vitamin Uyarısını Dene"}
+              style={ns.channelTestBtn}
+            >
+              <Icon name="bell" size={13} color={colors.purple} />
+              <T bold style={ns.channelTestBtnText}>{isEn ? '🔔 Preview Alert' : '🔔 Uyarısını Dene'}</T>
+            </Tap>
+          </View>
         </Card>
 
         {/* 🦶 Akşam Fetal Tekme Takibi */}
@@ -325,6 +369,16 @@ export function NotificationSettingsScreen({ toast, lang = 'tr', week = 24, clos
               </View>
             </View>
           )}
+          <View style={ns.channelActionRow}>
+            <Tap
+              onPress={() => handleTestChannel('kick')}
+              label={isEn ? "Test Kick Reminder" : "Tekme Uyarısını Dene"}
+              style={ns.channelTestBtn}
+            >
+              <Icon name="bell" size={13} color={colors.purple} />
+              <T bold style={ns.channelTestBtnText}>{isEn ? '🔔 Preview Alert' : '🔔 Uyarısını Dene'}</T>
+            </Tap>
+          </View>
         </Card>
 
         {/* 🥑 Günün Gelişimi & Editörün Seçimi */}
@@ -378,6 +432,16 @@ export function NotificationSettingsScreen({ toast, lang = 'tr', week = 24, clos
               </View>
             </View>
           )}
+          <View style={ns.channelActionRow}>
+            <Tap
+              onPress={() => handleTestChannel('dailyGuide')}
+              label={isEn ? "Test Daily Guide" : "Rehber Uyarısını Dene"}
+              style={ns.channelTestBtn}
+            >
+              <Icon name="bell" size={13} color={colors.purple} />
+              <T bold style={ns.channelTestBtnText}>{isEn ? '🔔 Preview Alert' : '🔔 Uyarısını Dene'}</T>
+            </Tap>
+          </View>
         </Card>
 
         {/* 🩺 Randevu Alarmları */}
@@ -421,6 +485,16 @@ export function NotificationSettingsScreen({ toast, lang = 'tr', week = 24, clos
               onValueChange={v => updateSetting('partnerAlerts', v)}
               trackColor={{ true: colors.purple }}
             />
+          </View>
+          <View style={ns.channelActionRow}>
+            <Tap
+              onPress={() => handleTestChannel('partner')}
+              label={isEn ? "Test Partner Note" : "Eş Notu Uyarısını Dene"}
+              style={ns.channelTestBtn}
+            >
+              <Icon name="bell" size={13} color={colors.purple} />
+              <T bold style={ns.channelTestBtnText}>{isEn ? '🔔 Preview Alert' : '🔔 Uyarısını Dene'}</T>
+            </Tap>
           </View>
         </Card>
 
@@ -494,4 +568,36 @@ const ns = StyleSheet.create({
   pillBtnActive: { backgroundColor: colors.purple },
   pillText: { fontSize: 12, color: colors.ink },
   pillTextActive: { color: 'white' },
+  deniedBanner: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#FFEBEE',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#FFCDD2',
+  },
+  channelActionRow: {
+    marginTop: 12,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    borderTopWidth: 1,
+    borderColor: '#F6EFF7',
+    paddingTop: 8,
+  },
+  channelTestBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    backgroundColor: '#FAF5FC',
+    borderWidth: 1,
+    borderColor: '#E7D8EB',
+  },
+  channelTestBtnText: {
+    fontSize: 11.5,
+    color: colors.purple,
+    fontWeight: '700',
+  },
 });

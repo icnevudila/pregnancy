@@ -13,7 +13,8 @@ import { TopicHubScreen } from './ExploreScreens';
 import { CommunityHub } from './CommunityScreens';
 import { getBabyLetterForWeek } from './babyLettersData';
 import { t } from './i18n/index.js';
-import { calculateDueDateFromWeek, resolveJourneyState } from './domain/journeyState';
+import { calculateDueDateFromWeek, resolveJourneyState, calculatePostpartumProgress } from './domain/journeyState';
+import { createTrackerRecord, TrackerTypes } from './domain/trackerEngine';
 
 export const getJourneys = (lang = 'tr') => [
   { key: 'pregnancy', title: lang === 'en' ? "I'm Pregnant" : 'Hamileyim', sub: lang === 'en' ? 'Preparing to meet\nmy baby' : 'Bebeğimle tanışmaya\nhazırlanıyorum', image: assets.pregnancy, tint: '#F5E7E8' },
@@ -1556,38 +1557,715 @@ export function RecordList({ records = [], trackerEvents = [], onDelete, onUndo,
   );
 }
 
-export function Postpartum({state,update,open,lang='tr'}) {
+export function Postpartum({ state, update, open, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
-  const [tab,setTab]=useState(isEn ? 'Today' : 'Bugün');
-  const tasks=isEn
-    ? ['Drink plenty of fluids', 'Take a gentle walk', 'Do pelvic floor exercises', 'Make time for yourself', 'Ask for support, you are not alone 💜']
-    : ['Bol sıvı tüket','Hafif yürüyüş yap','Pelvik taban egzersizlerini yap','Kendine zaman ayır','Destek al, yalnız değilsin 💜'];
-  const tabItems=isEn ? ['Today','Recovery','My Mood','Notes'] : ['Bugün','İyileşme','Ruh Halim','Notlar'];
-  return <Page>
-    <ScreenHero
-      kicker={isEn ? 'POSTPARTUM FEED' : 'LOHUSALIK AKIŞI'}
-      title={isEn ? `Day ${daysSinceBirth} recovery` : `${daysSinceBirth}. gün toparlanma`}
-      body={isEn ? 'Keep mood, recovery steps, and daily notes in the same gentle rhythm.' : 'Ruh hali, iyileşme adımları ve günlük notlar aynı bakım ritminde kalsın.'}
-      icon="leaf"
-      asset="ui_postpartum_lotus"
-      stat={`${state.tasks.filter(Boolean).length}/5 ${isEn ? 'steps' : 'adım'}`}
-      tint="#86518A"
-    />
+  const tabItems = isEn ? ['Today', 'Recovery', 'My Mood', 'Notes'] : ['Bugün', 'İyileşme', 'Ruh Halim', 'Notlar'];
+  const [tab, setTab] = useState(isEn ? 'Today' : 'Bugün');
 
-    
-    <View style={s.topline}>
-      <View>
-        <T bold style={s.pageTitle}>{isEn ? `Postpartum · Day ${daysSinceBirth}` : `Lohusalık · ${daysSinceBirth}. gün`}</T>
-        <T style={s.subtitle}>{isEn ? 'Taking small steps together today 🌸' : 'Bugünü küçük adımlarla toparlayalım 🌸'}</T>
+  // Journey & Profile State
+  const postInfo = calculatePostpartumProgress(state?.postpartumProfile?.birthDate);
+  const daysSinceBirth = postInfo?.daysSinceBirth || 14;
+  const phase = postInfo?.phase || 'healing'; // 'immediate' | 'healing' | 'adapted'
+  const deliveryType = state?.postpartumProfile?.deliveryType || 'vaginal'; // 'vaginal' | 'csection'
+
+  // İyileşme Parametreleri (Spec 15: pain, bleeding, energy, incision/perine, breast, urination, bowel)
+  const todayCheckin = state?.postpartumCheckin || {};
+  const [painLevel, setPainLevel] = useState(todayCheckin.painLevel || 2);
+  const [bleeding, setBleeding] = useState(todayCheckin.bleeding || 'normal'); // 'light' | 'normal' | 'heavy'
+  const [energy, setEnergy] = useState(todayCheckin.energy || 'balanced'); // 'low' | 'balanced' | 'high'
+  const [incisionOrPerine, setIncisionOrPerine] = useState(todayCheckin.incisionOrPerine || 'healing'); // 'comfortable' | 'healing' | 'tender'
+  const [breast, setBreast] = useState(todayCheckin.breast || 'full'); // 'soft' | 'full' | 'engorged'
+  const [urination, setUrination] = useState(todayCheckin.urination || 'easy'); // 'easy' | 'burning' | 'urgency'
+  const [bowel, setBowel] = useState(todayCheckin.bowel || 'regular'); // 'regular' | 'constipated' | 'supported'
+
+  // Not Ekleme State
+  const [newNoteText, setNewNoteText] = useState('');
+  const [newNoteTag, setNewNoteTag] = useState('His / Duygu');
+  const notesList = state?.postpartumNotes || [
+    { id: 'pn1', date: 'Bugün · 11:30', tag: 'Bebekle An', text: 'Ten tene temas sırasında göğsüme yatıp kokumu alınca hemen sakinleşti.' },
+    { id: 'pn2', date: 'Dün · 20:15', tag: 'His / Duygu', text: 'Yorgunum ama ona her baktığımda içimi tarifsiz bir şefkat kaplıyor.' },
+  ];
+
+  // Doğum Şekline ve Döneme Göre Dinamik Günlük Bakım Adımları (Spec 15: Static checklist yerine dinamik)
+  const dynamicActions = useMemo(() => {
+    if (phase === 'immediate') {
+      return deliveryType === 'csection' ? [
+        { id: 'a1', text: isEn ? 'Keep C-section incision clean and dry' : 'Kesi yerini temiz ve kuru tut', icon: 'shield' },
+        { id: 'a2', text: isEn ? 'Support abdomen with a pillow when coughing or sitting' : 'Kalkarken veya öksürürken yastıkla karnını destekle', icon: 'heart' },
+        { id: 'a3', text: isEn ? 'Take gentle 5-minute indoor walking breaks' : 'Ev içinde kısa 5 dakikalık dolaşım yürüyüşleri yap', icon: 'footprint' },
+        { id: 'a4', text: isEn ? 'Rest your eyes whenever your baby sleeps' : 'Bebek her uyuduğunda gözlerini dinlendir', icon: 'moon' },
+      ] : [
+        { id: 'a1', text: isEn ? 'Apply warm peri-bottle wash or soothing cold pad' : 'Ilık suyla perine temizliği veya soğuk jel kompres yap', icon: 'drop' },
+        { id: 'a2', text: isEn ? 'Rest your pelvic floor without prolonged standing' : 'Uzun süre ayakta kalmayarak pelvik tabanı dinlendir', icon: 'leaf' },
+        { id: 'a3', text: isEn ? 'Drink warm herbal tea and hydration fluids' : 'Bol ılık su, rezene veya komposto ile hidrasyon sağla', icon: 'coffee' },
+        { id: 'a4', text: isEn ? 'Rest your body whenever baby naps' : 'Bebek uyudukça bedenini yatay pozisyonda dinlendir', icon: 'moon' },
+      ];
+    } else if (phase === 'healing') {
+      return [
+        { id: 'a1', text: isEn ? 'Practice gentle 5-minute pelvic floor (Kegel) rhythm' : '5 dakikalık nazik pelvik taban (Kegel) ritmini uygula', icon: 'heart' },
+        { id: 'a2', text: isEn ? 'Take a relaxing 15-minute fresh air stroller stroll' : 'Açık havada 15 dakikalık sakin bir nefes yürüyüşüne çık', icon: 'footprint' },
+        { id: 'a3', text: isEn ? 'Take iron and postnatal lactation vitamins' : 'Demir ve multivitamin takviyeni düzenli al', icon: 'shield' },
+        { id: 'a4', text: isEn ? 'Carve out 20 minutes of quiet self-care time' : 'Kendine 20 dakikalık sessiz ve şefkatli bir alan aç', icon: 'sparkles' },
+      ];
+    } else {
+      return [
+        { id: 'a1', text: isEn ? 'Gentle core and spine stretching exercises' : 'Nazik omurga esnetme ve nefes hareketleri yap', icon: 'leaf' },
+        { id: 'a2', text: isEn ? 'Plan 6-week postnatal checkup with your doctor' : '6. hafta hekim ve doğum sonrası kontrolünü planla', icon: 'calendar' },
+        { id: 'a3', text: isEn ? 'Nourish with fiber-rich warm meals and soup' : 'Lif zengini sıcak çorba ve besleyici öğünlerle güçlen', icon: 'apple' },
+        { id: 'a4', text: isEn ? 'Celebrate your postpartum progress with compassion' : 'Bedeninin katettiği yolu şefkat ve gururla kutla', icon: 'sparkles' },
+      ];
+    }
+  }, [phase, deliveryType, isEn]);
+
+  const completedActionIds = state?.postpartumCompletedActions || ['a1', 'a3'];
+
+  function toggleAction(id) {
+    const next = completedActionIds.includes(id)
+      ? completedActionIds.filter(x => x !== id)
+      : [...completedActionIds, id];
+    update({ postpartumCompletedActions: next });
+  }
+
+  // İyileşme Durumunu Kaydet (Spec 15 + Tracker Engine optimistik kayıt)
+  function saveRecoveryCheckin() {
+    const checkinData = {
+      date: new Date().toISOString().slice(0, 10),
+      painLevel,
+      bleeding,
+      energy,
+      incisionOrPerine,
+      breast,
+      urination,
+      bowel,
+      deliveryType,
+    };
+
+    const record = createTrackerRecord({
+      type: TrackerTypes.POSTPARTUM,
+      title: isEn ? 'Postpartum Daily Check-in' : 'Günlük Lohusa İyileşme Kaydı',
+      value: isEn ? `Pain: ${painLevel}/5 · Energy: ${energy}` : `Ağrı: ${painLevel}/5 · Enerji: ${energy}`,
+      metadata: checkinData,
+    });
+
+    update({
+      postpartumCheckin: checkinData,
+      postpartumCheckins: [checkinData, ...(state?.postpartumCheckins || []).slice(0, 30)],
+      records: [record, ...(state?.records || [])],
+    });
+
+    toast && toast(isEn ? '✓ Recovery check-in saved safely! 🌸' : '✓ Bugünkü iyileşme durumu kaydedildi! 🌸');
+  }
+
+  // Not Ekleme
+  function addNote() {
+    if (!newNoteText.trim()) return;
+    const item = {
+      id: 'pn_' + Date.now(),
+      date: isEn ? 'Today · Just now' : 'Bugün · Şimdi',
+      tag: newNoteTag,
+      text: newNoteText.trim(),
+    };
+    const updated = [item, ...notesList];
+    update({ postpartumNotes: updated });
+    setNewNoteText('');
+    toast && toast(isEn ? 'Diary note saved safely 📖' : 'Günlük notun güvenle saklandı 📖');
+  }
+
+  function deleteNote(id) {
+    const updated = notesList.filter(n => n.id !== id);
+    update({ postpartumNotes: updated });
+    toast && toast(isEn ? 'Note deleted' : 'Not silindi');
+  }
+
+  // 7 Günlük Ruh Hali Trend Verileri
+  const moodHistory = state?.postpartumMoodHistory || [
+    { day: isEn ? 'Mon' : 'Pzt', mood: 1 },
+    { day: isEn ? 'Tue' : 'Sal', mood: 2 },
+    { day: isEn ? 'Wed' : 'Çar', mood: 0 },
+    { day: isEn ? 'Thu' : 'Per', mood: 3 },
+    { day: isEn ? 'Fri' : 'Cum', mood: 1 },
+    { day: isEn ? 'Sat' : 'Cmt', mood: 0 },
+    { day: isEn ? 'Sun' : 'Paz', mood: state?.postpartumMood ?? 1 },
+  ];
+
+  return (
+    <Page>
+      <ScreenHero
+        kicker={isEn ? 'POSTPARTUM RECOVERY HUB' : 'LOHUSALIK & İYİLEŞME PANELİ'}
+        title={isEn ? `Day ${daysSinceBirth} Recovery` : `${daysSinceBirth}. Gün İyileşme`}
+        body={isEn
+          ? 'Personal recovery telemetry, tailored daily actions, mood reflection, and private diary.'
+          : 'Doğum şekline özel iyileşme göstergeleri, günlük bakım ritmi, duygu haritası ve gizli günlük.'}
+        icon="leaf"
+        asset="ui_postpartum_lotus"
+        stat={`${daysSinceBirth}. ${isEn ? 'day' : 'gün'}`}
+        tint="#86518A"
+      />
+
+      {/* Tepe Başlık & Yolculuk Değiştirici */}
+      <View style={s.topline}>
+        <View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <T bold style={s.pageTitle}>{isEn ? `Postpartum · Day ${daysSinceBirth}` : `Lohusalık · ${daysSinceBirth}. Gün`}</T>
+            <View style={{ backgroundColor: deliveryType === 'csection' ? '#F4EAF6' : '#EBF5EE', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+              <T bold style={{ fontSize: 11, color: deliveryType === 'csection' ? colors.purple : '#2F7045' }}>
+                {deliveryType === 'csection' ? (isEn ? 'C-Section' : 'Sezaryen') : (isEn ? 'Vaginal' : 'Vajinal')}
+              </T>
+            </View>
+          </View>
+          <T style={s.subtitle}>
+            {phase === 'immediate'
+              ? (isEn ? 'Early recovery · Gentle rest and healing 🌸' : 'Erken toparlanma dönemi · Şefkatli dinlenme 🌸')
+              : phase === 'healing'
+              ? (isEn ? 'Uterine involution & tissue rebuilding 🌿' : 'Doku yenilenmesi ve rahim toparlanması 🌿')
+              : (isEn ? 'Postpartum adaptation & balance ✨' : 'Lohusalık adaptasyonu ve güçlenme ✨')}
+          </T>
+        </View>
+        <RoundButton icon="down" label={isEn ? 'Change journey' : 'Yolculuğunu değiştir'} onPress={() => open('journey')} />
       </View>
-      <RoundButton icon="down" label={isEn ? 'Change journey' : 'Yolculuğunu değiştir'} onPress={()=>open('journey')}/>
-    </View>
-    <Tabs items={tabItems} active={tab} onChange={setTab}/>
 
-    {tab==='Bugün'||tab==='Today'||tab==='Ruh Halim'||tab==='My Mood'?<Card style={{padding:13}}><MoodPicker postpartum value={state.postpartumMood} onChange={postpartumMood=>update({postpartumMood})} lang={lang}/>{(tab==='Bugün'||tab==='Today')&&<View style={[s.row,{gap:10,marginTop:16,paddingTop:12,borderTopWidth:1,borderColor:colors.line}]}><SmallStat title={isEn ? 'Sleep' : 'Uyku'} value={isEn ? '6 h 20 m' : '6 sa 20 dk'} icon="moon" tint="#F0EAF5" onPress={()=>open('log',{type:'Uyku'})}/><SmallStat title={isEn ? 'Water' : 'Su'} value={`${state.water}/8 ${isEn ? 'gls' : 'bardak'}`} icon="drop" tint="#E6F0F4" onPress={()=>update(old=>({water:Math.min(8,old.water+1)}))}/></View>}</Card>:null}
-    {(tab==='Bugün'||tab==='Today'||tab==='İyileşme'||tab==='Recovery')&&<><Card style={{padding:13}}><T bold style={{fontSize:16}}>{isEn ? "Today's self-care checklist" : 'Bugün yapabileceklerin'}</T><T style={s.taskMeta}>{state.tasks.filter(Boolean).length}/5 {isEn ? 'completed' : 'tamamlandı'}</T>{tasks.map((task,i)=><Tap key={task} label={task} accessibilityRole="checkbox" accessibilityState={{checked:state.tasks[i]}} onPress={()=>update(old=>({tasks:old.tasks.map((v,n)=>n===i?!v:v)}))} style={s.task}><View style={[s.checkbox,state.tasks[i]&&{backgroundColor:colors.sage,borderColor:colors.sage}]}>{state.tasks[i]&&<Icon name="check" color="white" size={16}/>}</View><T style={s.taskText}>{task}</T><Icon name="chevron" size={18} color={colors.muted}/></Tap>)}</Card><Card style={{padding:14}}><View style={s.topline}><T bold>{isEn ? 'Your recovery journey' : 'İyileşme yolculuğun'}</T><Icon name="leaf" color={colors.sage} fill="#9FB7A4" size={28}/></View><View style={[s.row,{gap:12,marginTop:10}]}><Progress value={state.tasks.filter(Boolean).length*20} style={{flex:1}}/><T style={{fontSize:13}}>%{state.tasks.filter(Boolean).length*20}</T></View><T style={{fontSize:12,color:colors.muted,marginTop:9}}>{isEn ? 'You grow stronger each day.' : 'Her gün biraz daha güçleniyorsun.'}</T></Card></>}
-    {(tab==='Notlar'||tab==='Notes')&&<><Section title={isEn ? 'Your personal notes' : 'Sana ait küçük notlar'} action={isEn ? 'Add note' : 'Not ekle'} onPress={()=>open('note')}/>{state.notes.length?state.notes.map(n=><Card key={n.id}><T style={{lineHeight:23}}>{n.text}</T></Card>):<Card><T style={{lineHeight:23}}>{isEn ? 'A feeling, a sweet moment, questions for your midwife... All are welcome here.' : 'Bir his, küçük bir an, doktoruna sormak istediğin bir soru… Hepsine burada yer var.'}</T><Tap onPress={()=>open('note')} style={s.primary}><T style={{color:'white'}}>{isEn ? 'Add your first note' : 'İlk notunu ekle'}</T></Tap></Card>}</>}
-  </Page>;
+      {/* 4 Ana Sekme (Spec 15: Bugün | İyileşme | Ruh Halim | Notlar) */}
+      <Tabs items={tabItems} active={tab} onChange={setTab} />
+
+      {/* ─── 1. SEKME: BUGÜN (TODAY) ─── */}
+      {(tab === 'Bugün' || tab === 'Today') && (
+        <View style={{ gap: 14 }}>
+          {/* Hızlı Günlük Bakım Telemetrisi (Su & Uyku & Ruh Hali) */}
+          <Card style={{ padding: 14 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <T bold style={{ fontSize: 14, color: colors.ink }}>{isEn ? "Today's Wellness Rhythm" : "Bugünün İyileşme Ritmi"}</T>
+              <T style={{ fontSize: 11, color: colors.muted }}>{isEn ? 'Tap to log' : 'Dokunarak güncelle'}</T>
+            </View>
+            <View style={[s.row, { gap: 10 }]}>
+              <SmallStat
+                title={isEn ? 'Water' : 'Sıvı / Su'}
+                value={`${state.water || 4}/8 ${isEn ? 'gls' : 'bardak'}`}
+                icon="drop"
+                tint="#E6F0F4"
+                onPress={() => {
+                  const next = Math.min(8, (state.water || 0) + 1);
+                  update({ water: next });
+                  toast && toast(isEn ? `💧 Water logged: ${next}/8 glasses` : `💧 ${next}/8 bardak su içildi`);
+                }}
+              />
+              <SmallStat
+                title={isEn ? 'Rest / Sleep' : 'Dinlenme / Uyku'}
+                value={isEn ? '6 h 20 m' : '6 sa 20 dk'}
+                icon="moon"
+                tint="#F0EAF5"
+                onPress={() => open('sleepWhiteNoise')}
+              />
+              <SmallStat
+                title={isEn ? 'Mood' : 'Ruh Hali'}
+                value={state.postpartumMood != null ? (isEn ? 'Logged' : 'Kaydedildi') : (isEn ? 'Check in' : 'Belirt')}
+                icon="heart"
+                tint="#FAF0F4"
+                onPress={() => setTab(isEn ? 'My Mood' : 'Ruh Halim')}
+              />
+            </View>
+          </Card>
+
+          {/* Dinamik Günlük Bakım Adımları (Delivery & Phase Specific) */}
+          <Card style={{ padding: 14 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <T bold style={{ fontSize: 15, color: colors.ink }}>
+                {isEn ? `Day ${daysSinceBirth} Personalized Care` : `${daysSinceBirth}. Gün Kişiselleştirilmiş Bakım`}
+              </T>
+              <T style={{ fontSize: 11, color: colors.purple, fontWeight: '700' }}>
+                {completedActionIds.length}/{dynamicActions.length}
+              </T>
+            </View>
+            <T style={{ fontSize: 11.5, color: colors.muted, marginBottom: 10 }}>
+              {isEn ? 'Gentle recommendations tailored to your delivery and timeline.' : 'Doğum şeklinize ve toparlanma haftanıza özel hazırlanmış nazik adımlar.'}
+            </T>
+
+            {dynamicActions.map(action => {
+              const isDone = completedActionIds.includes(action.id);
+              return (
+                <Tap
+                  key={action.id}
+                  label={action.text}
+                  onPress={() => toggleAction(action.id)}
+                  style={[s.task, { paddingVertical: 10 }]}
+                >
+                  <View style={[s.checkbox, isDone && { backgroundColor: colors.sage, borderColor: colors.sage }]}>
+                    {isDone && <Icon name="check" color="white" size={14} />}
+                  </View>
+                  <T style={[s.taskText, isDone && { color: colors.muted, textDecorationLine: 'line-through' }]}>
+                    {action.text}
+                  </T>
+                </Tap>
+              );
+            })}
+          </Card>
+
+          {/* İyileşme Yolculuğu İlerleme Özeti */}
+          <Card style={{ padding: 14, backgroundColor: '#FAF6FA', borderColor: '#EBDCEB' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View style={{ flex: 1, paddingRight: 10 }}>
+                <T bold style={{ fontSize: 14, color: colors.purple }}>
+                  {isEn ? 'Holistic Maternal Recovery' : 'Bütünsel Anne İyileşmesi'}
+                </T>
+                <T style={{ fontSize: 11.5, color: '#594A5D', marginTop: 3 }}>
+                  {isEn
+                    ? 'Log your detailed symptoms (pain, lochia, energy, incision) in the Recovery tab.'
+                    : 'Ağrı, kanama, dikiş ve göğüs durumunu İyileşme sekmesinden sakince kaydedebilirsin.'}
+                </T>
+              </View>
+              <Tap
+                onPress={() => setTab(isEn ? 'Recovery' : 'İyileşme')}
+                style={{ backgroundColor: colors.purple, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12 }}
+              >
+                <T bold style={{ color: 'white', fontSize: 11.5 }}>{isEn ? 'Open →' : 'İncele →'}</T>
+              </Tap>
+            </View>
+          </Card>
+        </View>
+      )}
+
+      {/* ─── 2. SEKME: İYİLEŞME (RECOVERY FIELDS - SPEC 15) ─── */}
+      {(tab === 'İyileşme' || tab === 'Recovery') && (
+        <View style={{ gap: 14 }}>
+          {/* Doğum Şekli Seçimi */}
+          <Card style={{ padding: 12, backgroundColor: '#FAF5FB', borderColor: '#EADCEE' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View>
+                <T bold style={{ fontSize: 12.5, color: colors.purple }}>{isEn ? 'DELIVERY METHOD' : 'DOĞUM ŞEKLİ'}</T>
+                <T style={{ fontSize: 11, color: colors.muted }}>{isEn ? 'Tailors perineal or incision telemetry' : 'Dikiş ve bölge takibini özelleştirir'}</T>
+              </View>
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                {[
+                  { id: 'vaginal', label: isEn ? '🌿 Vaginal' : '🌿 Vajinal' },
+                  { id: 'csection', label: isEn ? '🌸 C-Section' : '🌸 Sezaryen' },
+                ].map(opt => (
+                  <Tap
+                    key={opt.id}
+                    onPress={() => {
+                      update({
+                        postpartumProfile: {
+                          ...(state.postpartumProfile || {}),
+                          deliveryType: opt.id,
+                        },
+                      });
+                    }}
+                    style={{
+                      paddingHorizontal: 10,
+                      paddingVertical: 6,
+                      borderRadius: 10,
+                      backgroundColor: deliveryType === opt.id ? colors.purple : '#EDE4EF',
+                    }}
+                  >
+                    <T bold={deliveryType === opt.id} style={{ fontSize: 11.5, color: deliveryType === opt.id ? 'white' : colors.ink }}>
+                      {opt.label}
+                    </T>
+                  </Tap>
+                ))}
+              </View>
+            </View>
+          </Card>
+
+          {/* 7 İyileşme Alanı Kartı */}
+          <Card style={{ padding: 16, gap: 14 }}>
+            <T bold style={{ fontSize: 16, color: colors.ink }}>{isEn ? 'Daily Maternal Recovery Signals' : 'Günlük Anne İyileşme Göstergeleri'}</T>
+
+            {/* 1. Ağrı Düzeyi (1..5) */}
+            <View style={{ gap: 6 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <T bold style={{ fontSize: 13, color: '#4D4150' }}>{isEn ? '1. Pain Level (1 to 5)' : '1. Ağrı Düzeyi (1 - 5)'}</T>
+                <T bold style={{ fontSize: 12, color: colors.purple }}>{painLevel}/5 · {painLevel <= 2 ? (isEn ? 'Mild / Manageable' : 'Hafif sızı') : painLevel === 3 ? (isEn ? 'Moderate' : 'Orta düzey') : (isEn ? 'Significant' : 'Belirgin')}</T>
+              </View>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                {[1, 2, 3, 4, 5].map(lvl => (
+                  <Tap
+                    key={lvl}
+                    onPress={() => setPainLevel(lvl)}
+                    style={{
+                      flex: 1,
+                      paddingVertical: 8,
+                      borderRadius: 10,
+                      backgroundColor: painLevel === lvl ? colors.purple : '#F2EAF4',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <T bold={painLevel === lvl} style={{ fontSize: 12, color: painLevel === lvl ? 'white' : colors.ink }}>
+                      {lvl}
+                    </T>
+                  </Tap>
+                ))}
+              </View>
+            </View>
+
+            {/* 2. Lohusalık Kanaması (Bleeding/Lochia) */}
+            <View style={{ gap: 6 }}>
+              <T bold style={{ fontSize: 13, color: '#4D4150' }}>{isEn ? '2. Lochia & Bleeding' : '2. Lohusalık Akıntısı (Losi)'}</T>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                {[
+                  { id: 'light', label: isEn ? 'Light / Pink' : 'Az / Açık Pembe' },
+                  { id: 'normal', label: isEn ? 'Normal / Brown' : 'Normal / Koyu' },
+                  { id: 'heavy', label: isEn ? 'Heavy Flow' : 'Yoğun Akıntı' },
+                ].map(opt => (
+                  <Tap
+                    key={opt.id}
+                    onPress={() => setBleeding(opt.id)}
+                    style={{
+                      flex: 1,
+                      paddingVertical: 8,
+                      borderRadius: 10,
+                      backgroundColor: bleeding === opt.id ? colors.purple : '#F2EAF4',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <T bold={bleeding === opt.id} style={{ fontSize: 11, color: bleeding === opt.id ? 'white' : colors.ink }}>
+                      {opt.label}
+                    </T>
+                  </Tap>
+                ))}
+              </View>
+            </View>
+
+            {/* 3. Enerji Düzeyi */}
+            <View style={{ gap: 6 }}>
+              <T bold style={{ fontSize: 13, color: '#4D4150' }}>{isEn ? '3. Energy & Vitality' : '3. Enerji ve Canlılık'}</T>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                {[
+                  { id: 'low', label: isEn ? 'Low / Exhausted' : 'Düşük / Yorgun' },
+                  { id: 'balanced', label: isEn ? 'Balanced' : 'Dengeli' },
+                  { id: 'high', label: isEn ? 'Vital / High' : 'Canlı / İyi' },
+                ].map(opt => (
+                  <Tap
+                    key={opt.id}
+                    onPress={() => setEnergy(opt.id)}
+                    style={{
+                      flex: 1,
+                      paddingVertical: 8,
+                      borderRadius: 10,
+                      backgroundColor: energy === opt.id ? colors.purple : '#F2EAF4',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <T bold={energy === opt.id} style={{ fontSize: 11, color: energy === opt.id ? 'white' : colors.ink }}>
+                      {opt.label}
+                    </T>
+                  </Tap>
+                ))}
+              </View>
+            </View>
+
+            {/* 4. Doğuma Özel Bölge Durumu (Vajinal -> Perine / Sezaryen -> Kesi Yeri) */}
+            <View style={{ gap: 6 }}>
+              <T bold style={{ fontSize: 13, color: '#4D4150' }}>
+                {deliveryType === 'csection'
+                  ? (isEn ? '4. C-Section Incision' : '4. Kesi Yeri Durumu')
+                  : (isEn ? '4. Perineal Comfort' : '4. Perine Bölgesi Konforu')}
+              </T>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                {[
+                  { id: 'comfortable', label: isEn ? 'Comfortable' : 'Rahat / İyi' },
+                  { id: 'healing', label: isEn ? 'Mild Tension' : 'Hafif Gerginlik' },
+                  { id: 'tender', label: isEn ? 'Tender / Sore' : 'Hassas / Ağrılı' },
+                ].map(opt => (
+                  <Tap
+                    key={opt.id}
+                    onPress={() => setIncisionOrPerine(opt.id)}
+                    style={{
+                      flex: 1,
+                      paddingVertical: 8,
+                      borderRadius: 10,
+                      backgroundColor: incisionOrPerine === opt.id ? colors.purple : '#F2EAF4',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <T bold={incisionOrPerine === opt.id} style={{ fontSize: 11, color: incisionOrPerine === opt.id ? 'white' : colors.ink }}>
+                      {opt.label}
+                    </T>
+                  </Tap>
+                ))}
+              </View>
+            </View>
+
+            {/* 5. Göğüs & Süt Durumu */}
+            <View style={{ gap: 6 }}>
+              <T bold style={{ fontSize: 13, color: '#4D4150' }}>{isEn ? '5. Breast & Lactation' : '5. Göğüs & Süt Akışı'}</T>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                {[
+                  { id: 'soft', label: isEn ? 'Soft / Easy' : 'Yumuşak' },
+                  { id: 'full', label: isEn ? 'Full / Active' : 'Dolgun' },
+                  { id: 'engorged', label: isEn ? 'Engorged' : 'Gergin / Sert' },
+                ].map(opt => (
+                  <Tap
+                    key={opt.id}
+                    onPress={() => setBreast(opt.id)}
+                    style={{
+                      flex: 1,
+                      paddingVertical: 8,
+                      borderRadius: 10,
+                      backgroundColor: breast === opt.id ? colors.purple : '#F2EAF4',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <T bold={breast === opt.id} style={{ fontSize: 11, color: breast === opt.id ? 'white' : colors.ink }}>
+                      {opt.label}
+                    </T>
+                  </Tap>
+                ))}
+              </View>
+            </View>
+
+            {/* 6. İdrar Boşaltımı */}
+            <View style={{ gap: 6 }}>
+              <T bold style={{ fontSize: 13, color: '#4D4150' }}>{isEn ? '6. Urination Comfort' : '6. İdrar Rahatlığı'}</T>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                {[
+                  { id: 'easy', label: isEn ? 'Effortless' : 'Rahat' },
+                  { id: 'burning', label: isEn ? 'Mild Sting' : 'Hafif Yanma' },
+                  { id: 'urgency', label: isEn ? 'Urgency' : 'Sıkışma Hissi' },
+                ].map(opt => (
+                  <Tap
+                    key={opt.id}
+                    onPress={() => setUrination(opt.id)}
+                    style={{
+                      flex: 1,
+                      paddingVertical: 8,
+                      borderRadius: 10,
+                      backgroundColor: urination === opt.id ? colors.purple : '#F2EAF4',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <T bold={urination === opt.id} style={{ fontSize: 11, color: urination === opt.id ? 'white' : colors.ink }}>
+                      {opt.label}
+                    </T>
+                  </Tap>
+                ))}
+              </View>
+            </View>
+
+            {/* 7. Bağırsak / Sindirim */}
+            <View style={{ gap: 6 }}>
+              <T bold style={{ fontSize: 13, color: '#4D4150' }}>{isEn ? '7. Bowel Function' : '7. Bağırsak Hareketi'}</T>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                {[
+                  { id: 'regular', label: isEn ? 'Regular' : 'Düzenli' },
+                  { id: 'constipated', label: isEn ? 'Constipated' : 'Kabızlık Var' },
+                  { id: 'supported', label: isEn ? 'Fiber/Fluids' : 'Lif Desteğiyle' },
+                ].map(opt => (
+                  <Tap
+                    key={opt.id}
+                    onPress={() => setBowel(opt.id)}
+                    style={{
+                      flex: 1,
+                      paddingVertical: 8,
+                      borderRadius: 10,
+                      backgroundColor: bowel === opt.id ? colors.purple : '#F2EAF4',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <T bold={bowel === opt.id} style={{ fontSize: 11, color: bowel === opt.id ? 'white' : colors.ink }}>
+                      {opt.label}
+                    </T>
+                  </Tap>
+                ))}
+              </View>
+            </View>
+
+            {/* Kaydet Butonu */}
+            <Tap
+              onPress={saveRecoveryCheckin}
+              style={{
+                backgroundColor: colors.purple,
+                paddingVertical: 13,
+                borderRadius: 14,
+                alignItems: 'center',
+                marginTop: 6,
+              }}
+            >
+              <T bold style={{ color: 'white', fontSize: 13.5 }}>
+                {isEn ? 'Save Today’s Recovery Signals 🌸' : 'Bugünkü İyileşme Durumunu Kaydet 🌸'}
+              </T>
+            </Tap>
+          </Card>
+        </View>
+      )}
+
+      {/* ─── 3. SEKME: RUH HALİM (MOOD & 7-DAY TREND - SPEC 15) ─── */}
+      {(tab === 'Ruh Halim' || tab === 'My Mood') && (
+        <View style={{ gap: 14 }}>
+          {/* Günlük Duygu Seçici */}
+          <Card style={{ padding: 16 }}>
+            <T bold style={{ fontSize: 15, color: colors.ink, marginBottom: 4 }}>
+              {isEn ? 'How are you feeling inside today?' : 'Bugün iç dünyan nasıl hissediyor?'}
+            </T>
+            <T style={{ fontSize: 12, color: colors.muted, marginBottom: 12 }}>
+              {isEn
+                ? 'Your emotions in postpartum are valid, normal, and deeply human.'
+                : 'Lohusalıkta hissettiğin her duygu çok insani, doğal ve geçerlidir.'}
+            </T>
+            <MoodPicker
+              postpartum
+              value={state.postpartumMood}
+              onChange={postpartumMood => {
+                update({
+                  postpartumMood,
+                  postpartumMoodHistory: [
+                    ...(state.postpartumMoodHistory || []).slice(0, 6),
+                    { day: isEn ? 'Today' : 'Bugün', mood: postpartumMood },
+                  ],
+                });
+                toast && toast(isEn ? 'Mood reflected gently 🌸' : 'Ruh halin şefkatle kaydedildi 🌸');
+              }}
+              lang={lang}
+            />
+          </Card>
+
+          {/* 7 Günlük Ruh Hali Trend Grafiği (Spec 15: 7-day trend, NO diagnosis!) */}
+          <Card style={{ padding: 16 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <View>
+                <T bold style={{ fontSize: 14, color: colors.ink }}>
+                  {isEn ? '7-Day Emotional Rhythm' : '7 Günlük Duygu Ritmin'}
+                </T>
+                <T style={{ fontSize: 11, color: colors.muted }}>
+                  {isEn ? 'Observing trends without judgment or diagnosis' : 'Yargısız ve teşhissiz gözlem alanı'}
+                </T>
+              </View>
+              <T style={{ fontSize: 18 }}>🌱</T>
+            </View>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', height: 110, paddingTop: 10, paddingHorizontal: 6 }}>
+              {moodHistory.map((item, idx) => {
+                const heightPct = item.mood === 0 ? 95 : item.mood === 1 ? 75 : item.mood === 2 ? 55 : item.mood === 3 ? 35 : 45;
+                const barColor = item.mood === 0 ? '#56A072' : item.mood === 1 ? colors.purple : item.mood === 2 ? '#D18E4E' : '#B8586E';
+                return (
+                  <View key={idx} style={{ alignItems: 'center', flex: 1, gap: 6 }}>
+                    <View style={{ width: 18, height: heightPct, backgroundColor: barColor, borderRadius: 8 }} />
+                    <T style={{ fontSize: 10.5, color: colors.muted, fontWeight: '600' }}>{item.day}</T>
+                  </View>
+                );
+              })}
+            </View>
+          </Card>
+
+          {/* Şefkatli Bilgilendirme Notu (Medikal Teşhis İçermez!) */}
+          <Card style={{ padding: 16, backgroundColor: '#FAF6EE', borderColor: '#EADBC6' }}>
+            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>
+              <T style={{ fontSize: 20 }}>🌿</T>
+              <View style={{ flex: 1 }}>
+                <T bold style={{ fontSize: 13.5, color: '#744E1F' }}>
+                  {isEn ? 'Gentle Emotional Space' : 'Şefkatli Duygu Notu'}
+                </T>
+                <T style={{ fontSize: 12, color: '#59442C', lineHeight: 18, marginTop: 4 }}>
+                  {isEn
+                    ? 'Postpartum shifts are entirely physiological as hormones reorganize. You are navigating an immense physical and emotional transition. Accept support freely.'
+                    : 'Doğum sonrası hormonların yeniden dengelenmesi sebebiyle ani hüzün veya hassasiyet çok doğaldır. Bu bir kusur değil; bedensel ve ruhsal bir geçiş sürecidir. Sevdiklerinden destek istemekten çekinme.'}
+                </T>
+              </View>
+            </View>
+          </Card>
+        </View>
+      )}
+
+      {/* ─── 4. SEKME: NOTLAR (NOTES & PRIVATE DIARY - SPEC 15) ─── */}
+      {(tab === 'Notlar' || tab === 'Notes') && (
+        <View style={{ gap: 14 }}>
+          {/* Yeni Not Yazma Kutusu */}
+          <Card style={{ padding: 16 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <T bold style={{ fontSize: 14.5, color: colors.ink }}>
+                {isEn ? 'Private Postpartum Diary' : 'Özel Lohusalık Günlüğün'}
+              </T>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <T style={{ fontSize: 11, color: colors.muted }}>🔒 {isEn ? 'Private to device' : 'Sadece cihazında'}</T>
+              </View>
+            </View>
+
+            {/* Etiket Seçici */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, marginBottom: 10 }}>
+              {['His / Duygu', 'Bebekle An', 'Doktora Soru', 'Şükür / Farkındalık'].map(tag => (
+                <Tap
+                  key={tag}
+                  onPress={() => setNewNoteTag(tag)}
+                  style={{
+                    paddingHorizontal: 10,
+                    paddingVertical: 5,
+                    borderRadius: 10,
+                    backgroundColor: newNoteTag === tag ? colors.purple : '#F2E8F4',
+                  }}
+                >
+                  <T bold={newNoteTag === tag} style={{ fontSize: 11, color: newNoteTag === tag ? 'white' : colors.ink }}>
+                    🏷️ {tag}
+                  </T>
+                </Tap>
+              ))}
+            </ScrollView>
+
+            <TextInput
+              value={newNoteText}
+              onChangeText={setNewNoteText}
+              placeholder={isEn ? 'Write your feelings, gentle victories, or baby moments...' : 'Bugünkü hislerini, küçük zaferlerini veya bebeğinle geçen anları yaz...'}
+              placeholderTextColor="#A89BAA"
+              multiline
+              style={{
+                minHeight: 85,
+                backgroundColor: '#FAF7FA',
+                borderRadius: 14,
+                borderWidth: 1,
+                borderColor: '#E8DCE8',
+                padding: 12,
+                fontSize: 13,
+                color: colors.ink,
+                textAlignVertical: 'top',
+              }}
+            />
+
+            <Tap
+              onPress={addNote}
+              style={{
+                marginTop: 10,
+                backgroundColor: colors.purple,
+                paddingVertical: 10,
+                borderRadius: 12,
+                alignItems: 'center',
+              }}
+            >
+              <T bold style={{ color: 'white', fontSize: 12.5 }}>
+                {isEn ? '+ Save to Diary' : '+ Günlüğe Kaydet'}
+              </T>
+            </Tap>
+          </Card>
+
+          {/* Notlar Listesi */}
+          <Section title={isEn ? `Saved Entries (${notesList.length})` : `Kaydedilenler (${notesList.length})`} />
+          {notesList.length === 0 ? (
+            <Card style={{ padding: 28, alignItems: 'center' }}>
+              <T style={{ fontSize: 32 }}>📖</T>
+              <T bold style={{ fontSize: 14, color: colors.ink, marginTop: 8 }}>
+                {isEn ? 'No diary entries yet' : 'Henüz günlük notu eklenmedi'}
+              </T>
+              <T style={{ fontSize: 12, color: colors.muted, textAlign: 'center', marginTop: 4 }}>
+                {isEn ? 'Write a small thought above to preserve your postpartum memories.' : 'Yukarıdaki alana bir his veya anını yazarak lohusalık anılarını biriktirebilirsin.'}
+              </T>
+            </Card>
+          ) : (
+            notesList.map(n => (
+              <Card key={n.id} style={{ padding: 14 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <View style={{ backgroundColor: '#F0E5F2', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+                      <T bold style={{ fontSize: 10, color: colors.purple }}>🏷️ {n.tag}</T>
+                    </View>
+                    <T style={{ fontSize: 11, color: colors.muted }}>{n.date}</T>
+                  </View>
+                  <Tap onPress={() => deleteNote(n.id)} style={{ padding: 4 }}>
+                    <T style={{ fontSize: 12, color: colors.muted }}>✕</T>
+                  </Tap>
+                </View>
+                <T style={{ fontSize: 13, color: '#3A323E', lineHeight: 20 }}>{n.text}</T>
+              </Card>
+            ))
+          )}
+        </View>
+      )}
+    </Page>
+  );
 }
 
 export function Baby({state,open,lang='tr'}) {
