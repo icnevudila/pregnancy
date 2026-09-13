@@ -35,9 +35,18 @@ export function playSound(id, options = {}) {
 
   stopSound();
 
-  if (id === 'lofi' && typeof Audio !== 'undefined') {
+  const audioFileMap = {
+    lofi: '/audio/momora-lofi.mp3',
+    rain: '/audio/momora-rain.ogg',
+    waves: '/audio/momora-waves.ogg',
+    ocean: '/audio/momora-waves.ogg',
+    lullaby: '/audio/momora-lullaby.ogg',
+  };
+
+  const audioFilePath = audioFileMap[id];
+  if (audioFilePath && typeof Audio !== 'undefined') {
     try {
-      const audio = new Audio('/audio/momora-lofi-calm.wav');
+      const audio = new Audio(audioFilePath);
       audio.loop = true;
       audio.volume = currentVolume;
       currentAudioElement = audio;
@@ -50,15 +59,13 @@ export function playSound(id, options = {}) {
         playPromise.catch(() => {
           if (currentAudioElement === audio) {
             currentAudioElement = null;
-            currentSoundId = null;
-            notify();
           }
         });
       }
       notify();
       return true;
     } catch (err) {
-      console.warn('Lofi audio file playback error, falling back to synth:', err);
+      console.warn('Audio file playback error, falling back to synth:', err);
     }
   }
 
