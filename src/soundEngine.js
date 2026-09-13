@@ -216,3 +216,53 @@ export function addSoundListener(listener) {
   listeners.add(listener);
   return () => listeners.delete(listener);
 }
+
+// Gentle Harmonic Acoustic Breath Cues (Inhale / Hold / Exhale)
+export function playBreathCue(phase = 'inhale') {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const now = ctx.currentTime;
+
+    osc.type = 'sine';
+
+    if (phase === 'inhale') {
+      // Warm rising restorative tone: 432 Hz -> 528 Hz (Love & Miracles frequency)
+      osc.frequency.setValueAtTime(432, now);
+      osc.frequency.exponentialRampToValueAtTime(528, now + 0.8);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.22, now + 0.2);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 1.2);
+    } else if (phase === 'hold') {
+      // Serene steady bell: 440 Hz
+      osc.frequency.setValueAtTime(440, now);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.12, now + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.7);
+    } else if (phase === 'exhale') {
+      // Gentle releasing tone: 528 Hz -> 360 Hz (Deep exhale letting go)
+      osc.frequency.setValueAtTime(528, now);
+      osc.frequency.exponentialRampToValueAtTime(360, now + 1.0);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.20, now + 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 1.4);
+    }
+  } catch (e) {
+    // ignore audio errors
+  }
+}

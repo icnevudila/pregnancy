@@ -48,6 +48,7 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    priority: Notifications.AndroidNotificationPriority?.MAX || 'max',
   }),
 });
 
@@ -60,10 +61,12 @@ export async function setupAndroidChannels() {
     await Notifications.setNotificationChannelAsync('clinical-alerts', {
       name: 'Klinik & Acil Uyarılar',
       description: 'Sancı sıklığı, doktor randevuları ve kritik klinik kontroller',
-      importance: Notifications.AndroidImportance.MAX,
+      importance: Notifications.AndroidImportance?.MAX || 5,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#7E4E8A',
       sound: 'default',
+      enableVibrate: true,
+      showBadge: true,
     });
 
     // Su Hatırlatıcısı Kanalı
@@ -114,23 +117,35 @@ export async function registerForPushNotificationsAsync() {
           token = 'web-push-' + Date.now();
         }
       }
-    } else if (Device.isDevice) {
-      // Fiziksel cihaz (iOS / Android)
+    } else {
+      // Fiziksel cihaz (iOS / Android) veya emülatör
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
 
       if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
+        const { status } = await Notifications.requestPermissionsAsync({
+          ios: { allowAlert: true, allowBadge: true, allowSound: true },
+        });
         finalStatus = status;
       }
 
       if (finalStatus === 'granted') {
-        const tokenData = await Notifications.getExpoPushTokenAsync().catch(() => null);
-        token = tokenData ? tokenData.data : null;
+        try {
+          const tokenData = await Notifications.getExpoPushTokenAsync().catch(() => null);
+          token = tokenData ? tokenData.data : null;
+        } catch (e) {
+          // projectId yoksa Expo token hata atabilir
+        }
+        if (!token) {
+          try {
+            const devToken = await Notifications.getDevicePushTokenAsync().catch(() => null);
+            token = devToken ? (devToken.data || devToken) : null;
+          } catch (e) {}
+        }
+        if (!token) {
+          token = 'local-device-' + Platform.OS + '-' + Date.now();
+        }
       }
-    } else {
-      // Emülatör / Simülatör fallback
-      token = 'simulator-token-' + Platform.OS;
     }
 
     if (token) {
@@ -170,13 +185,15 @@ export async function sendTestNotificationAsync({
   data = { screen: 'profile', tab: 'settings' },
 } = {}) {
   try {
+    await setupAndroidChannels();
     await Notifications.scheduleNotificationAsync({
       content: {
         title,
         body,
         data,
-        sound: true,
-        badge: 1,
+        channelId: 'clinical-alerts',
+        sound: 'default',
+        priority: Notifications.AndroidNotificationPriority?.MAX || 'max',
       },
       trigger: null, // Hemen tetikle
     });
@@ -184,10 +201,18 @@ export async function sendTestNotificationAsync({
   } catch (err) {
     console.warn('[Notifications] sendTestNotificationAsync error:', err);
     // Web fallback alert
-    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'Notification' in window && window.Notification.permission === 'granted') {
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'Notification' in window) {
       try {
-        new window.Notification(title, { body });
-        return true;
+        if (window.Notification.permission === 'granted') {
+          new window.Notification(title, { body });
+          return true;
+        } else if (window.Notification.permission !== 'denied') {
+          const p = await window.Notification.requestPermission();
+          if (p === 'granted') {
+            new window.Notification(title, { body });
+            return true;
+          }
+        }
       } catch (e) {
         // ignore
       }
@@ -232,9 +257,10 @@ export async function scheduleWaterReminders(settings = DEFAULT_NOTIFICATION_SET
           sound: settings.sound,
         },
         trigger: {
+          type: Notifications.SchedulableTriggerInputTypes?.DAILY || 'daily',
           hour,
           minute: 0,
-          repeats: true,
+          channelId: 'water-reminders',
         },
       });
     }
@@ -264,9 +290,10 @@ export async function scheduleVitaminReminder(settings = DEFAULT_NOTIFICATION_SE
         sound: settings.sound,
       },
       trigger: {
+        type: Notifications.SchedulableTriggerInputTypes?.DAILY || 'daily',
         hour,
         minute,
-        repeats: true,
+        channelId: 'clinical-alerts',
       },
     });
   } catch (err) {
@@ -295,9 +322,10 @@ export async function scheduleKickReminder(settings = DEFAULT_NOTIFICATION_SETTI
         sound: settings.sound,
       },
       trigger: {
+        type: Notifications.SchedulableTriggerInputTypes?.DAILY || 'daily',
         hour,
         minute,
-        repeats: true,
+        channelId: 'clinical-alerts',
       },
     });
   } catch (err) {
@@ -326,9 +354,10 @@ export async function scheduleDailyGuideReminder(settings = DEFAULT_NOTIFICATION
         sound: settings.sound,
       },
       trigger: {
+        type: Notifications.SchedulableTriggerInputTypes?.DAILY || 'daily',
         hour,
         minute,
-        repeats: true,
+        channelId: 'daily-guides',
       },
     });
   } catch (err) {
@@ -357,9 +386,10 @@ export async function scheduleNightRelaxReminder(settings = DEFAULT_NOTIFICATION
         sound: settings.sound,
       },
       trigger: {
+        type: Notifications.SchedulableTriggerInputTypes?.DAILY || 'daily',
         hour,
         minute,
-        repeats: true,
+        channelId: 'daily-guides',
       },
     });
   } catch (err) {
@@ -391,7 +421,11 @@ export async function scheduleAppointmentAlert({
           data: { screen: 'tools', tool: 'appointment', appointmentId },
           channelId: 'clinical-alerts',
         },
-        trigger: alert24h,
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes?.DATE || 'date',
+          date: alert24h,
+          channelId: 'clinical-alerts',
+        },
       });
     }
 
@@ -407,7 +441,11 @@ export async function scheduleAppointmentAlert({
           data: { screen: 'tools', tool: 'appointment', appointmentId },
           channelId: 'clinical-alerts',
         },
-        trigger: alert2h,
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes?.DATE || 'date',
+          date: alert2h,
+          channelId: 'clinical-alerts',
+        },
       });
     }
   } catch (err) {
@@ -418,6 +456,7 @@ export async function scheduleAppointmentAlert({
 // 7. TÜM HATIRLATICILARI TOPLU GÜNCELLE
 export async function rescheduleAllReminders(settings = DEFAULT_NOTIFICATION_SETTINGS, week = 24, lang = 'tr') {
   try {
+    await setupAndroidChannels();
     await Notifications.cancelAllScheduledNotificationsAsync().catch(() => {});
 
     if (!settings.enabled) return;

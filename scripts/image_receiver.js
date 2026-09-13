@@ -90,16 +90,32 @@ function getNextJob(clientPlatform = 'unknown') {
   let pendingJob = null;
 
   if (clientPlatform === 'gemini') {
-    // Gemini'ye insan / hamilelik kuralına takılmayan 3D ikon, obje, hayvan, tatlı veya infografik ver
-    pendingJob = queueData.jobs.find(j => j.status === 'pending' && j.preferredPlatform !== 'chatgpt');
+    // Gemini SADECE 3D ikonlar, butonlar, hayvan, tatli, meyve ve UI objelerini uretir!
+    // Ultrason, medikal sonogram, fetus ve gebelik gorselleri KESINLIKLE ChatGPT'ye gider!
+    pendingJob = queueData.jobs.find(j => {
+      if (j.status !== 'pending') return false;
+      if (j.preferredPlatform === 'chatgpt') return false;
+      const fn = (j.filename || '').toLowerCase();
+      if (fn.startsWith('usg_') || fn.startsWith('fetus_') || fn.startsWith('ultrasound') || fn.startsWith('doppler')) {
+        return false; // KESINLIKLE GEMINI'A VERME!
+      }
+      return (
+        fn.startsWith('ui_') || fn.startsWith('btn_') || fn.startsWith('icon_') ||
+        fn.startsWith('animal_') || fn.startsWith('sweet_') || fn.startsWith('fruit_') ||
+        fn.startsWith('card_') || fn.startsWith('mood_')
+      );
+    });
     if (!pendingJob) {
-      console.log('[ROUTER] Gemini icin uygun obje/ikon kalmadi. Insan/maternal gorseller ChatGPT bekleniyor.');
-      return { status: 'idle', reason: 'Kalan isler ChatGPT oncelikli (insan/gebelik politikasi)' };
+      return { status: 'idle', reason: 'Gemini icin sadece ikon/obje tanimli. Ultrason ve medikal gorseller ChatGPT bekleniyor.' };
     }
   } else if (clientPlatform === 'chatgpt') {
-    // ChatGPT her şeyi üretebilir; insan/gebelik işlerine öncelik ver
-    pendingJob = queueData.jobs.find(j => j.status === 'pending' && j.preferredPlatform === 'chatgpt') ||
-                 queueData.jobs.find(j => j.status === 'pending');
+    // ChatGPT ultrason, fetus ve tum medikal/insan gorsellerini dogrudan ustlenir
+    pendingJob = queueData.jobs.find(j => j.status === 'pending' && (
+      j.preferredPlatform === 'chatgpt' ||
+      j.filename.startsWith('usg_') ||
+      j.filename.startsWith('fetus_') ||
+      j.filename.startsWith('doppler')
+    )) || queueData.jobs.find(j => j.status === 'pending');
   } else {
     pendingJob = queueData.jobs.find(j => j.status === 'pending');
   }
@@ -229,8 +245,10 @@ async function harvestDownloadsFolder() {
         lower.startsWith('fruit_') ||
         lower.startsWith('animal_') ||
         lower.startsWith('sweet_') ||
-        lower.startsWith('blog_')
-      ) && lower.endsWith('.png');
+        lower.startsWith('blog_') ||
+        lower.startsWith('usg_') ||
+        lower.startsWith('doppler_')
+      ) && (lower.endsWith('.png') || lower.endsWith('.jpg') || lower.endsWith('.jpeg'));
     });
 
     for (const f of targets) {
