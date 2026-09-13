@@ -1029,13 +1029,13 @@
       "prompt": "High-end 3D claymorphic cute chubby goldfish with wavy translucent fins and friendly eyes, pastel orange and gold, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "processing",
+      "status": "done",
       "attempts": 1,
       "createdAt": 1789250674100,
       "startedAt": 1789286432829,
       "platform": "unknown",
-      "updatedAt": 1789285005323,
-      "thumb": "blob:https://gemini.google.com/5f287cf2-9134-464b-b1d1-fc1928d65809"
+      "updatedAt": 1789286532121,
+      "thumb": "blob:https://gemini.google.com/a9d98a68-496e-4b2a-b570-c05f26560f18"
     },
     {
       "id": "job_1789250674100_2dlwa",
@@ -1043,13 +1043,13 @@
       "prompt": "High-end 3D claymorphic cute cheerful pastel green tree frog sitting on a tiny water lily pad, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789264420737,
+      "startedAt": 1789286534587,
       "platform": "unknown",
-      "updatedAt": 1789285005324,
-      "thumb": "blob:https://gemini.google.com/0de5743d-b28f-4a92-91a0-76855e51f797"
+      "updatedAt": 1789286714055,
+      "thumb": "blob:https://gemini.google.com/a223ca3e-a634-4b55-a9ac-1b1befb7c390"
     },
     {
       "id": "job_1789250674100_q9n2a",
@@ -1057,13 +1057,13 @@
       "prompt": "High-end 3D claymorphic cute chubby baby sparrow with soft warm brown and cream clay feathers, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789264600736,
+      "startedAt": 1789286715899,
       "platform": "unknown",
-      "updatedAt": 1789285005324,
-      "thumb": "blob:https://gemini.google.com/3d23a902-d9bd-46c9-a129-d234a9216029"
+      "updatedAt": 1789286742820,
+      "thumb": "blob:https://gemini.google.com/d94193e0-f035-4880-a90f-111d05add337"
     },
     {
       "id": "job_1789250674100_k8dsq",
@@ -1071,13 +1071,13 @@
       "prompt": "High-end 3D claymorphic cute bushy-tailed baby squirrel holding a smooth acorn, warm terracotta and cream, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789264780732,
+      "startedAt": 1789286744577,
       "platform": "unknown",
-      "updatedAt": 1789285005324,
-      "thumb": "blob:https://gemini.google.com/6565cb25-37fc-42b7-98de-a5bcdc9b6060"
+      "updatedAt": 1789286775681,
+      "thumb": "blob:https://gemini.google.com/4d71de85-29d1-467a-9530-4cbf91367111"
     },
     {
       "id": "job_1789250674100_mau0n",
@@ -1085,13 +1085,13 @@
       "prompt": "High-end 3D claymorphic cute baby chameleon with spiral curled tail in soft pastel rainbow gradient, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789264960730,
+      "startedAt": 1789286778912,
       "platform": "unknown",
-      "updatedAt": 1789285005325,
-      "thumb": "blob:https://gemini.google.com/87b37735-e11f-4be4-b852-b298dd046e23"
+      "updatedAt": 1789286805646,
+      "thumb": "blob:https://gemini.google.com/78ebeab3-45e8-4297-b94f-acf7701799b5"
     },
     {
       "id": "job_1789250674100_sig35",
@@ -1099,13 +1099,13 @@
       "prompt": "High-end 3D claymorphic adorable baby parakeet with soft pastel mint green feathers and sweet yellow cheeks, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789265140732,
+      "startedAt": 1789286807601,
       "platform": "unknown",
-      "updatedAt": 1789285005325,
-      "thumb": "blob:https://gemini.google.com/83e053d8-5d24-48ae-9316-ff914800308d"
+      "updatedAt": 1789286851287,
+      "thumb": "blob:https://gemini.google.com/1fb65d3b-0c25-4ef0-a5fb-8ba0622d10d5"
     },
     {
       "id": "job_1789250674100_umpud",
@@ -1113,13 +1113,13 @@
       "prompt": "High-end 3D claymorphic adorable round baby chinchilla with ultra soft pastel gray clay texture, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789265320764,
+      "startedAt": 1789286852574,
       "platform": "unknown",
-      "updatedAt": 1789285005326,
-      "thumb": "blob:https://gemini.google.com/10f594a8-6ff7-4fdf-b86c-3106f671e33f"
+      "updatedAt": 1789286880285,
+      "thumb": "blob:https://gemini.google.com/da770db5-39a4-4a69-b788-84342f3a8098"
     },
     {
       "id": "job_1789250674100_2zqb2",
@@ -1127,13 +1127,13 @@
       "prompt": "High-end 3D claymorphic playful cute baby ferret curled gently, soft cream and brown mask, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789265500730,
+      "startedAt": 1789286880584,
       "platform": "unknown",
-      "updatedAt": 1789285005326,
-      "thumb": "blob:https://gemini.google.com/c488ef03-508a-42bf-9e32-be9cccc48a8e"
+      "updatedAt": 1789286953601,
+      "thumb": "blob:https://gemini.google.com/cc2b6fa1-efe4-40e0-8313-e8a602f952db"
     },
     {
       "id": "job_1789250674100_mfegg",
@@ -1141,10 +1141,10 @@
       "prompt": "High-end 3D claymorphic adorable baby yellow duckling waddling cheerfully with tiny orange flippers, handcrafted smooth porcelain clay texture, delicate soft pastel tones, gentle satin sheen, warm studio lighting with subtle ambient occlusion, isolated on pure solid white background, cut out style, 8k render, hyper-detailed, clean modern aesthetics, no text, no watermarks.",
       "transparent": true,
       "preferredPlatform": "any",
-      "status": "pending",
-      "attempts": 0,
+      "status": "processing",
+      "attempts": 1,
       "createdAt": 1789250674100,
-      "startedAt": 1789265680744,
+      "startedAt": 1789286954771,
       "platform": "unknown",
       "updatedAt": 1789285005326,
       "thumb": "blob:https://gemini.google.com/3322bd93-6c30-405d-aa00-fe3fe68f34b3"

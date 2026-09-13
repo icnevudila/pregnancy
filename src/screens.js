@@ -292,7 +292,7 @@ export function Onboarding({ choose, update, toast, lang = 'tr' }) {
                 style={[s.obStageCard, isSelected && s.obStageCardActive]}
               >
                 <View style={s.obStagePhotoBox}>
-                  <Image source={st.photo} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                  <Image source={st.photo} style={StyleSheet.absoluteFill} resizeMode="contain" />
                 </View>
                 <View style={s.obStageContent}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -972,17 +972,7 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
     <PremiumWeeklyPlan week={week} state={state} update={update} open={open} lang={lang} />
 
 
-    <ToolExperienceCard
-      title={isEn ? 'Your reason to open Momora today' : 'Bugün Momora’yı açma sebebin'}
-      steps={isEn
-        ? ['Read the baby letter before the day gets busy.', 'Complete water, vitamin, movement, and mood in the daily log.', 'Open one weekly guide or tool that matches today’s question.']
-        : ['Gün yoğunlaşmadan bebeğinin mektubunu oku.', 'Su, vitamin, hareket ve ruh halini günlük kayıtta tamamla.', 'Bugünkü soruna uyan bir rehber veya aracı aç.']}
-      outcome={isEn ? 'The home screen becomes a calm daily ritual, not a static week counter.' : 'Ana ekran statik hafta sayacı değil, sakin bir günlük ritüel gibi çalışır.'}
-      asset="onboarding_daily_guidance"
-      tint="#8A5BA4"
-      lang={lang}
-    />
-
+    
     {/* ─── 2. HAFTA ŞERİDİ ─── */}
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.weekStrip}>
       {strip.map(n => (
@@ -1108,6 +1098,17 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
         </View>
       </View>
     </Card>
+
+    <ToolExperienceCard
+          title={isEn ? 'Your reason to open Momora today' : 'Bugün Momora’yı açma sebebin'}
+          steps={isEn
+            ? ['Read the baby letter before the day gets busy.', 'Complete water, vitamin, movement, and mood in the daily log.', 'Open one weekly guide or tool that matches today’s question.']
+            : ['Gün yoğunlaşmadan bebeğinin mektubunu oku.', 'Su, vitamin, hareket ve ruh halini günlük kayıtta tamamla.', 'Bugünkü soruna uyan bir rehber veya aracı aç.']}
+          outcome={isEn ? 'The home screen becomes a calm daily ritual, not a static week counter.' : 'Ana ekran statik hafta sayacı değil, sakin bir günlük ritüel gibi çalışır.'}
+          asset="onboarding_daily_guidance"
+          tint="#8A5BA4"
+          lang={lang}
+        />
 
     {/* ─── 6. BUGÜNÜN CANLI TAKİP GÜNLÜĞÜ (CHECKLIST & KAYIT LİSTESİ) ─── */}
     <Card style={{ padding: 16 }}>
@@ -1381,7 +1382,7 @@ export function Pregnancy({ state, update, open, lang = 'tr' }) {
               const coverImg = generatedAssets[art.image] || getAsset(art.image);
               return coverImg ? (
                 <View style={{height:110,backgroundColor:'#F2EBF4'}}>
-                  <Image source={coverImg} style={StyleSheet.absoluteFill} resizeMode="cover"/>
+                  <Image source={coverImg} style={StyleSheet.absoluteFill} resizeMode="contain"/>
                   <View style={{position:'absolute',top:8,right:8,backgroundColor:'#00000077',paddingHorizontal:7,paddingVertical:2,borderRadius:8}}>
                     <T style={{fontSize:10,color:'white'}}>⏱️ {art.minutes} dk</T>
                   </View>
@@ -1417,16 +1418,7 @@ export function Postpartum({state,update,open,lang='tr'}) {
       tint="#86518A"
     />
 
-    <ToolExperienceCard
-      title={isEn ? 'A gentle check-in for today' : 'Bugün için nazik kontrol'}
-      steps={isEn
-        ? ['Mark one recovery action you can actually do.', 'Log mood before it becomes a blur.', 'Use rest, feeding, or notes when you need support.']
-        : ['Gerçekten yapabileceğin bir toparlanma adımını işaretle.', 'Günün hissi bulanıklaşmadan ruh halini kaydet.', 'Destek gerektiğinde dinlenme, beslenme veya not ekranını aç.']}
-      outcome={isEn ? 'Postpartum feels cared for day by day.' : 'Lohusalık gün gün sahiplenilmiş hissedilir.'}
-      asset="ui_postpartum_lotus"
-      tint="#B66C7E"
-      lang={lang}
-    />
+    
     <View style={s.topline}>
       <View>
         <T bold style={s.pageTitle}>{isEn ? 'Postpartum · Day 12' : 'Lohusalık · 12. gün'}</T>
@@ -1435,6 +1427,17 @@ export function Postpartum({state,update,open,lang='tr'}) {
       <RoundButton icon="down" label={isEn ? 'Change journey' : 'Yolculuğunu değiştir'} onPress={()=>open('journey')}/>
     </View>
     <Tabs items={tabItems} active={tab} onChange={setTab}/>
+
+    <ToolExperienceCard
+          title={isEn ? 'A gentle check-in for today' : 'Bugün için nazik kontrol'}
+          steps={isEn
+            ? ['Mark one recovery action you can actually do.', 'Log mood before it becomes a blur.', 'Use rest, feeding, or notes when you need support.']
+            : ['Gerçekten yapabileceğin bir toparlanma adımını işaretle.', 'Günün hissi bulanıklaşmadan ruh halini kaydet.', 'Destek gerektiğinde dinlenme, beslenme veya not ekranını aç.']}
+          outcome={isEn ? 'Postpartum feels cared for day by day.' : 'Lohusalık gün gün sahiplenilmiş hissedilir.'}
+          asset="ui_postpartum_lotus"
+          tint="#B66C7E"
+          lang={lang}
+        />    <Tabs items={tabItems} active={tab} onChange={setTab}/>
     {tab==='Bugün'||tab==='Today'||tab==='Ruh Halim'||tab==='My Mood'?<Card style={{padding:13}}><MoodPicker postpartum value={state.postpartumMood} onChange={postpartumMood=>update({postpartumMood})} lang={lang}/>{(tab==='Bugün'||tab==='Today')&&<View style={[s.row,{gap:10,marginTop:16,paddingTop:12,borderTopWidth:1,borderColor:colors.line}]}><SmallStat title={isEn ? 'Sleep' : 'Uyku'} value={isEn ? '6 h 20 m' : '6 sa 20 dk'} icon="moon" tint="#F0EAF5" onPress={()=>open('log',{type:'Uyku'})}/><SmallStat title={isEn ? 'Water' : 'Su'} value={`${state.water}/8 ${isEn ? 'gls' : 'bardak'}`} icon="drop" tint="#E6F0F4" onPress={()=>update(old=>({water:Math.min(8,old.water+1)}))}/></View>}</Card>:null}
     {(tab==='Bugün'||tab==='Today'||tab==='İyileşme'||tab==='Recovery')&&<><Card style={{padding:13}}><T bold style={{fontSize:16}}>{isEn ? "Today's self-care checklist" : 'Bugün yapabileceklerin'}</T><T style={s.taskMeta}>{state.tasks.filter(Boolean).length}/5 {isEn ? 'completed' : 'tamamlandı'}</T>{tasks.map((task,i)=><Tap key={task} label={task} accessibilityRole="checkbox" accessibilityState={{checked:state.tasks[i]}} onPress={()=>update(old=>({tasks:old.tasks.map((v,n)=>n===i?!v:v)}))} style={s.task}><View style={[s.checkbox,state.tasks[i]&&{backgroundColor:colors.sage,borderColor:colors.sage}]}>{state.tasks[i]&&<Icon name="check" color="white" size={16}/>}</View><T style={s.taskText}>{task}</T><Icon name="chevron" size={18} color={colors.muted}/></Tap>)}</Card><Card style={{padding:14}}><View style={s.topline}><T bold>{isEn ? 'Your recovery journey' : 'İyileşme yolculuğun'}</T><Icon name="leaf" color={colors.sage} fill="#9FB7A4" size={28}/></View><View style={[s.row,{gap:12,marginTop:10}]}><Progress value={state.tasks.filter(Boolean).length*20} style={{flex:1}}/><T style={{fontSize:13}}>%{state.tasks.filter(Boolean).length*20}</T></View><T style={{fontSize:12,color:colors.muted,marginTop:9}}>{isEn ? 'You grow stronger each day.' : 'Her gün biraz daha güçleniyorsun.'}</T></Card></>}
     {(tab==='Notlar'||tab==='Notes')&&<><Section title={isEn ? 'Your personal notes' : 'Sana ait küçük notlar'} action={isEn ? 'Add note' : 'Not ekle'} onPress={()=>open('note')}/>{state.notes.length?state.notes.map(n=><Card key={n.id}><T style={{lineHeight:23}}>{n.text}</T></Card>):<Card><T style={{lineHeight:23}}>{isEn ? 'A feeling, a sweet moment, questions for your midwife... All are welcome here.' : 'Bir his, küçük bir an, doktoruna sormak istediğin bir soru… Hepsine burada yer var.'}</T><Tap onPress={()=>open('note')} style={s.primary}><T style={{color:'white'}}>{isEn ? 'Add your first note' : 'İlk notunu ekle'}</T></Tap></Card>}</>}
@@ -1455,16 +1458,7 @@ export function Baby({state,open,lang='tr'}) {
     <View style={s.topline}><View style={s.row}><View style={s.avatar}><Image source={assets.baby} style={s.avatarImage} resizeMode="cover"/></View><View style={{marginLeft:12}}><T bold style={{fontSize:19}}>{state.babyName || (isEn ? 'Your Baby' : 'Bebeğin')} · {isEn ? '6 weeks old' : '6 haftalık'}</T><T style={{fontSize:13,color:colors.muted,marginTop:7}}>{isEn ? "Today's daily rhythm" : 'Bugünün bakım ritmi'}</T></View></View><RoundButton icon="down" label={isEn ? 'Change journey' : 'Yolculuğunu değiştir'} onPress={()=>open('journey')}/></View>
     <BabyDaySummary state={state} open={open} lang={lang} />
 
-    <ToolExperienceCard
-      title={isEn ? 'One-handed care flow' : 'Tek elle bakım akışı'}
-      steps={isEn
-        ? ['Start the next feed, diaper, or sleep log fast.', 'Check the 24-hour pattern before adding another record.', 'Open guides when the day feels uncertain.']
-        : ['Sıradaki beslenme, bez veya uyku kaydını hızlı başlat.', 'Yeni kayıt eklemeden 24 saatlik ritmi gör.', 'Gün karışık hissettirdiğinde rehberi aç.']}
-      outcome={isEn ? 'Baby care feels practical even on tired days.' : 'Bebek bakımı yorgun günlerde bile pratik hissedilir.'}
-      asset="ui_baby_crib"
-      tint="#6E5A96"
-      lang={lang}
-    />
+    
     <View style={s.babyGrid}>
       {babyActions.map(a=>(
         <Tap
@@ -1497,7 +1491,18 @@ export function Baby({state,open,lang='tr'}) {
 
     {/* Bebek Bakım Rehberleri */}
     <View style={{marginTop:10}}>
-      <Section title={isEn ? 'Baby Care & Development Guides' : 'Bebek Bakımı & Gelişim Rehberleri'} action={isEn ? 'See all' : 'Tümünü gör'} onPress={()=>open('topicHub')}/>
+      <ToolExperienceCard
+          title={isEn ? 'One-handed care flow' : 'Tek elle bakım akışı'}
+          steps={isEn
+            ? ['Start the next feed, diaper, or sleep log fast.', 'Check the 24-hour pattern before adding another record.', 'Open guides when the day feels uncertain.']
+            : ['Sıradaki beslenme, bez veya uyku kaydını hızlı başlat.', 'Yeni kayıt eklemeden 24 saatlik ritmi gör.', 'Gün karışık hissettirdiğinde rehberi aç.']}
+          outcome={isEn ? 'Baby care feels practical even on tired days.' : 'Bebek bakımı yorgun günlerde bile pratik hissedilir.'}
+          asset="ui_baby_crib"
+          tint="#6E5A96"
+          lang={lang}
+        />
+
+    <Section title={isEn ? 'Baby Care & Development Guides' : 'Bebek Bakımı & Gelişim Rehberleri'} action={isEn ? 'See all' : 'Tümünü gör'} onPress={()=>open('topicHub')}/>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:12,paddingBottom:4}}>
         {articles.filter(a=>a.topic==='baby'||a.topic==='postpartum').slice(0,5).map(art=>(
           <Tap
@@ -1510,7 +1515,7 @@ export function Baby({state,open,lang='tr'}) {
               const coverImg = generatedAssets[art.image] || getAsset(art.image);
               return coverImg ? (
                 <View style={{height:110,backgroundColor:'#EEF4F7'}}>
-                  <Image source={coverImg} style={StyleSheet.absoluteFill} resizeMode="cover"/>
+                  <Image source={coverImg} style={StyleSheet.absoluteFill} resizeMode="contain"/>
                   <View style={{position:'absolute',top:8,right:8,backgroundColor:'#00000077',paddingHorizontal:7,paddingVertical:2,borderRadius:8}}>
                     <T style={{fontSize:10,color:'white'}}>⏱️ {art.minutes} dk</T>
                   </View>
@@ -1548,7 +1553,7 @@ const s=StyleSheet.create({
   row:{flexDirection:'row',alignItems:'center'},topline:{flexDirection:'row',alignItems:'center',justifyContent:'space-between'},
   onboarding:{paddingHorizontal:23,paddingTop:44,paddingBottom:24,gap:0},brand:{flexDirection:'row',justifyContent:'center',alignItems:'center',gap:8},wordmark:{fontSize:29,fontWeight:'300',letterSpacing:-0.7},
   welcome:{alignItems:'center',marginTop:29,marginBottom:35},welcomeTitle:{fontSize:26,letterSpacing:-0.5},welcomeText:{textAlign:'center',fontSize:15,lineHeight:22,marginTop:10},
-  journey:{minHeight:145,borderRadius:25,overflow:'hidden',flexDirection:'row',alignItems:'center',paddingRight:14,borderWidth:1,borderColor:'#EDE1E2',...shadow},journeyPhoto:{position:'absolute',left:0,top:0,bottom:0,width:140,overflow:'hidden'},journeyImage:{width:230,height:154,position:'absolute',left:-12,top:0},journeyCopy:{marginLeft:132,flex:1,paddingVertical:20},journeyTitle:{fontSize:18,lineHeight:24},journeySub:{fontSize:13,lineHeight:20,marginTop:7},motto:{alignItems:'center',marginTop:30,gap:7},handwritten:{fontFamily:fonts.script,fontSize:23,lineHeight:25,color:'#9A8495',textAlign:'center'},
+  journey:{minHeight:145,borderRadius:25,overflow:'hidden',flexDirection:'row',alignItems:'center',paddingRight:14,borderWidth:1,borderColor:'#EDE1E2',...shadow},journeyPhoto:{position:'absolute',left:10,top:10,bottom:10,width:114,borderRadius:20,overflow:'hidden',backgroundColor:'#F6EEF3'},journeyImage:{width:'100%',height:'100%'},journeyCopy:{marginLeft:136,flex:1,paddingVertical:20},journeyTitle:{fontSize:18,lineHeight:24},journeySub:{fontSize:13,lineHeight:20,marginTop:7},motto:{alignItems:'center',marginTop:30,gap:7},handwritten:{fontFamily:fonts.script,fontSize:23,lineHeight:25,color:'#9A8495',textAlign:'center'},
   subtitle:{color:'#8C6B94',fontSize:15,marginTop:5},iconHit:{width:42,height:42,justifyContent:'center',alignItems:'center'},pageTitle:{fontSize:25,letterSpacing:-0.5},
   weekStrip:{flexDirection:'row',gap:7,paddingBottom:4},weekPill:{minWidth:58,alignItems:'center',paddingVertical:8,paddingHorizontal:6,borderRadius:20,backgroundColor:'#EEE8E6'},weekActive:{backgroundColor:'#A28ABB',shadowColor:'#9A80B4',shadowOpacity:0.35,shadowRadius:6,shadowOffset:{width:0,height:2}},
   // Comparison hero & tabs

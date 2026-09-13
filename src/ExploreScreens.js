@@ -324,16 +324,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
       </View>
 
 
-      <ToolExperienceCard
-        title={isEn ? 'Open with a purpose' : 'Kütüphaneyi amaçla aç'}
-        steps={isEn
-          ? ['Pick today: article, food, infographic, or topic.', 'Save one useful answer for later.', 'Come back when a symptom, craving, or plan changes.']
-          : ['Bugünün ihtiyacını seç: makale, besin, infografik veya konu.', 'İşe yarayan bir cevabı sonra için kaydet.', 'Belirti, aşerme veya plan değişince tekrar dön.']}
-        outcome={isEn ? 'The library becomes a daily decision tool.' : 'Kütüphane günlük karar aracına dönüşür.'}
-        asset="topic_prenatal_nutrition"
-        tint="#7C5B3F"
-        lang={lang}
-      />
+      
       {hubTab === 'articles' ? (
         /* 1. TÜM EDİTORYAL YAZILAR & MAGAZİN FEED'İ (65 MAKALE) */
         <View style={{ gap: 14 }}>
@@ -421,6 +412,19 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
           )}
 
           {/* Makale Sayacı & Kapak Görünüm Ayarı */}
+
+          <ToolExperienceCard
+                  title={isEn ? 'Open with a purpose' : 'Kütüphaneyi amaçla aç'}
+                  steps={isEn
+                    ? ['Pick today: article, food, infographic, or topic.', 'Save one useful answer for later.', 'Come back when a symptom, craving, or plan changes.']
+                    : ['Bugünün ihtiyacını seç: makale, besin, infografik veya konu.', 'İşe yarayan bir cevabı sonra için kaydet.', 'Belirti, aşerme veya plan değişince tekrar dön.']}
+                  outcome={isEn ? 'The library becomes a daily decision tool.' : 'Kütüphane günlük karar aracına dönüşür.'}
+                  asset="topic_prenatal_nutrition"
+                  tint="#7C5B3F"
+                  lang={lang}
+                />
+
+          {/* Makale Sayacı & Kapak Görünüm Ayarı */}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 2 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <T bold style={{ fontSize: 13, color: colors.muted }}>
@@ -490,7 +494,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                       <Image
                         source={imgAsset}
                         style={StyleSheet.absoluteFill}
-                        resizeMode="cover"
+                        resizeMode="contain"
                       />
                     </View>
                   </Tap>
@@ -633,7 +637,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
               <Card key={info.id} style={{ padding: 0, overflow: 'hidden', borderRadius: 24, borderWidth: 1, borderColor: '#E8DCE4' }}>
                 <View style={{ height: 210, width: '100%', backgroundColor: '#201525', overflow: 'hidden' }}>
                   {imgSource && (
-                    <Image source={imgSource} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                    <Image source={imgSource} style={StyleSheet.absoluteFill} resizeMode="contain" />
                   )}
                   <LinearGradient
                     colors={['rgba(25,12,30,0.1)', 'rgba(25,12,30,0.82)']}
@@ -690,7 +694,7 @@ export function TopicHubScreen({ openArticle, openFoodChecker, initialTab = 'art
                 style={[es.collectionCard, { backgroundColor: col.color }]}
               >
                 {colImg && (
-                  <Image source={colImg} style={es.colImg} resizeMode="cover" />
+                  <Image source={colImg} style={es.colImg} resizeMode="contain" />
                 )}
                 <View style={es.colInfo}>
                   <T bold style={{ fontSize: 15, color: colors.ink, lineHeight: 21 }}>{colTitle}</T>
@@ -744,7 +748,7 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
       {/* 1. Büyük Editoryal Kapak (16:9 Hero Image with Vignette Gradient) */}
       <View style={es.articleCoverBox}>
         {coverAsset ? (
-          <Image source={coverAsset} style={StyleSheet.absoluteFill} resizeMode="cover" />
+          <Image source={coverAsset} style={StyleSheet.absoluteFill} resizeMode="contain" />
         ) : (
           <LinearGradient colors={['#9A779A', '#664566']} style={StyleSheet.absoluteFill} />
         )}
@@ -878,7 +882,7 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
                 {inlineAsset && (
                   <View style={es.inlineFigureBox}>
                     <View style={es.inlineImgFrame}>
-                      <Image source={inlineAsset} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                      <Image source={inlineAsset} style={StyleSheet.absoluteFill} resizeMode="contain" />
                     </View>
                     <View style={es.inlineCaptionRow}>
                       <Icon name="search" size={12} color="#7E6D82" style={{ marginRight: 5 }} />
@@ -932,7 +936,7 @@ export function EditorialArticleScreen({ article, toast, lang = 'tr' }) {
               style={es.relatedCard}
             >
               {generatedAssets[rel.image] && (
-                <Image source={generatedAssets[rel.image]} style={es.relatedImg} resizeMode="cover" />
+                <Image source={generatedAssets[rel.image]} style={es.relatedImg} resizeMode="contain" />
               )}
               <View style={{ flex: 1 }}>
                 <T bold numberOfLines={1} style={{ fontSize: 13.5, color: colors.ink }}>{rel.title}</T>
@@ -961,7 +965,7 @@ const es = StyleSheet.create({
   foodBanner: { height: 95, borderRadius: 20, overflow: 'hidden', padding: 16, flexDirection: 'row', alignItems: 'center', ...shadow },
   foodBannerIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#FFFFFF33', alignItems: 'center', justifyContent: 'center' },
   collectionCard: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 18, borderWidth: 1, borderColor: '#EBE1EA', ...shadow },
-  colImg: { width: 68, height: 68, borderRadius: 14, marginRight: 14 },
+  colImg: { width: 68, height: 68, borderRadius: 14, marginRight: 14, backgroundColor: '#F6F0F3' },
   colInfo: { flex: 1 },
   // Hub Tabs
   hubTabRow: { flexDirection: 'row', backgroundColor: '#EFE6F3', borderRadius: 16, padding: 3, gap: 4 },
@@ -976,7 +980,7 @@ const es = StyleSheet.create({
   layoutToggleTextActive: { color: colors.purple },
   // Featured Lead Story Hero (Full uncropped 16:9 photo + editorial white body)
   featuredHeroCard: { backgroundColor: '#FFFFFF', borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: '#ECE2EC', ...shadow },
-  featuredHeroImgBox: { width: '100%', aspectRatio: 640 / 349, backgroundColor: '#FAF6FA', position: 'relative', overflow: 'hidden' },
+  featuredHeroImgBox: { width: '100%', aspectRatio: 640 / 349, backgroundColor: '#F6F0F3', position: 'relative', overflow: 'hidden' },
   featuredHeroBadge: { position: 'absolute', top: 12, left: 12, backgroundColor: 'rgba(255, 255, 255, 0.94)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.6)', ...shadow },
   featuredHeroBody: { padding: 16 },
   featuredCatPill: { backgroundColor: '#F4EDF6', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
@@ -987,7 +991,7 @@ const es = StyleSheet.create({
   featuredHeroReadBtn: { backgroundColor: '#F4EDF6', paddingHorizontal: 11, paddingVertical: 5, borderRadius: 10 },
   // Blog Post Card styles (Magazine layout - Full uncropped 16:9 photo)
   blogPostCard: { backgroundColor: '#FFFFFF', borderRadius: 22, overflow: 'hidden', borderWidth: 1, borderColor: '#ECE2EC', ...shadow },
-  blogPostImgBox: { width: '100%', aspectRatio: 640 / 349, backgroundColor: '#FAF6FA', position: 'relative', overflow: 'hidden' },
+  blogPostImgBox: { width: '100%', aspectRatio: 640 / 349, backgroundColor: '#F6F0F3', position: 'relative', overflow: 'hidden' },
   blogPostCategoryBadge: { position: 'absolute', top: 12, left: 12, backgroundColor: 'rgba(255, 255, 255, 0.94)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.6)', ...shadow },
   blogPostTimeTag: { position: 'absolute', top: 12, right: 12, backgroundColor: 'rgba(0, 0, 0, 0.58)', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 10, flexDirection: 'row', alignItems: 'center', gap: 4 },
   blogPostTitle: { fontSize: 16, color: '#241828', lineHeight: 22 },
@@ -995,7 +999,7 @@ const es = StyleSheet.create({
   blogPostDocRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6, marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderColor: '#F5EDF6' },
   // Compact Article Card styles (Digest layout)
   compactArticleCard: { flexDirection: 'row', alignItems: 'center', padding: 14, backgroundColor: '#FFFFFF', borderRadius: 18, borderWidth: 1, borderColor: '#ECE2EC', gap: 14, ...shadow },
-  compactImgBox: { width: 84, height: 84, borderRadius: 14, overflow: 'hidden', backgroundColor: '#F0EAF1', position: 'relative', borderWidth: 1, borderColor: '#EAE0EB' },
+  compactImgBox: { width: 84, height: 84, borderRadius: 14, overflow: 'hidden', backgroundColor: '#F6F0F3', position: 'relative', borderWidth: 1, borderColor: '#EAE0EB' },
   compactCategoryBadge: { backgroundColor: '#F4EDF6', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6 },
   compactArticleTitle: { fontSize: 14, color: '#241828', lineHeight: 19 },
   compactArticleSub: { fontSize: 11.5, color: '#665D6E', marginTop: 3 },
@@ -1006,7 +1010,7 @@ const es = StyleSheet.create({
   faqTagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
   faqTag: { backgroundColor: '#F5EDF7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
   // Editorial Article Reader styles
-  articleCoverBox: { width: '100%', aspectRatio: 640 / 349, backgroundColor: '#FAF6FA', position: 'relative', overflow: 'hidden' },
+  articleCoverBox: { width: '100%', aspectRatio: 640 / 349, backgroundColor: '#F6F0F3', position: 'relative', overflow: 'hidden' },
   coverMeta: { gap: 6 },
   coverBadgeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
   categoryPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: 'rgba(255, 255, 255, 0.94)' },
@@ -1029,5 +1033,5 @@ const es = StyleSheet.create({
   clinicWarningBox: { backgroundColor: '#FDF4F2', borderLeftColor: '#C44E3F' },
   clinicTipText: { fontSize: 12.5, color: '#634468', lineHeight: 19 },
   relatedCard: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#EAE1EB', gap: 12 },
-  relatedImg: { width: 52, height: 52, borderRadius: 12 },
+  relatedImg: { width: 52, height: 52, borderRadius: 12, backgroundColor: '#F6F0F3' },
 });
