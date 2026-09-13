@@ -273,7 +273,7 @@ export const weekDataEn = {
     ],
   },
   22: {
-    fruitName: 'Papaya',
+    fruitName: 'Coconut',
     animalName: 'Playful Weasel',
     sweetName: 'Honey Jar',
     ultrasound: { scan: 'Facial Features', milestone: 'Eyebrows, eyelashes, and lip contours perfected', badge: '4D HD Live' },
@@ -348,7 +348,7 @@ export const weekDataEn = {
     ],
   },
   27: {
-    fruitName: 'Cabbage',
+    fruitName: 'Broccoli',
     animalName: 'Little Raccoon',
     sweetName: 'Fruit Parfait',
     ultrasound: { scan: 'Fetal Hiccups', milestone: 'Rhythmic chest spasms and hiccups monitored', badge: '2D Ultrasound' },
@@ -393,7 +393,7 @@ export const weekDataEn = {
     ],
   },
   30: {
-    fruitName: 'Large Cabbage',
+    fruitName: 'Cabbage',
     animalName: 'Sleepy Koala',
     sweetName: 'Lemon Cheesecake',
     ultrasound: { scan: 'Biometry & Growth', milestone: 'Weight ~1.3 kg; bone marrow fully producing cells', badge: 'Biometry' },
@@ -423,7 +423,7 @@ export const weekDataEn = {
     ],
   },
   32: {
-    fruitName: 'Squash',
+    fruitName: 'Zucchini',
     animalName: 'Baby Kangaroo',
     sweetName: 'Giant Croissant',
     ultrasound: { scan: 'Nails & Hair Scan', milestone: 'Fingernails and toenails reach fingertips', badge: '4D HD Live' },
@@ -438,7 +438,7 @@ export const weekDataEn = {
     ],
   },
   33: {
-    fruitName: 'Large Pineapple',
+    fruitName: 'Celery',
     animalName: 'Baby Penguin',
     sweetName: 'Honey Berry Waffle',
     ultrasound: { scan: 'Amniotic Fluid Peak', milestone: 'Amniotic fluid index (AFI) at maximum volume', badge: 'AFI Check' },
@@ -453,7 +453,7 @@ export const weekDataEn = {
     ],
   },
   34: {
-    fruitName: 'Honeydew',
+    fruitName: 'Cantaloupe',
     animalName: 'Baby Beaver',
     sweetName: 'Cotton Candy',
     ultrasound: { scan: 'Immunity Transfer', milestone: 'Placental antibody transmission at highest rate', badge: '2D Ultrasound' },
@@ -468,7 +468,7 @@ export const weekDataEn = {
     ],
   },
   35: {
-    fruitName: 'Pumpkin',
+    fruitName: 'Honeydew Melon',
     animalName: 'Baby Skunk',
     sweetName: 'Strawberry Layer Cake',
     ultrasound: { scan: 'Respiratory Practice', milestone: 'Diaphragmatic practice breathing movements observed', badge: 'Biophysical Profile' },
@@ -483,7 +483,7 @@ export const weekDataEn = {
     ],
   },
   36: {
-    fruitName: 'Watermelon',
+    fruitName: 'Papaya',
     animalName: 'Chubby Panda',
     sweetName: '2-Tier Celebration Cake',
     ultrasound: { scan: 'Presentation Check', milestone: 'Head deeply engaged in maternal pelvis (vertex)', badge: 'Presentation Scan' },
@@ -498,7 +498,7 @@ export const weekDataEn = {
     ],
   },
   37: {
-    fruitName: 'Large Watermelon',
+    fruitName: 'Winter Melon',
     animalName: 'Little Lamb',
     sweetName: 'Giant Festival Donut',
     ultrasound: { scan: 'Early Term Threshold', milestone: 'Medically considered Early Term; lungs fully ready', badge: 'Early Term' },
@@ -513,7 +513,7 @@ export const weekDataEn = {
     ],
   },
   38: {
-    fruitName: 'Giant Watermelon',
+    fruitName: 'Winter Squash',
     animalName: 'Baby Seal',
     sweetName: 'Royal Pavlova Cake',
     ultrasound: { scan: 'Grasp & Reflexes', milestone: 'Grasp reflex peak; fingers firmly clench', badge: '4D Ultrasound' },
@@ -528,7 +528,7 @@ export const weekDataEn = {
     ],
   },
   39: {
-    fruitName: 'Giant Watermelon',
+    fruitName: 'Watermelon',
     animalName: 'Baby Bear Cub',
     sweetName: 'Grand Celebration Cake',
     ultrasound: { scan: 'Full Term Milestone', milestone: 'Ready for the outside world, room air, and milk', badge: 'Full Term' },

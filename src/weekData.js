@@ -400,7 +400,7 @@ export const weekData = {
     ],
   },
   27: {
-    fruit: 'cabbage', fruitName: 'Lahana',
+    fruit: 'broccoli', fruitName: 'Brokoli',
     animal: 'raccoon', animalName: 'Minik Rakun', animalEmoji: '🦝',
     sweet: 'parfait', sweetName: 'Meyveli Parfe', sweetEmoji: '🍧',
     ultrasound: {"scan":"Hıçkırık Taraması","milestone":"Ritmik göğüs hareketleri ve hıçkırıklar izlenir","badge":"2D Ultrason"},
@@ -451,7 +451,7 @@ export const weekData = {
     ],
   },
   30: {
-    fruit: 'cabbage', fruitName: 'Büyük Lahana',
+    fruit: 'cabbage', fruitName: 'Lahana',
     animal: 'koala', animalName: 'Uykucu Koala', animalEmoji: '🐨',
     sweet: 'cheesecake', sweetName: 'Limonlu Cheesecake', sweetEmoji: '🍰',
     ultrasound: {"scan":"Büyüme & Kilo Takibi","milestone":"Ağırlık ~1.3 kg; kemik iliği tam aktif","badge":"Biyometri"},
@@ -502,7 +502,7 @@ export const weekData = {
     ],
   },
   33: {
-    fruit: 'pineapple', fruitName: 'Büyük Ananas',
+    fruit: 'celery', fruitName: 'Kereviz',
     animal: 'penguin', animalName: 'Yavru Penguen', animalEmoji: '🐧',
     sweet: 'waffle', sweetName: 'Ballı Meyveli Waffle', sweetEmoji: '🧇',
     ultrasound: {"scan":"Amniyotik Sıvı Zirvesi","milestone":"Amniyotik sıvı miktarı en yüksek hacimde","badge":"AFI Ölçümü"},
@@ -519,7 +519,7 @@ export const weekData = {
     ],
   },
   34: {
-    fruit: 'melon', fruitName: 'Büyük Kavun',
+    fruit: 'melon', fruitName: 'Kavun',
     animal: 'beaver', animalName: 'Kunduz Yavrusu', animalEmoji: '🦫',
     sweet: 'cotton_candy', sweetName: 'Pamuk Şeker', sweetEmoji: '🍬',
     ultrasound: {"scan":"Bağışıklık Transferi","milestone":"Anneden bebeğe koruyucu antikor akışı zirvede","badge":"2D Ultrason"},
@@ -536,7 +536,7 @@ export const weekData = {
     ],
   },
   35: {
-    fruit: 'honeydew', fruitName: 'Bal Kabağı',
+    fruit: 'honeydew', fruitName: 'Bal Kavunu',
     animal: 'skunk', animalName: 'Minik Kokarca', animalEmoji: '🦡',
     sweet: 'strawberry_cake', sweetName: 'Çilekli Yaş Pasta', sweetEmoji: '🍰',
     ultrasound: {"scan":"Solunum Pratiği","milestone":"Akciğerlerle solunum deneme hareketleri","badge":"Biyofizik Profil"},
@@ -553,7 +553,7 @@ export const weekData = {
     ],
   },
   36: {
-    fruit: 'watermelon', fruitName: 'Karpuz',
+    fruit: 'papaya', fruitName: 'Papaya',
     animal: 'panda', animalName: 'Tombul Panda', animalEmoji: '🐼',
     sweet: 'tier_cake', sweetName: '2 Katlı Kutlama Pastası', sweetEmoji: '🎂',
     ultrasound: {"scan":"Doğum Pozisyonu","milestone":"Baş aşağı pelvis yönüne yerleşme (verteks)","badge":"Prezente Takibi"},
@@ -570,7 +570,7 @@ export const weekData = {
     ],
   },
   37: {
-    fruit: 'watermelon', fruitName: 'Büyük Karpuz',
+    fruit: 'winter_melon', fruitName: 'Kış Kavunu',
     animal: 'lamb', animalName: 'Sevimli Kuzu', animalEmoji: '🐑',
     sweet: 'mega_donut', sweetName: 'Büyük Festival Donutu', sweetEmoji: '🍩',
     ultrasound: {"scan":"Erken Term Olgunluk","milestone":"Artık erken term kabul edilir; ciğerler hazır","badge":"Term Eşiği"},
@@ -587,7 +587,7 @@ export const weekData = {
     ],
   },
   38: {
-    fruit: 'watermelon', fruitName: 'Dev Karpuz',
+    fruit: 'squash', fruitName: 'Tatlı Kış Kabağı',
     animal: 'seal', animalName: 'Yavru Fok', animalEmoji: '🦭',
     sweet: 'pavlova', sweetName: 'Meyveli Pavlova Pastası', sweetEmoji: '🍰',
     ultrasound: {"scan":"Güçlü Kavrama","milestone":"Kavrama refleksi: Parmaklarını sımsıkı kenetler","badge":"4D Ultrason"},
@@ -604,7 +604,7 @@ export const weekData = {
     ],
   },
   39: {
-    fruit: 'watermelon', fruitName: 'Dev Karpuz',
+    fruit: 'watermelon', fruitName: 'Karpuz',
     animal: 'bear_cub', animalName: 'Yavru Ayıcık', animalEmoji: '🐻',
     sweet: 'royal_cake', sweetName: 'Büyük Kutlama Pastası', sweetEmoji: '🎂',
     ultrasound: {"scan":"Tam Dönem (Full Term)","milestone":"Tüm organlar dış dünya havasına ve sütüne hazır","badge":"Full Term"},
