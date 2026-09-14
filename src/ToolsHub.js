@@ -109,6 +109,18 @@ export function getAllTools(lang = 'tr') {
       available: true,
     },
     {
+      id: 'bloodPressure',
+      cat: 'medical',
+      catTitle: isEn ? 'Growth & Tests' : 'Gelişim & Takip',
+      title: isEn ? 'Blood Pressure & Preeclampsia' : 'Tansiyon & Preeklampsi',
+      subtitle: isEn ? 'Systolic/diastolic curve & clinical red-flag checklist' : 'Büyük/küçük tansiyon eğrisi ve preeklampsi kontrolü',
+      icon: 'heart',
+      art: 'card_blood_pressure',
+      color: '#FFF5F4',
+      tint: '#D92D20',
+      available: true,
+    },
+    {
       id: 'storyStudio',
       cat: 'prep',
       catTitle: isEn ? 'Birth Prep' : 'Doğuma Hazırlık',

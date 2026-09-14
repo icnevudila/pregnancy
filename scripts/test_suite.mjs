@@ -776,8 +776,63 @@ console.log('--- RUNNING MOMORA AUTOMATED TEST SUITE ---');
   console.log('✓ Luxury Feature Suite (Doctor Report, Vaccine Calendar, Story Studio) passed.');
 }
 
+// 19. Blood Pressure Monitor, Supabase Community Mutations & Data Persistence Suite
+{
+  console.log('Testing Blood Pressure, Supabase Community, and Store Persistence Suite...');
+  const fs = await import('node:fs');
+
+  // Blood Pressure module & assets
+  assert(fs.existsSync(new URL('../src/BloodPressureScreen.js', import.meta.url)), 'BloodPressureScreen.js must exist');
+  assert(fs.existsSync(new URL('../assets/card_blood_pressure.png', import.meta.url)), 'card_blood_pressure.png must exist');
+
+  const bpScreenSrc = fs.readFileSync(new URL('../src/BloodPressureScreen.js', import.meta.url), 'utf8');
+  assert(bpScreenSrc.includes('systolic'), 'BloodPressureScreen must contain systolic logic');
+  assert(bpScreenSrc.includes('diastolic'), 'BloodPressureScreen must contain diastolic logic');
+  assert(bpScreenSrc.includes('preeclampsia'), 'BloodPressureScreen must contain preeclampsia triage logic');
+  assert(bpScreenSrc.includes('ACOG'), 'BloodPressureScreen must reference ACOG/AHA clinical guidelines');
+
+  // ToolsHub registration
+  const toolsHubSrc = fs.readFileSync(new URL('../src/ToolsHub.js', import.meta.url), 'utf8');
+  assert(toolsHubSrc.includes("'bloodPressure'"), 'bloodPressure must be registered in ToolsHub.js');
+  assert(toolsHubSrc.includes("'card_blood_pressure'"), 'card_blood_pressure art must be in ToolsHub.js');
+
+  // DetailSheet registration & rendering
+  const detailSheetSrc = fs.readFileSync(new URL('../src/DetailSheet.js', import.meta.url), 'utf8');
+  assert(detailSheetSrc.includes('import { BloodPressureScreen }'), 'BloodPressureScreen must be imported in DetailSheet.js');
+  assert(detailSheetSrc.includes("<BloodPressureScreen"), 'BloodPressureScreen must be rendered in DetailSheet.js');
+  assert(detailSheetSrc.includes("'bloodPressure'"), 'bloodPressure must be in FULL_SCREEN_KINDS');
+
+  // Backend Sync mutations
+  const backendSyncSrc = fs.readFileSync(new URL('../src/backendSync.js', import.meta.url), 'utf8');
+  assert(backendSyncSrc.includes('likeCommunityPostCloud'), 'backendSync must export likeCommunityPostCloud');
+  assert(backendSyncSrc.includes('deleteCommunityPostCloud'), 'backendSync must export deleteCommunityPostCloud');
+  assert(backendSyncSrc.includes('saveBloodPressureCloud'), 'backendSync must export saveBloodPressureCloud');
+
+  // Store persistence engine
+  const storeSrc = fs.readFileSync(new URL('../src/store.js', import.meta.url), 'utf8');
+  assert(storeSrc.includes('saveStateToLocalDisk'), 'store.js must have synchronous saveStateToLocalDisk');
+  assert(storeSrc.includes('exportAllUserData'), 'store.js must export exportAllUserData');
+  assert(storeSrc.includes('resetStateToDefaults'), 'store.js must export resetStateToDefaults');
+  assert(storeSrc.includes('syncState'), 'store.js must provide syncState');
+  assert(storeSrc.includes('lastSavedAt'), 'store.js must provide lastSavedAt');
+
+  // ProfileScreen export & reset actions
+  const profileSrc = fs.readFileSync(new URL('../src/ProfileScreen.js', import.meta.url), 'utf8');
+  assert(profileSrc.includes('handleExportData'), 'ProfileScreen must have handleExportData');
+  assert(profileSrc.includes('handleResetData'), 'ProfileScreen must have handleResetData');
+  assert(profileSrc.includes('exportAllUserData'), 'ProfileScreen must accept exportAllUserData prop');
+  assert(profileSrc.includes('resetStateToDefaults'), 'ProfileScreen must accept resetStateToDefaults prop');
+
+  // App.js sync header pill
+  const appSrc = fs.readFileSync(new URL('../App.js', import.meta.url), 'utf8');
+  assert(appSrc.includes('syncState'), 'App.js must consume syncState');
+  assert(appSrc.includes('Bulutla Eşitlendi') || appSrc.includes('Cloud Synced'), 'App.js must show sync pill');
+
+  console.log('✓ Blood Pressure, Supabase Community, and Persistence tests passed.');
+}
+
 console.log('===============================================================');
-console.log('🎉 ALL MOMORA ROADMAP SPRINTS (0 THROUGH 13 + LUXURY SUITE) PASSED SUCCESSFULLY 🎉');
+console.log('🎉 ALL MOMORA ROADMAP SPRINTS (0 THROUGH 13 + LUXURY & PERSISTENCE) PASSED 🎉');
 console.log('===============================================================');
 
 

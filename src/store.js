@@ -118,14 +118,43 @@ export const initialState = {
   // Extended state (tools & tracking)
   ...extendedDefaults,
 };
+function saveStateToLocalDisk(nextState) {
+  try {
+    const serialized = JSON.stringify(nextState);
+    AsyncStorage.setItem(KEY, serialized).catch(() => {});
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem(KEY, serialized);
+    }
+  } catch (err) {}
+}
+
 export function useMomoraStore() {
   const [state, setState] = useState(initialState);
   const [ready, setReady] = useState(false);
   const [storageError, setStorageError] = useState(null);
   const [cloudStatus, setCloudStatus] = useState(cloudStatusLabel());
+  const [syncState, setSyncState] = useState('guest'); // 'guest' | 'saving' | 'synced' | 'offline'
+  const [lastSavedAt, setLastSavedAt] = useState(new Date().toISOString());
+
+  // 1. Initial Load: Check localStorage first for instant hydration, then AsyncStorage, then Cloud
   useEffect(() => {
+    let loadedState = null;
+
+    // Fast synchronous web localStorage check
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        const direct = window.localStorage.getItem(KEY);
+        if (direct) {
+          const parsed = JSON.parse(direct);
+          if (parsed && typeof parsed === 'object') {
+            loadedState = migrateState(parsed, initialState);
+          }
+        }
+      } catch (e) {}
+    }
+
     AsyncStorage.getItem(KEY).then(raw => {
-      let nextState = initialState;
+      let nextState = loadedState || initialState;
       if (raw) {
         try {
           const saved = JSON.parse(raw);
@@ -136,50 +165,98 @@ export function useMomoraStore() {
       }
       setState(nextState);
       setReady(true);
+      setLastSavedAt(new Date().toISOString());
 
-      // Arka planda gecikmesiz bulut kontrolü (açılışı asla bekletmez)
+      // Background cloud sync check (never blocks UI)
       loadCloudState().then(cloud => {
         if (cloud?.error) {
           setCloudStatus('Bulut kaydı okunamadı; yerel kayıtla devam ediliyor.');
+          setSyncState('offline');
         } else if (cloud?.state) {
-          const merged = migrateState(cloud.state, initialState);
+          // Merge local guest updates with cloud snapshot so nothing is lost
+          const merged = migrateState({ ...cloud.state, ...nextState }, initialState);
           setState(merged);
+          saveStateToLocalDisk(merged);
           setCloudStatus('Bulut kaydı bu cihaza indirildi.');
+          setSyncState('synced');
+        } else if (cloud?.user) {
+          setSyncState('synced');
         }
-      }).catch(() => {});
+      }).catch(() => {
+        setSyncState('offline');
+      });
     }).catch(() => {
-      setStorageError('Önceki kayıtlar okunamadı. Bu oturumda devam edebilirsin.');
+      if (loadedState) {
+        setState(loadedState);
+      } else {
+        setStorageError('Önceki kayıtlar okunamadı. Bu oturumda devam edebilirsin.');
+      }
       setReady(true);
     });
   }, []);
-  useEffect(() => {
-    if (ready) AsyncStorage.setItem(KEY, JSON.stringify(state)).catch(() => setStorageError('Cihazına kaydedilemedi. Kayıtlar yalnızca bu oturumda tutuluyor.'));
-  }, [state, ready]);
+
+  // 2. Debounced Cloud Save
   useEffect(() => {
     if (!ready) return undefined;
+    setSyncState('saving');
     const timer = setTimeout(() => {
       saveCloudState(state).then(result => {
-        if (result?.ok) setCloudStatus('Bulut eşitleme güncel.');
-        else if (result?.error) setCloudStatus('Bulut eşitleme bekliyor: ' + result.error.message);
+        if (result?.ok) {
+          setCloudStatus('Bulut eşitleme güncel.');
+          setSyncState('synced');
+          setLastSavedAt(new Date().toISOString());
+        } else if (result?.skipped && result?.guest) {
+          setCloudStatus('Misafir modu · Cihazda kaydedildi');
+          setSyncState('guest');
+        } else if (result?.error) {
+          setCloudStatus('Bulut eşitleme bekliyor: ' + (result.error.message || 'Bağlantı'));
+          setSyncState('offline');
+        }
+      }).catch(() => {
+        setSyncState('offline');
       });
-    }, 1300);
+    }, 1200);
     return () => clearTimeout(timer);
   }, [state, ready]);
-  const update = patch => setState(old => ({ ...old, ...(typeof patch === 'function' ? patch(old) : patch) }));
+
+  // Immediate state update with synchronous disk write
+  const update = patch => {
+    setState(old => {
+      const next = { ...old, ...(typeof patch === 'function' ? patch(old) : patch) };
+      saveStateToLocalDisk(next);
+      setLastSavedAt(new Date().toISOString());
+      return next;
+    });
+  };
+
+  const flushStateToDisk = () => {
+    saveStateToLocalDisk(state);
+    setLastSavedAt(new Date().toISOString());
+  };
+
   const refreshFromCloud = async () => {
+    setSyncState('saving');
     const cloud = await loadCloudState();
     if (cloud.error) {
       setCloudStatus('Bulut kaydı okunamadı; yerel kayıtla devam ediliyor.');
+      setSyncState('offline');
       return { error: cloud.error };
     }
     if (cloud.state) {
-      const nextState = migrateState(cloud.state, initialState);
+      const nextState = migrateState({ ...cloud.state, ...state }, initialState);
       setState(nextState);
+      saveStateToLocalDisk(nextState);
       setCloudStatus('Bulut kaydı bu cihaza indirildi.');
+      setSyncState('synced');
+      setLastSavedAt(new Date().toISOString());
       return { ok: true, state: nextState };
     }
     const result = await saveCloudState(state);
-    if (result?.ok) setCloudStatus('Bu cihazdaki kayıt buluta aktarıldı.');
+    if (result?.ok) {
+      setCloudStatus('Bu cihazdaki kayıt buluta aktarıldı.');
+      setSyncState('synced');
+      setLastSavedAt(new Date().toISOString());
+    }
     return result;
   };
 
@@ -266,6 +343,42 @@ export function useMomoraStore() {
     });
   };
 
+  const exportAllUserData = () => {
+    return {
+      exportedAt: new Date().toISOString(),
+      profile: {
+        name: state.name,
+        babyName: state.babyName,
+        week: state.week,
+        dueDate: state.dueDate,
+        doctor: state.doctor,
+        hospital: state.hospital,
+        bloodType: state.bloodType,
+      },
+      vitals: {
+        weights: state.weights || [],
+        bloodPressureLogs: state.bloodPressureLogs || [],
+        kickSessions: state.kickSessions || [],
+        contractionSessions: state.contractionSessions || [],
+        waterGlasses: state.waterGlasses || state.water || 8,
+      },
+      care: {
+        babyVaccines: state.babyVaccines || {},
+        doctorReports: state.doctorReports || [],
+        savedStoryCards: state.savedStoryCards || [],
+        notes: state.notes || [],
+        records: state.records || [],
+      },
+    };
+  };
+
+  const resetStateToDefaults = () => {
+    saveStateToLocalDisk(initialState);
+    setState(initialState);
+    setLastSavedAt(new Date().toISOString());
+    setSyncState('guest');
+  };
+
   return {
     state,
     update,
@@ -277,6 +390,11 @@ export function useMomoraStore() {
     ready,
     storageError,
     cloudStatus,
+    syncState,
+    lastSavedAt,
     refreshFromCloud,
+    flushStateToDisk,
+    exportAllUserData,
+    resetStateToDefaults,
   };
 }

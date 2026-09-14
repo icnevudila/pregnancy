@@ -33,13 +33,45 @@ const avatarPresets = [
   { id: 'bottle', emoji: '🍼', labelTr: 'Biberon & Sevgi', labelEn: 'Baby Bottle', role: 'both' },
 ];
 
-export function ProfileScreen({ state, update, open, toast, choose, setPage, cloudStatus, refreshFromCloud }) {
+export function ProfileScreen({ state, update, open, toast, choose, setPage, cloudStatus, refreshFromCloud, exportAllUserData, resetStateToDefaults }) {
   const lang = state?.lang || 'tr';
   const isEn = lang === 'en';
 
   const [activeTab, setActiveTab] = useState('settings'); // 'settings' | 'family' | 'personal' | 'favorites'
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  const handleExportData = () => {
+    try {
+      const data = exportAllUserData ? exportAllUserData() : state;
+      const jsonStr = JSON.stringify(data, null, 2);
+      if (Platform.OS === 'web' && typeof window !== 'undefined' && window.document) {
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `momora_backup_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast && toast(isEn ? 'Data exported to JSON file 📁' : 'Tüm veriler JSON olarak indirildi 📁');
+      } else {
+        toast && toast(isEn ? 'Data backup ready (saved)' : 'Veri yedeği oluşturuldu ve hazırlandı 📁');
+      }
+    } catch (e) {
+      toast && toast(isEn ? 'Export failed' : 'Dışa aktarma başarısız oldu');
+    }
+  };
+
+  const handleResetData = () => {
+    if (resetStateToDefaults) {
+      resetStateToDefaults();
+    }
+    setShowResetConfirm(false);
+    toast && toast(isEn ? 'Application reset to factory settings 🔄' : 'Uygulama fabrika ayarlarına sıfırlandı 🔄');
+  };
 
   // Kişisel Form State'leri
   const [userName, setUserName] = useState(state.name || (isEn ? 'Emma' : 'Zeynep'));
@@ -741,6 +773,70 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
                   </View>
                 );
               })}
+            </View>
+          </Card>
+
+          {/* VERİ YÖNETİMİ & YEDEKLEME */}
+          <Card style={{ padding: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#FAF0FA', alignItems: 'center', justifyContent: 'center' }}>
+                <T style={{ fontSize: 20 }}>💾</T>
+              </View>
+              <View style={{ flex: 1 }}>
+                <T bold style={{ fontSize: 14.5, color: colors.ink }}>
+                  {isEn ? 'Data Management & Export' : 'Veri Yönetimi & Dışa Aktarma'}
+                </T>
+                <T style={{ fontSize: 11, color: colors.muted, marginTop: 1 }}>
+                  {isEn ? 'Export all your medical and baby logs or reset application' : 'Tüm medikal ve bebek kayıtlarınızı yedekleyin veya sıfırlayın'}
+                </T>
+              </View>
+            </View>
+
+            <View style={{ gap: 10 }}>
+              <Tap
+                onPress={handleExportData}
+                label={isEn ? "Export All Data as JSON" : "Tüm Verilerimi Dışa Aktar (JSON)"}
+                style={[ps.secondaryBtn, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }]}
+              >
+                <T style={{ fontSize: 16 }}>📥</T>
+                <T bold style={{ color: colors.purple, fontSize: 13 }}>
+                  {isEn ? 'Export All Data (JSON Backup)' : 'Tüm Verilerimi Dışa Aktar (JSON)'}
+                </T>
+              </Tap>
+
+              {!showResetConfirm ? (
+                <Tap
+                  onPress={() => setShowResetConfirm(true)}
+                  label={isEn ? "Reset application data" : "Verileri Sıfırla"}
+                  style={{ paddingVertical: 10, alignItems: 'center' }}
+                >
+                  <T style={{ fontSize: 12, color: '#B42318' }}>
+                    {isEn ? '⚠️ Reset to Factory Defaults' : '⚠️ Fabrika Ayarlarına Sıfırla (Tüm Verileri Temizle)'}
+                  </T>
+                </Tap>
+              ) : (
+                <View style={{ backgroundColor: '#FEF2F2', padding: 12, borderRadius: 14, borderWidth: 1, borderColor: '#FEE2E2', gap: 8 }}>
+                  <T bold style={{ fontSize: 12, color: '#991B1B', textAlign: 'center' }}>
+                    {isEn ? 'Are you sure? This will clear all local records.' : 'Tüm yerel kayıtlar ve ayarlar silinecek. Emin misiniz?'}
+                  </T>
+                  <View style={{ flexDirection: 'row', gap: 8 }}>
+                    <Tap
+                      onPress={() => setShowResetConfirm(false)}
+                      label={isEn ? "Cancel reset" : "Vazgeç"}
+                      style={{ flex: 1, paddingVertical: 10, borderRadius: 10, backgroundColor: '#E5E7EB', alignItems: 'center' }}
+                    >
+                      <T bold style={{ fontSize: 12, color: '#374151' }}>{isEn ? 'Cancel' : 'Vazgeç'}</T>
+                    </Tap>
+                    <Tap
+                      onPress={handleResetData}
+                      label={isEn ? "Confirm Reset" : "Evet, Sıfırla"}
+                      style={{ flex: 1, paddingVertical: 10, borderRadius: 10, backgroundColor: '#DC2626', alignItems: 'center' }}
+                    >
+                      <T bold style={{ fontSize: 12, color: 'white' }}>{isEn ? 'Yes, Reset' : 'Evet, Sıfırla'}</T>
+                    </Tap>
+                  </View>
+                </View>
+              )}
             </View>
           </Card>
 

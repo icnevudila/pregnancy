@@ -7,7 +7,7 @@ import { T, Tap, Card, Section, ScreenHero, ToolExperienceCard } from './ui';
 import { uid, localDay } from './domain.mjs';
 import { generatedAssets } from './generatedAssets';
 import { articles, searchFaqs } from './content';
-import { fetchCommunityPostsCloud, createCommunityPostCloud, addCommunityCommentCloud, fetchCommunityCommentsCloud } from './backendSync';
+import { fetchCommunityPostsCloud, createCommunityPostCloud, addCommunityCommentCloud, fetchCommunityCommentsCloud, likeCommunityPostCloud, deleteCommunityPostCloud } from './backendSync';
 
 // ─── BAŞLANGIÇ FORUM VE TOPLULUK GÖNDERİLERİ ─────────────────────────────────
 export const initialCommunityPosts = [
@@ -288,12 +288,15 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
   function toggleLike(postId) {
     const isLiked = !!likedPosts[postId];
     setLikedPosts(old => ({ ...old, [postId]: !isLiked }));
+    let updatedLikes = 0;
     setPosts(old => old.map(p => {
       if (p.id === postId) {
-        return { ...p, likes: isLiked ? p.likes - 1 : p.likes + 1 };
+        updatedLikes = Math.max(0, isLiked ? p.likes - 1 : p.likes + 1);
+        return { ...p, likes: updatedLikes };
       }
       return p;
     }));
+    likeCommunityPostCloud(postId, updatedLikes).catch(() => {});
     toast && toast(isLiked ? (isEn ? 'Like removed' : 'Beğeni geri alındı') : (isEn ? 'Liked 💛' : 'Beğenildi 💛'));
   }
 
@@ -325,6 +328,7 @@ export function CommunityHub({ open, state, update, toast, lang = 'tr' }) {
 
   function deletePost(postId) {
     setPosts(prev => prev.filter(p => p.id !== postId));
+    deleteCommunityPostCloud(postId).catch(() => {});
     setActionMenuPostId(null);
     toast && toast(isEn ? 'Your post has been deleted 🗑️' : 'Gönderin topluluktan silindi 🗑️');
   }

@@ -425,6 +425,38 @@ export async function fetchCommunityCommentsCloud(postId) {
   }
 }
 
+export async function likeCommunityPostCloud(postId, newCount) {
+  if (!supabase) return { skipped: true };
+  try {
+    const { error } = await supabase
+      .from('momora_community_posts')
+      .update({ likes_count: newCount })
+      .eq('id', postId);
+    if (error) return { error };
+    return { ok: true };
+  } catch (err) {
+    return { error: err };
+  }
+}
+
+export async function deleteCommunityPostCloud(postId) {
+  if (!supabase) return { skipped: true };
+  try {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData?.user) return { skipped: true, guest: true };
+
+    const { error } = await supabase
+      .from('momora_community_posts')
+      .delete()
+      .eq('id', postId)
+      .eq('user_id', userData.user.id);
+    if (error) return { error };
+    return { ok: true };
+  } catch (err) {
+    return { error: err };
+  }
+}
+
 // ─── 10. GENEL İZLEME OLAYLARI (FALLBACK LOGGING) ──────────────────────────────
 
 export async function saveTrackingEvent(eventType, payload = {}, occurredAt = new Date().toISOString()) {
@@ -445,3 +477,8 @@ export async function saveTrackingEvent(eventType, payload = {}, occurredAt = ne
     return { error: err };
   }
 }
+
+export async function saveBloodPressureCloud(reading) {
+  return saveTrackingEvent('blood_pressure', reading);
+}
+

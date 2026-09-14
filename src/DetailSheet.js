@@ -21,6 +21,7 @@ import { LegalScreen } from './LegalScreen';
 import { DoctorReportScreen } from './DoctorReportScreen';
 import { VaccineCalendarScreen } from './VaccineCalendarScreen';
 import { StoryStudioScreen } from './StoryStudioScreen';
+import { BloodPressureScreen } from './BloodPressureScreen';
 import { t } from './i18n/index.js';
 
 export default function DetailSheet({ sheet, close, state, update, addRecord, deleteTrackerRecord, undoLastAction, choose, open, toast, lang: propLang }) {
@@ -84,6 +85,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     doctorReport: isEn ? 'Doctor Visit Dossier' : 'Doktor Muayene Raporu',
     vaccineCalendar: isEn ? 'Baby Vaccine Calendar (0-24m)' : 'Aşı & Bağışıklık Takvimi',
     storyStudio: isEn ? 'Story & Milestone Studio' : 'Hikaye & Paylaşım Stüdyosu',
+    bloodPressure: isEn ? 'Blood Pressure & Preeclampsia' : 'Tansiyon & Preeklampsi',
   };
   const rawTitle = t('sheets.titles.' + kind, lang);
   const sheetTitle = (rawTitle && rawTitle !== 'sheets.titles.' + kind)
@@ -91,6 +93,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     : (customTitles[kind] || (kind === 'log' ? (isEn ? `${data.type} entry` : `${data.type} kaydı`) : (kind === 'breathingGuide' ? (isEn ? 'Labor Breathing Guide' : 'Doğum Nefes & Gevşeme Rehberi') : kind)));
 
   const premiumSheetIntro = {
+    bloodPressure: [isEn ? 'Cardiovascular & Preeclampsia Tracker' : 'Kardiyovasküler & Preeklampsi Takipçisi', isEn ? ['Log systolic/diastolic & pulse.', 'Screen for preeclampsia red flags.', 'Share instant clinical WhatsApp logs.'] : ['Büyük, küçük tansiyon ve nabız kaydet.', 'Preeklampsi alarm belirtilerini denetle.', 'Doktoruna WhatsApp ile tek tıkla raporla.'], 'card_blood_pressure', '#D92D20'],
     doctorReport: [isEn ? 'Physician-ready clinical summary' : 'Hekime hazır klinik muayene özeti', isEn ? ['Aggregate kicks, weight curve & vitals.', 'Mark discussed visit questions.', 'Share instantly via WhatsApp or print.'] : ['Tekme, kilo eğrisi ve tansiyonu birleştir.', 'Görüşülen soruları kontrol et.', 'WhatsApp veya PDF ile hekimine ilet.'], 'card_doctor_report', '#583D7A'],
     vaccineCalendar: [isEn ? '0-24 month pediatric schedule' : '0-24 ay pediatrik aşı takvimi', isEn ? ['Ministry of Health & WHO schedule.', 'Home fever and comfort care guidance.', 'Track administered doses & dates.'] : ['Sağlık Bakanlığı & DSÖ rutin takvimi.', 'Aşı sonrası ateş ve bakım rehberi.', 'Uygulanan aşıları ve tarihleri kaydet.'], 'card_vaccine_calendar', '#2B7CB0'],
     storyStudio: [isEn ? '9:16 Instagram & WhatsApp Story Maker' : '9:16 Instagram & WhatsApp Hikaye Stüdyosu', isEn ? ['Weekly baby size & 3D comparison cards.', 'First kick & milestone badges.', 'Custom luxury pastel frames.'] : ['Haftalık boyut ve 3D kıyaslama kartları.', 'İlk tekme ve dönüm noktası rozetleri.', 'Kişiselleştirilebilir pastel şık çerçeveler.'], 'card_story_studio', '#B8507D'],
@@ -152,6 +155,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     'doctorReport',
     'vaccineCalendar',
     'storyStudio',
+    'bloodPressure',
     'toolsHub',
     'profile',
     'notifications',
@@ -379,6 +383,7 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     {kind==='partnerTasks'&&<PartnerTaskBoardScreen state={state} update={update} toast={showToast} lang={lang}/>}
     {/* Yeni Nesil Lüks Modüller */}
     {kind==='doctorReport'&&<DoctorReportScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
+    {kind==='bloodPressure'&&<BloodPressureScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
     {kind==='vaccineCalendar'&&<VaccineCalendarScreen state={state} update={update} toast={showToast} lang={lang}/>}
     {kind==='storyStudio'&&<StoryStudioScreen state={state} update={update} toast={showToast} lang={lang}/>}
     {kind==='notifications'&&<NotificationSettingsScreen toast={showToast} lang={lang} week={state.week||24} close={close}/>}

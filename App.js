@@ -37,7 +37,11 @@ function Momora() {
     ready,
     storageError,
     cloudStatus,
+    syncState,
+    lastSavedAt,
     refreshFromCloud,
+    exportAllUserData,
+    resetStateToDefaults,
   } = useMomoraStore();
   const [page,setPage]=useState(null);const [sheet,setSheet]=useState(null);const [notice,setNotice]=useState('');
   const [activeSound, setActiveSound] = useState(() => getCurrentSound());
@@ -201,7 +205,11 @@ function Momora() {
     undoLastAction,
     open,
     cloudStatus,
+    syncState,
+    lastSavedAt,
     refreshFromCloud,
+    exportAllUserData,
+    resetStateToDefaults,
     lang,
     choose,
     setPage,
@@ -222,6 +230,58 @@ function Momora() {
         </View>
       ) : (
         <View style={{ height: Math.max(insets.top, Platform.OS === 'ios' ? 44 : 0) }} />
+      )}
+      {!['onboarding', 'auth'].includes(active) && (
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 16,
+          paddingVertical: 4,
+          backgroundColor: colors.canvas,
+        }}>
+          <Tap
+            onPress={() => {
+              if (syncState === 'guest') {
+                open('auth');
+              } else {
+                refreshFromCloud().then(() => {
+                  setNotice(lang === 'en' ? '☁️ Cloud sync up to date' : '☁️ Bulut senkronizasyonu güncel');
+                }).catch(() => {});
+              }
+            }}
+            label={syncState === 'synced' ? 'Bulut Senkronize' : syncState === 'saving' ? 'Eşitleniyor' : 'Cihazda Kayıtlı'}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+              paddingHorizontal: 10,
+              paddingVertical: 4,
+              borderRadius: 14,
+              backgroundColor: syncState === 'synced' ? '#ECFDF5' : syncState === 'saving' ? '#EFF6FF' : '#F5F3FF',
+              borderWidth: 1,
+              borderColor: syncState === 'synced' ? '#A7F3D0' : syncState === 'saving' ? '#BFDBFE' : '#DDD6FE',
+            }}
+          >
+            <View style={{
+              width: 6,
+              height: 6,
+              borderRadius: 3,
+              backgroundColor: syncState === 'synced' ? '#10B981' : syncState === 'saving' ? '#3B82F6' : '#8B5CF6',
+            }} />
+            <T bold style={{
+              fontSize: 10.5,
+              color: syncState === 'synced' ? '#065F46' : syncState === 'saving' ? '#1E40AF' : '#5B21B6',
+            }}>
+              {syncState === 'synced'
+                ? (lang === 'en' ? '☁️ Cloud Synced' : '☁️ Bulutla Eşitlendi')
+                : syncState === 'saving'
+                ? (lang === 'en' ? '🔄 Syncing...' : '🔄 Eşitleniyor...')
+                : (lang === 'en' ? '📱 Saved to device (Tap to sync)' : '📱 Cihazda Kayıtlı (Yedekle)')}
+            </T>
+          </Tap>
+          {!desktop && <LanguageToggle lang={lang} onChange={l=>update({lang:l})} compact/>}
+        </View>
       )}
       <View style={{flex:1}} key={active}>{renderPage()}</View>
       {/* Arka Planda Çalan Ses Mini-Player Barı (Ses çalarken ekranda her zaman canlı görünür) */}
