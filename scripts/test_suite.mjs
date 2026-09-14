@@ -957,6 +957,69 @@ console.log('--- RUNNING MOMORA AUTOMATED TEST SUITE ---');
   console.log('✓ Bestseller Pediatric Suite (Wonder Weeks Leaps & Solid Foods BLW) passed.');
 }
 
+// 22. Bestseller Suite Part 2: WHO Growth Standards, CDC Developmental Milestones, Pelvic Floor & Perineal Massage
+{
+  console.log('Testing Bestseller Suite Part 2 (WHO Growth, CDC Milestones, Pelvic Floor Kegel)...');
+
+  // Verify assets exist on disk
+  assert(fs.existsSync(new URL('../assets/card_growth_percentile.png', import.meta.url)), 'card_growth_percentile.png must exist');
+  assert(fs.existsSync(new URL('../assets/card_baby_milestones.png', import.meta.url)), 'card_baby_milestones.png must exist');
+  assert(fs.existsSync(new URL('../assets/card_pelvic_kegel.png', import.meta.url)), 'card_pelvic_kegel.png must exist');
+
+  // Verify generatedAssets.js registration
+  const genAssets = fs.readFileSync(new URL('../src/generatedAssets.js', import.meta.url), 'utf8');
+  assert(genAssets.includes("'card_growth_percentile'"), 'card_growth_percentile must be registered in generatedAssets.js');
+  assert(genAssets.includes("'card_baby_milestones'"), 'card_baby_milestones must be registered in generatedAssets.js');
+  assert(genAssets.includes("'card_pelvic_kegel'"), 'card_pelvic_kegel must be registered in generatedAssets.js');
+
+  // Verify ToolsHub.js registration
+  const toolsHubSrc = fs.readFileSync(new URL('../src/ToolsHub.js', import.meta.url), 'utf8');
+  assert(toolsHubSrc.includes("'growthPercentile'"), 'growthPercentile must be registered in ToolsHub.js');
+  assert(toolsHubSrc.includes("'babyMilestones'"), 'babyMilestones must be registered in ToolsHub.js');
+  assert(toolsHubSrc.includes("'pelvicKegel'"), 'pelvicKegel must be registered in ToolsHub.js');
+
+  // Verify DetailSheet.js registration & rendering
+  const detailSheetSrc = fs.readFileSync(new URL('../src/DetailSheet.js', import.meta.url), 'utf8');
+  assert(detailSheetSrc.includes('import { BabyGrowthPercentileScreen }'), 'BabyGrowthPercentileScreen must be imported in DetailSheet.js');
+  assert(detailSheetSrc.includes('import { BabyMilestonesScreen }'), 'BabyMilestonesScreen must be imported in DetailSheet.js');
+  assert(detailSheetSrc.includes('import { PelvicFloorKegelScreen }'), 'PelvicFloorKegelScreen must be imported in DetailSheet.js');
+
+  assert(detailSheetSrc.includes("'growthPercentile'"), 'growthPercentile must be in FULL_SCREEN_KINDS');
+  assert(detailSheetSrc.includes("'babyMilestones'"), 'babyMilestones must be in FULL_SCREEN_KINDS');
+  assert(detailSheetSrc.includes("'pelvicKegel'"), 'pelvicKegel must be in FULL_SCREEN_KINDS');
+
+  assert(detailSheetSrc.includes('<BabyGrowthPercentileScreen'), 'BabyGrowthPercentileScreen must be rendered in DetailSheet.js');
+  assert(detailSheetSrc.includes('<BabyMilestonesScreen'), 'BabyMilestonesScreen must be rendered in DetailSheet.js');
+  assert(detailSheetSrc.includes('<PelvicFloorKegelScreen'), 'PelvicFloorKegelScreen must be rendered in DetailSheet.js');
+
+  // Verify store.js export inclusion
+  const storeSrc = fs.readFileSync(new URL('../src/store.js', import.meta.url), 'utf8');
+  assert(storeSrc.includes('babyGrowthLogs'), 'store.js must export babyGrowthLogs');
+  assert(storeSrc.includes('babyMilestones'), 'store.js must export babyMilestones');
+  assert(storeSrc.includes('tummyTimeSessions'), 'store.js must export tummyTimeSessions');
+  assert(storeSrc.includes('kegelSessions'), 'store.js must export kegelSessions');
+
+  // Verify WHO Growth logic & curves
+  const gpSrc = fs.readFileSync(new URL('../src/BabyGrowthPercentileScreen.js', import.meta.url), 'utf8');
+  assert(gpSrc.includes('WHO_GROWTH_STANDARDS'), 'BabyGrowthPercentileScreen must export WHO_GROWTH_STANDARDS');
+  assert(gpSrc.includes('calculatePercentile'), 'BabyGrowthPercentileScreen must calculate percentiles');
+  assert(gpSrc.includes('P50') || gpSrc.includes('Medyan'), 'BabyGrowthPercentileScreen must reference P50 median');
+
+  // Verify CDC Milestones logic
+  const bmSrc = fs.readFileSync(new URL('../src/BabyMilestonesScreen.js', import.meta.url), 'utf8');
+  assert(bmSrc.includes('CDC_MILESTONES'), 'BabyMilestonesScreen must export CDC_MILESTONES');
+  assert(bmSrc.includes('tummyGoalMin') || bmSrc.includes('Tummy Time'), 'BabyMilestonesScreen must include Tummy Time Coach');
+  assert(bmSrc.includes('redFlagsTr') || bmSrc.includes('Red Flags'), 'BabyMilestonesScreen must include clinical red flag warnings');
+
+  // Verify Pelvic Floor Kegel & Perineal Massage logic
+  const pkSrc = fs.readFileSync(new URL('../src/PelvicFloorKegelScreen.js', import.meta.url), 'utf8');
+  assert(pkSrc.includes('KEGEL_MODES'), 'PelvicFloorKegelScreen must export KEGEL_MODES');
+  assert(pkSrc.includes('RCOG') || pkSrc.includes('ACOG'), 'PelvicFloorKegelScreen must reference RCOG/ACOG guidelines');
+  assert(pkSrc.includes('34') || pkSrc.includes('perineal'), 'PelvicFloorKegelScreen must guide 34+ week perineal massage');
+
+  console.log('✓ Bestseller Suite Part 2 (WHO Growth, CDC Milestones, Pelvic Kegel) passed.');
+}
+
 console.log('===============================================================');
 console.log('🎉 ALL MOMORA ROADMAP SPRINTS (0-13 + LUXURY + PERSISTENCE + BESTSELLER SUITE) PASSED 🎉');
 console.log('===============================================================');

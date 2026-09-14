@@ -28,6 +28,9 @@ import { SleepWindowScreen } from './SleepWindowScreen';
 import { SafeMedicationScreen } from './SafeMedicationScreen';
 import { WonderWeeksScreen } from './WonderWeeksScreen';
 import { SolidFoodsScreen } from './SolidFoodsScreen';
+import { BabyGrowthPercentileScreen } from './BabyGrowthPercentileScreen';
+import { BabyMilestonesScreen } from './BabyMilestonesScreen';
+import { PelvicFloorKegelScreen } from './PelvicFloorKegelScreen';
 import { t } from './i18n/index.js';
 
 export default function DetailSheet({ sheet, close, state, update, addRecord, deleteTrackerRecord, undoLastAction, choose, open, toast, lang: propLang }) {
@@ -98,6 +101,9 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     safeMedication: isEn ? 'Safe Medication & Symptom Guide' : 'Gebelikte Güvenli İlaç & Belirti Kılavuzu',
     wonderWeeks: isEn ? 'Wonder Weeks & Mental Leaps' : 'Harika Haftalar & Atak Takvimi',
     solidFoods: isEn ? 'BLW & 100 First Foods' : 'BLW & 100 İlk Besin Takibi',
+    growthPercentile: isEn ? 'Baby Growth & Percentiles' : 'Bebek Büyüme & Persentil',
+    babyMilestones: isEn ? 'CDC Milestones & Tummy Time' : 'Gelişim Basamakları & Tummy Time',
+    pelvicKegel: isEn ? 'Pelvic Floor & Perineal Massage' : 'Pelvik Taban & Perine Masajı',
   };
   const rawTitle = t('sheets.titles.' + kind, lang);
   const sheetTitle = (rawTitle && rawTitle !== 'sheets.titles.' + kind)
@@ -105,6 +111,9 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     : (customTitles[kind] || (kind === 'log' ? (isEn ? `${data.type} entry` : `${data.type} kaydı`) : (kind === 'breathingGuide' ? (isEn ? 'Labor Breathing Guide' : 'Doğum Nefes & Gevşeme Rehberi') : kind)));
 
   const premiumSheetIntro = {
+    growthPercentile: [isEn ? 'WHO Growth Curves & Percentiles' : 'DSÖ Büyüme Eğrileri & Persentil', isEn ? ['WHO 0-24m weight, length & head circ.', 'Failure to thrive & plateau alert.', 'Direct pediatrician WhatsApp dossier.'] : ['DSÖ 0-24 ay kilo, boy ve baş çevresi.', 'Büyüme geriliği & persentil düşüş uyarısı.', 'Tek tıkla hekime büyüme karnesi paylaşımı.'], 'card_growth_percentile', '#1D4ED8'],
+    babyMilestones: [isEn ? 'CDC Developmental Milestones & Tummy Time' : 'CDC Gelişim Basamakları & Tummy Time', isEn ? ['AAP/CDC 2022 4-domain milestone checks.', 'Pediatric clinical red flag checklists.', 'Live tummy time coach & neck strengthening.'] : ['AAP/CDC 2022 4 alanlı gelişim basamakları.', 'Hekime danışılacak kırmızı bayrak uyarıları.', 'Karın üstü egzersiz sayacı & boyun kası koçu.'], 'card_baby_milestones', '#047857'],
+    pelvicKegel: [isEn ? 'Pelvic Floor Kegel Trainer & Perineal Massage' : 'Pelvik Taban Kegel Koçu & Perine Masajı', isEn ? ['RCOG/ACOG evidence-based Kegel rhythms.', 'Reduces perineal tears by 16% in birth.', 'Postpartum pelvic healing & recovery.'] : ['RCOG/ACOG kanıta dayalı Kegel ritmi.', '34+ haftada perine masajıyla yırtık önleme.', 'Doğum sonrası toparlanma ve idrar sağlığı.'], 'card_pelvic_kegel', '#9333EA'],
     wonderWeeks: [isEn ? 'The Wonder Weeks 10 Developmental Leaps' : '10 Zihinsel Gelişim Sıçraması', isEn ? ['Predict fussy stormy periods & sunny phases.', 'Understand infant brain rewiring.', 'Age-appropriate stimulating games.'] : ['Fırtınalı huysuzluk ve güneşli sakin dönemler.', 'Bebek beynindeki yeni nöronal sıçramalar.', 'Gelişimi destekleyen eğlenceli duyusal oyunlar.'], 'card_wonder_leaps', '#7E22CE'],
     solidFoods: [isEn ? 'BLW & 100 First Foods Guide' : 'BLW & 100 İlk Besin Kılavuzu', isEn ? ['Pediatric 3-day allergy waiting rule.', 'Gagging vs silent choking first aid.', 'Track 100 nutrient-rich baby foods.'] : ['3 gün bekleme alerji izolasyon kuralı.', 'Öğürme ile sessiz boğulma ilk yardım ayrımı.', '100 besleyici gıdayı adım adım takip et.'], 'card_solid_foods', '#15803D'],
     bloodGlucose: [isEn ? 'Gestational Diabetes & Glucose Log' : 'Gestasyonel Diyabet & Şeker Takibi', isEn ? ['Fasting & postprandial ADA targets.', 'Rule of 15 hypoglycemia safety alert.', '24-28w OGTT diagnostic guidelines.'] : ['Açlık ve tokluk ADA hedef değerleri.', '15 kuralı düşük şeker güvenlik uyarısı.', '24-28. hafta OGTT test rehberi.'], 'card_blood_glucose', '#7C3AED'],
@@ -180,6 +189,9 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     'safeMedication',
     'wonderWeeks',
     'solidFoods',
+    'growthPercentile',
+    'babyMilestones',
+    'pelvicKegel',
     'toolsHub',
     'profile',
     'notifications',
@@ -416,6 +428,9 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     {kind==='safeMedication'&&<SafeMedicationScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
     {kind==='wonderWeeks'&&<WonderWeeksScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
     {kind==='solidFoods'&&<SolidFoodsScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
+    {kind==='growthPercentile'&&<BabyGrowthPercentileScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
+    {kind==='babyMilestones'&&<BabyMilestonesScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
+    {kind==='pelvicKegel'&&<PelvicFloorKegelScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
     {kind==='notifications'&&<NotificationSettingsScreen toast={showToast} lang={lang} week={state.week||24} close={close}/>}
     {kind==='legal'&&<LegalScreen initialTab={data?.tab||'privacy'} lang={lang} close={close}/>}
     {!!error&&<T accessibilityRole="alert" style={{color:'#A95769',marginTop:12}}>{error}</T>}
