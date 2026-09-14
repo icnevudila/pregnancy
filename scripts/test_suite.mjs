@@ -831,8 +831,84 @@ console.log('--- RUNNING MOMORA AUTOMATED TEST SUITE ---');
   console.log('✓ Blood Pressure, Supabase Community, and Persistence tests passed.');
 }
 
+// 20. Bestseller Suite: Gestational Diabetes, Baby Teething, Sleep Window, Safe Medications
+{
+  console.log('Testing Bestseller Suite (Blood Glucose, Baby Teething, Sleep Window, Safe Medication)...');
+  const fs = await import('node:fs');
+
+  // Verify all 4 screen source files exist
+  assert(fs.existsSync(new URL('../src/BloodGlucoseScreen.js', import.meta.url)), 'BloodGlucoseScreen.js must exist');
+  assert(fs.existsSync(new URL('../src/BabyTeethingScreen.js', import.meta.url)), 'BabyTeethingScreen.js must exist');
+  assert(fs.existsSync(new URL('../src/SleepWindowScreen.js', import.meta.url)), 'SleepWindowScreen.js must exist');
+  assert(fs.existsSync(new URL('../src/SafeMedicationScreen.js', import.meta.url)), 'SafeMedicationScreen.js must exist');
+
+  // Verify 3D artwork assets exist
+  assert(fs.existsSync(new URL('../assets/card_blood_glucose.png', import.meta.url)), 'card_blood_glucose.png must exist');
+  assert(fs.existsSync(new URL('../assets/card_baby_teething.png', import.meta.url)), 'card_baby_teething.png must exist');
+  assert(fs.existsSync(new URL('../assets/card_sleep_window.png', import.meta.url)), 'card_sleep_window.png must exist');
+
+  // Verify generatedAssets.js registration
+  const genAssets = fs.readFileSync(new URL('../src/generatedAssets.js', import.meta.url), 'utf8');
+  assert(genAssets.includes("'card_blood_glucose'"), 'card_blood_glucose must be in generatedAssets.js');
+  assert(genAssets.includes("'card_baby_teething'"), 'card_baby_teething must be in generatedAssets.js');
+  assert(genAssets.includes("'card_sleep_window'"), 'card_sleep_window must be in generatedAssets.js');
+
+  // Verify ToolsHub.js registration
+  const toolsHubSrc = fs.readFileSync(new URL('../src/ToolsHub.js', import.meta.url), 'utf8');
+  assert(toolsHubSrc.includes("'bloodGlucose'"), 'bloodGlucose must be registered in ToolsHub.js');
+  assert(toolsHubSrc.includes("'safeMedication'"), 'safeMedication must be registered in ToolsHub.js');
+  assert(toolsHubSrc.includes("'babyTeething'"), 'babyTeething must be registered in ToolsHub.js');
+  assert(toolsHubSrc.includes("'sleepWindow'"), 'sleepWindow must be registered in ToolsHub.js');
+
+  // Verify DetailSheet.js registration & rendering
+  const detailSheetSrc = fs.readFileSync(new URL('../src/DetailSheet.js', import.meta.url), 'utf8');
+  assert(detailSheetSrc.includes('import { BloodGlucoseScreen }'), 'BloodGlucoseScreen must be imported in DetailSheet.js');
+  assert(detailSheetSrc.includes('import { BabyTeethingScreen }'), 'BabyTeethingScreen must be imported in DetailSheet.js');
+  assert(detailSheetSrc.includes('import { SleepWindowScreen }'), 'SleepWindowScreen must be imported in DetailSheet.js');
+  assert(detailSheetSrc.includes('import { SafeMedicationScreen }'), 'SafeMedicationScreen must be imported in DetailSheet.js');
+
+  assert(detailSheetSrc.includes("'bloodGlucose'"), 'bloodGlucose must be in FULL_SCREEN_KINDS');
+  assert(detailSheetSrc.includes("'babyTeething'"), 'babyTeething must be in FULL_SCREEN_KINDS');
+  assert(detailSheetSrc.includes("'sleepWindow'"), 'sleepWindow must be in FULL_SCREEN_KINDS');
+  assert(detailSheetSrc.includes("'safeMedication'"), 'safeMedication must be in FULL_SCREEN_KINDS');
+
+  assert(detailSheetSrc.includes('<BloodGlucoseScreen'), 'BloodGlucoseScreen must be rendered in DetailSheet.js');
+  assert(detailSheetSrc.includes('<BabyTeethingScreen'), 'BabyTeethingScreen must be rendered in DetailSheet.js');
+  assert(detailSheetSrc.includes('<SleepWindowScreen'), 'SleepWindowScreen must be rendered in DetailSheet.js');
+  assert(detailSheetSrc.includes('<SafeMedicationScreen'), 'SafeMedicationScreen must be rendered in DetailSheet.js');
+
+  // Verify backendSync.js cloud export functions
+  const backendSyncSrc = fs.readFileSync(new URL('../src/backendSync.js', import.meta.url), 'utf8');
+  assert(backendSyncSrc.includes('saveBloodGlucoseCloud'), 'backendSync must export saveBloodGlucoseCloud');
+  assert(backendSyncSrc.includes('saveBabyTeethCloud'), 'backendSync must export saveBabyTeethCloud');
+
+  // Verify store.js export inclusion
+  const storeSrc = fs.readFileSync(new URL('../src/store.js', import.meta.url), 'utf8');
+  assert(storeSrc.includes('bloodGlucoseLogs'), 'store.js must handle bloodGlucoseLogs');
+  assert(storeSrc.includes('babyTeeth'), 'store.js must handle babyTeeth');
+
+  // Pure logic tests (source inspection)
+  const bgSrc = fs.readFileSync(new URL('../src/BloodGlucoseScreen.js', import.meta.url), 'utf8');
+  assert(bgSrc.includes('ADA'), 'BloodGlucoseScreen must reference ADA guidelines');
+  assert(bgSrc.includes('Rule of 15') || bgSrc.includes('15 Kuralı'), 'BloodGlucoseScreen must include hypoglycemia Rule of 15');
+
+  const btSrc = fs.readFileSync(new URL('../src/BabyTeethingScreen.js', import.meta.url), 'utf8');
+  assert(btSrc.includes('PRIMARY_TEETH'), 'BabyTeethingScreen must export PRIMARY_TEETH');
+  assert(btSrc.includes('erupted'), 'BabyTeethingScreen must handle erupted tooth status');
+
+  const swSrc = fs.readFileSync(new URL('../src/SleepWindowScreen.js', import.meta.url), 'utf8');
+  assert(swSrc.includes('WAKE_WINDOW_TABLE'), 'SleepWindowScreen must export WAKE_WINDOW_TABLE');
+  assert(swSrc.includes('SweetSpot'), 'SleepWindowScreen must calculate SweetSpot');
+
+  const smSrc = fs.readFileSync(new URL('../src/SafeMedicationScreen.js', import.meta.url), 'utf8');
+  assert(smSrc.includes('MEDICATION_DATABASE'), 'SafeMedicationScreen must export MEDICATION_DATABASE');
+  assert(smSrc.includes('Paracetamol') || smSrc.includes('Parasetamol'), 'SafeMedicationScreen must include Paracetamol');
+
+  console.log('✓ Bestseller Suite (Blood Glucose, Teething, Sleep Window, Safe Meds) passed.');
+}
+
 console.log('===============================================================');
-console.log('🎉 ALL MOMORA ROADMAP SPRINTS (0 THROUGH 13 + LUXURY & PERSISTENCE) PASSED 🎉');
+console.log('🎉 ALL MOMORA ROADMAP SPRINTS (0-13 + LUXURY + PERSISTENCE + BESTSELLER SUITE) PASSED 🎉');
 console.log('===============================================================');
 
 

@@ -22,6 +22,10 @@ import { DoctorReportScreen } from './DoctorReportScreen';
 import { VaccineCalendarScreen } from './VaccineCalendarScreen';
 import { StoryStudioScreen } from './StoryStudioScreen';
 import { BloodPressureScreen } from './BloodPressureScreen';
+import { BloodGlucoseScreen } from './BloodGlucoseScreen';
+import { BabyTeethingScreen } from './BabyTeethingScreen';
+import { SleepWindowScreen } from './SleepWindowScreen';
+import { SafeMedicationScreen } from './SafeMedicationScreen';
 import { t } from './i18n/index.js';
 
 export default function DetailSheet({ sheet, close, state, update, addRecord, deleteTrackerRecord, undoLastAction, choose, open, toast, lang: propLang }) {
@@ -86,6 +90,10 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     vaccineCalendar: isEn ? 'Baby Vaccine Calendar (0-24m)' : 'Aşı & Bağışıklık Takvimi',
     storyStudio: isEn ? 'Story & Milestone Studio' : 'Hikaye & Paylaşım Stüdyosu',
     bloodPressure: isEn ? 'Blood Pressure & Preeclampsia' : 'Tansiyon & Preeklampsi',
+    bloodGlucose: isEn ? 'Blood Glucose & Gestational Diabetes' : 'Kan Şekeri & Gestasyonel Diyabet',
+    babyTeething: isEn ? 'Baby Teething Chart & Milestones' : 'Bebek Diş Çıkarma Haritası',
+    sleepWindow: isEn ? 'Sleep Window & SweetSpot™' : 'Akıllı Uyku Penceresi (SweetSpot)',
+    safeMedication: isEn ? 'Safe Medication & Symptom Guide' : 'Gebelikte Güvenli İlaç & Belirti Kılavuzu',
   };
   const rawTitle = t('sheets.titles.' + kind, lang);
   const sheetTitle = (rawTitle && rawTitle !== 'sheets.titles.' + kind)
@@ -93,6 +101,10 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     : (customTitles[kind] || (kind === 'log' ? (isEn ? `${data.type} entry` : `${data.type} kaydı`) : (kind === 'breathingGuide' ? (isEn ? 'Labor Breathing Guide' : 'Doğum Nefes & Gevşeme Rehberi') : kind)));
 
   const premiumSheetIntro = {
+    bloodGlucose: [isEn ? 'Gestational Diabetes & Glucose Log' : 'Gestasyonel Diyabet & Şeker Takibi', isEn ? ['Fasting & postprandial ADA targets.', 'Rule of 15 hypoglycemia safety alert.', '24-28w OGTT diagnostic guidelines.'] : ['Açlık ve tokluk ADA hedef değerleri.', '15 kuralı düşük şeker güvenlik uyarısı.', '24-28. hafta OGTT test rehberi.'], 'card_blood_glucose', '#7C3AED'],
+    babyTeething: [isEn ? 'Pediatric 20-Tooth Dental Arch' : '20 Süt Dişi Pediatrik Haritası', isEn ? ['Interactive eruption status & milestones.', 'Differentiate teething from fever illness.', 'Safe cooling & gum relief methods.'] : ['İnteraktif diş patlama haritası ve tarihleri.', 'Diş belirtileri ile ateşli hastalık ayrımı.', 'Güvenli soğutma ve diş eti masajı yöntemleri.'], 'card_baby_teething', '#059669'],
+    sleepWindow: [isEn ? 'Age-Indexed Wake Windows & SweetSpot™' : 'Yaşa Uygun Uyanıklık Pencereleri & SweetSpot', isEn ? ['Prevents overtiredness & nap struggles.', 'Optimal next nap time prediction.', '15-minute wind-down bedtime ritual.'] : ['Aşırı yorgunluğu ve ağlama krizlerini önler.', 'Bir sonraki ideal uyku saatini tahmin eder.', '15 dakikalık uykuya geçiş sakinleşme rutini.'], 'card_sleep_window', '#6D28D9'],
+    safeMedication: [isEn ? 'Obstetric Drug Safety & Symptom Triage' : 'Gebelikte İlaç Güvenliği & Doğal Çözümler', isEn ? ['ACOG & FDA pregnancy safety tiers.', 'Avoid high-risk NSAIDs & pseudoephedrine.', 'Evidence-based non-pharmacological relief.'] : ['ACOG & FDA gebelik güvenlik basamakları.', 'Yüksek riskli ağrı kesici ve ilaç uyarıları.', 'Kanıta dayalı ilaçsız doğal rahatlatıcılar.'], 'card_health_report', '#166534'],
     bloodPressure: [isEn ? 'Cardiovascular & Preeclampsia Tracker' : 'Kardiyovasküler & Preeklampsi Takipçisi', isEn ? ['Log systolic/diastolic & pulse.', 'Screen for preeclampsia red flags.', 'Share instant clinical WhatsApp logs.'] : ['Büyük, küçük tansiyon ve nabız kaydet.', 'Preeklampsi alarm belirtilerini denetle.', 'Doktoruna WhatsApp ile tek tıkla raporla.'], 'card_blood_pressure', '#D92D20'],
     doctorReport: [isEn ? 'Physician-ready clinical summary' : 'Hekime hazır klinik muayene özeti', isEn ? ['Aggregate kicks, weight curve & vitals.', 'Mark discussed visit questions.', 'Share instantly via WhatsApp or print.'] : ['Tekme, kilo eğrisi ve tansiyonu birleştir.', 'Görüşülen soruları kontrol et.', 'WhatsApp veya PDF ile hekimine ilet.'], 'card_doctor_report', '#583D7A'],
     vaccineCalendar: [isEn ? '0-24 month pediatric schedule' : '0-24 ay pediatrik aşı takvimi', isEn ? ['Ministry of Health & WHO schedule.', 'Home fever and comfort care guidance.', 'Track administered doses & dates.'] : ['Sağlık Bakanlığı & DSÖ rutin takvimi.', 'Aşı sonrası ateş ve bakım rehberi.', 'Uygulanan aşıları ve tarihleri kaydet.'], 'card_vaccine_calendar', '#2B7CB0'],
@@ -156,6 +168,10 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     'vaccineCalendar',
     'storyStudio',
     'bloodPressure',
+    'bloodGlucose',
+    'babyTeething',
+    'sleepWindow',
+    'safeMedication',
     'toolsHub',
     'profile',
     'notifications',
@@ -386,6 +402,10 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     {kind==='bloodPressure'&&<BloodPressureScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
     {kind==='vaccineCalendar'&&<VaccineCalendarScreen state={state} update={update} toast={showToast} lang={lang}/>}
     {kind==='storyStudio'&&<StoryStudioScreen state={state} update={update} toast={showToast} lang={lang}/>}
+    {kind==='bloodGlucose'&&<BloodGlucoseScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
+    {kind==='babyTeething'&&<BabyTeethingScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
+    {kind==='sleepWindow'&&<SleepWindowScreen state={state} update={update} toast={showToast} close={close} open={open} lang={lang}/>}
+    {kind==='safeMedication'&&<SafeMedicationScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
     {kind==='notifications'&&<NotificationSettingsScreen toast={showToast} lang={lang} week={state.week||24} close={close}/>}
     {kind==='legal'&&<LegalScreen initialTab={data?.tab||'privacy'} lang={lang} close={close}/>}
     {!!error&&<T accessibilityRole="alert" style={{color:'#A95769',marginTop:12}}>{error}</T>}

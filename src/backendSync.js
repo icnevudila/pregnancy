@@ -482,3 +482,11 @@ export async function saveBloodPressureCloud(reading) {
   return saveTrackingEvent('blood_pressure', reading);
 }
 
+export async function saveBloodGlucoseCloud(reading) {
+  return saveTrackingEvent('blood_glucose', reading);
+}
+
+export async function saveBabyTeethCloud(teethData) {
+  return saveTrackingEvent('baby_teeth', teethData);
+}
+

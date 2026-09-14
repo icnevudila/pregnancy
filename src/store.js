@@ -358,12 +358,14 @@ export function useMomoraStore() {
       vitals: {
         weights: state.weights || [],
         bloodPressureLogs: state.bloodPressureLogs || [],
+        bloodGlucoseLogs: state.bloodGlucoseLogs || [],
         kickSessions: state.kickSessions || [],
         contractionSessions: state.contractionSessions || [],
         waterGlasses: state.waterGlasses || state.water || 8,
       },
       care: {
         babyVaccines: state.babyVaccines || {},
+        babyTeeth: state.babyTeeth || {},
         doctorReports: state.doctorReports || [],
         savedStoryCards: state.savedStoryCards || [],
         notes: state.notes || [],
