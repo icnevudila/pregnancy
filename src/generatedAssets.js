@@ -99,6 +99,7 @@ export const generatedAssets = {
   'card_hospital_bag': require('../assets/card_hospital_bag.png'),
   'card_kick_counter': require('../assets/card_kick_counter.png'),
   'card_pelvic_kegel': require('../assets/card_pelvic_kegel.png'),
+  'card_safe_medication': require('../assets/card_safe_medication.png'),
   'card_scale': require('../assets/card_scale.png'),
   'card_sleep_window': require('../assets/card_sleep_window.png'),
   'card_solid_foods': require('../assets/card_solid_foods.png'),

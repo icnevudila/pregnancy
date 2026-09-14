@@ -139,7 +139,7 @@ export function getAllTools(lang = 'tr') {
       title: isEn ? 'Safe Medication Guide' : 'Güvenli İlaç & Belirti Kılavuzu',
       subtitle: isEn ? 'FDA/ACOG pregnancy safety tiers & natural relief' : 'Gebelikte güvenli ilaçlar ve doğal çözümler',
       icon: 'shield',
-      art: 'card_health_report',
+      art: 'card_safe_medication',
       color: '#F0FDF4',
       tint: '#166534',
       available: true,
