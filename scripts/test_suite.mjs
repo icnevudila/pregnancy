@@ -736,8 +736,48 @@ console.log('--- RUNNING MOMORA AUTOMATED TEST SUITE ---');
   console.log('✓ Offline Queue Execution for all 6 trackers passed.');
 }
 
+// 18. Luxury Feature Suite (Doctor Visit Dossier, 0-24m Vaccine Calendar, 9:16 Story Studio)
+{
+  console.log('Testing Luxury Feature Suite...');
+  const fs = await import('node:fs');
+
+  const toolsHubSrc = fs.readFileSync(new URL('../src/ToolsHub.js', import.meta.url), 'utf8');
+  assert(toolsHubSrc.includes("'doctorReport'"), 'doctorReport must be defined in ToolsHub.js');
+  assert(toolsHubSrc.includes("'vaccineCalendar'"), 'vaccineCalendar must be defined in ToolsHub.js');
+  assert(toolsHubSrc.includes("'storyStudio'"), 'storyStudio must be defined in ToolsHub.js');
+  assert(toolsHubSrc.includes("'card_doctor_report'"), 'card_doctor_report asset must be used in ToolsHub.js');
+  assert(toolsHubSrc.includes("'card_vaccine_calendar'"), 'card_vaccine_calendar asset must be used in ToolsHub.js');
+  assert(toolsHubSrc.includes("'card_story_studio'"), 'card_story_studio asset must be used in ToolsHub.js');
+
+  const detailSheetSrc = fs.readFileSync(new URL('../src/DetailSheet.js', import.meta.url), 'utf8');
+  assert(detailSheetSrc.includes("import { DoctorReportScreen }"), 'DoctorReportScreen must be imported in DetailSheet.js');
+  assert(detailSheetSrc.includes("import { VaccineCalendarScreen }"), 'VaccineCalendarScreen must be imported in DetailSheet.js');
+  assert(detailSheetSrc.includes("import { StoryStudioScreen }"), 'StoryStudioScreen must be imported in DetailSheet.js');
+  assert(detailSheetSrc.includes("'doctorReport'"), 'doctorReport must be in FULL_SCREEN_KINDS');
+  assert(detailSheetSrc.includes("'vaccineCalendar'"), 'vaccineCalendar must be in FULL_SCREEN_KINDS');
+  assert(detailSheetSrc.includes("'storyStudio'"), 'storyStudio must be in FULL_SCREEN_KINDS');
+  assert(detailSheetSrc.includes("<DoctorReportScreen"), 'DoctorReportScreen must be rendered in DetailSheet.js');
+  assert(detailSheetSrc.includes("<VaccineCalendarScreen"), 'VaccineCalendarScreen must be rendered in DetailSheet.js');
+  assert(detailSheetSrc.includes("<StoryStudioScreen"), 'StoryStudioScreen must be rendered in DetailSheet.js');
+
+  const generatedAssetsSrc = fs.readFileSync(new URL('../src/generatedAssets.js', import.meta.url), 'utf8');
+  assert(generatedAssetsSrc.includes("'card_doctor_report'"), 'card_doctor_report must be registered in generatedAssets.js');
+  assert(generatedAssetsSrc.includes("'card_vaccine_calendar'"), 'card_vaccine_calendar must be registered in generatedAssets.js');
+  assert(generatedAssetsSrc.includes("'card_story_studio'"), 'card_story_studio must be registered in generatedAssets.js');
+
+  // Verify assets exist on disk
+  assert(fs.existsSync(new URL('../assets/card_doctor_report.png', import.meta.url)), 'card_doctor_report.png must exist');
+  assert(fs.existsSync(new URL('../assets/card_vaccine_calendar.png', import.meta.url)), 'card_vaccine_calendar.png must exist');
+  assert(fs.existsSync(new URL('../assets/card_story_studio.png', import.meta.url)), 'card_story_studio.png must exist');
+  assert(fs.existsSync(new URL('../src/DoctorReportScreen.js', import.meta.url)), 'DoctorReportScreen.js must exist');
+  assert(fs.existsSync(new URL('../src/VaccineCalendarScreen.js', import.meta.url)), 'VaccineCalendarScreen.js must exist');
+  assert(fs.existsSync(new URL('../src/StoryStudioScreen.js', import.meta.url)), 'StoryStudioScreen.js must exist');
+
+  console.log('✓ Luxury Feature Suite (Doctor Report, Vaccine Calendar, Story Studio) passed.');
+}
+
 console.log('===============================================================');
-console.log('🎉 ALL MOMORA ROADMAP SPRINTS (0 THROUGH 13) PASSED SUCCESSFULLY 🎉');
+console.log('🎉 ALL MOMORA ROADMAP SPRINTS (0 THROUGH 13 + LUXURY SUITE) PASSED SUCCESSFULLY 🎉');
 console.log('===============================================================');
 
 

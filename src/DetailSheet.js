@@ -18,6 +18,9 @@ import { AuthModal } from './AuthScreens';
 import { NotificationSettingsScreen } from './NotificationSettingsScreen';
 import { MilkStashTrackerScreen, PartnerTaskBoardScreen } from './ExtraToolScreens';
 import { LegalScreen } from './LegalScreen';
+import { DoctorReportScreen } from './DoctorReportScreen';
+import { VaccineCalendarScreen } from './VaccineCalendarScreen';
+import { StoryStudioScreen } from './StoryStudioScreen';
 import { t } from './i18n/index.js';
 
 export default function DetailSheet({ sheet, close, state, update, addRecord, deleteTrackerRecord, undoLastAction, choose, open, toast, lang: propLang }) {
@@ -77,12 +80,20 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
   }
   const input=(label,value,onChange,props={})=><View style={{marginTop:16}}><T bold style={s.label}>{label}</T><TextInput accessibilityLabel={label} value={value} onChangeText={onChange} placeholderTextColor="#A79AA7" style={[s.input,props.multiline&&{minHeight:100,textAlignVertical:'top'}]} maxLength={props.multiline?1000:80} {...props}/></View>;
   const button=(label,onPress,secondary=false)=><Tap onPress={onPress} style={[s.button,secondary&&s.secondary]}><T bold style={{color:secondary?colors.purple:'white',fontSize:16}}>{label}</T></Tap>;
+  const customTitles = {
+    doctorReport: isEn ? 'Doctor Visit Dossier' : 'Doktor Muayene Raporu',
+    vaccineCalendar: isEn ? 'Baby Vaccine Calendar (0-24m)' : 'Aşı & Bağışıklık Takvimi',
+    storyStudio: isEn ? 'Story & Milestone Studio' : 'Hikaye & Paylaşım Stüdyosu',
+  };
   const rawTitle = t('sheets.titles.' + kind, lang);
   const sheetTitle = (rawTitle && rawTitle !== 'sheets.titles.' + kind)
     ? rawTitle
-    : (kind === 'log' ? (isEn ? `${data.type} entry` : `${data.type} kaydı`) : (kind === 'breathingGuide' ? (isEn ? 'Labor Breathing Guide' : 'Doğum Nefes & Gevşeme Rehberi') : kind));
+    : (customTitles[kind] || (kind === 'log' ? (isEn ? `${data.type} entry` : `${data.type} kaydı`) : (kind === 'breathingGuide' ? (isEn ? 'Labor Breathing Guide' : 'Doğum Nefes & Gevşeme Rehberi') : kind)));
 
   const premiumSheetIntro = {
+    doctorReport: [isEn ? 'Physician-ready clinical summary' : 'Hekime hazır klinik muayene özeti', isEn ? ['Aggregate kicks, weight curve & vitals.', 'Mark discussed visit questions.', 'Share instantly via WhatsApp or print.'] : ['Tekme, kilo eğrisi ve tansiyonu birleştir.', 'Görüşülen soruları kontrol et.', 'WhatsApp veya PDF ile hekimine ilet.'], 'card_doctor_report', '#583D7A'],
+    vaccineCalendar: [isEn ? '0-24 month pediatric schedule' : '0-24 ay pediatrik aşı takvimi', isEn ? ['Ministry of Health & WHO schedule.', 'Home fever and comfort care guidance.', 'Track administered doses & dates.'] : ['Sağlık Bakanlığı & DSÖ rutin takvimi.', 'Aşı sonrası ateş ve bakım rehberi.', 'Uygulanan aşıları ve tarihleri kaydet.'], 'card_vaccine_calendar', '#2B7CB0'],
+    storyStudio: [isEn ? '9:16 Instagram & WhatsApp Story Maker' : '9:16 Instagram & WhatsApp Hikaye Stüdyosu', isEn ? ['Weekly baby size & 3D comparison cards.', 'First kick & milestone badges.', 'Custom luxury pastel frames.'] : ['Haftalık boyut ve 3D kıyaslama kartları.', 'İlk tekme ve dönüm noktası rozetleri.', 'Kişiselleştirilebilir pastel şık çerçeveler.'], 'card_story_studio', '#B8507D'],
     journey: [isEn ? 'Choose the right journey' : 'Doğru yolculuğu seç', isEn ? ['Pick pregnancy, postpartum, or baby care.', 'Momora adjusts daily cards and tools.', 'You can change it later from profile.'] : ['Hamilelik, lohusalık veya bebek bakımını seç.', 'Momora günlük kartları ve araçları buna göre ayarlar.', 'Sonra profilden değiştirebilirsin.'], 'onboarding_fetal_journey', '#8A5BA4'],
     appointment: [isEn ? 'Prepare the visit cleanly' : 'Kontrolü düzenli hazırla', isEn ? ['Name the visit.', 'Add date and time.', 'Use reminders and doctor questions together.'] : ['Randevuyu adlandır.', 'Tarih ve saati ekle.', 'Hatırlatma ve doktor sorularını birlikte kullan.'], 'card_appointment', '#7B5FA3'],
     log: [isEn ? 'Add one clean care record' : 'Tek temiz bakım kaydı ekle', isEn ? ['Choose the right type.', 'Enter only the needed amount or duration.', 'Save it to the daily rhythm.'] : ['Doğru kayıt türünü seç.', 'Sadece gerekli miktar veya süreyi gir.', 'Günün ritmine kaydet.'], 'ui_nursing_dual_timer', '#B66C7E'],
@@ -138,6 +149,9 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     'postpartumCare',
     'milkStash',
     'partnerTasks',
+    'doctorReport',
+    'vaccineCalendar',
+    'storyStudio',
     'toolsHub',
     'profile',
     'notifications',
@@ -363,6 +377,10 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     {kind==='postpartumCare'&&<PostpartumSelfCareScreen state={state} update={update} toast={showToast} lang={lang}/>}
     {kind==='milkStash'&&<MilkStashTrackerScreen state={state} update={update} toast={showToast} lang={lang}/>}
     {kind==='partnerTasks'&&<PartnerTaskBoardScreen state={state} update={update} toast={showToast} lang={lang}/>}
+    {/* Yeni Nesil Lüks Modüller */}
+    {kind==='doctorReport'&&<DoctorReportScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
+    {kind==='vaccineCalendar'&&<VaccineCalendarScreen state={state} update={update} toast={showToast} lang={lang}/>}
+    {kind==='storyStudio'&&<StoryStudioScreen state={state} update={update} toast={showToast} lang={lang}/>}
     {kind==='notifications'&&<NotificationSettingsScreen toast={showToast} lang={lang} week={state.week||24} close={close}/>}
     {kind==='legal'&&<LegalScreen initialTab={data?.tab||'privacy'} lang={lang} close={close}/>}
     {!!error&&<T accessibilityRole="alert" style={{color:'#A95769',marginTop:12}}>{error}</T>}
