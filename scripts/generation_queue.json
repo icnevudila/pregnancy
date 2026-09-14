@@ -26,39 +26,13 @@
       "preferredPlatform": "gemini",
       "prompt": "Award-winning 3D clay illustration of a glowing stylized baby brain with sparkling golden neuronal connections, flanked by miniature soft pastel sun and rain cloud symbols representing developmental storm and calm leap phases, on a clean solid white background, warm pastel lavender palette, serene studio lighting, 8k render, no text, no watermarks",
       "transparent": true,
-      "status": "processing",
+      "status": "done",
       "attempts": 1,
       "createdAt": 1789422820528,
       "startedAt": 1789423138755,
-      "platform": "gemini"
-    },
-    {
-      "id": "job_bestseller_1789422820528_vz88",
-      "filename": "card_pelvic_kegel.png",
-      "category": "card",
-      "title": "Pelvik Taban Kegel & Perine Masajı Kartı",
-      "description": "3D pastel nilüfer çiçeği ve parıltılı ritmik nefes çemberi",
-      "preferredPlatform": "gemini",
-      "prompt": "Elegant luxury 3D clay style illustration of a blooming lavender and blush pink lotus flower with delicate dewdrops, surrounded by a soft glowing harmonic rhythm ring, symbolizing pelvic floor strength, calm diaphragmatic breathing and gentle birth preparation, on a clean solid white background, serene studio lighting, 8k render, no text, no watermarks",
-      "transparent": true,
-      "status": "processing",
-      "attempts": 1,
-      "createdAt": 1789422820528,
-      "startedAt": 1789423139189,
-      "platform": "chatgpt"
-    },
-    {
-      "id": "job_bestseller_1789422820528_7jmi",
-      "filename": "card_baby_milestones.png",
-      "category": "card",
-      "title": "CDC Gelişim Basamakları & Tummy Time Kartı",
-      "description": "3D sevimli kaplumbağa tummy time minderi, bebek aynası ve gelişim blokları",
-      "preferredPlatform": "gemini",
-      "prompt": "High-end 3D clay style illustration of a baby developmental milestone gym: a cute pastel mint-green soft turtle tummy time cushion, a safe baby mirror, and colorful milestone blocks (2, 4, 6), cute and reassuring pediatric aesthetic, soft studio lighting, on a clean solid white background, 8k render, no text, no watermarks",
-      "transparent": true,
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789422820528
+      "platform": "gemini",
+      "updatedAt": 1789423279779,
+      "thumb": "blob:https://gemini.google.com/f42b1cfa-376f-46ca-b7d6-008e65ac4d52"
     },
     {
       "id": "job_bestseller_1789422820527_kv8c",
@@ -69,9 +43,13 @@
       "preferredPlatform": "gemini",
       "prompt": "High-end 3D clay style illustration of a luxury baby growth tracking station: a cute pastel mint-green and rose-gold vintage baby weighing scale, a rolled soft pastel measuring tape, and milestone star blocks on a clean solid white background, cute and reassuring pediatric aesthetic, soft studio lighting, 8k render, no text, no watermarks",
       "transparent": true,
-      "status": "pending",
-      "attempts": 0,
-      "createdAt": 1789422820528
+      "status": "done",
+      "attempts": 1,
+      "createdAt": 1789422820528,
+      "startedAt": 1789423285630,
+      "platform": "chatgpt",
+      "updatedAt": 1789423329242,
+      "thumb": "https://chatgpt.com/backend-api/estuary/content?id=file_0000000029488210aa51150b89c417d7&ts=497062&p=fs&cid=1&sig=ce4086d2e45f6a862ce7cb83f75f593e0240988873b44da27c758faa06f31cad&v=0"
     },
     {
       "id": "job_onb_1789308803599_7",
@@ -2920,11 +2898,13 @@
       "preferredPlatform": "gemini",
       "prompt": "Luxury 3D clay illustration of pregnancy safe wellness and gentle relief: a pastel mint medical shield with a soft green botanical leaf emblem, a small amber medicine dropper bottle, and a soothing cup of chamomile herbal tea with steam, on a clean solid white background, serene soft lighting, 8k render, no text, no watermarks",
       "transparent": true,
-      "status": "pending",
-      "attempts": 3,
+      "status": "done",
+      "attempts": 5,
       "createdAt": 1789422820528,
-      "startedAt": 1789422971195,
-      "platform": "gemini"
+      "startedAt": 1789423436234,
+      "platform": "gemini",
+      "updatedAt": 1789423467981,
+      "thumb": "blob:https://gemini.google.com/cf7dbed0-51cf-46b9-a274-2a61aed71b6a"
     },
     {
       "id": "job_bestseller_1789422820528_49zi",
@@ -2935,11 +2915,47 @@
       "preferredPlatform": "gemini",
       "prompt": "High-end 3D clay style illustration of an elegant pastel lavender and rose-gold smart blood glucose glucometer monitor for pregnancy, showing a happy checkmark, a tiny test strip, and delicate droplet accent, clean solid white background, soft studio lighting, 8k render, no text, no watermarks",
       "transparent": true,
-      "status": "pending",
+      "status": "done",
+      "attempts": 3,
+      "createdAt": 1789422820528,
+      "startedAt": 1789423329387,
+      "platform": "chatgpt",
+      "updatedAt": 1789423367637,
+      "thumb": "https://chatgpt.com/backend-api/estuary/content?id=file_00000000b068821084b3d700900a826d&ts=497062&p=fs&cid=1&sig=20c7695c0005c95806c484673344b8b44c4ddee141dd7bcecbced0db50bf92f5&v=0"
+    },
+    {
+      "id": "job_bestseller_1789422820528_vz88",
+      "filename": "card_pelvic_kegel.png",
+      "category": "card",
+      "title": "Pelvik Taban Kegel & Perine Masajı Kartı",
+      "description": "3D pastel nilüfer çiçeği ve parıltılı ritmik nefes çemberi",
+      "preferredPlatform": "gemini",
+      "prompt": "Elegant luxury 3D clay style illustration of a blooming lavender and blush pink lotus flower with delicate dewdrops, surrounded by a soft glowing harmonic rhythm ring, symbolizing pelvic floor strength, calm diaphragmatic breathing and gentle birth preparation, on a clean solid white background, serene studio lighting, 8k render, no text, no watermarks",
+      "transparent": true,
+      "status": "done",
+      "attempts": 3,
+      "createdAt": 1789422820528,
+      "startedAt": 1789423469347,
+      "platform": "gemini",
+      "updatedAt": 1789423492110,
+      "thumb": "blob:https://gemini.google.com/2403d6a5-d3f9-402b-92f8-5a3c370b637f"
+    },
+    {
+      "id": "job_bestseller_1789422820528_7jmi",
+      "filename": "card_baby_milestones.png",
+      "category": "card",
+      "title": "CDC Gelişim Basamakları & Tummy Time Kartı",
+      "description": "3D sevimli kaplumbağa tummy time minderi, bebek aynası ve gelişim blokları",
+      "preferredPlatform": "gemini",
+      "prompt": "High-end 3D clay style illustration of a baby developmental milestone gym: a cute pastel mint-green soft turtle tummy time cushion, a safe baby mirror, and colorful milestone blocks (2, 4, 6), cute and reassuring pediatric aesthetic, soft studio lighting, on a clean solid white background, 8k render, no text, no watermarks",
+      "transparent": true,
+      "status": "done",
       "attempts": 2,
       "createdAt": 1789422820528,
-      "startedAt": 1789422989727,
-      "platform": "chatgpt"
+      "startedAt": 1789423280332,
+      "platform": "gemini",
+      "updatedAt": 1789423307652,
+      "thumb": "blob:https://gemini.google.com/eb691211-567c-4d8b-9f0a-709a5984df3c"
     },
     {
       "id": "job_bestseller_1789422820528_eptd",
@@ -2950,11 +2966,13 @@
       "preferredPlatform": "gemini",
       "prompt": "Adorably styled luxury 3D clay illustration of baby first foods and BLW: a cute pastel sage-green silicone baby bowl with spoon, sliced fresh ripe avocado, steamed baby-cut soft carrot sticks, and banana slices, clean solid white background, gentle warm studio light, appetizing and wholesome baby nutrition, 8k render, no text, no watermarks",
       "transparent": true,
-      "status": "pending",
-      "attempts": 2,
+      "status": "done",
+      "attempts": 7,
       "createdAt": 1789422820528,
-      "startedAt": 1789423014059,
-      "platform": "gemini"
+      "startedAt": 1789423640779,
+      "platform": "chatgpt",
+      "updatedAt": 1789423687603,
+      "thumb": "https://chatgpt.com/backend-api/estuary/content?id=file_00000000402c8210a6df89ad341bc383&ts=497062&p=fs&cid=1&sig=b099335bdd984cc647cca038140434c3a73622b6df58f7bb456e4d3a6795f26f&v=0"
     }
   ]
 }
