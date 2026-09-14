@@ -366,6 +366,7 @@ export function useMomoraStore() {
       care: {
         babyVaccines: state.babyVaccines || {},
         babyTeeth: state.babyTeeth || {},
+        solidFoodLogs: state.solidFoodLogs || {},
         doctorReports: state.doctorReports || [],
         savedStoryCards: state.savedStoryCards || [],
         notes: state.notes || [],

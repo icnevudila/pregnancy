@@ -26,6 +26,8 @@ import { BloodGlucoseScreen } from './BloodGlucoseScreen';
 import { BabyTeethingScreen } from './BabyTeethingScreen';
 import { SleepWindowScreen } from './SleepWindowScreen';
 import { SafeMedicationScreen } from './SafeMedicationScreen';
+import { WonderWeeksScreen } from './WonderWeeksScreen';
+import { SolidFoodsScreen } from './SolidFoodsScreen';
 import { t } from './i18n/index.js';
 
 export default function DetailSheet({ sheet, close, state, update, addRecord, deleteTrackerRecord, undoLastAction, choose, open, toast, lang: propLang }) {
@@ -94,6 +96,8 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     babyTeething: isEn ? 'Baby Teething Chart & Milestones' : 'Bebek Diş Çıkarma Haritası',
     sleepWindow: isEn ? 'Sleep Window & SweetSpot™' : 'Akıllı Uyku Penceresi (SweetSpot)',
     safeMedication: isEn ? 'Safe Medication & Symptom Guide' : 'Gebelikte Güvenli İlaç & Belirti Kılavuzu',
+    wonderWeeks: isEn ? 'Wonder Weeks & Mental Leaps' : 'Harika Haftalar & Atak Takvimi',
+    solidFoods: isEn ? 'BLW & 100 First Foods' : 'BLW & 100 İlk Besin Takibi',
   };
   const rawTitle = t('sheets.titles.' + kind, lang);
   const sheetTitle = (rawTitle && rawTitle !== 'sheets.titles.' + kind)
@@ -101,6 +105,8 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     : (customTitles[kind] || (kind === 'log' ? (isEn ? `${data.type} entry` : `${data.type} kaydı`) : (kind === 'breathingGuide' ? (isEn ? 'Labor Breathing Guide' : 'Doğum Nefes & Gevşeme Rehberi') : kind)));
 
   const premiumSheetIntro = {
+    wonderWeeks: [isEn ? 'The Wonder Weeks 10 Developmental Leaps' : '10 Zihinsel Gelişim Sıçraması', isEn ? ['Predict fussy stormy periods & sunny phases.', 'Understand infant brain rewiring.', 'Age-appropriate stimulating games.'] : ['Fırtınalı huysuzluk ve güneşli sakin dönemler.', 'Bebek beynindeki yeni nöronal sıçramalar.', 'Gelişimi destekleyen eğlenceli duyusal oyunlar.'], 'card_wonder_leaps', '#7E22CE'],
+    solidFoods: [isEn ? 'BLW & 100 First Foods Guide' : 'BLW & 100 İlk Besin Kılavuzu', isEn ? ['Pediatric 3-day allergy waiting rule.', 'Gagging vs silent choking first aid.', 'Track 100 nutrient-rich baby foods.'] : ['3 gün bekleme alerji izolasyon kuralı.', 'Öğürme ile sessiz boğulma ilk yardım ayrımı.', '100 besleyici gıdayı adım adım takip et.'], 'card_solid_foods', '#15803D'],
     bloodGlucose: [isEn ? 'Gestational Diabetes & Glucose Log' : 'Gestasyonel Diyabet & Şeker Takibi', isEn ? ['Fasting & postprandial ADA targets.', 'Rule of 15 hypoglycemia safety alert.', '24-28w OGTT diagnostic guidelines.'] : ['Açlık ve tokluk ADA hedef değerleri.', '15 kuralı düşük şeker güvenlik uyarısı.', '24-28. hafta OGTT test rehberi.'], 'card_blood_glucose', '#7C3AED'],
     babyTeething: [isEn ? 'Pediatric 20-Tooth Dental Arch' : '20 Süt Dişi Pediatrik Haritası', isEn ? ['Interactive eruption status & milestones.', 'Differentiate teething from fever illness.', 'Safe cooling & gum relief methods.'] : ['İnteraktif diş patlama haritası ve tarihleri.', 'Diş belirtileri ile ateşli hastalık ayrımı.', 'Güvenli soğutma ve diş eti masajı yöntemleri.'], 'card_baby_teething', '#059669'],
     sleepWindow: [isEn ? 'Age-Indexed Wake Windows & SweetSpot™' : 'Yaşa Uygun Uyanıklık Pencereleri & SweetSpot', isEn ? ['Prevents overtiredness & nap struggles.', 'Optimal next nap time prediction.', '15-minute wind-down bedtime ritual.'] : ['Aşırı yorgunluğu ve ağlama krizlerini önler.', 'Bir sonraki ideal uyku saatini tahmin eder.', '15 dakikalık uykuya geçiş sakinleşme rutini.'], 'card_sleep_window', '#6D28D9'],
@@ -172,6 +178,8 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     'babyTeething',
     'sleepWindow',
     'safeMedication',
+    'wonderWeeks',
+    'solidFoods',
     'toolsHub',
     'profile',
     'notifications',
@@ -406,6 +414,8 @@ export default function DetailSheet({ sheet, close, state, update, addRecord, de
     {kind==='babyTeething'&&<BabyTeethingScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
     {kind==='sleepWindow'&&<SleepWindowScreen state={state} update={update} toast={showToast} close={close} open={open} lang={lang}/>}
     {kind==='safeMedication'&&<SafeMedicationScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
+    {kind==='wonderWeeks'&&<WonderWeeksScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
+    {kind==='solidFoods'&&<SolidFoodsScreen state={state} update={update} toast={showToast} close={close} lang={lang}/>}
     {kind==='notifications'&&<NotificationSettingsScreen toast={showToast} lang={lang} week={state.week||24} close={close}/>}
     {kind==='legal'&&<LegalScreen initialTab={data?.tab||'privacy'} lang={lang} close={close}/>}
     {!!error&&<T accessibilityRole="alert" style={{color:'#A95769',marginTop:12}}>{error}</T>}

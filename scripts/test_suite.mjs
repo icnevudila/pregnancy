@@ -1,4 +1,5 @@
 import assert from 'node:assert';
+import fs from 'node:fs';
 import { resolveJourneyState, calculateDueDateFromWeek, calculatePregnancyProgress, calculatePostpartumProgress } from '../src/domain/journeyState.js';
 import {
   createTrackerRecord,
@@ -905,6 +906,55 @@ console.log('--- RUNNING MOMORA AUTOMATED TEST SUITE ---');
   assert(smSrc.includes('Paracetamol') || smSrc.includes('Parasetamol'), 'SafeMedicationScreen must include Paracetamol');
 
   console.log('✓ Bestseller Suite (Blood Glucose, Teething, Sleep Window, Safe Meds) passed.');
+}
+
+// 21. Bestseller Pediatric Suite: The Wonder Weeks™ & Solid Foods BLW 100 Foods
+{
+  console.log('Testing Bestseller Pediatric Suite (Wonder Weeks Mental Leaps, Solid Foods BLW)...');
+
+  // Asset validation
+  assert(fs.existsSync(new URL('../assets/card_wonder_leaps.png', import.meta.url)), 'card_wonder_leaps.png must exist');
+  assert(fs.existsSync(new URL('../assets/card_solid_foods.png', import.meta.url)), 'card_solid_foods.png must exist');
+
+  const genAssets = fs.readFileSync(new URL('../src/generatedAssets.js', import.meta.url), 'utf8');
+  assert(genAssets.includes("'card_wonder_leaps'"), 'card_wonder_leaps must be registered in generatedAssets.js');
+  assert(genAssets.includes("'card_solid_foods'"), 'card_solid_foods must be registered in generatedAssets.js');
+
+  // ToolsHub registration
+  const toolsHubSrc = fs.readFileSync(new URL('../src/ToolsHub.js', import.meta.url), 'utf8');
+  assert(toolsHubSrc.includes("'wonderWeeks'"), 'wonderWeeks must be registered in ToolsHub.js');
+  assert(toolsHubSrc.includes("'solidFoods'"), 'solidFoods must be registered in ToolsHub.js');
+
+  // DetailSheet registration & rendering
+  const detailSheetSrc = fs.readFileSync(new URL('../src/DetailSheet.js', import.meta.url), 'utf8');
+  assert(detailSheetSrc.includes('import { WonderWeeksScreen }'), 'WonderWeeksScreen must be imported in DetailSheet.js');
+  assert(detailSheetSrc.includes('import { SolidFoodsScreen }'), 'SolidFoodsScreen must be imported in DetailSheet.js');
+  assert(detailSheetSrc.includes("'wonderWeeks'"), 'wonderWeeks must be in FULL_SCREEN_KINDS');
+  assert(detailSheetSrc.includes("'solidFoods'"), 'solidFoods must be in FULL_SCREEN_KINDS');
+  assert(detailSheetSrc.includes('<WonderWeeksScreen'), 'WonderWeeksScreen must be rendered in DetailSheet.js');
+  assert(detailSheetSrc.includes('<SolidFoodsScreen'), 'SolidFoodsScreen must be rendered in DetailSheet.js');
+
+  // Store data export inclusion
+  const storeSrc = fs.readFileSync(new URL('../src/store.js', import.meta.url), 'utf8');
+  assert(storeSrc.includes('solidFoodLogs'), 'store.js must handle solidFoodLogs in exportAllUserData');
+
+  // WonderWeeksScreen logic verification
+  const wwSrc = fs.readFileSync(new URL('../src/WonderWeeksScreen.js', import.meta.url), 'utf8');
+  assert(wwSrc.includes('WONDER_LEAPS'), 'WonderWeeksScreen must export WONDER_LEAPS');
+  assert(wwSrc.includes('babyAgeWeeks') && (wwSrc.includes('dueDateStr') || wwSrc.includes('gestational')), 'WonderWeeksScreen must calculate gestational age from due date');
+  assert(wwSrc.includes('stormy') || wwSrc.includes('fırtınalı'), 'WonderWeeksScreen must track stormy/fussy leap phases');
+  assert(wwSrc.includes('sunny') || wwSrc.includes('güneşli'), 'WonderWeeksScreen must track sunny leap phases');
+  assert(wwSrc.toLowerCase().includes('crying') || wwSrc.includes('ağlama'), 'WonderWeeksScreen must include 3 Cs signals');
+
+  // SolidFoodsScreen logic verification
+  const sfSrc = fs.readFileSync(new URL('../src/SolidFoodsScreen.js', import.meta.url), 'utf8');
+  assert(sfSrc.includes('FIRST_100_FOODS'), 'SolidFoodsScreen must export FIRST_100_FOODS');
+  assert(sfSrc.includes('3 Gün') || sfSrc.includes('3-Day'), 'SolidFoodsScreen must enforce 3-day allergy waiting rule');
+  assert(sfSrc.includes('Heimlich') || sfSrc.includes('Tıkanma'), 'SolidFoodsScreen must include emergency choking protocol');
+  assert(sfSrc.includes('Öğürme') || sfSrc.includes('Gagging'), 'SolidFoodsScreen must differentiate gagging reflex from choking');
+  assert(sfSrc.includes('Bal') || sfSrc.includes('Honey'), 'SolidFoodsScreen must alert against infant botulism/honey');
+
+  console.log('✓ Bestseller Pediatric Suite (Wonder Weeks Leaps & Solid Foods BLW) passed.');
 }
 
 console.log('===============================================================');
