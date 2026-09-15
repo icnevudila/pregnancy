@@ -139,7 +139,7 @@ function Momora() {
       }
     });
     return () => listener?.subscription?.unsubscribe();
-  }, [page, sheet, state.mode, lang]);
+  }, []);
 
   useEffect(() => {
     let sub = null;

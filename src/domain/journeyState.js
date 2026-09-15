@@ -124,9 +124,38 @@ export function calculateDueDateFromWeek(week = 24, day = 0) {
  */
 export function resolveJourneyState(state) {
   const mode = state?.mode || 'pregnancy';
-  const dueDate = state?.dueDate || state?.pregnancy?.dueDate || '2026-07-24';
+  let dueDate = state?.dueDate || state?.pregnancy?.dueDate;
+  const currentWeek = Number(state?.week || state?.pregnancy?.week || 24);
+
+  // Validate dueDate: if missing, invalid or in the past while pregnancy is active
+  let isPastOrInvalid = false;
+  if (dueDate && /^\d{4}-\d{2}-\d{2}$/.test(dueDate)) {
+    const dueTime = new Date(dueDate + 'T12:00:00Z').getTime();
+    if (isNaN(dueTime) || dueTime <= Date.now()) {
+      isPastOrInvalid = true;
+    }
+  } else {
+    isPastOrInvalid = true;
+  }
+
+  if (isPastOrInvalid && currentWeek < 40) {
+    dueDate = calculateDueDateFromWeek(currentWeek, 0);
+  }
+
   const birthDate = state?.birthDate || state?.baby?.birthDate || '2026-03-01';
-  const preg = calculatePregnancyProgress(dueDate);
+  let preg = calculatePregnancyProgress(dueDate);
+
+  // Safeguard: Active pregnancy under 40 weeks should always have positive daysRemaining
+  if (preg.daysRemaining <= 0 && currentWeek < 40) {
+    const expectedRemaining = Math.max(1, (40 - currentWeek) * 7);
+    preg = {
+      ...preg,
+      week: currentWeek,
+      daysRemaining: expectedRemaining,
+      isOverdue: false,
+    };
+  }
+
   const post = calculatePostpartumProgress(birthDate);
   const babyAge = calculateBabyAge(birthDate, state?.lang || 'tr');
 
@@ -138,7 +167,7 @@ export function resolveJourneyState(state) {
     babyAge,
     dueDate,
     birthDate,
-    week: preg.week,
+    week: currentWeek || preg.week,
     day: preg.day,
     daysRemaining: preg.daysRemaining,
     percent: preg.percent,

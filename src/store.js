@@ -173,8 +173,9 @@ export function useMomoraStore() {
           setCloudStatus('Bulut kaydı okunamadı; yerel kayıtla devam ediliyor.');
           setSyncState('offline');
         } else if (cloud?.state) {
-          // Merge local guest updates with cloud snapshot so nothing is lost
-          const merged = migrateState({ ...cloud.state, ...nextState }, initialState);
+          // Merge local guest updates with cloud snapshot so nothing is lost, preserving active language
+          const activeLang = nextState?.lang || 'tr';
+          const merged = migrateState({ ...cloud.state, ...nextState, lang: activeLang }, initialState);
           setState(merged);
           saveStateToLocalDisk(merged);
           setCloudStatus('Bulut kaydı bu cihaza indirildi.');
@@ -243,7 +244,8 @@ export function useMomoraStore() {
       return { error: cloud.error };
     }
     if (cloud.state) {
-      const nextState = migrateState({ ...cloud.state, ...state }, initialState);
+      const activeLang = state?.lang || 'tr';
+      const nextState = migrateState({ ...cloud.state, ...state, lang: activeLang }, initialState);
       setState(nextState);
       saveStateToLocalDisk(nextState);
       setCloudStatus('Bulut kaydı bu cihaza indirildi.');

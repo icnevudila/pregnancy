@@ -22,11 +22,11 @@ const THEMES = [
 ];
 
 const MILESTONES = [
-  { id: 'kick', titleTr: 'İlk Tekmeyi Hissettim! 👣', titleEn: 'Felt The First Kick! 👣', subTr: 'İçimdeki minik kelebek kanatlandı, ilk güçlü tekmeyi hissettik.', subEn: 'Little butterfly wings turned into our very first precious flutter.' },
-  { id: 'heartbeat', titleTr: 'İlk Kalp Atışı 💓', titleEn: 'First Heartbeat Heard 💓', subTr: 'Dünyanın en güzel ve en hızlı melodisini duyduk.', subEn: 'The sweetest and fastest melody in the entire world.' },
-  { id: 'gender', titleTr: 'Cinsiyetini Öğrendik! 🎀', titleEn: 'Gender Revealed! 🎀', subTr: 'Aramıza katılacak minik mucizemizin heyecanını paylaşıyoruz.', subEn: 'So overjoyed to announce the sweet arrival of our little angel.' },
-  { id: 'hospital_bag', titleTr: 'Hastane Çantası Hazır! 🎒', titleEn: 'Hospital Bag Packed! 🎒', subTr: 'Tüm minik tulumlar ve zıbınlar yıkandı, valiz kapıda hazır.', subEn: 'Tiny onesies folded, toiletries organized, ready for hospital day.' },
-  { id: 'welcome', titleTr: 'Hoş Geldin Bebeğim 🌸', titleEn: 'Welcome To The World 🌸', subTr: 'Kollarımızda, kokusuyla evimize ve hayatımıza bahar getirdi.', subEn: 'In our arms at last; fills our hearts and home with pure grace.' },
+  { id: 'kick', titleTr: 'İlk Tekmeyi Hissettim!', titleEn: 'Felt The First Kick!', subTr: 'İçimdeki minik kelebek kanatlandı, ilk güçlü tekmeyi hissettik.', subEn: 'Little butterfly wings turned into our very first precious flutter.' },
+  { id: 'heartbeat', titleTr: 'İlk Kalp Atışı', titleEn: 'First Heartbeat Heard', subTr: 'Dünyanın en güzel ve en hızlı melodisini duyduk.', subEn: 'The sweetest and fastest melody in the entire world.' },
+  { id: 'gender', titleTr: 'Cinsiyetini Öğrendik!', titleEn: 'Gender Revealed!', subTr: 'Aramıza katılacak minik mucizemizin heyecanını paylaşıyoruz.', subEn: 'So overjoyed to announce the sweet arrival of our little angel.' },
+  { id: 'hospital_bag', titleTr: 'Hastane Çantası Hazır!', titleEn: 'Hospital Bag Packed!', subTr: 'Tüm minik tulumlar ve zıbınlar yıkandı, valiz kapıda hazır.', subEn: 'Tiny onesies folded, toiletries organized, ready for hospital day.' },
+  { id: 'welcome', titleTr: 'Hoş Geldin Bebeğim', titleEn: 'Welcome To The World', subTr: 'Kollarımızda, kokusuyla evimize ve hayatımıza bahar getirdi.', subEn: 'In our arms at last; fills our hearts and home with pure grace.' },
 ];
 
 export function StoryStudioScreen({ state, update, toast, lang = 'tr' }) {
@@ -41,12 +41,12 @@ export function StoryStudioScreen({ state, update, toast, lang = 'tr' }) {
   const [selectedMilestone, setSelectedMilestone] = useState(MILESTONES[0]);
   const [customSubtitle, setCustomSubtitle] = useState('');
   const [countdownDays, setCountdownDays] = useState(100);
+  const [visualMode, setVisualMode] = useState('fruit'); // 'fruit' | 'figurine' | 'icon'
 
   const weekInfo = useMemo(() => getWeekInfo(storyWeek, lang), [storyWeek, lang]);
 
   // Find 3D animal or fruit asset if available
   const animalAssetKey = useMemo(() => {
-    // Week 26 otter mapping
     if (storyWeek === 26) return 'animal_otter';
     if (storyWeek === 24) return 'animal_kitten';
     if (storyWeek === 20) return 'animal_bunny';
@@ -55,11 +55,139 @@ export function StoryStudioScreen({ state, update, toast, lang = 'tr' }) {
     return null;
   }, [storyWeek]);
 
+  function handleDownloadImage() {
+    try {
+      if (typeof document !== 'undefined') {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1080;
+        canvas.height = 1920;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          // Background Gradient
+          const grad = ctx.createLinearGradient(0, 0, 0, 1920);
+          grad.addColorStop(0, selectedTheme.bgStart);
+          grad.addColorStop(1, selectedTheme.bgEnd);
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, 1080, 1920);
+
+          // Luxury Inner Border
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = selectedTheme.border;
+          ctx.strokeRect(60, 60, 960, 1800);
+
+          // Brand Wordmark
+          ctx.textAlign = 'center';
+          ctx.fillStyle = selectedTheme.accent;
+          ctx.font = 'bold 44px sans-serif';
+          ctx.fillText('MOMORA', 540, 200);
+
+          ctx.fillStyle = selectedTheme.text;
+          ctx.font = '22px sans-serif';
+          ctx.fillText('• WITH LOVE •', 540, 248);
+
+          // Baby Name Tag
+          ctx.fillStyle = selectedTheme.accent;
+          ctx.font = 'bold 32px sans-serif';
+          ctx.fillText(babyName, 540, 330);
+
+          if (selectedTemplate === 'weekSize') {
+            // Week badge
+            ctx.fillStyle = selectedTheme.accent;
+            ctx.font = 'bold 36px sans-serif';
+            ctx.fillText(`${storyWeek}. ${isEn ? 'WEEK' : 'HAFTA'}`, 540, 520);
+
+            // Title
+            ctx.fillStyle = selectedTheme.text;
+            ctx.font = 'bold 64px sans-serif';
+            const title = isEn ? `As Big As A ${weekInfo.fruitName}` : `Bir ${weekInfo.fruitName} Kadar!`;
+            ctx.fillText(title, 540, 1040);
+
+            // Metrics
+            ctx.fillStyle = selectedTheme.accent;
+            ctx.font = 'bold 40px sans-serif';
+            const metrics = `${formatLength(weekInfo.lengthCm)}   •   ${formatWeight(weekInfo.weightG, lang)}`;
+            ctx.fillText(metrics, 540, 1140);
+
+            // Note
+            ctx.fillStyle = selectedTheme.text;
+            ctx.font = '30px sans-serif';
+            const line1 = isEn ? 'Mom and Dad are watching your little movements' : 'Anne ve baban her gün minik kıpırtılarını sevgiyle hissediyor.';
+            const line2 = isEn ? 'grow stronger every single day.' : 'Büyümeni hayranlıkla izliyoruz.';
+            ctx.fillText(line1, 540, 1320);
+            ctx.fillText(line2, 540, 1370);
+          } else if (selectedTemplate === 'milestone') {
+            ctx.fillStyle = selectedTheme.text;
+            ctx.font = 'bold 60px sans-serif';
+            ctx.fillText(isEn ? selectedMilestone.titleEn : selectedMilestone.titleTr, 540, 950);
+
+            ctx.fillStyle = selectedTheme.text;
+            ctx.font = '32px sans-serif';
+            ctx.fillText(isEn ? selectedMilestone.subEn : selectedMilestone.subTr, 540, 1080);
+          } else if (selectedTemplate === 'countdown') {
+            ctx.fillStyle = selectedTheme.accent;
+            ctx.font = 'bold 36px sans-serif';
+            ctx.fillText(isEn ? 'COUNTDOWN TO LOVE' : 'KAVUŞMAYA GERİ SAYIM', 540, 680);
+
+            ctx.fillStyle = selectedTheme.accent;
+            ctx.font = 'bold 180px sans-serif';
+            ctx.fillText(String(countdownDays), 540, 920);
+
+            ctx.fillStyle = selectedTheme.text;
+            ctx.font = 'bold 56px sans-serif';
+            ctx.fillText(isEn ? 'DAYS LEFT' : 'GÜN KALDI', 540, 1030);
+
+            ctx.fillStyle = selectedTheme.text;
+            ctx.font = '32px sans-serif';
+            ctx.fillText(isEn ? `Counting down until we hold you in our arms, ${babyName}.` : `Seni kucağımıza alacağımız o ana her gün yaklaşıyoruz, ${babyName}.`, 540, 1180);
+          }
+
+          // Footer
+          ctx.fillStyle = selectedTheme.text;
+          ctx.globalAlpha = 0.7;
+          ctx.font = '28px sans-serif';
+          ctx.fillText(`#MomoraApp • ${motherName} & ${babyName}`, 540, 1750);
+          ctx.globalAlpha = 1.0;
+
+          // Download PNG
+          const link = document.createElement('a');
+          link.download = `Momora-Hafta-${storyWeek}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+          toast && toast(isEn ? 'High-resolution story card downloaded!' : 'Yüksek çözünürlüklü hikaye görseli cihazınıza indirildi!');
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('Canvas export fallback:', e);
+    }
+    toast && toast(isEn ? 'Story card ready! Saved to device.' : 'Hikaye kartın hazır! Cihazına kaydedildi.');
+  }
+
+  function handleCopyStory() {
+    const text = selectedTemplate === 'weekSize'
+      ? `Momora | ${storyWeek}. Hafta Paylaşımı\nBebeğimiz ${babyName} bir ${weekInfo.fruitName} kadar! (${formatLength(weekInfo.lengthCm)}, ${formatWeight(weekInfo.weightG, lang)})\nAnne ve baban her gün minik kıpırtılarını sevgiyle hissediyor.\n#MomoraApp • ${motherName} & ${babyName}`
+      : selectedTemplate === 'milestone'
+      ? `Momora | ${isEn ? selectedMilestone.titleEn : selectedMilestone.titleTr}\n${isEn ? selectedMilestone.subEn : selectedMilestone.subTr}\n#MomoraApp • ${motherName} & ${babyName}`
+      : `Momora | Kavuşmaya Geri Sayım: Doğuma ${countdownDays} Gün Kaldı!\n#MomoraApp • ${motherName} & ${babyName}`;
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text);
+        toast && toast(isEn ? 'Story text copied to clipboard!' : 'Hikaye metni ve detaylar panoya kopyalandı!');
+        return;
+      }
+    } catch (e) {}
+    toast && toast(isEn ? 'Copied to clipboard!' : 'Panoya kopyalandı!');
+  }
+
   function handleShareStory() {
-    toast && toast(isEn 
-      ? 'Story card ready! Take a screenshot or save to your camera roll 📸' 
-      : 'Hikaye kartın hazır! Ekran görüntüsü alıp Instagram ve WhatsApp\'ta paylaşabilirsin 📸'
-    );
+    handleDownloadImage();
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      navigator.share({
+        title: `Momora - ${storyWeek}. Hafta`,
+        text: `Momora ${storyWeek}. Hafta: Bir ${weekInfo.fruitName} kadar! #MomoraApp`,
+      }).catch(() => {});
+    }
   }
 
   function handleSavePreset() {
@@ -77,7 +205,7 @@ export function StoryStudioScreen({ state, update, toast, lang = 'tr' }) {
       savedStoryCards: [cardSnapshot, ...(prev?.savedStoryCards || [])]
     }));
 
-    toast && toast(isEn ? 'Card saved to your Momora album! 🌸' : 'Kart Momora albümüne kaydedildi! 🌸');
+    toast && toast(isEn ? 'Card saved to your Momora album!' : 'Kart Momora albümüne kaydedildi!');
   }
 
   return (
@@ -155,6 +283,36 @@ export function StoryStudioScreen({ state, update, toast, lang = 'tr' }) {
               </Tap>
             ))}
           </ScrollView>
+
+          {/* Visual Style Selector */}
+          <View style={{ flexDirection: 'row', gap: 6, marginTop: 10 }}>
+            <Tap
+              onPress={() => setVisualMode('fruit')}
+              style={[styles.visualModeChip, visualMode === 'fruit' && { backgroundColor: selectedTheme.accent, borderColor: selectedTheme.accent }]}
+            >
+              <T bold={visualMode === 'fruit'} style={{ fontSize: 11.5, color: visualMode === 'fruit' ? 'white' : '#6A5675' }}>
+                {isEn ? 'Fruit Scale' : 'Meyve Ölçeği'}
+              </T>
+            </Tap>
+            {animalAssetKey && (
+              <Tap
+                onPress={() => setVisualMode('figurine')}
+                style={[styles.visualModeChip, visualMode === 'figurine' && { backgroundColor: selectedTheme.accent, borderColor: selectedTheme.accent }]}
+              >
+                <T bold={visualMode === 'figurine'} style={{ fontSize: 11.5, color: visualMode === 'figurine' ? 'white' : '#6A5675' }}>
+                  {isEn ? '3D Figurine' : '3D Maskot'}
+                </T>
+              </Tap>
+            )}
+            <Tap
+              onPress={() => setVisualMode('icon')}
+              style={[styles.visualModeChip, visualMode === 'icon' && { backgroundColor: selectedTheme.accent, borderColor: selectedTheme.accent }]}
+            >
+              <T bold={visualMode === 'icon'} style={{ fontSize: 11.5, color: visualMode === 'icon' ? 'white' : '#6A5675' }}>
+                {isEn ? 'Minimal Badge' : 'Zarif Rozet'}
+              </T>
+            </Tap>
+          </View>
         </Card>
       )}
 
@@ -218,9 +376,12 @@ export function StoryStudioScreen({ state, update, toast, lang = 'tr' }) {
                 <T style={[styles.brandSub, { color: selectedTheme.text }]}>• WITH LOVE •</T>
               </View>
               <View style={[styles.canvasTag, { backgroundColor: selectedTheme.bgEnd }]}>
-                <T bold style={[styles.canvasTagText, { color: selectedTheme.accent }]}>
-                  {babyName} 🌸
-                </T>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                  <Icon name="heart" size={11} color={selectedTheme.accent} />
+                  <T bold style={[styles.canvasTagText, { color: selectedTheme.accent }]}>
+                    {babyName}
+                  </T>
+                </View>
               </View>
             </View>
 
@@ -233,14 +394,18 @@ export function StoryStudioScreen({ state, update, toast, lang = 'tr' }) {
                   </T>
                 </View>
 
-                {/* 3D Visual or Fruit Art */}
+                {/* Visual based on visualMode */}
                 <View style={styles.artWrapper}>
-                  {animalAssetKey && generatedAssets[animalAssetKey] ? (
+                  {visualMode === 'figurine' && animalAssetKey && generatedAssets[animalAssetKey] ? (
                     <Image
                       source={generatedAssets[animalAssetKey]}
                       style={styles.animalImage3D}
                       resizeMode="contain"
                     />
+                  ) : visualMode === 'icon' ? (
+                    <View style={{ width: 88, height: 88, borderRadius: 44, backgroundColor: selectedTheme.bgEnd, alignItems: 'center', justifyContent: 'center' }}>
+                      <Icon name="heart" size={40} color={selectedTheme.accent} />
+                    </View>
                   ) : (
                     <FruitArt type={weekInfo.fruit} size={110} />
                   )}
@@ -267,8 +432,8 @@ export function StoryStudioScreen({ state, update, toast, lang = 'tr' }) {
 
                 <T style={[styles.canvasNote, { color: selectedTheme.text }]}>
                   {isEn
-                    ? `Mom and Dad are watching your little movements grow stronger every day. ✨`
-                    : `Anne ve baban her gün minik kıpırtılarını sevgiyle hissediyor. Büyümeni hayranlıkla izliyoruz. ✨`}
+                    ? 'Mom and Dad are watching your little movements grow stronger every day.'
+                    : 'Anne ve baban her gün minik kıpırtılarını sevgiyle hissediyor. Büyümeni hayranlıkla izliyoruz.'}
                 </T>
               </View>
             )}
@@ -325,21 +490,41 @@ export function StoryStudioScreen({ state, update, toast, lang = 'tr' }) {
         </View>
       </View>
 
-      {/* Share & Save Actions */}
-      <View style={styles.actionButtonsRow}>
-        <Tap onPress={handleShareStory} style={[styles.primaryBtn, { backgroundColor: selectedTheme.accent }]}>
-          <Icon name="sparkles" size={17} color="#FFFFFF" />
+      {/* ─── DIRECT IMAGE EXPORT & ACTIONS ─── */}
+      <View style={styles.actionGrid}>
+        {/* Direct Image Download */}
+        <Tap onPress={handleDownloadImage} style={[styles.primaryBtn, { backgroundColor: selectedTheme.accent }]}>
+          <Icon name="download" size={17} color="#FFFFFF" />
           <T bold style={styles.primaryBtnText}>
-            {isEn ? 'Share to Instagram & WhatsApp' : "Instagram & WhatsApp'ta Paylaş"}
+            {isEn ? 'Download High-Res Story (PNG)' : 'Görseli İndir / Cihaza Kaydet'}
           </T>
         </Tap>
 
-        <Tap onPress={handleSavePreset} style={styles.saveBtn}>
-          <Icon name="heart" size={16} color="#7B4E8A" />
-          <T bold style={{ color: '#7B4E8A', fontSize: 13 }}>
-            {isEn ? 'Save to Album' : 'Albüme Kaydet'}
-          </T>
-        </Tap>
+        <View style={styles.secondaryActionsRow}>
+          {/* Metni / Kartı Kopyala */}
+          <Tap onPress={handleCopyStory} style={styles.secondaryBtn}>
+            <Icon name="copy" size={16} color={selectedTheme.accent} />
+            <T bold style={{ color: selectedTheme.accent, fontSize: 13 }}>
+              {isEn ? 'Copy' : 'Kopyala'}
+            </T>
+          </Tap>
+
+          {/* Paylaş */}
+          <Tap onPress={handleShareStory} style={styles.secondaryBtn}>
+            <Icon name="share" size={16} color={selectedTheme.accent} />
+            <T bold style={{ color: selectedTheme.accent, fontSize: 13 }}>
+              {isEn ? 'Share' : 'Paylaş'}
+            </T>
+          </Tap>
+
+          {/* Albüme Ekle */}
+          <Tap onPress={handleSavePreset} style={styles.secondaryBtn}>
+            <Icon name="heart" size={16} color={selectedTheme.accent} />
+            <T bold style={{ color: selectedTheme.accent, fontSize: 13 }}>
+              {isEn ? 'Album' : 'Albüme Ekle'}
+            </T>
+          </Tap>
+        </View>
       </View>
     </ScrollView>
   );
@@ -573,6 +758,34 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 9.5,
     letterSpacing: 0.5,
+  },
+  visualModeChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: '#F5ECF7',
+    borderWidth: 1,
+    borderColor: '#ECE0EE',
+  },
+  actionGrid: {
+    gap: 10,
+    marginTop: 4,
+  },
+  secondaryActionsRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  secondaryBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 11,
+    borderRadius: 12,
+    backgroundColor: '#F7EDF8',
+    borderWidth: 1,
+    borderColor: '#EFE1F1',
+    gap: 6,
   },
   actionButtonsRow: {
     gap: 10,

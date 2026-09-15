@@ -388,26 +388,29 @@ export function BabyMilestonesScreen({ state, update, toast, close, lang: propLa
       <View style={styles.tabBar}>
         <Tap
           onPress={() => setActiveTab('milestones')}
-          style={[styles.tabBtn, activeTab === 'milestones' && styles.tabBtnActive]}
+          style={[styles.tabBtn, activeTab === 'milestones' && styles.tabBtnActive, { flexDirection: 'row', gap: 5, justifyContent: 'center' }]}
         >
+          <Icon name="check" size={14} color={activeTab === 'milestones' ? colors.primary : colors.textMuted} />
           <T bold={activeTab === 'milestones'} style={{ color: activeTab === 'milestones' ? colors.primary : colors.textMuted, fontSize: 13 }}>
             {isEn ? 'Milestones' : 'Gelişim'}
           </T>
         </Tap>
         <Tap
           onPress={() => setActiveTab('tummy')}
-          style={[styles.tabBtn, activeTab === 'tummy' && styles.tabBtnActive]}
+          style={[styles.tabBtn, activeTab === 'tummy' && styles.tabBtnActive, { flexDirection: 'row', gap: 5, justifyContent: 'center' }]}
         >
+          <Icon name="timer" size={14} color={activeTab === 'tummy' ? colors.primary : colors.textMuted} />
           <T bold={activeTab === 'tummy'} style={{ color: activeTab === 'tummy' ? colors.primary : colors.textMuted, fontSize: 13 }}>
-            ⏱️ {isEn ? 'Tummy Time' : 'Tummy Time'}
+            {isEn ? 'Tummy Time' : 'Tummy Time'}
           </T>
         </Tap>
         <Tap
           onPress={() => setActiveTab('redflags')}
-          style={[styles.tabBtn, activeTab === 'redflags' && styles.tabBtnActive]}
+          style={[styles.tabBtn, activeTab === 'redflags' && styles.tabBtnActive, { flexDirection: 'row', gap: 5, justifyContent: 'center' }]}
         >
-          <T bold={activeTab === 'redflags'} style={{ color: activeTab === 'redflags' ? colors.primary : colors.textMuted, fontSize: 13 }}>
-            🚩 {isEn ? 'Red Flags' : 'Kırmızı Bayrak'}
+          <Icon name="flag" size={14} color={activeTab === 'redflags' ? '#DC2626' : colors.textMuted} />
+          <T bold={activeTab === 'redflags'} style={{ color: activeTab === 'redflags' ? '#DC2626' : colors.textMuted, fontSize: 13 }}>
+            {isEn ? 'Red Flags' : 'Kırmızı Bayrak'}
           </T>
         </Tap>
       </View>
@@ -429,14 +432,15 @@ export function BabyMilestonesScreen({ state, update, toast, close, lang: propLa
         </ScrollView>
       </View>
 
+      {/* Main Content Area */}
       {activeTab === 'milestones' && (
-        <View style={{ paddingHorizontal: 16, marginTop: 14 }}>
-          {/* Progress Card */}
+        <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
+          {/* Milestone Progress Summary Card */}
           <Card style={styles.summaryCard}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <View>
                 <T bold style={{ fontSize: 16, color: colors.textDark }}>
-                  {isEn ? currentBracket.titleEn : currentBracket.titleTr}
+                  {selectedMonth}. {isEn ? 'Month Milestones' : 'Ay Gelişim Basamakları'}
                 </T>
                 <T style={{ fontSize: 12.5, color: colors.textMuted, marginTop: 2 }}>
                   {currentDone} / {currentTotal} {isEn ? 'skills mastered' : 'beceri tamamlandı'}
@@ -453,9 +457,14 @@ export function BabyMilestonesScreen({ state, update, toast, close, lang: propLa
 
           {/* 1. Motor Skills */}
           <View style={{ marginTop: 16 }}>
-            <T bold style={styles.domainHeading}>
-              🏃 {isEn ? 'Motor & Movement Skills' : 'Kaba & İnce Motor Becerileri'}
-            </T>
+            <View style={styles.domainHeadingRow}>
+              <View style={[styles.domainIconBadge, { backgroundColor: '#E0F2FE' }]}>
+                <Icon name="motor" size={16} color="#0284C7" />
+              </View>
+              <T bold style={styles.domainHeading}>
+                {isEn ? 'Motor & Movement Skills' : 'Kaba & İnce Motor Becerileri'}
+              </T>
+            </View>
             {(isEn ? currentBracket.motorEn : currentBracket.motorTr).map((item) => (
               <Tap key={item.id} onPress={() => toggleMilestone(item.id)} style={styles.milestoneItem}>
                 <View style={[styles.checkbox, completedMilestones[item.id] && styles.checkboxChecked]}>
@@ -470,9 +479,14 @@ export function BabyMilestonesScreen({ state, update, toast, close, lang: propLa
 
           {/* 2. Cognitive Skills */}
           <View style={{ marginTop: 16 }}>
-            <T bold style={styles.domainHeading}>
-              💡 {isEn ? 'Cognitive & Problem Solving' : 'Bilişsel & Merak'}
-            </T>
+            <View style={styles.domainHeadingRow}>
+              <View style={[styles.domainIconBadge, { backgroundColor: '#FEF3C7' }]}>
+                <Icon name="bulb" size={16} color="#D97706" />
+              </View>
+              <T bold style={styles.domainHeading}>
+                {isEn ? 'Cognitive & Problem Solving' : 'Bilişsel & Merak'}
+              </T>
+            </View>
             {(isEn ? currentBracket.cognitiveEn : currentBracket.cognitiveTr).map((item) => (
               <Tap key={item.id} onPress={() => toggleMilestone(item.id)} style={styles.milestoneItem}>
                 <View style={[styles.checkbox, completedMilestones[item.id] && styles.checkboxChecked]}>
@@ -487,9 +501,14 @@ export function BabyMilestonesScreen({ state, update, toast, close, lang: propLa
 
           {/* 3. Language Skills */}
           <View style={{ marginTop: 16 }}>
-            <T bold style={styles.domainHeading}>
-              🗣️ {isEn ? 'Language & Communication' : 'Dil & İletişim'}
-            </T>
+            <View style={styles.domainHeadingRow}>
+              <View style={[styles.domainIconBadge, { backgroundColor: '#F3E8FF' }]}>
+                <Icon name="chat" size={16} color="#7C3AED" />
+              </View>
+              <T bold style={styles.domainHeading}>
+                {isEn ? 'Language & Communication' : 'Dil & İletişim'}
+              </T>
+            </View>
             {(isEn ? currentBracket.languageEn : currentBracket.languageTr).map((item) => (
               <Tap key={item.id} onPress={() => toggleMilestone(item.id)} style={styles.milestoneItem}>
                 <View style={[styles.checkbox, completedMilestones[item.id] && styles.checkboxChecked]}>
@@ -504,9 +523,14 @@ export function BabyMilestonesScreen({ state, update, toast, close, lang: propLa
 
           {/* 4. Social & Emotional */}
           <View style={{ marginTop: 16 }}>
-            <T bold style={styles.domainHeading}>
-              ❤️ {isEn ? 'Social & Emotional' : 'Sosyal & Duygusal'}
-            </T>
+            <View style={styles.domainHeadingRow}>
+              <View style={[styles.domainIconBadge, { backgroundColor: '#FFE4E6' }]}>
+                <Icon name="heart" size={16} color="#E11D48" />
+              </View>
+              <T bold style={styles.domainHeading}>
+                {isEn ? 'Social & Emotional' : 'Sosyal & Duygusal'}
+              </T>
+            </View>
             {(isEn ? currentBracket.socialEn : currentBracket.socialTr).map((item) => (
               <Tap key={item.id} onPress={() => toggleMilestone(item.id)} style={styles.milestoneItem}>
                 <View style={[styles.checkbox, completedMilestones[item.id] && styles.checkboxChecked]}>
@@ -525,9 +549,12 @@ export function BabyMilestonesScreen({ state, update, toast, close, lang: propLa
         <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
           {/* Tummy Time Coach Card */}
           <Card style={styles.timerCard}>
-            <T bold style={{ fontSize: 16, color: colors.textDark, textAlign: 'center' }}>
-              🐢 {isEn ? 'Tummy Time Live Coach' : 'Karın Üstü Egzersiz Koçu'}
-            </T>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <Icon name="timer" size={18} color="#059669" />
+              <T bold style={{ fontSize: 16, color: colors.textDark, textAlign: 'center' }}>
+                {isEn ? 'Tummy Time Live Coach' : 'Karın Üstü Egzersiz Koçu'}
+              </T>
+            </View>
             <T style={{ fontSize: 12.5, color: colors.textMuted, textAlign: 'center', marginTop: 4 }}>
               {selectedMonth}. {isEn ? `Month Target: ${currentBracket.tummyGoalMin} min/day` : `Ay Günlük Hedefi: ${currentBracket.tummyGoalMin} dk/gün`}
             </T>
@@ -544,18 +571,20 @@ export function BabyMilestonesScreen({ state, update, toast, close, lang: propLa
             <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
               <Tap
                 onPress={() => setTummyRunning(!tummyRunning)}
-                style={[styles.timerControlBtn, { backgroundColor: tummyRunning ? '#EF4444' : colors.primary, flex: 1.5 }]}
+                style={[styles.timerControlBtn, { backgroundColor: tummyRunning ? '#EF4444' : colors.primary, flex: 1.5, flexDirection: 'row', gap: 6, justifyContent: 'center' }]}
               >
+                <Icon name={tummyRunning ? "pause" : "play"} size={16} color="white" fill="white" />
                 <T bold style={{ color: 'white', fontSize: 15 }}>
-                  {tummyRunning ? (isEn ? '⏸️ Pause' : '⏸️ Duraklat') : (isEn ? '▶️ Start Tummy Time' : '▶️ Başlat')}
+                  {tummyRunning ? (isEn ? 'Pause' : 'Duraklat') : (isEn ? 'Start Tummy Time' : 'Başlat')}
                 </T>
               </Tap>
               <Tap
                 onPress={handleSaveTummyTime}
-                style={[styles.timerControlBtn, { backgroundColor: '#10B981', flex: 1 }]}
+                style={[styles.timerControlBtn, { backgroundColor: '#10B981', flex: 1, flexDirection: 'row', gap: 6, justifyContent: 'center' }]}
               >
+                <Icon name="check" size={16} color="white" />
                 <T bold style={{ color: 'white', fontSize: 14 }}>
-                  💾 {isEn ? 'Save' : 'Kaydet'}
+                  {isEn ? 'Save' : 'Kaydet'}
                 </T>
               </Tap>
             </View>
@@ -563,9 +592,12 @@ export function BabyMilestonesScreen({ state, update, toast, close, lang: propLa
 
           {/* Pediatric Education Note */}
           <Card style={[styles.infoCard, { marginTop: 16 }]}>
-            <T bold style={{ fontSize: 14.5, color: '#1E3A8A', marginBottom: 8 }}>
-              💡 {isEn ? 'Why is Tummy Time Essential?' : 'Neden Her Gün Tummy Time Yapılmalı?'}
-            </T>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <Icon name="bulb" size={17} color="#1E3A8A" />
+              <T bold style={{ fontSize: 14.5, color: '#1E3A8A' }}>
+                {isEn ? 'Why is Tummy Time Essential?' : 'Neden Her Gün Tummy Time Yapılmalı?'}
+              </T>
+            </View>
             <T style={styles.infoText}>
               {isEn
                 ? '• Prevents positional plagiocephaly (flat head syndrome).\n• Strengthens neck, shoulders, and core muscles needed for rolling and crawling.\n• Improves sensory integration and hand-eye coordination.\n• If baby fusses, place a mirror or high-contrast card in front of them, or lie chest-to-chest.'
@@ -579,8 +611,9 @@ export function BabyMilestonesScreen({ state, update, toast, close, lang: propLa
         <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
           <Card style={styles.redFlagCard}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <Icon name="flag" size={17} color="#DC2626" />
               <T bold style={{ fontSize: 16, color: '#991B1B' }}>
-                🚩 {selectedMonth}. {isEn ? 'Month Clinical Red Flags' : 'Ay Gelişimsel Kırmızı Bayraklar'}
+                {selectedMonth}. {isEn ? 'Month Clinical Red Flags' : 'Ay Gelişimsel Kırmızı Bayraklar'}
               </T>
             </View>
             <T style={{ fontSize: 13, color: '#7F1D1D', marginBottom: 12, lineHeight: 19 }}>
@@ -663,11 +696,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#059669',
     borderRadius: 4,
   },
-  domainHeading: {
-    fontSize: 14,
-    color: colors.textDark,
+  domainHeadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     marginBottom: 8,
-    paddingLeft: 4,
+  },
+  domainIconBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  domainHeading: {
+    fontSize: 14.5,
+    color: colors.textDark,
+    paddingLeft: 2,
   },
   milestoneItem: {
     flexDirection: 'row',

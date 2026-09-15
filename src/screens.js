@@ -833,9 +833,9 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
               ? (isEn ? `Hello Dad, ${state.name || 'Alex'}` : `Merhaba Baba, ${state.name || 'Mehmet'}`)
               : (isEn ? `Hello, ${state.name || 'Emma'}` : `Merhaba, ${state.name || 'Zeynep'}`)}
           </T>
-          <T style={{ fontSize: 18 }}>{state.role === 'father' ? '👨‍🍼' : '🌸'}</T>
+          <BrandMark size={20} />
         </View>
-        <T style={s.subtitle}>{isEn ? `Today · Week ${week} Day ${currentDay}` : `Bugün · ${week}. Hafta ${currentDay}. Gün`}</T>
+        <T style={s.subtitle}>{isEn ? `Today · Week ${week} (Day ${currentDay})` : `Bugün · ${week}. Hafta (${currentDay}. Gün)`}</T>
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         {state.avatar ? (
@@ -854,14 +854,24 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
     </View>
 
     {/* Geri Sayım Rozet Şeridi */}
-    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F6EFF7', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 14 }}>
-      <T bold style={{ fontSize: 12, color: colors.purple }}>
-        ⏳ {isEn ? `${journey.daysRemaining} Days Until Due Date` : `Doğuma ${journey.daysRemaining} Gün Kaldı`}
-      </T>
-      <T style={{ fontSize: 11, color: '#7E6184' }}>
-        {isEn ? `Baby: ${state.babyName || 'Ada'}` : `Bebeğin: ${state.babyName || 'Ada'}`} · {state.babyGender === 'Kız' || state.babyGender === 'girl' ? (isEn ? 'Girl' : 'Kız') : (isEn ? 'Boy' : 'Erkek')}
-      </T>
-    </View>
+    {(() => {
+      const effectiveRemainingDays = (selectedWeek && selectedWeek !== currentWeek)
+        ? Math.max(1, (40 - selectedWeek) * 7 - currentDay)
+        : (journey.daysRemaining > 0 ? journey.daysRemaining : Math.max(1, (40 - week) * 7 - currentDay));
+      return (
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#F6EFF7', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 14 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Icon name="timer" size={14} color={colors.purple} />
+            <T bold style={{ fontSize: 12, color: colors.purple }}>
+              {isEn ? `${effectiveRemainingDays} Days Until Due Date` : `Doğuma ${effectiveRemainingDays} Gün Kaldı`}
+            </T>
+          </View>
+          <T style={{ fontSize: 11, color: '#7E6184' }}>
+            {isEn ? `Baby: ${state.babyName || 'Ada'}` : `Bebeğin: ${state.babyName || 'Ada'}`} · {state.babyGender === 'Kız' || state.babyGender === 'girl' ? (isEn ? 'Girl' : 'Kız') : (isEn ? 'Boy' : 'Erkek')}
+          </T>
+        </View>
+      );
+    })()}
 
     <PremiumWeeklyPlan week={week} state={state} update={update} open={open} lang={lang} />
 
