@@ -175,6 +175,23 @@ export function PelvicFloorKegelScreen({ state, update, toast, close, lang: prop
         art="card_pelvic_kegel"
       />
 
+      {/* Top Clinical Safety Notice */}
+      <View style={styles.medicalDisclaimerCard}>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+          <T style={{ fontSize: 16 }}>⚠️</T>
+          <View style={{ flex: 1 }}>
+            <T bold style={styles.medicalDisclaimerTitle}>
+              {isEn ? 'Obstetric & Exercise Safety Notice' : 'Egzersiz Güvenliği & Tıbbi Bilgilendirme'}
+            </T>
+            <T style={styles.medicalDisclaimerText}>
+              {isEn
+                ? 'Kegel exercises and perineal massage support pelvic elasticity. If you experience severe pelvic pain, vaginal bleeding, leaking amniotic fluid, or preterm contraction risks, STOP immediately and consult your obstetrician.'
+                : 'Kegel egzersizleri ve perine masajı kas elastikiyetini destekler. Kasıkta şiddetli ağrı, vajinal kanama, su gelmesi veya erken doğum tehdidi durumlarında egzersizleri derhal durdurunuz ve hekiminize başvurunuz.'}
+            </T>
+          </View>
+        </View>
+      </View>
+
       {/* Tabs */}
       <View style={styles.tabBar}>
         <Tap
@@ -545,5 +562,24 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#1E3A8A',
     lineHeight: 20,
+  },
+  medicalDisclaimerCard: {
+    marginHorizontal: 16,
+    marginTop: 10,
+    backgroundColor: '#FEF3F2',
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#FECDCA',
+    padding: 12,
+  },
+  medicalDisclaimerTitle: {
+    fontSize: 13,
+    color: '#B42318',
+    marginBottom: 4,
+  },
+  medicalDisclaimerText: {
+    fontSize: 11.5,
+    color: '#7A271A',
+    lineHeight: 17,
   },
 });

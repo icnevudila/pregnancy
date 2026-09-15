@@ -106,6 +106,23 @@ export function SleepWindowScreen({ state, update, toast, close, open, lang: pro
         coverAsset="card_sleep_window"
       />
 
+      {/* Top Clinical Sleep Guidance Notice */}
+      <View style={styles.medicalDisclaimerCard}>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+          <T style={{ fontSize: 16 }}>ℹ️</T>
+          <View style={{ flex: 1 }}>
+            <T bold style={styles.medicalDisclaimerTitle}>
+              {isEn ? 'Pediatric Sleep & Routine Notice' : 'Pediatrik Uyku & Güvenlik Bilgilendirmesi'}
+            </T>
+            <T style={styles.medicalDisclaimerText}>
+              {isEn
+                ? 'Wake windows and SweetSpot calculations are based on pediatric sleep hygiene averages. Every infant has unique circadian rhythms and sleep needs. Always follow safe sleep guidelines (back to sleep, clear crib, firm mattress).'
+                : 'Uyanıklık pencereleri ve SweetSpot tahminleri genel pediatrik uyku hijyeni ortalamalarını temel alır. Her bebeğin biyolojik ritmi ve uyku ihtiyacı farklıdır. Daima güvenli uyku kurallarına (sırtüstü yatırma, boş ve sert yatak) uyunuz.'}
+            </T>
+          </View>
+        </View>
+      </View>
+
       {/* SweetSpot Target Banner */}
       <Card style={[styles.sweetSpotCard, calculation.status === 'overtired' && styles.sweetSpotOvertired]}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -350,19 +367,36 @@ const styles = StyleSheet.create({
     fontSize: 10.5,
     color: colors.muted,
   },
+  medicalDisclaimerCard: {
+    backgroundColor: '#EFF8FF',
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#B2DDFF',
+    padding: 12,
+  },
+  medicalDisclaimerTitle: {
+    fontSize: 13,
+    color: '#175CD3',
+    marginBottom: 4,
+  },
+  medicalDisclaimerText: {
+    fontSize: 11.5,
+    color: '#1849A9',
+    lineHeight: 17,
+  },
   timeAdjustBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#E2D3E5',
     ...shadow,
   },
   timeAdjustText: {
-    fontSize: 16,
+    fontSize: 18,
     color: colors.purple,
   },
   timeValText: {

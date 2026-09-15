@@ -139,6 +139,7 @@ export function BloodGlucoseScreen({ state, update, toast, close, lang: propLang
   const [timing, setTiming] = useState('fasting'); // 'fasting' | 'post1h' | 'post2h' | 'bedtime'
   const [mealTag, setMealTag] = useState(isEn ? 'Breakfast' : 'Kahvaltı');
   const [note, setNote] = useState('');
+  const [feedback, setFeedback] = useState(null); // { type: 'success' | 'error', message: string }
 
   const logs = state.bloodGlucoseLogs || [];
 
@@ -163,6 +164,10 @@ export function BloodGlucoseScreen({ state, update, toast, close, lang: propLang
   const handleSaveMeasurement = () => {
     const num = Number(value);
     if (!Number.isFinite(num) || num < 20 || num > 500) {
+      setFeedback({
+        type: 'error',
+        message: isEn ? 'Please enter a valid glucose reading (20-500 mg/dL)' : 'Lütfen geçerli bir kan şekeri değeri girin (20-500 mg/dL)',
+      });
       toast && toast(isEn ? 'Please enter a valid glucose reading (20-500 mg/dL)' : 'Lütfen geçerli bir kan şekeri değeri girin (20-500 mg/dL)');
       return;
     }
@@ -182,6 +187,12 @@ export function BloodGlucoseScreen({ state, update, toast, close, lang: propLang
     }));
 
     saveBloodGlucoseCloud(newLog).catch(() => {});
+
+    setFeedback({
+      type: 'success',
+      message: isEn ? '✓ Blood glucose reading saved successfully' : '✓ Kan şekeri ölçümü başarıyla kaydedildi',
+    });
+    setTimeout(() => setFeedback(null), 3500);
 
     toast && toast(isEn ? 'Blood glucose reading recorded 🩸' : 'Kan şekeri ölçümü kaydedildi 🩸');
     setNote('');
@@ -240,6 +251,23 @@ export function BloodGlucoseScreen({ state, update, toast, close, lang: propLang
         subtitle={isEn ? 'ADA & ACOG clinical thresholds, OGTT guide & tracking' : 'ADA ve ACOG hedefleri, şeker yükleme testi ve günlük takibi'}
         coverAsset="card_blood_glucose"
       />
+
+      {/* Top Clinical Safety Disclaimer */}
+      <View style={styles.medicalDisclaimerCard}>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+          <T style={{ fontSize: 16 }}>⚠️</T>
+          <View style={{ flex: 1 }}>
+            <T bold style={styles.medicalDisclaimerTitle}>
+              {isEn ? 'Medical Safety & Clinical Notice' : 'Tıbbi Bilgilendirme & Yasal Uyarı'}
+            </T>
+            <T style={styles.medicalDisclaimerText}>
+              {isEn
+                ? 'This module is strictly for personal tracking and informational sharing with your healthcare provider. It does not provide medical diagnosis, treatment recommendations, or insulin dosing. Always review your glucose trends with your obstetrician or endocrinologist.'
+                : 'Bu takip aracı yalnızca kişisel kayıt ve hekiminizle paylaşım amaçlıdır. Asla tıbbi tanı, reçete, tedavi veya insülin dozu belirleme niteliği taşımaz. Kan şekeri değerlerinizi ve beslenme planınızı mutlaka kadın doğum uzmanınız veya endokrinoloğunuz ile değerlendiriniz.'}
+            </T>
+          </View>
+        </View>
+      </View>
 
       {/* Metric Cards Banner */}
       <View style={styles.metricsRow}>
@@ -403,6 +431,15 @@ export function BloodGlucoseScreen({ state, update, toast, close, lang: propLang
                 {isEn ? 'Save Glucose Reading' : 'Kan Şekeri Ölçümünü Kaydet'}
               </T>
             </Tap>
+
+            {/* Inline Feedback Banner */}
+            {feedback && (
+              <View style={[styles.feedbackBanner, feedback.type === 'error' ? styles.feedbackBannerError : styles.feedbackBannerSuccess]}>
+                <T bold style={[styles.feedbackText, feedback.type === 'error' ? { color: '#B42318' } : { color: '#027A48' }]}>
+                  {feedback.message}
+                </T>
+              </View>
+            )}
           </Card>
 
           {/* Quick Doctor WhatsApp Share */}
@@ -687,15 +724,15 @@ const styles = StyleSheet.create({
     borderColor: colors.purple,
   },
   noteInput: {
-    height: 40,
-    borderRadius: 10,
-    borderWidth: 1,
+    minHeight: 48,
+    borderRadius: 12,
+    borderWidth: 1.5,
     borderColor: '#DFD2E2',
-    paddingHorizontal: 10,
+    paddingHorizontal: 14,
     backgroundColor: '#FFFFFF',
-    fontSize: 12.5,
+    fontSize: 15,
     color: colors.ink,
-    marginTop: 4,
+    marginTop: 6,
   },
   saveBtn: {
     flexDirection: 'row',
@@ -703,14 +740,50 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     backgroundColor: colors.purple,
-    paddingVertical: 13,
+    paddingVertical: 14,
     borderRadius: 14,
-    marginTop: 6,
+    marginTop: 8,
     ...shadow,
   },
   saveBtnText: {
     color: '#FFFFFF',
-    fontSize: 13.5,
+    fontSize: 14,
+  },
+  medicalDisclaimerCard: {
+    backgroundColor: '#FEF3F2',
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#FECDCA',
+    padding: 12,
+  },
+  medicalDisclaimerTitle: {
+    fontSize: 13,
+    color: '#B42318',
+    marginBottom: 4,
+  },
+  medicalDisclaimerText: {
+    fontSize: 11.5,
+    color: '#7A271A',
+    lineHeight: 17,
+  },
+  feedbackBanner: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    borderWidth: 1,
+    marginTop: 4,
+    alignItems: 'center',
+  },
+  feedbackBannerSuccess: {
+    backgroundColor: '#ECFDF3',
+    borderColor: '#A6F4C5',
+  },
+  feedbackBannerError: {
+    backgroundColor: '#FEF3F2',
+    borderColor: '#FECDCA',
+  },
+  feedbackText: {
+    fontSize: 12.5,
   },
   whatsAppBtn: {
     flexDirection: 'row',

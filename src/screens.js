@@ -733,26 +733,34 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
   const info = getWeekInfo(week, lang);
   const letter = getBabyLetterForWeek(week, lang);
   const weekScrollRef = useRef(null);
-  const didPositionWeekStrip = useRef(false);
 
   useEffect(() => {
-    if (didPositionWeekStrip.current) return;
-    if (weekScrollRef.current) {
-      const pillWidth = 65;
-      const targetX = Math.max(0, (week - 4) * pillWidth - 120);
+    const scrollToTargetWeek = (targetW = week) => {
+      if (!weekScrollRef.current) return;
+      const pillWidth = 73;
+      const targetX = Math.max(0, (targetW - 4) * pillWidth - 140);
       try {
-        const node = weekScrollRef.current.getScrollableNode ? weekScrollRef.current.getScrollableNode() : weekScrollRef.current;
-        if (node && node.scrollTo) {
-          node.scrollTo({ left: targetX, behavior: 'smooth' });
-        } else if (node && node.scrollLeft !== undefined) {
-          node.scrollLeft = targetX;
-        } else if (weekScrollRef.current.scrollTo) {
+        if (weekScrollRef.current.scrollTo) {
           weekScrollRef.current.scrollTo({ x: targetX, animated: true });
         }
+        const node = weekScrollRef.current.getScrollableNode ? weekScrollRef.current.getScrollableNode() : weekScrollRef.current;
+        if (node) {
+          if (node.scrollTo) node.scrollTo({ left: targetX, behavior: 'smooth' });
+          if (node.scrollLeft !== undefined) node.scrollLeft = targetX;
+          if (node.firstElementChild) {
+            if (node.firstElementChild.scrollTo) node.firstElementChild.scrollTo({ left: targetX, behavior: 'smooth' });
+            if (node.firstElementChild.scrollLeft !== undefined) node.firstElementChild.scrollLeft = targetX;
+          }
+        }
       } catch (e) {}
-      didPositionWeekStrip.current = true;
-    }
-  }, []);
+    };
+
+    scrollToTargetWeek();
+    const t1 = setTimeout(() => scrollToTargetWeek(), 50);
+    const t2 = setTimeout(() => scrollToTargetWeek(), 250);
+    const t3 = setTimeout(() => scrollToTargetWeek(), 600);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [currentWeek]);
 
   function scrollWeeks(delta) {
     if (weekScrollRef.current) {
@@ -871,6 +879,7 @@ export function Pregnancy({ state, update, open, lang = 'tr', setPage }) {
 
       <HorizontalScroll
         ref={weekScrollRef}
+        contentOffset={{ x: Math.max(0, (week - 4) * 73 - 140), y: 0 }}
         contentContainerStyle={s.weekStrip}
         style={{ flex: 1 }}
       >
@@ -1368,6 +1377,7 @@ export function Postpartum({ state, update, open, toast, lang = 'tr' }) {
   const isEn = lang === 'en';
   const tabItems = isEn ? ['Today', 'Recovery', 'My Mood', 'Notes'] : ['Bugün', 'İyileşme', 'Ruh Halim', 'Notlar'];
   const [tab, setTab] = useState(isEn ? 'Today' : 'Bugün');
+  const [saveFeedback, setSaveFeedback] = useState(false);
 
   // Journey & Profile State
   const postInfo = calculatePostpartumProgress(state?.postpartumProfile?.birthDate);
@@ -1460,7 +1470,10 @@ export function Postpartum({ state, update, open, toast, lang = 'tr' }) {
       records: [record, ...(state?.records || [])],
     });
 
-    toast && toast(isEn ? '✓ Recovery check-in saved safely! 🌸' : '✓ Bugünkü iyileşme durumu kaydedildi! 🌸');
+    setSaveFeedback(true);
+    setTimeout(() => setSaveFeedback(false), 3500);
+
+    toast && toast(isEn ? '✓ Recovery check-in saved safely!' : '✓ Bugünkü iyileşme durumu kaydedildi!');
   }
 
   // Not Ekleme
@@ -1498,34 +1511,34 @@ export function Postpartum({ state, update, open, toast, lang = 'tr' }) {
   return (
     <Page>
       <ScreenHero
-        kicker={isEn ? 'POSTPARTUM RECOVERY HUB' : 'LOHUSALIK & İYİLEŞME PANELİ'}
+        kicker={isEn ? 'POSTPARTUM RECOVERY' : 'LOHUSALIK & İYİLEŞME'}
         title={isEn ? `Day ${daysSinceBirth} Recovery` : `${daysSinceBirth}. Gün İyileşme`}
         body={isEn
           ? 'Personal recovery telemetry, tailored daily actions, mood reflection, and private diary.'
           : 'Doğum şekline özel iyileşme göstergeleri, günlük bakım ritmi, duygu haritası ve gizli günlük.'}
-        icon="leaf"
-        asset="ui_postpartum_lotus"
+        icon="heart"
+        asset={null}
         stat={`${daysSinceBirth}. ${isEn ? 'day' : 'gün'}`}
         tint="#86518A"
       />
 
       {/* Tepe Başlık & Yolculuk Değiştirici */}
       <View style={s.topline}>
-        <View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <View style={{ flex: 1, paddingRight: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <T bold style={s.pageTitle}>{isEn ? `Postpartum · Day ${daysSinceBirth}` : `Lohusalık · ${daysSinceBirth}. Gün`}</T>
-            <View style={{ backgroundColor: deliveryType === 'csection' ? '#F4EAF6' : '#EBF5EE', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
-              <T bold style={{ fontSize: 11, color: deliveryType === 'csection' ? colors.purple : '#2F7045' }}>
+            <View style={{ backgroundColor: '#F3EDF7', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#E8DEEA' }}>
+              <T bold style={{ fontSize: 11.5, color: colors.purple }}>
                 {deliveryType === 'csection' ? (isEn ? 'C-Section' : 'Sezaryen') : (isEn ? 'Vaginal' : 'Vajinal')}
               </T>
             </View>
           </View>
           <T style={s.subtitle}>
             {phase === 'immediate'
-              ? (isEn ? 'Early recovery · Gentle rest and healing 🌸' : 'Erken toparlanma dönemi · Şefkatli dinlenme 🌸')
+              ? (isEn ? 'Early recovery · Gentle rest and healing' : 'Erken toparlanma dönemi · Şefkatli dinlenme')
               : phase === 'healing'
-              ? (isEn ? 'Uterine involution & tissue rebuilding 🌿' : 'Doku yenilenmesi ve rahim toparlanması 🌿')
-              : (isEn ? 'Postpartum adaptation & balance ✨' : 'Lohusalık adaptasyonu ve güçlenme ✨')}
+              ? (isEn ? 'Tissue rebuilding and uterine recovery' : 'Doku yenilenmesi ve rahim toparlanması')
+              : (isEn ? 'Postpartum adaptation and strengthening' : 'Lohusalık adaptasyonu ve güçlenme')}
           </T>
         </View>
         <RoundButton icon="down" label={isEn ? 'Change journey' : 'Yolculuğunu değiştir'} onPress={() => open('journey')} />
@@ -1879,16 +1892,34 @@ export function Postpartum({ state, update, open, toast, lang = 'tr' }) {
               onPress={saveRecoveryCheckin}
               style={{
                 backgroundColor: colors.purple,
-                paddingVertical: 13,
+                paddingVertical: 14,
                 borderRadius: 14,
                 alignItems: 'center',
-                marginTop: 6,
+                marginTop: 8,
               }}
             >
-              <T bold style={{ color: 'white', fontSize: 13.5 }}>
-                {isEn ? 'Save Today’s Recovery Signals 🌸' : 'Bugünkü İyileşme Durumunu Kaydet 🌸'}
+              <T bold style={{ color: 'white', fontSize: 14 }}>
+                {isEn ? 'Save Today’s Recovery Signals' : 'Bugünkü İyileşme Durumunu Kaydet'}
               </T>
             </Tap>
+
+            {/* Kaydetme Geri Bildirimi (Feedback Banner) */}
+            {saveFeedback && (
+              <View style={{
+                backgroundColor: '#ECFDF3',
+                borderColor: '#A6F4C5',
+                borderWidth: 1,
+                borderRadius: 12,
+                paddingVertical: 10,
+                paddingHorizontal: 14,
+                alignItems: 'center',
+                marginTop: 8,
+              }}>
+                <T bold style={{ fontSize: 13, color: '#027A48' }}>
+                  {isEn ? '✓ Today’s recovery signals saved safely' : '✓ Bugünkü iyileşme durumu başarıyla kaydedildi'}
+                </T>
+              </View>
+            )}
           </Card>
         </View>
       )}

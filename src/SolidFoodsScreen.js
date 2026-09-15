@@ -200,6 +200,23 @@ export function SolidFoodsScreen({ state, update, toast, close, lang: propLang }
         coverAsset="card_solid_foods"
       />
 
+      {/* Top Pediatric & Safety Disclaimer */}
+      <View style={styles.medicalDisclaimerCard}>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+          <T style={{ fontSize: 16 }}>⚠️</T>
+          <View style={{ flex: 1 }}>
+            <T bold style={styles.medicalDisclaimerTitle}>
+              {isEn ? 'Pediatric Feeding & Safety Notice' : 'Ek Gıda & Alerji Güvenliği Yasal Uyarısı'}
+            </T>
+            <T style={styles.medicalDisclaimerText}>
+              {isEn
+                ? 'BLW and 3-day allergen recommendations are for general guidance only. Always consult your pediatrician before introducing solids or major allergens. Never leave your baby unattended while eating, and familiarize yourself with infant choking first-aid protocols.'
+                : 'BLW ve 3 gün alerji kuralı rehberliği genel pediatrik bilgilendirme amaçlıdır. Bebeğinize ek gıdaya başlamadan ve büyük alerjenleri sunmadan önce mutlaka çocuk doktorunuza danışınız. Bebeği yemek yerken ASLA yalnız bırakmayınız ve ilk yardım adımlarını önceden öğreniniz.'}
+            </T>
+          </View>
+        </View>
+      </View>
+
       {/* Metric Cards Banner */}
       <View style={styles.metricsRow}>
         <MetricCard
@@ -540,22 +557,40 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     ...shadow,
   },
+  medicalDisclaimerCard: {
+    backgroundColor: '#FEF3F2',
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#FECDCA',
+    padding: 12,
+  },
+  medicalDisclaimerTitle: {
+    fontSize: 13,
+    color: '#B42318',
+    marginBottom: 4,
+  },
+  medicalDisclaimerText: {
+    fontSize: 11.5,
+    color: '#7A271A',
+    lineHeight: 17,
+  },
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
     backgroundColor: '#FFFFFF',
     borderRadius: 14,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#DFD2E2',
-    paddingHorizontal: 12,
-    height: 44,
+    paddingHorizontal: 14,
+    minHeight: 48,
     ...shadow,
   },
   searchInput: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 15,
     color: colors.ink,
+    paddingVertical: 10,
   },
   catPill: {
     paddingHorizontal: 12,
@@ -577,12 +612,14 @@ const styles = StyleSheet.create({
   },
   foodCard: {
     width: '48%',
+    minHeight: 115,
     padding: 12,
     borderRadius: 14,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#EFE5F0',
     alignItems: 'center',
+    justifyContent: 'space-between',
     gap: 3,
     ...shadow,
   },

@@ -641,13 +641,13 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
               onPress={() => {
                 if (setPage) setPage('onboarding');
                 else if (choose) choose('onboarding');
-                toast && toast(isEn ? 'Opening onboarding setup 🧭' : 'Yolculuk seçimleri açılıyor 🧭');
+                toast && toast(isEn ? 'Opening journey setup' : 'Yolculuk tercihleri açılıyor');
               }}
-              label={isEn ? "Re-run Onboarding Setup" : "Seçimleri Yeniden Yap (Onboarding)"}
-              style={[ps.saveFullBtn, { marginTop: 12 }]}
+              label={isEn ? "Edit Journey Preferences" : "Yolculuk Tercihlerini Düzenle"}
+              style={[ps.saveFullBtn, { marginTop: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }]}
             >
               <T bold style={{ color: 'white', fontSize: 13.5 }}>
-                {isEn ? '🧭 Re-run Onboarding Choices →' : '🧭 Yolculuk Seçimlerini Yeniden Yap (Onboarding) →'}
+                {isEn ? 'Edit Journey Preferences →' : 'Yolculuk Tercihlerini Düzenle →'}
               </T>
             </Tap>
           </Card>
@@ -671,34 +671,29 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
             <Tap
               onPress={() => open && open('notifications')}
               label={isEn ? "Open Notification Settings" : "Bildirim Ayarlarını Aç"}
-              style={[ps.secondaryBtn, { marginTop: 12 }]}
+              style={[ps.secondaryBtn, { marginTop: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }]}
             >
               <T bold style={{ color: colors.purple, fontSize: 13 }}>
-                {isEn ? '🔔 Manage All Reminders →' : '🔔 Tüm Hatırlatıcıları Yönet →'}
+                {isEn ? 'Manage All Reminders →' : 'Tüm Hatırlatıcıları Yönet →'}
               </T>
             </Tap>
           </Card>
 
-          {/* BULUT VE HESAP YÖNETİMİ */}
+          {/* HESAP VE PROFİL */}
           <Card style={{ padding: 16 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <BrandMark size={28} />
                 <View>
                   <T bold style={{ fontSize: 14.5, color: colors.ink }}>
-                    {isEn ? 'Account & Cloud Sync' : 'Hesap & Momora Bulut'}
+                    {isEn ? 'Account' : 'Kullanıcı Hesabı'}
                   </T>
                   <T style={{ fontSize: 11, color: colors.muted, marginTop: 1 }}>
                     {activeUser
                       ? `${isEn ? 'Connected:' : 'Bağlı:'} ${activeUser.email || activeUser.user_metadata?.full_name || 'Momora Üyesi'}`
-                      : (isEn ? 'Guest Mode · Local storage only' : 'Misafir Modu · Sadece bu cihazda')}
+                      : (isEn ? 'Local Profile' : 'Cihaz Profili')}
                   </T>
                 </View>
-              </View>
-              <View style={{ backgroundColor: activeUser ? '#EDF7ED' : '#F3EDF7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
-                <T bold style={{ fontSize: 10.5, color: activeUser ? '#2E7D32' : colors.purple }}>
-                  {activeUser ? (isEn ? 'Cloud Active' : 'Bulut Aktif') : (isEn ? 'Guest' : 'Misafir')}
-                </T>
               </View>
             </View>
 
@@ -708,8 +703,8 @@ export function ProfileScreen({ state, update, open, toast, choose, setPage, clo
                   <T style={{ fontSize: 12, color: colors.muted }}>{isEn ? 'Family Sync Code' : 'Aile Eşleşme Kodu'}</T>
                   <T bold style={{ fontSize: 12, letterSpacing: 1, color: colors.ink }}>{state.familyCode || 'MOM-7829-TR'}</T>
                 </View>
-                <Tap onPress={handleSignOut} label={isEn ? 'Sign out' : 'Çıkış yap'} style={[ps.secondaryBtn, { marginTop: 4 }]}>
-                  <T bold style={{ fontSize: 12.5, color: '#B42318' }}>{isEn ? 'Sign Out' : 'Oturumu Kapat'}</T>
+                <Tap onPress={handleSignOut} label={isEn ? 'Sign out' : 'Çıkış yap'} style={[ps.secondaryBtn, { marginTop: 6, borderColor: '#FECDCA', backgroundColor: '#FEF3F2' }]}>
+                  <T bold style={{ fontSize: 12.5, color: '#D92D20' }}>{isEn ? 'Sign Out' : 'Oturumu Kapat'}</T>
                 </Tap>
               </View>
             ) : (

@@ -86,6 +86,23 @@ export function BabyTeethingScreen({ state, update, toast, close, lang: propLang
         coverAsset="card_baby_teething"
       />
 
+      {/* Top Clinical Dental Notice */}
+      <View style={styles.medicalDisclaimerCard}>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+          <T style={{ fontSize: 16 }}>⚠️</T>
+          <View style={{ flex: 1 }}>
+            <T bold style={styles.medicalDisclaimerTitle}>
+              {isEn ? 'Pediatric Health & Fever Notice' : 'Diş Gelişimi & Ateş Uyarısı'}
+            </T>
+            <T style={styles.medicalDisclaimerText}>
+              {isEn
+                ? 'Teething timelines are typical pediatric averages. Note: High persistent fever (>38°C), severe diarrhea, or vomiting are NOT normal teething signs and may indicate an infection. Consult your pediatrician.'
+                : 'Diş çıkarma takvimi ortalama gelişim seyrini gösterir. Önemli: 38°C üzeri dirençli yüksek ateş, şiddetli ishal veya kusma diş çıkarma belirtisi olmayıp enfeksiyon habercisi olabilir; mutlaka hekiminize başvurunuz.'}
+            </T>
+          </View>
+        </View>
+      </View>
+
       {/* Progress Cards */}
       <View style={styles.metricsRow}>
         <MetricCard
@@ -514,5 +531,22 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 14,
     borderWidth: 1,
+  },
+  medicalDisclaimerCard: {
+    backgroundColor: '#FEF3F2',
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#FECDCA',
+    padding: 12,
+  },
+  medicalDisclaimerTitle: {
+    fontSize: 13,
+    color: '#B42318',
+    marginBottom: 4,
+  },
+  medicalDisclaimerText: {
+    fontSize: 11.5,
+    color: '#7A271A',
+    lineHeight: 17,
   },
 });

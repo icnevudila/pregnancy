@@ -185,19 +185,36 @@ export function SafeMedicationScreen({ state, update, toast, close, lang: propLa
         coverAsset="card_health_report"
       />
 
+      {/* Top Clinical Safety Alert */}
+      <View style={styles.medicalDisclaimerCard}>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+          <T style={{ fontSize: 16 }}>⚠️</T>
+          <View style={{ flex: 1 }}>
+            <T bold style={styles.medicalDisclaimerTitle}>
+              {isEn ? 'Strict Clinical Notice & Medical Disclaimer' : 'Tıbbi Güvenlik Uyarısı & Hekim Onayı Şartı'}
+            </T>
+            <T style={styles.medicalDisclaimerText}>
+              {isEn
+                ? 'This guide is compiled for educational reference based on FDA and ACOG obstetric tiers. Never take, stop, or alter any medication, supplement, or herbal product during pregnancy or lactation without direct consultation and approval from your obstetrician or pharmacist.'
+                : 'Bu rehber FDA, ACOG ve uluslararası perinatoloji kılavuzları baz alınarak genel bilgilendirme amacıyla derlenmiştir. Gebelikte veya emzirme döneminde hekiminize veya eczacınıza danışmadan ASLA hiçbir reçeteli/reçetesiz ilaç, vitamin veya bitkisel takviye kullanmayınız.'}
+            </T>
+          </View>
+        </View>
+      </View>
+
       {/* Search Input */}
       <View style={styles.searchBox}>
-        <Icon name="search" size={16} color="#8A7394" />
+        <Icon name="search" size={18} color="#8A7394" />
         <TextInput
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder={isEn ? 'Search drug or symptom (e.g. Parol, Ibuprofen, Reflux)...' : 'İlaç veya belirti ara (Parol, İbuprofen, Mide yanması)...'}
+          placeholder={isEn ? 'Search drug or symptom (e.g. Parol, Ibuprofen, Reflux)...' : 'İlaç veya belirti ara (Parol, İbuprofen, Reflü)...'}
           placeholderTextColor="#A394A8"
           style={styles.searchInput}
         />
         {searchQuery ? (
-          <Tap onPress={() => setSearchQuery('')} style={{ padding: 4 }}>
-            <Icon name="close" size={14} color="#8A7394" />
+          <Tap onPress={() => setSearchQuery('')} style={{ padding: 6 }}>
+            <Icon name="close" size={16} color="#8A7394" />
           </Tap>
         ) : null}
       </View>
@@ -294,22 +311,40 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     gap: 14,
   },
+  medicalDisclaimerCard: {
+    backgroundColor: '#FEF3F2',
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#FECDCA',
+    padding: 12,
+  },
+  medicalDisclaimerTitle: {
+    fontSize: 13,
+    color: '#B42318',
+    marginBottom: 4,
+  },
+  medicalDisclaimerText: {
+    fontSize: 11.5,
+    color: '#7A271A',
+    lineHeight: 17,
+  },
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
     backgroundColor: '#FFFFFF',
     borderRadius: 14,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#DFD2E2',
-    paddingHorizontal: 12,
-    height: 44,
+    paddingHorizontal: 14,
+    minHeight: 48,
     ...shadow,
   },
   searchInput: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 15,
     color: colors.ink,
+    paddingVertical: 10,
   },
   catPill: {
     paddingHorizontal: 12,

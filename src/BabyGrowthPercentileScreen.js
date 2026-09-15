@@ -66,6 +66,7 @@ export function BabyGrowthPercentileScreen({ state, update, toast, close, lang: 
   const [weightStr, setWeightStr] = useState('7.5');
   const [lengthStr, setLengthStr] = useState('66');
   const [headStr, setHeadStr] = useState('42.5');
+  const [feedback, setFeedback] = useState(null); // { type: 'success' | 'error', message: string }
 
   const babyGrowthLogs = state.babyGrowthLogs || [
     { id: 'bg1', date: '2026-03-10', month: 2, weight: 5.2, length: 57.5, head: 38.5, gender: 'girl' },
@@ -90,6 +91,10 @@ export function BabyGrowthPercentileScreen({ state, update, toast, close, lang: 
 
   const handleSaveRecord = () => {
     if (!weightNum || !lengthNum) {
+      setFeedback({
+        type: 'error',
+        message: isEn ? 'Please enter valid weight and length values.' : 'Lütfen geçerli kilo ve boy değerleri girin.',
+      });
       toast && toast(isEn ? 'Please enter valid weight and length.' : 'Lütfen geçerli kilo ve boy girin.');
       return;
     }
@@ -117,6 +122,12 @@ export function BabyGrowthPercentileScreen({ state, update, toast, close, lang: 
       metadata: newRecord,
     }).catch(() => {});
 
+    setFeedback({
+      type: 'success',
+      message: isEn ? '✓ Growth entry saved successfully!' : '✓ Büyüme kaydı başarıyla kaydedildi!',
+    });
+    setTimeout(() => setFeedback(null), 3500);
+
     toast && toast(isEn ? 'Growth entry saved successfully!' : 'Büyüme kaydı kaydedildi!');
   };
 
@@ -138,6 +149,23 @@ export function BabyGrowthPercentileScreen({ state, update, toast, close, lang: 
         badgeColor="#1E40AF"
         art="card_growth_percentile"
       />
+
+      {/* Top Clinical Safety Notice */}
+      <View style={styles.medicalDisclaimerCard}>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+          <T style={{ fontSize: 16 }}>⚠️</T>
+          <View style={{ flex: 1 }}>
+            <T bold style={styles.medicalDisclaimerTitle}>
+              {isEn ? 'Pediatric Notice & Clinical Disclaimer' : 'Pediatrik Bilgilendirme & Yasal Uyarı'}
+            </T>
+            <T style={styles.medicalDisclaimerText}>
+              {isEn
+                ? 'WHO (World Health Organization) growth curves represent population percentiles for healthy breastfed infants. Every infant follows their own personal genetic growth trajectory. These measurements are for tracking only; always evaluate growth velocity with your pediatrician.'
+                : 'DSÖ (WHO) persantil eğrileri anne sütüyle beslenen sağlıklı bebeklerin büyüme standartlarını gösterir. Her bebeğin genetik yapısı ve gelişim temposu kendine özgüdür. Bu veriler tanı niteliği taşımaz; büyüme hızını her ay çocuk doktorunuzla değerlendiriniz.'}
+            </T>
+          </View>
+        </View>
+      </View>
 
       {/* Tabs */}
       <View style={styles.tabBar}>
@@ -340,6 +368,15 @@ export function BabyGrowthPercentileScreen({ state, update, toast, close, lang: 
                 </T>
               </Tap>
             </View>
+
+            {/* Inline Feedback Banner */}
+            {feedback && (
+              <View style={[styles.feedbackBanner, feedback.type === 'error' ? styles.feedbackBannerError : styles.feedbackBannerSuccess]}>
+                <T bold style={[styles.feedbackText, feedback.type === 'error' ? { color: '#B42318' } : { color: '#027A48' }]}>
+                  {feedback.message}
+                </T>
+              </View>
+            )}
           </Card>
         </View>
       )}
@@ -479,16 +516,55 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   measureInput: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 9,
-    fontSize: 15,
+    borderColor: '#D1D5DB',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 11,
+    minHeight: 48,
+    fontSize: 16,
     fontWeight: '700',
     color: colors.textDark,
     textAlign: 'center',
+  },
+  medicalDisclaimerCard: {
+    marginHorizontal: 16,
+    marginTop: 10,
+    backgroundColor: '#FEF3F2',
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#FECDCA',
+    padding: 12,
+  },
+  medicalDisclaimerTitle: {
+    fontSize: 13,
+    color: '#B42318',
+    marginBottom: 4,
+  },
+  medicalDisclaimerText: {
+    fontSize: 11.5,
+    color: '#7A271A',
+    lineHeight: 17,
+  },
+  feedbackBanner: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    borderWidth: 1,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  feedbackBannerSuccess: {
+    backgroundColor: '#ECFDF3',
+    borderColor: '#A6F4C5',
+  },
+  feedbackBannerError: {
+    backgroundColor: '#FEF3F2',
+    borderColor: '#FECDCA',
+  },
+  feedbackText: {
+    fontSize: 12.5,
   },
   resultCard: {
     padding: 16,

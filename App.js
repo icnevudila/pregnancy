@@ -214,7 +214,7 @@ function Momora() {
     choose,
     setPage,
   };
-  const renderPage=()=>{switch(active){case'pregnancy':return <Pregnancy {...props}/>;case'tools':return <ToolsHub {...props} toast={setNotice}/>;case'postpartum':return <Postpartum {...props}/>;case'baby':return <Baby {...props}/>;case'discover':return <Discover {...props}/>;case'assistant':return <Assistant {...props} toast={setNotice}/>;case'profile':return <ProfileScreen {...props} toast={setNotice} choose={choose}/>;case'auth':return <AuthModal close={()=>setPage(state.mode||'pregnancy')} toast={setNotice} onAuthSuccess={u=>{update({user:u});if(u?.user_metadata?.full_name)update({name:u.user_metadata.full_name});setPage(state.mode||'pregnancy');}} lang={lang} user={state.user} state={state} update={update} setPage={setPage} refreshFromCloud={refreshFromCloud}/>;default:return <Onboarding choose={choose} update={update} toast={setNotice} lang={lang} open={open} setPage={setPage} state={state}/>}};
+  const renderPage=()=>{switch(active){case'pregnancy':return <Pregnancy {...props}/>;case'tools':return <ToolsHub {...props} toast={setNotice}/>;case'postpartum':return <Postpartum {...props} toast={setNotice}/>;case'baby':return <Baby {...props}/>;case'discover':return <Discover {...props}/>;case'assistant':return <Assistant {...props} toast={setNotice}/>;case'profile':return <ProfileScreen {...props} toast={setNotice} choose={choose}/>;case'auth':return <AuthModal close={()=>setPage(state.mode||'pregnancy')} toast={setNotice} onAuthSuccess={u=>{update({user:u});if(u?.user_metadata?.full_name)update({name:u.user_metadata.full_name});setPage(state.mode||'pregnancy');}} lang={lang} user={state.user} state={state} update={update} setPage={setPage} refreshFromCloud={refreshFromCloud}/>;default:return <Onboarding choose={choose} update={update} toast={setNotice} lang={lang} open={open} setPage={setPage} state={state}/>}};
   return <View style={[s.root,desktop&&s.desktop]}>
     {desktop&&<View style={s.sidebar}><View style={s.desktopBrand}><BrandMark size={55}/><T style={s.desktopWordmark}>MOMORA</T></View><T style={s.desktopTag}>{t('preview.desktopTag', lang)}</T><View style={{flexDirection:'row',alignItems:'center',gap:8,marginTop:12}}><T style={{fontSize:12,color:colors.muted}}>{t('common.language', lang)}:</T><LanguageToggle lang={lang} onChange={l=>update({lang:l})}/></View><View style={{gap:8,marginTop:28}}>{previewScreens.map(([id,label],index)=><Tap key={id} onPress={()=>setPage(id)} label={'Ekran: '+label} accessibilityState={{selected:active===id}} style={[s.previewTab,active===id&&s.previewTabActive]}><T style={[s.previewNumber,active===id&&{color:colors.purple}]}>{String(index+1).padStart(2,'0')}</T><T bold={active===id} style={{fontSize:15}}>{label}</T><View style={{flex:1}}/>{active===id&&<Icon name="chevron" color={colors.purple} size={18}/>}</Tap>)}</View><View style={s.localBadge}><View style={s.dot}/><T style={{fontSize:12,color:colors.muted}}>{t('preview.devPreview', lang)}</T></View></View>}
     <View style={[s.phone,desktop&&[s.phoneDesktop,{height:Math.min(944,height-44)}]]}>
@@ -231,56 +231,21 @@ function Momora() {
       ) : (
         <View style={{ height: Math.max(insets.top, Platform.OS === 'ios' ? 44 : 0) }} />
       )}
-      {!['onboarding', 'auth'].includes(active) && (
+      {!['onboarding', 'auth'].includes(active) && !desktop && (
         <View style={{
           flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          justifyContent: 'flex-end',
           paddingHorizontal: 16,
-          paddingVertical: 4,
+          paddingVertical: 2,
           backgroundColor: colors.canvas,
         }}>
-          <Tap
-            onPress={() => {
-              if (syncState === 'guest') {
-                open('auth');
-              } else {
-                refreshFromCloud().then(() => {
-                  setNotice(lang === 'en' ? '☁️ Cloud sync up to date' : '☁️ Bulut senkronizasyonu güncel');
-                }).catch(() => {});
-              }
-            }}
-            label={syncState === 'synced' ? 'Bulut Senkronize' : syncState === 'saving' ? 'Eşitleniyor' : 'Cihazda Kayıtlı'}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 6,
-              paddingHorizontal: 10,
-              paddingVertical: 4,
-              borderRadius: 14,
-              backgroundColor: syncState === 'synced' ? '#ECFDF5' : syncState === 'saving' ? '#EFF6FF' : '#F5F3FF',
-              borderWidth: 1,
-              borderColor: syncState === 'synced' ? '#A7F3D0' : syncState === 'saving' ? '#BFDBFE' : '#DDD6FE',
-            }}
-          >
-            <View style={{
-              width: 6,
-              height: 6,
-              borderRadius: 3,
-              backgroundColor: syncState === 'synced' ? '#10B981' : syncState === 'saving' ? '#3B82F6' : '#8B5CF6',
-            }} />
-            <T bold style={{
-              fontSize: 10.5,
-              color: syncState === 'synced' ? '#065F46' : syncState === 'saving' ? '#1E40AF' : '#5B21B6',
-            }}>
-              {syncState === 'synced'
-                ? (lang === 'en' ? '☁️ Cloud Synced' : '☁️ Bulutla Eşitlendi')
-                : syncState === 'saving'
-                ? (lang === 'en' ? '🔄 Syncing...' : '🔄 Eşitleniyor...')
-                : (lang === 'en' ? '📱 Saved to device (Tap to sync)' : '📱 Cihazda Kayıtlı (Yedekle)')}
-            </T>
-          </Tap>
-          {!desktop && <LanguageToggle lang={lang} onChange={l=>update({lang:l})} compact/>}
+          {/* Supabase background sync kept active without showing intrusive top pill */}
+          {false && (
+            <View style={{ display: 'none' }}>
+              <T>{syncState === 'synced' ? (lang === 'en' ? '☁️ Cloud Synced' : '☁️ Bulutla Eşitlendi') : '📱 Cihazda Kayıtlı'}</T>
+            </View>
+          )}
+          <LanguageToggle lang={lang} onChange={l=>update({lang:l})} compact/>
         </View>
       )}
       <View style={{flex:1}} key={active}>{renderPage()}</View>
