@@ -86,21 +86,14 @@ export function BabyTeethingScreen({ state, update, toast, close, lang: propLang
         coverAsset="card_baby_teething"
       />
 
-      {/* Top Clinical Dental Notice */}
-      <View style={styles.medicalDisclaimerCard}>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-          <T style={{ fontSize: 16 }}>⚠️</T>
-          <View style={{ flex: 1 }}>
-            <T bold style={styles.medicalDisclaimerTitle}>
-              {isEn ? 'Pediatric Health & Fever Notice' : 'Diş Gelişimi & Ateş Uyarısı'}
-            </T>
-            <T style={styles.medicalDisclaimerText}>
-              {isEn
-                ? 'Teething timelines are typical pediatric averages. Note: High persistent fever (>38°C), severe diarrhea, or vomiting are NOT normal teething signs and may indicate an infection. Consult your pediatrician.'
-                : 'Diş çıkarma takvimi ortalama gelişim seyrini gösterir. Önemli: 38°C üzeri dirençli yüksek ateş, şiddetli ishal veya kusma diş çıkarma belirtisi olmayıp enfeksiyon habercisi olabilir; mutlaka hekiminize başvurunuz.'}
-            </T>
-          </View>
-        </View>
+      {/* Subtle Clinical Footnote */}
+      <View style={styles.medicalFootnote}>
+        <Icon name="check" size={12} color="#8A7A90" />
+        <T style={styles.medicalFootnoteText}>
+          {isEn
+            ? 'Teething timelines are typical averages. Persistent high fever (>38°C) is not a normal teething sign; consult your doctor.'
+            : 'Diş çıkarma takvimi ortalama gelişim seyrini gösterir. Dirençli yüksek ateş diş çıkarma belirtisi değildir; hekiminize danışınız.'}
+        </T>
       </View>
 
       {/* Progress Cards */}
@@ -532,21 +525,25 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
   },
-  medicalDisclaimerCard: {
-    backgroundColor: '#FEF3F2',
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#FECDCA',
-    padding: 12,
-  },
-  medicalDisclaimerTitle: {
-    fontSize: 13,
-    color: '#B42318',
+  medicalFootnote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#F9F6FA',
+    borderWidth: 1,
+    borderColor: '#EFE7F2',
+    marginTop: 2,
     marginBottom: 4,
   },
-  medicalDisclaimerText: {
-    fontSize: 11.5,
-    color: '#7A271A',
-    lineHeight: 17,
+  medicalFootnoteText: {
+    fontSize: 11,
+    color: '#8A7A90',
+    lineHeight: 15,
+    textAlign: 'center',
+    flex: 1,
   },
 });

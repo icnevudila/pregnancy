@@ -106,21 +106,14 @@ export function SleepWindowScreen({ state, update, toast, close, open, lang: pro
         coverAsset="card_sleep_window"
       />
 
-      {/* Top Clinical Sleep Guidance Notice */}
-      <View style={styles.medicalDisclaimerCard}>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-          <T style={{ fontSize: 16 }}>ℹ️</T>
-          <View style={{ flex: 1 }}>
-            <T bold style={styles.medicalDisclaimerTitle}>
-              {isEn ? 'Pediatric Sleep & Routine Notice' : 'Pediatrik Uyku & Güvenlik Bilgilendirmesi'}
-            </T>
-            <T style={styles.medicalDisclaimerText}>
-              {isEn
-                ? 'Wake windows and SweetSpot calculations are based on pediatric sleep hygiene averages. Every infant has unique circadian rhythms and sleep needs. Always follow safe sleep guidelines (back to sleep, clear crib, firm mattress).'
-                : 'Uyanıklık pencereleri ve SweetSpot tahminleri genel pediatrik uyku hijyeni ortalamalarını temel alır. Her bebeğin biyolojik ritmi ve uyku ihtiyacı farklıdır. Daima güvenli uyku kurallarına (sırtüstü yatırma, boş ve sert yatak) uyunuz.'}
-            </T>
-          </View>
-        </View>
+      {/* Subtle Clinical Footnote */}
+      <View style={styles.medicalFootnote}>
+        <Icon name="check" size={12} color="#8A7A90" />
+        <T style={styles.medicalFootnoteText}>
+          {isEn
+            ? 'Wake windows and SweetSpot estimates are pediatric hygiene averages. Always follow safe sleep guidelines (back to sleep, clear crib).'
+            : 'Uyanıklık ve uyku tahminleri genel ortalamalardır. Daima güvenli uyku kurallarına (sırtüstü yatırma, boş ve sert beşik) uyunuz.'}
+        </T>
       </View>
 
       {/* SweetSpot Target Banner */}
@@ -128,7 +121,7 @@ export function SleepWindowScreen({ state, update, toast, close, open, lang: pro
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <View style={styles.moonIconWrap}>
-              <T style={{ fontSize: 24 }}>🌙</T>
+              <Icon name="moon" size={20} color={colors.purple} />
             </View>
             <View>
               <T style={{ fontSize: 11, color: colors.muted, textTransform: 'uppercase', letterSpacing: 0.8 }}>
@@ -367,22 +360,27 @@ const styles = StyleSheet.create({
     fontSize: 10.5,
     color: colors.muted,
   },
-  medicalDisclaimerCard: {
-    backgroundColor: '#EFF8FF',
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#B2DDFF',
-    padding: 12,
-  },
-  medicalDisclaimerTitle: {
-    fontSize: 13,
-    color: '#175CD3',
+  medicalFootnote: {
+    marginHorizontal: 16,
+    marginTop: 4,
     marginBottom: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#F9F6FA',
+    borderWidth: 1,
+    borderColor: '#EFE7F2',
   },
-  medicalDisclaimerText: {
-    fontSize: 11.5,
-    color: '#1849A9',
-    lineHeight: 17,
+  medicalFootnoteText: {
+    fontSize: 11,
+    color: '#8A7A90',
+    lineHeight: 15,
+    textAlign: 'center',
+    flex: 1,
   },
   timeAdjustBtn: {
     width: 42,

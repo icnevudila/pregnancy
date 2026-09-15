@@ -175,47 +175,43 @@ export function PelvicFloorKegelScreen({ state, update, toast, close, lang: prop
         art="card_pelvic_kegel"
       />
 
-      {/* Top Clinical Safety Notice */}
-      <View style={styles.medicalDisclaimerCard}>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-          <T style={{ fontSize: 16 }}>⚠️</T>
-          <View style={{ flex: 1 }}>
-            <T bold style={styles.medicalDisclaimerTitle}>
-              {isEn ? 'Obstetric & Exercise Safety Notice' : 'Egzersiz Güvenliği & Tıbbi Bilgilendirme'}
-            </T>
-            <T style={styles.medicalDisclaimerText}>
-              {isEn
-                ? 'Kegel exercises and perineal massage support pelvic elasticity. If you experience severe pelvic pain, vaginal bleeding, leaking amniotic fluid, or preterm contraction risks, STOP immediately and consult your obstetrician.'
-                : 'Kegel egzersizleri ve perine masajı kas elastikiyetini destekler. Kasıkta şiddetli ağrı, vajinal kanama, su gelmesi veya erken doğum tehdidi durumlarında egzersizleri derhal durdurunuz ve hekiminize başvurunuz.'}
-            </T>
-          </View>
-        </View>
+      {/* Subtle Clinical Footnote */}
+      <View style={styles.medicalFootnote}>
+        <Icon name="check" size={12} color="#8A7A90" />
+        <T style={styles.medicalFootnoteText}>
+          {isEn
+            ? 'Kegel exercises support pelvic health. If you experience severe pain, bleeding, or contractions, stop and consult your physician.'
+            : 'Pelvik egzersizler kas gücünü destekler. Şiddetli ağrı, kanama veya kasılma durumlarında egzersizi durdurup hekiminize danışınız.'}
+        </T>
       </View>
 
       {/* Tabs */}
       <View style={styles.tabBar}>
         <Tap
           onPress={() => setActiveTab('kegel')}
-          style={[styles.tabBtn, activeTab === 'kegel' && styles.tabBtnActive]}
+          style={[styles.tabBtn, activeTab === 'kegel' && styles.tabBtnActive, { flexDirection: 'row', gap: 5, justifyContent: 'center' }]}
         >
+          <Icon name="heart" size={13} color={activeTab === 'kegel' ? colors.primary : colors.textMuted} />
           <T bold={activeTab === 'kegel'} style={{ color: activeTab === 'kegel' ? colors.primary : colors.textMuted, fontSize: 13 }}>
-            🌸 {isEn ? 'Kegel Trainer' : 'Kegel Koçu'}
+            {isEn ? 'Kegel Trainer' : 'Kegel Koçu'}
           </T>
         </Tap>
         <Tap
           onPress={() => setActiveTab('perineal')}
-          style={[styles.tabBtn, activeTab === 'perineal' && styles.tabBtnActive]}
+          style={[styles.tabBtn, activeTab === 'perineal' && styles.tabBtnActive, { flexDirection: 'row', gap: 5, justifyContent: 'center' }]}
         >
+          <Icon name="leaf" size={13} color={activeTab === 'perineal' ? colors.primary : colors.textMuted} />
           <T bold={activeTab === 'perineal'} style={{ color: activeTab === 'perineal' ? colors.primary : colors.textMuted, fontSize: 13 }}>
-            🌿 {isEn ? '34+ Wk Perineal' : '34+ Hf Perine Masajı'}
+            {isEn ? '34+ Wk Perineal' : '34+ Hf Perine Masajı'}
           </T>
         </Tap>
         <Tap
           onPress={() => setActiveTab('benefits')}
-          style={[styles.tabBtn, activeTab === 'benefits' && styles.tabBtnActive]}
+          style={[styles.tabBtn, activeTab === 'benefits' && styles.tabBtnActive, { flexDirection: 'row', gap: 5, justifyContent: 'center' }]}
         >
+          <Icon name="book" size={13} color={activeTab === 'benefits' ? colors.primary : colors.textMuted} />
           <T bold={activeTab === 'benefits'} style={{ color: activeTab === 'benefits' ? colors.primary : colors.textMuted, fontSize: 13 }}>
-            📖 {isEn ? 'Clinical Guide' : 'Klinik Bilgi'}
+            {isEn ? 'Clinical Guide' : 'Klinik Bilgi'}
           </T>
         </Tap>
       </View>
@@ -563,23 +559,26 @@ const styles = StyleSheet.create({
     color: '#1E3A8A',
     lineHeight: 20,
   },
-  medicalDisclaimerCard: {
+  medicalFootnote: {
     marginHorizontal: 16,
-    marginTop: 10,
-    backgroundColor: '#FEF3F2',
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#FECDCA',
-    padding: 12,
-  },
-  medicalDisclaimerTitle: {
-    fontSize: 13,
-    color: '#B42318',
+    marginTop: 4,
     marginBottom: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#F9F6FA',
+    borderWidth: 1,
+    borderColor: '#EFE7F2',
   },
-  medicalDisclaimerText: {
-    fontSize: 11.5,
-    color: '#7A271A',
-    lineHeight: 17,
+  medicalFootnoteText: {
+    fontSize: 11,
+    color: '#8A7A90',
+    lineHeight: 15,
+    textAlign: 'center',
+    flex: 1,
   },
 });

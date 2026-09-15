@@ -185,21 +185,14 @@ export function SafeMedicationScreen({ state, update, toast, close, lang: propLa
         coverAsset="card_health_report"
       />
 
-      {/* Top Clinical Safety Alert */}
-      <View style={styles.medicalDisclaimerCard}>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-          <T style={{ fontSize: 16 }}>⚠️</T>
-          <View style={{ flex: 1 }}>
-            <T bold style={styles.medicalDisclaimerTitle}>
-              {isEn ? 'Strict Clinical Notice & Medical Disclaimer' : 'Tıbbi Güvenlik Uyarısı & Hekim Onayı Şartı'}
-            </T>
-            <T style={styles.medicalDisclaimerText}>
-              {isEn
-                ? 'This guide is compiled for educational reference based on FDA and ACOG obstetric tiers. Never take, stop, or alter any medication, supplement, or herbal product during pregnancy or lactation without direct consultation and approval from your obstetrician or pharmacist.'
-                : 'Bu rehber FDA, ACOG ve uluslararası perinatoloji kılavuzları baz alınarak genel bilgilendirme amacıyla derlenmiştir. Gebelikte veya emzirme döneminde hekiminize veya eczacınıza danışmadan ASLA hiçbir reçeteli/reçetesiz ilaç, vitamin veya bitkisel takviye kullanmayınız.'}
-            </T>
-          </View>
-        </View>
+      {/* Subtle Clinical Footnote */}
+      <View style={styles.medicalFootnote}>
+        <Icon name="check" size={12} color="#8A7A90" />
+        <T style={styles.medicalFootnoteText}>
+          {isEn
+            ? 'For informational reference only; does not replace medical advice. Never start or adjust medications without your physician’s approval.'
+            : 'Genel bilgilendirme amaçlıdır; tıbbi tavsiye yerine geçmez. Hekiminize danışmadan hiçbir ilaç veya takviye kullanmayınız.'}
+        </T>
       </View>
 
       {/* Search Input */}
@@ -311,22 +304,26 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     gap: 14,
   },
-  medicalDisclaimerCard: {
-    backgroundColor: '#FEF3F2',
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#FECDCA',
-    padding: 12,
-  },
-  medicalDisclaimerTitle: {
-    fontSize: 13,
-    color: '#B42318',
+  medicalFootnote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#F9F6FA',
+    borderWidth: 1,
+    borderColor: '#EFE7F2',
+    marginTop: 2,
     marginBottom: 4,
   },
-  medicalDisclaimerText: {
-    fontSize: 11.5,
-    color: '#7A271A',
-    lineHeight: 17,
+  medicalFootnoteText: {
+    fontSize: 11,
+    color: '#8A7A90',
+    lineHeight: 15,
+    textAlign: 'center',
+    flex: 1,
   },
   searchBox: {
     flexDirection: 'row',

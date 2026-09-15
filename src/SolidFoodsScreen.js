@@ -200,21 +200,14 @@ export function SolidFoodsScreen({ state, update, toast, close, lang: propLang }
         coverAsset="card_solid_foods"
       />
 
-      {/* Top Pediatric & Safety Disclaimer */}
-      <View style={styles.medicalDisclaimerCard}>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-          <T style={{ fontSize: 16 }}>⚠️</T>
-          <View style={{ flex: 1 }}>
-            <T bold style={styles.medicalDisclaimerTitle}>
-              {isEn ? 'Pediatric Feeding & Safety Notice' : 'Ek Gıda & Alerji Güvenliği Yasal Uyarısı'}
-            </T>
-            <T style={styles.medicalDisclaimerText}>
-              {isEn
-                ? 'BLW and 3-day allergen recommendations are for general guidance only. Always consult your pediatrician before introducing solids or major allergens. Never leave your baby unattended while eating, and familiarize yourself with infant choking first-aid protocols.'
-                : 'BLW ve 3 gün alerji kuralı rehberliği genel pediatrik bilgilendirme amaçlıdır. Bebeğinize ek gıdaya başlamadan ve büyük alerjenleri sunmadan önce mutlaka çocuk doktorunuza danışınız. Bebeği yemek yerken ASLA yalnız bırakmayınız ve ilk yardım adımlarını önceden öğreniniz.'}
-            </T>
-          </View>
-        </View>
+      {/* Subtle Clinical Footnote */}
+      <View style={styles.medicalFootnote}>
+        <Icon name="check" size={12} color="#8A7A90" />
+        <T style={styles.medicalFootnoteText}>
+          {isEn
+            ? 'For educational feeding guidance only; consult your pediatrician before introducing major allergens. Never leave baby unattended.'
+            : 'Ek gıda rehberliği genel bilgilendirme amaçlıdır; alerjen sunumlarında çocuk hekiminize danışınız. Bebeği yemek yerken gözetimsiz bırakmayınız.'}
+        </T>
       </View>
 
       {/* Metric Cards Banner */}
@@ -557,22 +550,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     ...shadow,
   },
-  medicalDisclaimerCard: {
-    backgroundColor: '#FEF3F2',
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#FECDCA',
-    padding: 12,
-  },
-  medicalDisclaimerTitle: {
-    fontSize: 13,
-    color: '#B42318',
+  medicalFootnote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#F9F6FA',
+    borderWidth: 1,
+    borderColor: '#EFE7F2',
+    marginTop: 2,
     marginBottom: 4,
   },
-  medicalDisclaimerText: {
-    fontSize: 11.5,
-    color: '#7A271A',
-    lineHeight: 17,
+  medicalFootnoteText: {
+    fontSize: 11,
+    color: '#8A7A90',
+    lineHeight: 15,
+    textAlign: 'center',
+    flex: 1,
   },
   searchBox: {
     flexDirection: 'row',

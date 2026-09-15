@@ -252,21 +252,14 @@ export function BloodGlucoseScreen({ state, update, toast, close, lang: propLang
         coverAsset="card_blood_glucose"
       />
 
-      {/* Top Clinical Safety Disclaimer */}
-      <View style={styles.medicalDisclaimerCard}>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-          <T style={{ fontSize: 16 }}>⚠️</T>
-          <View style={{ flex: 1 }}>
-            <T bold style={styles.medicalDisclaimerTitle}>
-              {isEn ? 'Medical Safety & Clinical Notice' : 'Tıbbi Bilgilendirme & Yasal Uyarı'}
-            </T>
-            <T style={styles.medicalDisclaimerText}>
-              {isEn
-                ? 'This module is strictly for personal tracking and informational sharing with your healthcare provider. It does not provide medical diagnosis, treatment recommendations, or insulin dosing. Always review your glucose trends with your obstetrician or endocrinologist.'
-                : 'Bu takip aracı yalnızca kişisel kayıt ve hekiminizle paylaşım amaçlıdır. Asla tıbbi tanı, reçete, tedavi veya insülin dozu belirleme niteliği taşımaz. Kan şekeri değerlerinizi ve beslenme planınızı mutlaka kadın doğum uzmanınız veya endokrinoloğunuz ile değerlendiriniz.'}
-            </T>
-          </View>
-        </View>
+      {/* Subtle Clinical Footnote */}
+      <View style={styles.medicalFootnote}>
+        <Icon name="check" size={12} color="#8A7A90" />
+        <T style={styles.medicalFootnoteText}>
+          {isEn
+            ? 'For personal health tracking only; does not provide medical diagnosis or treatment. Consult your physician.'
+            : 'Kişisel takip ve bilgilendirme amaçlıdır; tıbbi teşhis veya tedavi yerine geçmez. Hekiminize danışınız.'}
+        </T>
       </View>
 
       {/* Metric Cards Banner */}
@@ -749,22 +742,26 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
   },
-  medicalDisclaimerCard: {
-    backgroundColor: '#FEF3F2',
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#FECDCA',
-    padding: 12,
+  medicalFootnote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#F9F6FA',
+    borderWidth: 1,
+    borderColor: '#EFE7F2',
+    marginTop: 2,
+    marginBottom: 6,
   },
-  medicalDisclaimerTitle: {
-    fontSize: 13,
-    color: '#B42318',
-    marginBottom: 4,
-  },
-  medicalDisclaimerText: {
-    fontSize: 11.5,
-    color: '#7A271A',
-    lineHeight: 17,
+  medicalFootnoteText: {
+    fontSize: 11,
+    color: '#8A7A90',
+    lineHeight: 15,
+    textAlign: 'center',
+    flex: 1,
   },
   feedbackBanner: {
     paddingVertical: 10,

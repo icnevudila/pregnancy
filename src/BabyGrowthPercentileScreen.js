@@ -150,21 +150,14 @@ export function BabyGrowthPercentileScreen({ state, update, toast, close, lang: 
         art="card_growth_percentile"
       />
 
-      {/* Top Clinical Safety Notice */}
-      <View style={styles.medicalDisclaimerCard}>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-          <T style={{ fontSize: 16 }}>⚠️</T>
-          <View style={{ flex: 1 }}>
-            <T bold style={styles.medicalDisclaimerTitle}>
-              {isEn ? 'Pediatric Notice & Clinical Disclaimer' : 'Pediatrik Bilgilendirme & Yasal Uyarı'}
-            </T>
-            <T style={styles.medicalDisclaimerText}>
-              {isEn
-                ? 'WHO (World Health Organization) growth curves represent population percentiles for healthy breastfed infants. Every infant follows their own personal genetic growth trajectory. These measurements are for tracking only; always evaluate growth velocity with your pediatrician.'
-                : 'DSÖ (WHO) persantil eğrileri anne sütüyle beslenen sağlıklı bebeklerin büyüme standartlarını gösterir. Her bebeğin genetik yapısı ve gelişim temposu kendine özgüdür. Bu veriler tanı niteliği taşımaz; büyüme hızını her ay çocuk doktorunuzla değerlendiriniz.'}
-            </T>
-          </View>
-        </View>
+      {/* Subtle Clinical Footnote */}
+      <View style={styles.medicalFootnote}>
+        <Icon name="check" size={12} color="#8A7A90" />
+        <T style={styles.medicalFootnoteText}>
+          {isEn
+            ? 'WHO growth percentiles are reference standards; every baby has their own pace. Evaluate growth velocity with your pediatrician.'
+            : 'DSÖ persentil eğrileri genel referanstır; her bebeğin gelişim hızı kendine özgüdür. Büyüme takibini çocuk hekiminizle yapınız.'}
+        </T>
       </View>
 
       {/* Tabs */}
@@ -528,24 +521,27 @@ const styles = StyleSheet.create({
     color: colors.textDark,
     textAlign: 'center',
   },
-  medicalDisclaimerCard: {
+  medicalFootnote: {
     marginHorizontal: 16,
-    marginTop: 10,
-    backgroundColor: '#FEF3F2',
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#FECDCA',
-    padding: 12,
-  },
-  medicalDisclaimerTitle: {
-    fontSize: 13,
-    color: '#B42318',
+    marginTop: 4,
     marginBottom: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#F9F6FA',
+    borderWidth: 1,
+    borderColor: '#EFE7F2',
   },
-  medicalDisclaimerText: {
-    fontSize: 11.5,
-    color: '#7A271A',
-    lineHeight: 17,
+  medicalFootnoteText: {
+    fontSize: 11,
+    color: '#8A7A90',
+    lineHeight: 15,
+    textAlign: 'center',
+    flex: 1,
   },
   feedbackBanner: {
     paddingVertical: 10,

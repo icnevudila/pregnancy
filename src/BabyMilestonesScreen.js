@@ -367,21 +367,14 @@ export function BabyMilestonesScreen({ state, update, toast, close, lang: propLa
         art="card_baby_milestones"
       />
 
-      {/* Top Clinical Safety Notice */}
-      <View style={styles.medicalDisclaimerCard}>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-          <T style={{ fontSize: 16 }}>⚠️</T>
-          <View style={{ flex: 1 }}>
-            <T bold style={styles.medicalDisclaimerTitle}>
-              {isEn ? 'CDC / AAP Developmental Health Notice' : 'Gelişim Takibi & Pediatrik Uyarı'}
-            </T>
-            <T style={styles.medicalDisclaimerText}>
-              {isEn
-                ? 'CDC milestones represent what ≥75% of children achieve at each age bracket. Every child develops at their own unique pace. If you notice any persistent red flags or lack of response, share them promptly with your pediatrician.'
-                : 'CDC gelişim basamakları aynı yaştaki bebeklerin en az %75’inin ulaştığı dönüm noktalarıdır. Her bebeğin gelişim hızı farklıdır. Kırmızı bayraklar veya şüphelendiğiniz bir gerilik durumunda gecikmeden çocuk doktorunuza danışınız.'}
-            </T>
-          </View>
-        </View>
+      {/* Subtle Clinical Footnote */}
+      <View style={styles.medicalFootnote}>
+        <Icon name="check" size={12} color="#8A7A90" />
+        <T style={styles.medicalFootnoteText}>
+          {isEn
+            ? 'CDC milestones indicate typical developmental progress. For persistent concerns or red flags, consult your pediatrician.'
+            : 'Gelişim basamakları genel gelişim seyrini gösterir; her bebeğin temposu farklıdır. Şüphelendiğiniz durumlarda çocuk hekiminize danışınız.'}
+        </T>
       </View>
 
       {/* Tabs */}
@@ -801,23 +794,26 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 8,
   },
-  medicalDisclaimerCard: {
+  medicalFootnote: {
     marginHorizontal: 16,
-    marginTop: 10,
-    backgroundColor: '#FEF3F2',
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#FECDCA',
-    padding: 12,
-  },
-  medicalDisclaimerTitle: {
-    fontSize: 13,
-    color: '#B42318',
+    marginTop: 4,
     marginBottom: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#F9F6FA',
+    borderWidth: 1,
+    borderColor: '#EFE7F2',
   },
-  medicalDisclaimerText: {
-    fontSize: 11.5,
-    color: '#7A271A',
-    lineHeight: 17,
+  medicalFootnoteText: {
+    fontSize: 11,
+    color: '#8A7A90',
+    lineHeight: 15,
+    textAlign: 'center',
+    flex: 1,
   },
 });

@@ -489,21 +489,14 @@ export function WonderWeeksScreen({ state, update, toast, close, lang: propLang 
         coverAsset="card_wonder_leaps"
       />
 
-      {/* Top Clinical Leap Notice */}
-      <View style={styles.medicalDisclaimerCard}>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-          <T style={{ fontSize: 16 }}>ℹ️</T>
-          <View style={{ flex: 1 }}>
-            <T bold style={styles.medicalDisclaimerTitle}>
-              {isEn ? 'Developmental Science & Medical Notice' : 'Gelişimsel Takip & Tıbbi Bilgilendirme'}
-            </T>
-            <T style={styles.medicalDisclaimerText}>
-              {isEn
-                ? 'Mental leaps are based on developmental psychology and calculated from baby’s estimated due date (EDD), not birth date. If your baby exhibits extreme lethargy, fever, or refusal to hydrate, do not attribute it to a leap; consult a pediatrician immediately.'
-                : 'Zihinsel sıçramalar gelişim psikolojisi araştırmalarına dayanır ve doğum tarihine değil beklenen doğum tarihine (TDT) göre hesaplanır. Eğer bebeğinizde beslenmeyi reddetme, yüksek ateş, aşırı halsizlik veya kusma varsa bunu sıçramaya bağlamayınız ve derhal çocuk doktorunuza başvurunuz.'}
-            </T>
-          </View>
-        </View>
+      {/* Subtle Clinical Footnote */}
+      <View style={styles.medicalFootnote}>
+        <Icon name="check" size={12} color="#8A7A90" />
+        <T style={styles.medicalFootnoteText}>
+          {isEn
+            ? 'Mental leaps reflect developmental psychology. If baby exhibits high fever or extreme lethargy, consult your pediatrician immediately.'
+            : 'Zihinsel sıçramalar gelişim psikolojisine dayanır. Yüksek ateş veya aşırı halsizlik durumlarında çocuk doktorunuza danışınız.'}
+        </T>
       </View>
 
       {/* Live Leap Radar Banner */}
@@ -885,21 +878,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#EFE3F2',
   },
-  medicalDisclaimerCard: {
-    backgroundColor: '#EFF8FF',
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#B2DDFF',
-    padding: 12,
-  },
-  medicalDisclaimerTitle: {
-    fontSize: 13,
-    color: '#175CD3',
+  medicalFootnote: {
+    marginHorizontal: 16,
+    marginTop: 4,
     marginBottom: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#F9F6FA',
+    borderWidth: 1,
+    borderColor: '#EFE7F2',
   },
-  medicalDisclaimerText: {
-    fontSize: 11.5,
-    color: '#1849A9',
-    lineHeight: 17,
+  medicalFootnoteText: {
+    fontSize: 11,
+    color: '#8A7A90',
+    lineHeight: 15,
+    textAlign: 'center',
+    flex: 1,
   },
 });

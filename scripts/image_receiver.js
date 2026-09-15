@@ -118,7 +118,7 @@ function getNextJob(clientPlatform = 'unknown') {
         j.preferredPlatform === 'gemini' ||
         fn.startsWith('fruit_') || fn.startsWith('sweet_') || fn.startsWith('animal_') ||
         fn.startsWith('ui_') || fn.startsWith('btn_') || fn.startsWith('icon_') ||
-        fn.startsWith('card_') || fn.startsWith('mood_')
+        fn.startsWith('card_') || fn.startsWith('mood_') || fn.startsWith('filo_')
       );
     });
 
@@ -305,7 +305,8 @@ async function harvestDownloadsFolder() {
         lower.startsWith('sweet_') ||
         lower.startsWith('blog_') ||
         lower.startsWith('usg_') ||
-        lower.startsWith('doppler_')
+        lower.startsWith('doppler_') ||
+        lower.startsWith('filo_')
       ) && (lower.endsWith('.png') || lower.endsWith('.jpg') || lower.endsWith('.jpeg'));
     });
 
@@ -317,7 +318,7 @@ async function harvestDownloadsFolder() {
         fs.unlinkSync(srcPath);
         console.log('[DOWNLOADS-HARVESTER] 🌾 Yakalandi ve tasindi: ' + f);
 
-        const shouldBeTrans = f.startsWith('ui_') || f.startsWith('fruit_') || f.startsWith('animal_') || f.startsWith('sweet_');
+        const shouldBeTrans = f.startsWith('ui_') || f.startsWith('fruit_') || f.startsWith('animal_') || f.startsWith('sweet_') || f.startsWith('filo_icon_');
         if (shouldBeTrans) {
           await makeTransparentPNG(destPath);
         }
@@ -325,6 +326,7 @@ async function harvestDownloadsFolder() {
           await assetOptimizer.optimizeSingleAsset(destPath);
         }
 
+        syncToExternalProjects(f, destPath);
         updateGeneratedAssetsFile();
         updateJobStatus(f, 'done', { thumb: '/assets/' + f });
         releaseLock(f);
@@ -385,6 +387,25 @@ function updateGeneratedAssetsFile() {
   } catch (err) {
     console.error('[MOMORA-WATCHER] Hata:', err.message);
   }
+}
+
+function syncToExternalProjects(filename, sourcePath) {
+  try {
+    if (filename && filename.startsWith('filo_')) {
+      const targets = [
+        path.join('C:\\Users\\TP2\\Documents\\whatsapp\\apps\\panel\\public\\icons', filename),
+        path.join('C:\\Users\\TP2\\Documents\\whatsapp\\whatsapp görsel', filename)
+      ];
+      targets.forEach(target => {
+        try {
+          const dir = path.dirname(target);
+          if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+          fs.copyFileSync(sourcePath, target);
+          console.log('[SYNC-EXTERNAL] 🚀 WhatsApp projesine kopyalandı:', target);
+        } catch (err) {}
+      });
+    }
+  } catch (e) {}
 }
 
 function parseJsonBody(req) {
@@ -626,6 +647,7 @@ const server = http.createServer(async (req, res) => {
       if (assetOptimizer) {
         await assetOptimizer.optimizeSingleAsset(dest);
       }
+      syncToExternalProjects(filename, dest);
       updateGeneratedAssetsFile();
       updateJobStatus(filename, 'done', { thumb: '/assets/' + filename });
       releaseLock(filename);
